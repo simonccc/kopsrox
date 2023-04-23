@@ -1,2 +1,5 @@
 dev/installer/build/
 dev/installer/dist/
+config.py
+/__pycache__/
+kopsrox.ini
