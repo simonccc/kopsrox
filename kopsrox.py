@@ -1,51 +1,6 @@
 #!/usr/bin/env python3
 
-# imports
-import json, os
+import sys
+sys.path[0:0] = ['lib/']
 
-# config parser
-from configparser import ConfigParser
-
-kopsrox_config = ConfigParser()
-#kopsrox_config.read('kopsrox.ini')
-os.remove('kopsrox.ini')
-
-# disable insecure warnings
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# proxmoxer
-from proxmoxer import ProxmoxAPI
-
-# local config
-import config as cfg
-endpoint = cfg.proxmox['endpoint']
-user = cfg.proxmox['user']
-token_name = cfg.proxmox['token_name']
-api_key = cfg.proxmox['api_key']
-
-# connect
-prox = ProxmoxAPI(
-endpoint,
-user=user,
-token_name=token_name,
-token_value=api_key,
-verify_ssl=False,
-timeout=10)
-
-vms = prox.nodes.get()
-
-kopsrox_config.add_section('proxmox')
-
-for i in vms:
-  node = i.get("node")
-  status = i.get("status")
-  kopsrox_config.set('proxmox', node, status)
-
-  print(i)
-
-with open('kopsrox.ini', 'w') as configfile:
-    kopsrox_config.write(configfile)
-
-
-
+import kopsrox_config as kopsrox_config;
