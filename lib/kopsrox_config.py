@@ -51,10 +51,6 @@ timeout=10)
       for i in vms:
         print(i.get("node"))
 
-
-
-  exit(0)
-
 else:
     print(conf, 'not found')
     kopsrox_config.read(conf)
@@ -70,5 +66,3 @@ else:
 
     print('Please edit', conf, 'as required')
     exit(0)
-
-exit(0)

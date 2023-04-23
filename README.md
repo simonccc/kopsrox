@@ -2,7 +2,9 @@
 automate creating a k3s cluster with proxmox api with a "kops like" cli and cluster config files
 
 ## status
-- nothing is working
+- logs into proxmox
+- writes init ini files and does some basic checks
+- nothing else is working
 
 ## todo
 - support generation of barebones config and use of verbs

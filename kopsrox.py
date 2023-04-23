@@ -4,3 +4,4 @@ import sys
 sys.path[0:0] = ['lib/']
 
 import kopsrox_config as kopsrox_config;
+import verbs as verbs;
