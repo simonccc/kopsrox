@@ -3,4 +3,4 @@ dev/installer/dist/
 config.py
 /__pycache__/
 lib/__pycache__/
-kopsrox.ini
+*.ini

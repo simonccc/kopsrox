@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 
-# imports
-import json, os
+# check proxmox config
+import proxmox_config
 
-# config parser
 from configparser import ConfigParser
-
 kopsrox_config = ConfigParser()
-#kopsrox_config.read('kopsrox.ini')
-os.remove('kopsrox.ini')
+kopsrox_config.read('kopsrox.ini')
 
 # disable insecure warnings
 import urllib3

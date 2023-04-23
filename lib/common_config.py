@@ -1,0 +1,1 @@
+kopsrox_prompt='kopsrox:'
