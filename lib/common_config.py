@@ -1,6 +1,7 @@
 # defines
 kopsrox_prompt='kopsrox:'
 proxmox_conf='proxmox.ini'
+kopsrox_conf='kopsrox.ini'
 
 # verbs
 top_verbs = ['create', 'show', 'edit', 'status']
@@ -18,15 +19,23 @@ def verbs_help(verbs):
   for i in verbs:
     print(i)
 
+# config checker
+def conf_check(config,section,value,filename):
+  try:
+    return(config.get(section, value))
+  except:
+    print('ERROR: no value found for ' + section + ':' + value + ' in ' + filename)
+    exit(0)
+
 # connect to proxmox
 def prox_init():
 
   proxmox_config = ConfigParser()
   proxmox_config.read(proxmox_conf)
-  endpoint = proxmox_config.get('proxmox', 'endpoint')
-  user = proxmox_config.get('proxmox', 'user')
-  token_name = proxmox_config.get('proxmox', 'token_name')
-  api_key = proxmox_config.get('proxmox', 'api_key')
+  endpoint = conf_check(proxmox_config,'proxmox','endpoint',proxmox_conf)
+  user = conf_check(proxmox_config,'proxmox','user',proxmox_conf)
+  token_name = conf_check(proxmox_config,'proxmox','token_name',proxmox_conf)
+  api_key = conf_check(proxmox_config,'proxmox','api_key',proxmox_conf)
 
   prox = ProxmoxAPI(
 endpoint,
