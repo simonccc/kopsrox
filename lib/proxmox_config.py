@@ -7,14 +7,13 @@ conf = common.proxmox_conf
 
 # check for config
 if os.path.isfile(conf):
-  print(common.kopsrox_prompt,'validating', conf)
-
+#  print('proxmox_config: validating', conf)
   prox = common.prox_init()
 
   if prox.cluster.status.get():
-    print('proxmox access ok')
+    next
   else:
-    print('problem in proxmox.ini')
+    print(common.kopsrox_prompt, 'problem in proxmox.ini')
     exit(0)
 else:
   print(common.kopsrox_prompt, 'no ', conf,  ' found generating...')

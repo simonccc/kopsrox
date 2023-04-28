@@ -1,11 +1,22 @@
+# defines
+kopsrox_prompt='kopsrox:'
+proxmox_conf='proxmox.ini'
+
+# verbs
+top_verbs = ['create', 'show', 'edit', 'status']
+verbs_show = ['cluster', 'help']
+verbs_create = ['cluster', 'image']
+
 import urllib3, sys
 from configparser import ConfigParser
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from proxmoxer import ProxmoxAPI
 
-# defines
-kopsrox_prompt='kopsrox:'
-proxmox_conf='proxmox.ini'
+# print passed verbs
+def verbs_help(verbs):
+  print('commands:', '\n')
+  for i in verbs:
+    print(i)
 
 # connect to proxmox
 def prox_init():

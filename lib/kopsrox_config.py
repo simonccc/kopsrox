@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
 import os
-# disable insecure warnings
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-from proxmoxer import ProxmoxAPI
+import common_config as common
 
 # check proxmox config
 import proxmox_config
@@ -19,27 +16,16 @@ proxmox_config = ConfigParser()
 # if cluster config exists
 if os.path.isfile(conf):
 
-  # read proxmox info
-  proxmox_config.read(proxmox_conf)
-  endpoint = proxmox_config.get('proxmox', 'endpoint')
-  user = proxmox_config.get('proxmox', 'user')
-  token_name = proxmox_config.get('proxmox', 'token_name')
-  api_key = proxmox_config.get('proxmox', 'api_key')
-
   # read kopsrox.ini
   kopsrox_config.read(conf)
   proxnode = kopsrox_config.get('proxmox', 'proxnode')
-  print('checking proxnode', proxnode)
+#  print('checking proxnode', proxnode)
 
-  prox = ProxmoxAPI(
-endpoint,
-user=user,
-token_name=token_name,
-token_value=api_key,
-verify_ssl=False,
-timeout=10)
+  prox = common.prox_init()
 
   vms = prox.nodes.get()
+
+  # set default state
   validated_node='false'
   for i in vms:
    live_node = i.get("node")
