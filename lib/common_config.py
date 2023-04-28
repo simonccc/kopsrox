@@ -1,5 +1,5 @@
+import urllib3, sys
 from configparser import ConfigParser
-import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from proxmoxer import ProxmoxAPI
 
