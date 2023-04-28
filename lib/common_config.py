@@ -1,11 +1,16 @@
-kopsrox_prompt='kopsrox:'
+from configparser import ConfigParser
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+from proxmoxer import ProxmoxAPI
 
-# config files
-proxmox_config='proxmox.ini'
+# defines
+kopsrox_prompt='kopsrox:'
+proxmox_conf='proxmox.ini'
 
 # connect to proxmox
 def prox_init():
 
+  proxmox_config = ConfigParser()
   proxmox_config.read(proxmox_conf)
   endpoint = proxmox_config.get('proxmox', 'endpoint')
   user = proxmox_config.get('proxmox', 'user')
