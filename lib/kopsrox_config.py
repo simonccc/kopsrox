@@ -20,7 +20,7 @@ if os.path.isfile(conf):
 
   # config checks
   proxnode = common.conf_check(kopsrox_config,'proxmox','proxnode',conf)
-  proxstore = common.conf_check(kopsrox_config,'proxmox','proxstor',conf)
+  proxstor = common.conf_check(kopsrox_config,'proxmox','proxstor',conf)
 
   print('checking proxnode', proxnode)
 
@@ -39,6 +39,19 @@ if os.path.isfile(conf):
       for i in nodes:
         print(i.get("node"))
       exit(0)
+
+  # get storage on proxnode
+  storage = kprox.prox.nodes(proxnode).storage.get()
+  validated_storage='false'
+  for i in storage:
+    if (i.get("storage")) == proxstor:
+      validated_storage = proxstor
+
+  if validated_storage == 'false':
+    print(proxstor, 'storage not found - available storage:')
+    for i in storage:
+      print(i.get("storage"))
+    exit(0)
 
 else:
     print(conf, 'not found')
