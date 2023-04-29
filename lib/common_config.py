@@ -1,3 +1,6 @@
+# upstream image
+up_image_url = 'https://cdimage.debian.org/images/cloud/bullseye/latest/debian-11-generic-amd64.qcow2'
+
 # defines
 kopsrox_prompt='kopsrox:'
 proxmox_conf='proxmox.ini'
@@ -17,6 +20,9 @@ def verbs_help(verbs):
   print('commands:', '\n')
   for i in verbs:
     print(i)
+
+def kopsrox_img(proxstor,proximgid):
+    return(proxstor + ':vm-' + proximgid + '-disk-0')
 
 # config checker
 def conf_check(config,section,value,filename):
