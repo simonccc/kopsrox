@@ -4,9 +4,8 @@ proxmox_conf='proxmox.ini'
 kopsrox_conf='kopsrox.ini'
 
 # verbs
-top_verbs = ['create', 'show', 'edit', 'status']
-verbs_show = ['cluster', 'help']
-verbs_create = ['cluster', 'image']
+top_verbs = ['image']
+verbs_image = ['list', 'create']
 
 import urllib3, sys
 from configparser import ConfigParser
