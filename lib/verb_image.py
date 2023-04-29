@@ -22,7 +22,7 @@ from configparser import ConfigParser
 kopsrox_config = ConfigParser()
 import proxmox_config as kprox
 
-# read values from config
+# read values from config
 kopsrox_config.read(common.kopsrox_conf)
 proxnode = kopsrox_config.get('proxmox', 'proxnode')
 proxstor = kopsrox_config.get('proxmox', 'proxstor')
@@ -43,8 +43,6 @@ if (passed_verb == 'create'):
     print('Downloading:', up_image_url)
     wget.download(up_image_url)
 
-  vms = kprox.prox.nodes(proxnode).qemu.get()
-
   # destroy old image server if it exists
   try:
     delete = kprox.prox.nodes(proxnode).qemu(proximgid).delete()
@@ -52,6 +50,10 @@ if (passed_verb == 'create'):
     next
 
   print('creating')
+  create = kprox.prox.nodes(proxnode).qemu.post(vmid = proximgid)
+  disc = kprox.prox.nodes(proxnode).qemu(proximgid).config.post()
+
+
 
 # list images on proxstor
 if (passed_verb == 'list'):

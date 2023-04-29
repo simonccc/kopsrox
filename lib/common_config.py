@@ -21,6 +21,7 @@ def verbs_help(verbs):
   for i in verbs:
     print(i)
 
+# generating the proxmox kopsrox image name
 def kopsrox_img(proxstor,proximgid):
     return(proxstor + ':vm-' + proximgid + '-disk-0')
 
@@ -91,3 +92,10 @@ def init_proxmox_ini():
     proxmox_config.write(configfile)
   print('NOTE: please edit', conf, 'as required for your setup')
   exit(0)
+
+def basic_blocking_task_status(proxmox_api, task_id, node_name):
+    data = {"status": ""}
+    while (data["status"] != "stopped"):
+      data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
+    return data
+

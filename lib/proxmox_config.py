@@ -3,10 +3,9 @@
 import os
 import common_config as common
 
-conf = common.proxmox_conf
-
 # check for config
-if not os.path.isfile(conf):
+if not os.path.isfile(common.proxmox_conf):
+  # if file not exists generate and exit
   common.init_proxmox_ini()
 
 # init connection to prox
@@ -16,3 +15,10 @@ prox = common.prox_init()
 if not prox.cluster.status.get():
   print('ERROR: unable to connect -problem in proxmox.ini')
   exit(0)
+
+# get current tasks
+tasklist = prox.cluster.tasks.get()
+for tasks in tasklist:
+  if (tasks.get("status") == 'RUNNING'):
+    print(tasks)
+
