@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os
+import os, re
 import common_config as common
 
 # proxmox init
@@ -22,32 +22,19 @@ if os.path.isfile(conf):
   proxnode = common.conf_check(kopsrox_config,'proxmox','proxnode',conf)
   proxstor = common.conf_check(kopsrox_config,'proxmox','proxstor',conf)
 
-  print('checking proxnode', proxnode)
+  #print('checking proxnode', proxnode)
 
   # get list of nodes
   nodes = kprox.prox.nodes.get()
-
-  # set default state
-  validated_node='false'
-  for i in nodes:
-   live_node = i.get("node")
-   if live_node == proxnode:
-       validated_node = proxnode
-
-  if validated_node == 'false':
-      print(proxnode, 'node not found - working nodes are:')
-      for i in nodes:
-        print(i.get("node"))
-      exit(0)
+  if not (re.search(proxnode, (str(nodes)))):
+    print(proxnode, 'node not found - working nodes are:')
+    for i in nodes:
+      print(i.get("node"))
+    exit(0)
 
   # get storage on proxnode
   storage = kprox.prox.nodes(proxnode).storage.get()
-  validated_storage='false'
-  for i in storage:
-    if (i.get("storage")) == proxstor:
-      validated_storage = proxstor
-
-  if validated_storage == 'false':
+  if not (re.search(proxstor, (str(storage)))):
     print(proxstor, 'storage not found - available storage:')
     for i in storage:
       print(i.get("storage"))
@@ -61,11 +48,12 @@ else:
     kopsrox_config.add_section('proxmox')
 
     # node to operate on
-    kopsrox_config.set('proxmox', 'proxnode', 'proxmox node to work on')
+    kopsrox_config.set('proxmox', 'proxnode', 'proxmox')
 
     # storage on node
-    kopsrox_config.set('proxmox', 'proxstor', 'proxmox node storage to work on')
+    kopsrox_config.set('proxmox', 'proxstor', 'local')
 
+    # write default config
     with open(conf, 'w') as configfile:
       kopsrox_config.write(configfile)
 
