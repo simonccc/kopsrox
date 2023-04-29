@@ -1,4 +1,4 @@
-import common_config as common, sys
+import common_config as common, sys, os, wget
 verb = 'image'
 verbs = common.verbs_image
 
@@ -34,7 +34,17 @@ kopsrox_img = common.kopsrox_img(proxstor,proximgid)
 
 # create image
 if (passed_verb == 'create'):
-  print('creating', kopsrox_img , 'from', up_image_url)
+
+  # get image name
+  up_image = (up_image_url.split('/')[-1])
+
+  # check to see if already present
+  if not os.path.isfile(up_image):
+    print('Downloading:', up_image_url)
+    wget.download(up_image_url)
+
+  print('local image found')
+
 
 # list images on proxstor
 if (passed_verb == 'list'):
