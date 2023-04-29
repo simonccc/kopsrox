@@ -43,8 +43,15 @@ if (passed_verb == 'create'):
     print('Downloading:', up_image_url)
     wget.download(up_image_url)
 
-  print('local image found')
+  vms = kprox.prox.nodes(proxnode).qemu.get()
 
+  # destroy old image server if it exists
+  try:
+    delete = kprox.prox.nodes(proxnode).qemu(proximgid).delete()
+  except:
+    next
+
+  print('creating')
 
 # list images on proxstor
 if (passed_verb == 'list'):

@@ -6,24 +6,13 @@ import common_config as common
 conf = common.proxmox_conf
 
 # check for config
-if os.path.isfile(conf):
-#  print('proxmox_config: validating', conf)
-  prox = common.prox_init()
+if not os.path.isfile(conf):
+  common.init_proxmox_ini()
 
-  if prox.cluster.status.get():
-    next
-  else:
-    print('ERROR: unable to connect -problem in proxmox.ini')
-    exit(0)
-else:
-  print(common.kopsrox_prompt, 'no ', conf,  ' found generating...')
-  proxmox_config = ConfigParser()
-  proxmox_config.add_section('proxmox')
-  proxmox_config.set('proxmox', 'endpoint', 'domain or ip')
-  proxmox_config.set('proxmox', 'user', 'root@pam')
-  proxmox_config.set('proxmox', 'token_name', 'token name')
-  proxmox_config.set('proxmox', 'api_key', 'xxxxxxxxxxxxx')
-  with open(conf, 'w') as configfile:
-    proxmox_config.write(configfile)
-  print('Please edit proxmox.ini as required')
+# init connection to prox
+prox = common.prox_init()
+
+# if unable to get cluster status
+if not prox.cluster.status.get():
+  print('ERROR: unable to connect -problem in proxmox.ini')
   exit(0)
