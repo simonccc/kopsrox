@@ -35,8 +35,11 @@ def conf_check(config,section,value,filename):
 # connect to proxmox
 def prox_init():
 
+  # read proxmox config
   proxmox_config = ConfigParser()
   proxmox_config.read(proxmox_conf)
+
+  # check values in config
   endpoint = conf_check(proxmox_config,'proxmox','endpoint',proxmox_conf)
   user = conf_check(proxmox_config,'proxmox','user',proxmox_conf)
   token_name = conf_check(proxmox_config,'proxmox','token_name',proxmox_conf)
@@ -51,3 +54,23 @@ verify_ssl=False,
 timeout=10)
 
   return prox
+
+# generate the default kopsrox.ini
+def init_kopsrox_ini():
+  kopsrox_config = ConfigParser()
+  kopsrox_config.read(kopsrox_conf)
+  # create sections
+  kopsrox_config.add_section('proxmox')
+  # node to operate on
+  kopsrox_config.set('proxmox', 'proxnode', 'proxmox')
+  # storage on node
+  kopsrox_config.set('proxmox', 'proxstor', 'local-lvm')
+  # local image id
+  kopsrox_config.set('proxmox', 'proximgid', '600')
+  # upstream image
+  kopsrox_config.set('proxmox', 'up_image_url', up_image_url)
+  # write default config
+  with open(kopsrox_conf, 'w') as configfile:
+    kopsrox_config.write(configfile)
+  print('NOTE: please edit', kopsrox_conf, 'as required for your setup')
+  exit(0)

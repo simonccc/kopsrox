@@ -50,7 +50,7 @@ if os.path.isfile(conf):
   except:
 
     # define name of expected kopsrox_img
-    kopsrox_img = (proxstor + ':vm-' + proximgid + '-disk-0')
+    kopsrox_img = common.kopsrox_img(proxstor,proximgid)
 
     # get images listed on server to look for the kopsrox one
     images = kprox.prox.nodes(proxnode).storage(proxstor).content.get()
@@ -62,27 +62,4 @@ if os.path.isfile(conf):
       exit(1)
 
 else:
-    print(conf, 'not found')
-    kopsrox_config.read(conf)
-
-    # default cluster template:
-    kopsrox_config.add_section('proxmox')
-
-    # node to operate on
-    kopsrox_config.set('proxmox', 'proxnode', 'proxmox')
-
-    # storage on node
-    kopsrox_config.set('proxmox', 'proxstor', 'local-lvm')
-
-    # image id
-    kopsrox_config.set('proxmox', 'proximgid', '600')
-
-    # upstream image
-    kopsrox_config.set('proxmox', 'up_image_url', common.up_image_url)
-
-    # write default config
-    with open(conf, 'w') as configfile:
-      kopsrox_config.write(configfile)
-
-    print('Please edit', conf, 'as required')
-    exit(0)
+    common.init_kopsrox_ini()
