@@ -95,7 +95,10 @@ def init_proxmox_ini():
 
 def basic_blocking_task_status(proxmox_api, task_id, node_name):
     data = {"status": ""}
+    print('d', data)
     while (data["status"] != "stopped"):
+      print('getting status')
       data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
+    print('d', data)
     return data
 

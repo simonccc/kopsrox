@@ -46,13 +46,21 @@ if (passed_verb == 'create'):
   # destroy old image server if it exists
   try:
     delete = kprox.prox.nodes(proxnode).qemu(proximgid).delete()
+    common.basic_blocking_task_status(kprox.prox, delete, proxnode)
+    print(delete, 'deleted old vm')
   except:
     next
 
   print('creating')
   create = kprox.prox.nodes(proxnode).qemu.post(vmid = proximgid)
-  disc = kprox.prox.nodes(proxnode).qemu(proximgid).config.post()
+  print(create, 'created vm')
+  common.basic_blocking_task_status(kprox.prox, str(create), proxnode)
 
+  # import disk
+  disc = kprox.prox.nodes(proxnode).qemu(proximgid).config.post(
+vmid = proximgid,
+scsi = 0 
+          )
 
 
 # list images on proxstor
