@@ -1,2 +1,2 @@
-pip3 install proxmoxer 
-pip3 install wget
+pip3 install proxmoxer  --user
+pip3 install wget --user
