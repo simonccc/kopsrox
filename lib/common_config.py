@@ -45,6 +45,8 @@ def prox_init():
   user = conf_check(proxmox_config,'proxmox','user',proxmox_conf)
   token_name = conf_check(proxmox_config,'proxmox','token_name',proxmox_conf)
   api_key = conf_check(proxmox_config,'proxmox','api_key',proxmox_conf)
+  sshuser = conf_check(proxmox_config,'proxmox','sshuser',proxmox_conf)
+  sshkey = conf_check(proxmox_config,'proxmox','sshkey',proxmox_conf)
 
   prox = ProxmoxAPI(
 endpoint,
@@ -87,6 +89,8 @@ def init_proxmox_ini():
   proxmox_config.set('proxmox', 'user', 'root@pam')
   proxmox_config.set('proxmox', 'token_name', 'token name')
   proxmox_config.set('proxmox', 'api_key', 'xxxxxxxxxxxxx')
+  proxmox_config.set('proxmox', 'sshuser', 'user')
+  proxmox_config.set('proxmox', 'sshkey', 'ssh-key')
   # write file
   with open(conf, 'w') as configfile:
     proxmox_config.write(configfile)
@@ -95,10 +99,7 @@ def init_proxmox_ini():
 
 def basic_blocking_task_status(proxmox_api, task_id, node_name):
     data = {"status": ""}
-    print('d', data)
     while (data["status"] != "stopped"):
-      print('getting status')
       data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
     print('d', data)
     return data
-

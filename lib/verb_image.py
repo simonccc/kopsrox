@@ -52,16 +52,20 @@ if (passed_verb == 'create'):
     next
 
   print('creating')
-  create = kprox.prox.nodes(proxnode).qemu.post(vmid = proximgid)
-  print(create, 'created vm')
+  create = kprox.prox.nodes(proxnode).qemu.post(
+          vmid = proximgid,
+          scsihw = 'virtio-scsi-pci',
+          memory = '2048',
+          net0 = 'model=virtio,bridge=vmbr0',
+          )
   common.basic_blocking_task_status(kprox.prox, str(create), proxnode)
 
   # import disk
   disc = kprox.prox.nodes(proxnode).qemu(proximgid).config.post(
-vmid = proximgid,
-scsi = 0 
-          )
-
+        vmid = proximgid,
+        scsi0 = (proxstor + ':0,import-from=lenny_sata_nfs:iso/kopsrox-img.iso',)
+        )
+  common.basic_blocking_task_status(kprox.prox, str(disc), proxnode)
 
 # list images on proxstor
 if (passed_verb == 'list'):
