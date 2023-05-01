@@ -1,4 +1,4 @@
-import common_config as common, sys, os, wget, re
+import common_config as common, sys, os, wget, re, time, urllib.parse
 verb = 'image'
 verbs = common.verbs_image
 
@@ -29,7 +29,13 @@ proxstor = kopsrox_config.get('proxmox', 'proxstor')
 proximgid = kopsrox_config.get('proxmox', 'proximgid')
 up_image_url = kopsrox_config.get('proxmox', 'up_image_url')
 proxbridge = kopsrox_config.get('proxmox', 'proxbridge')
+
+# kopsrox lvl
 vm_disk_size = kopsrox_config.get('kopsrox', 'vm_disk_size')
+cloudinituser = kopsrox_config.get('kopsrox', 'cloudinituser')
+cloudinitsshkey = kopsrox_config.get('kopsrox', 'cloudinitsshkey')
+network = kopsrox_config.get('kopsrox', 'network')
+networkgw = kopsrox_config.get('kopsrox', 'networkgw')
 
 # generate image name
 kopsrox_img = common.kopsrox_img(proxstor,proximgid)
@@ -45,13 +51,10 @@ if (passed_verb == 'create'):
     print('Downloading:', up_image_url)
     wget.download(up_image_url)
 
-  # check for old server
-
-  # if it exists do we stop or exit?
-  # if its running we can't delete
-
   # destroy old image server if it exists
   try:
+    poweroff = kprox.prox.nodes(proxnode).qemu(proximgid).status.stop.post()
+    common.task_status(kprox.prox, poweroff, proxnode)
     delete = kprox.prox.nodes(proxnode).qemu(proximgid).delete()
     common.task_status(kprox.prox, delete, proxnode)
   except:
@@ -68,6 +71,7 @@ if (passed_verb == 'create'):
           bootdisk = 'scsi0',
           name = 'kopsrox-image',
           ostype = 'l26',
+          ide2 = (proxstor + ':cloudinit')
           )
   common.task_status(kprox.prox, str(create), proxnode)
 
@@ -89,6 +93,35 @@ if (passed_verb == 'create'):
         disk = 'scsi0',
         size = vm_disk_size,
         )
+
+  # cloud init
+  print('cloud init')
+
+  # url encode ssh key
+  ssh_encode = urllib.parse.quote(cloudinitsshkey, safe='')
+  cloudinit = kprox.prox.nodes(proxnode).qemu(proximgid).config.post(
+          ciuser = cloudinituser, 
+          cipassword = 'admin', 
+          ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/32' ), 
+          sshkeys = ssh_encode )
+  common.task_status(kprox.prox, str(cloudinit), proxnode)
+
+  # power on and off the vm to resize disk
+  print('powering on')
+  poweron = kprox.prox.nodes(proxnode).qemu(proximgid).status.start.post()
+  common.task_status(kprox.prox, str(poweron), proxnode)
+
+  print('sleeping 10 for disk resize')
+  time.sleep(10)
+
+  print('poweroff')
+  poweroff = kprox.prox.nodes(proxnode).qemu(proximgid).status.stop.post()
+  common.task_status(kprox.prox, str(poweroff), proxnode)
+
+  print('powering on')
+  poweron = kprox.prox.nodes(proxnode).qemu(proximgid).status.start.post()
+  common.task_status(kprox.prox, str(poweron), proxnode)
+
 
   exit(0)
 

@@ -19,13 +19,19 @@ if not os.path.isfile(conf):
 # read kopsrox.ini
 kopsrox_config.read(conf)
 
-# config checks
+# proxmox -> kopsrox config checks
 proxnode = common.conf_check(kopsrox_config,'proxmox','proxnode',conf)
 proxstor = common.conf_check(kopsrox_config,'proxmox','proxstor',conf)
 proximgid = common.conf_check(kopsrox_config,'proxmox','proximgid',conf)
 up_image_url = common.conf_check(kopsrox_config,'proxmox','up_image_url',conf)
 proxbridge = common.conf_check(kopsrox_config,'proxmox','proxbridge',conf)
+
+# kopsrox config checks
 vm_disk_size = common.conf_check(kopsrox_config,'kopsrox','vm_disk_size',conf)
+cloudinituser = common.conf_check(kopsrox_config,'kopsrox','cloudinituser',conf)
+cloudinitsshkey = common.conf_check(kopsrox_config,'kopsrox','cloudinitsshkey',conf)
+network = common.conf_check(kopsrox_config,'kopsrox','network',conf)
+networkgw = common.conf_check(kopsrox_config,'kopsrox','networkgw',conf)
 
 #print('checking proxnode', proxnode)
 
@@ -45,7 +51,7 @@ if not (re.search(proxstor, (str(storage)))):
     print(i.get("storage"))
   exit(0)
 
-# check configured storage on cluster
+# check configured bridge on cluster
 bridge = kprox.prox.nodes(proxnode).network.get()
 if not (re.search(proxbridge, (str(bridge)))):
   print(proxbridge, 'bridge not found - available:')

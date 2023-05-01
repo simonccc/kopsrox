@@ -72,9 +72,18 @@ def init_kopsrox_ini():
   kopsrox_config.set('proxmox', 'up_image_url', up_image_url)
   # network bridge
   kopsrox_config.set('proxmox', 'proxbridge', 'vmbr0')
+
+  # kopsrox config
   kopsrox_config.add_section('kopsrox')
   # disk size for kopsrox nodes
   kopsrox_config.set('kopsrox', 'vm_disk_size', '40G')
+  # cloudinit user and key
+  kopsrox_config.set('kopsrox', 'cloudinituser', 'user')
+  kopsrox_config.set('kopsrox', 'cloudinitsshkey', 'ssh-rsa cioieocieo')
+  # kopsrox network baseip
+  kopsrox_config.set('kopsrox', 'network', '192.168.0.160')
+  kopsrox_config.set('kopsrox', 'networkgw', '192.168.0.1')
+
   # write default config
   with open(kopsrox_conf, 'w') as configfile:
     kopsrox_config.write(configfile)
