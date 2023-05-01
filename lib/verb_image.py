@@ -7,14 +7,15 @@ try:
   if (sys.argv[2]):
     passed_verb = str(sys.argv[2])
 except:
-  print(verb)
+  print('ERROR: pass a command')
+  print(verb, '', end='')
   common.verbs_help(verbs)
   exit(0)
 
 # unsupported verb
 if not passed_verb in verbs:
-  print(verb)
   print('ERROR:\''+ passed_verb + '\'- command not found')
+  print('kopsrox', verb, '', end='')
   common.verbs_help(verbs)
 
 # import config
@@ -104,7 +105,7 @@ if (passed_verb == 'create'):
   common.task_status(kprox.prox, str(cloudinit), proxnode)
 
   # power on and off the vm to resize disk
-  print('resizing disk to', vm_disk_size)
+  #print('resizing disk to', vm_disk_size)
   poweron = kprox.prox.nodes(proxnode).qemu(proximgid).status.start.post()
   common.task_status(kprox.prox, str(poweron), proxnode)
 
@@ -115,7 +116,7 @@ if (passed_verb == 'create'):
 
   # template
   # create base disk
-  print('setting base disk')
+  #print('setting base disk')
   set_basedisk = kprox.prox.nodes(proxnode).qemu(proximgid).template.post()
   common.task_status(kprox.prox, str(set_basedisk), proxnode)
 
@@ -124,10 +125,12 @@ if (passed_verb == 'create'):
           template = 1)
   common.task_status(kprox.prox, str(set_template), proxnode)
 
+  print('done')
   exit(0)
 
 # list images on proxstor
-if (passed_verb == 'list'):
+if (passed_verb == 'info'):
   images = kprox.prox.nodes(proxnode).storage(proxstor).content.get()
   for i in images:
-    print(i.get('volid'))
+    if i.get('volid') == (kopsrox_img):
+      print(i.get('volid'), i.get('ctime'))

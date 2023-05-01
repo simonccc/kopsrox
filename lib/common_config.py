@@ -8,7 +8,7 @@ kopsrox_conf='kopsrox.ini'
 
 # verbs
 top_verbs = ['image']
-verbs_image = ['list', 'create']
+verbs_image = ['info', 'create']
 
 import urllib3, sys
 from configparser import ConfigParser
@@ -23,7 +23,7 @@ def verbs_help(verbs):
 
 # generating the proxmox kopsrox image name
 def kopsrox_img(proxstor,proximgid):
-    return(proxstor + ':vm-' + proximgid + '-disk-0')
+    return(proxstor + ':base-' + proximgid + '-disk-0')
 
 # config checker
 def conf_check(config,section,value,filename):
