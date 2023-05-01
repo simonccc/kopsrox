@@ -24,6 +24,8 @@ proxnode = common.conf_check(kopsrox_config,'proxmox','proxnode',conf)
 proxstor = common.conf_check(kopsrox_config,'proxmox','proxstor',conf)
 proximgid = common.conf_check(kopsrox_config,'proxmox','proximgid',conf)
 up_image_url = common.conf_check(kopsrox_config,'proxmox','up_image_url',conf)
+proxbridge = common.conf_check(kopsrox_config,'proxmox','proxbridge',conf)
+vm_disk_size = common.conf_check(kopsrox_config,'kopsrox','vm_disk_size',conf)
 
 #print('checking proxnode', proxnode)
 
@@ -41,6 +43,15 @@ if not (re.search(proxstor, (str(storage)))):
   print(proxstor, 'storage not found - available storage:')
   for i in storage:
     print(i.get("storage"))
+  exit(0)
+
+# check configured storage on cluster
+bridge = kprox.prox.nodes(proxnode).network.get()
+if not (re.search(proxbridge, (str(bridge)))):
+  print(proxbridge, 'bridge not found - available:')
+  for i in bridge:
+    if i.get("type") == 'bridge':
+      print(i.get("iface"))
   exit(0)
 
 # skip image check if image create is passed

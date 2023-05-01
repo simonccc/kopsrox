@@ -70,6 +70,11 @@ def init_kopsrox_ini():
   kopsrox_config.set('proxmox', 'proximgid', '600')
   # upstream image
   kopsrox_config.set('proxmox', 'up_image_url', up_image_url)
+  # network bridge
+  kopsrox_config.set('proxmox', 'proxbridge', 'vmbr0')
+  kopsrox_config.add_section('kopsrox')
+  # disk size for kopsrox nodes
+  kopsrox_config.set('kopsrox', 'vm_disk_size', '40G')
   # write default config
   with open(kopsrox_conf, 'w') as configfile:
     kopsrox_config.write(configfile)
@@ -97,4 +102,4 @@ def task_status(proxmox_api, task_id, node_name):
     data = {"status": ""}
     while (data["status"] != "stopped"):
       data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
-    print('d', data)
+    #print('d', data)

@@ -28,6 +28,8 @@ proxnode = kopsrox_config.get('proxmox', 'proxnode')
 proxstor = kopsrox_config.get('proxmox', 'proxstor')
 proximgid = kopsrox_config.get('proxmox', 'proximgid')
 up_image_url = kopsrox_config.get('proxmox', 'up_image_url')
+proxbridge = kopsrox_config.get('proxmox', 'proxbridge')
+vm_disk_size = kopsrox_config.get('kopsrox', 'vm_disk_size')
 
 # generate image name
 kopsrox_img = common.kopsrox_img(proxstor,proximgid)
@@ -43,6 +45,11 @@ if (passed_verb == 'create'):
     print('Downloading:', up_image_url)
     wget.download(up_image_url)
 
+  # check for old server
+
+  # if it exists do we stop or exit?
+  # if its running we can't delete
+
   # destroy old image server if it exists
   try:
     delete = kprox.prox.nodes(proxnode).qemu(proximgid).delete()
@@ -51,23 +58,36 @@ if (passed_verb == 'create'):
     next
 
   # create new server
+  print('create vm')
   create = kprox.prox.nodes(proxnode).qemu.post(
           vmid = proximgid,
           scsihw = 'virtio-scsi-pci',
           memory = '2048',
-          net0 = 'model=virtio,bridge=vmbr0',
+          net0 = ('model=virtio,bridge=' + proxbridge),
           boot = 'c',
-          bootdisk = 'scsi0'
+          bootdisk = 'scsi0',
+          name = 'kopsrox-image',
+          ostype = 'l26',
           )
   common.task_status(kprox.prox, str(create), proxnode)
 
+  import_disk_string = ('sudo qm set ' + proximgid + ' --scsi0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image+ ' >' + os.getcwd() + '/kopsrox_disk_import.log 2>&1') 
+
+  #print(import_disk_string)
+
   # run shell command to import
-  qmimport = os.system('sudo qm set 600 --scsi0 local-lvm:0,import-from=/home/simonc/GIT/kopsrox/debian-11-generic-amd64.qcow2')
+  try:
+    print('importimg disk')
+    qmimport = os.system(import_disk_string)
+  except:
+    print('error importing disk to VM')
+    exit(0)
 
   # resize disk to suitable size
+  print('resizing disk')
   disc = kprox.prox.nodes(proxnode).qemu(proximgid).resize.put(
         disk = 'scsi0',
-        size = '40G',
+        size = vm_disk_size,
         )
 
   exit(0)
