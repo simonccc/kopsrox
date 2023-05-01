@@ -18,26 +18,25 @@ if not passed_verb in verbs:
   print('kopsrox', verb, '', end='')
   common.verbs_help(verbs)
 
-# import config
-from configparser import ConfigParser
-kopsrox_config = ConfigParser()
 import proxmox_config as kprox
 
-# read values from config
-kopsrox_config.read(common.kopsrox_conf)
+# import config
+(
+proxnode,
+proxstor,
+proximgid,
+up_image_url,
+proxbridge,
+vm_disk_size,
+cloudinituser,
+cloudinitsshkey,
+network,
+networkgw,
+        ) = common.read_kopsrox_ini()
 
-proxnode = kopsrox_config.get('proxmox', 'proxnode')
-proxstor = kopsrox_config.get('proxmox', 'proxstor')
-proximgid = kopsrox_config.get('proxmox', 'proximgid')
-up_image_url = kopsrox_config.get('proxmox', 'up_image_url')
-proxbridge = kopsrox_config.get('proxmox', 'proxbridge')
+print(proxnode,proxstor,network)
 
-# kopsrox lvl
-vm_disk_size = kopsrox_config.get('kopsrox', 'vm_disk_size')
-cloudinituser = kopsrox_config.get('kopsrox', 'cloudinituser')
-cloudinitsshkey = kopsrox_config.get('kopsrox', 'cloudinitsshkey')
-network = kopsrox_config.get('kopsrox', 'network')
-networkgw = kopsrox_config.get('kopsrox', 'networkgw')
+exit(0)
 
 # generate image name
 kopsrox_img = common.kopsrox_img(proxstor,proximgid)

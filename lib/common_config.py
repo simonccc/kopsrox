@@ -57,6 +57,25 @@ timeout=10)
 
   return prox
 
+# return kopsrox config
+def read_kopsrox_ini():
+  kopsrox_config = ConfigParser()
+  kopsrox_config.read(kopsrox_conf)
+
+  proxnode = kopsrox_config.get('proxmox', 'proxnode')
+  proxstor = kopsrox_config.get('proxmox', 'proxstor')
+  proximgid = kopsrox_config.get('proxmox', 'proximgid')
+  up_image_url = kopsrox_config.get('proxmox', 'up_image_url')
+  proxbridge = kopsrox_config.get('proxmox', 'proxbridge')
+  vm_disk_size = kopsrox_config.get('kopsrox', 'vm_disk_size')
+  cloudinituser = kopsrox_config.get('kopsrox', 'cloudinituser')
+  cloudinitsshkey = kopsrox_config.get('kopsrox', 'cloudinitsshkey')
+  network = kopsrox_config.get('kopsrox', 'network')
+  networkgw = kopsrox_config.get('kopsrox', 'networkgw')
+
+  # return
+  return(proxnode,proxstor,proximgid,up_image_url,proxbridge,vm_disk_size,cloudinituser,cloudinitsshkey,network,networkgw)
+
 # generate the default kopsrox.ini
 def init_kopsrox_ini():
   kopsrox_config = ConfigParser()
