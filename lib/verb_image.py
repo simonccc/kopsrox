@@ -1,4 +1,4 @@
-import common_config as common, sys, os, wget
+import common_config as common, sys, os, wget, re
 verb = 'image'
 verbs = common.verbs_image
 
@@ -46,26 +46,31 @@ if (passed_verb == 'create'):
   # destroy old image server if it exists
   try:
     delete = kprox.prox.nodes(proxnode).qemu(proximgid).delete()
-    common.basic_blocking_task_status(kprox.prox, delete, proxnode)
-    print(delete, 'deleted old vm')
+    common.task_status(kprox.prox, delete, proxnode)
   except:
     next
 
-  print('creating')
+  # create new server
   create = kprox.prox.nodes(proxnode).qemu.post(
           vmid = proximgid,
           scsihw = 'virtio-scsi-pci',
           memory = '2048',
           net0 = 'model=virtio,bridge=vmbr0',
+          boot = 'c',
+          bootdisk = 'scsi0'
           )
-  common.basic_blocking_task_status(kprox.prox, str(create), proxnode)
+  common.task_status(kprox.prox, str(create), proxnode)
 
-  # import disk
-  disc = kprox.prox.nodes(proxnode).qemu(proximgid).config.post(
-        vmid = proximgid,
-        scsi0 = (proxstor + ':0,import-from=lenny_sata_nfs:iso/kopsrox-img.iso',)
+  # run shell command to import
+  qmimport = os.system('sudo qm set 600 --scsi0 local-lvm:0,import-from=/home/simonc/GIT/kopsrox/debian-11-generic-amd64.qcow2')
+
+  # resize disk to suitable size
+  disc = kprox.prox.nodes(proxnode).qemu(proximgid).resize.put(
+        disk = 'scsi0',
+        size = '40G',
         )
-  common.basic_blocking_task_status(kprox.prox, str(disc), proxnode)
+
+  exit(0)
 
 # list images on proxstor
 if (passed_verb == 'list'):
