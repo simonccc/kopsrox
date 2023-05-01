@@ -61,42 +61,39 @@ if (passed_verb == 'create'):
     next
 
   # create new server
-  print('create vm')
   create = kprox.prox.nodes(proxnode).qemu.post(
           vmid = proximgid,
           scsihw = 'virtio-scsi-pci',
           memory = '2048',
           net0 = ('model=virtio,bridge=' + proxbridge),
           boot = 'c',
-          bootdisk = 'scsi0',
+          bootdisk = 'virtio0',
           name = 'kopsrox-image',
           ostype = 'l26',
-          ide2 = (proxstor + ':cloudinit')
+          ide2 = (proxstor + ':cloudinit'),
+          tags = 'kopsrox',
           )
   common.task_status(kprox.prox, str(create), proxnode)
 
-  import_disk_string = ('sudo qm set ' + proximgid + ' --scsi0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image+ ' >' + os.getcwd() + '/kopsrox_disk_import.log 2>&1') 
+  import_disk_string = ('sudo qm set ' + proximgid + ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image+ ' >' + os.getcwd() + '/kopsrox_disk_import.log 2>&1') 
 
   #print(import_disk_string)
 
   # run shell command to import
   try:
-    print('importimg disk')
+    print('importing: ' + up_image + ' ...')
     qmimport = os.system(import_disk_string)
   except:
     print('error importing disk to VM')
     exit(0)
 
   # resize disk to suitable size
-  print('resizing disk')
   disc = kprox.prox.nodes(proxnode).qemu(proximgid).resize.put(
-        disk = 'scsi0',
+        disk = 'virtio0',
         size = vm_disk_size,
         )
 
   # cloud init
-  print('cloud init')
-
   # url encode ssh key
   ssh_encode = urllib.parse.quote(cloudinitsshkey, safe='')
   cloudinit = kprox.prox.nodes(proxnode).qemu(proximgid).config.post(
@@ -107,21 +104,25 @@ if (passed_verb == 'create'):
   common.task_status(kprox.prox, str(cloudinit), proxnode)
 
   # power on and off the vm to resize disk
-  print('powering on')
+  print('resizing disk to', vm_disk_size)
   poweron = kprox.prox.nodes(proxnode).qemu(proximgid).status.start.post()
   common.task_status(kprox.prox, str(poweron), proxnode)
 
-  print('sleeping 10 for disk resize')
+  # power off
   time.sleep(10)
-
-  print('poweroff')
   poweroff = kprox.prox.nodes(proxnode).qemu(proximgid).status.stop.post()
   common.task_status(kprox.prox, str(poweroff), proxnode)
 
-  print('powering on')
-  poweron = kprox.prox.nodes(proxnode).qemu(proximgid).status.start.post()
-  common.task_status(kprox.prox, str(poweron), proxnode)
+  # template
+  # create base disk
+  print('setting base disk')
+  set_basedisk = kprox.prox.nodes(proxnode).qemu(proximgid).template.post()
+  common.task_status(kprox.prox, str(set_basedisk), proxnode)
 
+  # set also in vmconfig
+  set_template = kprox.prox.nodes(proxnode).qemu(proximgid).config.post(
+          template = 1)
+  common.task_status(kprox.prox, str(set_template), proxnode)
 
   exit(0)
 
