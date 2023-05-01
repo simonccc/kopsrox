@@ -7,8 +7,9 @@ proxmox_conf='proxmox.ini'
 kopsrox_conf='kopsrox.ini'
 
 # verbs
-top_verbs = ['image']
+top_verbs = ['image', 'cluster']
 verbs_image = ['info', 'create']
+verbs_cluster = ['info', 'create']
 
 import urllib3, sys
 from configparser import ConfigParser
@@ -83,6 +84,10 @@ def init_kopsrox_ini():
   # kopsrox network baseip
   kopsrox_config.set('kopsrox', 'network', '192.168.0.160')
   kopsrox_config.set('kopsrox', 'networkgw', '192.168.0.1')
+  # cluster level
+  kopsrox_config.add_section('cluster')
+  kopsrox_config.set('cluster', 'masters', '1')
+  kopsrox_config.set('cluster', 'workers', '0')
 
   # write default config
   with open(kopsrox_conf, 'w') as configfile:

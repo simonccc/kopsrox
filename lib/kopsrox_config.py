@@ -32,6 +32,8 @@ cloudinituser = common.conf_check(kopsrox_config,'kopsrox','cloudinituser',conf)
 cloudinitsshkey = common.conf_check(kopsrox_config,'kopsrox','cloudinitsshkey',conf)
 network = common.conf_check(kopsrox_config,'kopsrox','network',conf)
 networkgw = common.conf_check(kopsrox_config,'kopsrox','networkgw',conf)
+masters = common.conf_check(kopsrox_config,'cluster','masters',conf)
+workers = common.conf_check(kopsrox_config,'cluster','workers',conf)
 
 #print('checking proxnode', proxnode)
 
