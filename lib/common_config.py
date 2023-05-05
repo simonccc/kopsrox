@@ -59,7 +59,6 @@ timeout=10)
 
 # clone
 def clone(vmid):
-    print(vmid)
 
     # read config
     config = read_kopsrox_ini2()
@@ -67,20 +66,40 @@ def clone(vmid):
     proxstor = (config['proxmox']['proxstor'])
     proximgid = (config['proxmox']['proximgid'])
 
+    # map network info
+    network = (config['kopsrox']['network'])
+    networkgw = (config['kopsrox']['networkgw'])
+
+    # defaults
+    hostname = 'unknown'
+    ip = network
+
+    # map hostname
+    if ( int(vmid) == ( int(proximgid) + 1 )):
+      hostname = 'kopsrox-m1'
+
+    # get ip
+    network_octs = network.split('.')
+    basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' ) 
+    ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
+
     # init proxmox
     prox = prox_init()
    
     # clone
+    print('creating vm', vmid, hostname)
     clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
             newid = vmid,
-            name = 'kopsrox-m1',
+            name = hostname,
             )
     task_status(prox, clone, proxnode)
+    print('done creating vm', vmid)
 
-    # debug
-    vms = prox.nodes(config['proxmox']['proxnode']).qemu.get()
-    print(vms)
-
+    # cloudinit
+    cloudinit = prox.nodes(proxnode).qemu(vmid).config.post(
+                ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/32' ))
+    task_status(prox, str(cloudinit), proxnode)
+    print('set ip', ip)
 
 # returns a dict of all config
 def read_kopsrox_ini2():

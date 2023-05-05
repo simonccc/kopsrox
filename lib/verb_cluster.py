@@ -27,6 +27,7 @@ import proxmox_config as kprox
 # variables from config
 proxnode = (config['proxmox']['proxnode'])
 proximgid = (config['proxmox']['proximgid'])
+workers = (config['cluster']['workers'])
 
 # this assignment will need to be in config in future
 masterid = str(int(proximgid) + 1)
@@ -41,9 +42,10 @@ if passed_verb == 'info':
         vmid = vm.get('vmid')
         vmname = vm.get('name')
 
-        # print image
-        if ( int(vmid) == int(proximgid) ):
-          print(vmid, '-', vmname)
+        # print kopsrox info
+        if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 9))):
+          #print(vm)
+          print(vmid, '-', vmname, vm.get('status'), 'uptime:', vm.get('uptime'))
 
     #print(vms)
     exit(0)
@@ -52,16 +54,21 @@ if passed_verb == 'info':
 if passed_verb == 'create':
     print('create')
 
-    # get desired config
     # lets assume masters will always be 1 for now
     # check for masterid
     try:
-      masterchecks = kprox.prox.nodes(proxnode).qemu(masterid).status.get()
-      print(masterchecks)
+      if kprox.prox.nodes(proxnode).qemu(masterid).status.get():
+        print('ERROR: existing master node found id', masterid)
+        poweroff = kprox.prox.nodes(proxnode).qemu(masterid).status.stop.post()
+        common.task_status(kprox.prox, poweroff, proxnode)
+        print('deleting')
+        delete = kprox.prox.nodes(proxnode).qemu(masterid).delete()
+        common.task_status(kprox.prox, delete, proxnode)
     except:
       print(masterid, 'not found')
-      common.clone(masterid)
+
+    common.clone(masterid)
    
-    # check for existing vms
     # create new nodes per config
+    print('build', workers, 'workers')
     exit(0)
