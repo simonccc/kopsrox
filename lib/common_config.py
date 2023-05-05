@@ -57,6 +57,32 @@ timeout=10)
 
   return prox
 
+# clone
+def clone(vmid):
+    print(vmid)
+
+    # read config
+    config = read_kopsrox_ini2()
+    proxnode = (config['proxmox']['proxnode'])
+    proxstor = (config['proxmox']['proxstor'])
+    proximgid = (config['proxmox']['proximgid'])
+
+    # init proxmox
+    prox = prox_init()
+   
+    # clone
+    clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
+            newid = vmid,
+            name = 'kopsrox-m1',
+            )
+    task_status(prox, clone, proxnode)
+
+    # debug
+    vms = prox.nodes(config['proxmox']['proxnode']).qemu.get()
+    print(vms)
+
+
+# returns a dict of all config
 def read_kopsrox_ini2():
   kopsrox_config = ConfigParser()
   kopsrox_config.read(kopsrox_conf)
@@ -136,6 +162,7 @@ def init_proxmox_ini():
   print('NOTE: please edit', conf, 'as required for your setup')
   exit(0)
 
+# task blocker
 def task_status(proxmox_api, task_id, node_name):
     data = {"status": ""}
     while (data["status"] != "stopped"):
