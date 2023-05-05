@@ -70,6 +70,11 @@ def clone(vmid):
     network = (config['kopsrox']['network'])
     networkgw = (config['kopsrox']['networkgw'])
 
+    # vm specs
+    cores = (config['kopsrox']['vm_cpu'])
+    ram = (config['kopsrox']['vm_ram']) 
+    memory = int(int(ram) * 1024)
+
     # defaults
     hostname = 'unknown'
     ip = network
@@ -87,19 +92,25 @@ def clone(vmid):
     prox = prox_init()
    
     # clone
-    print('creating vm', vmid, hostname)
+    print('creating:', hostname, end='')
     clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
             newid = vmid,
             name = hostname,
             )
     task_status(prox, clone, proxnode)
-    print('done creating vm', vmid)
 
-    # cloudinit
-    cloudinit = prox.nodes(proxnode).qemu(vmid).config.post(
+    # configure
+    configure = prox.nodes(proxnode).qemu(vmid).config.post(
+                cores = cores, 
+                memory = memory,
                 ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/32' ))
-    task_status(prox, str(cloudinit), proxnode)
-    print('set ip', ip)
+    task_status(prox, str(configure), proxnode)
+
+    # power on
+    poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
+    task_status(prox, str(poweron), proxnode)
+
+    print(' ... done')
 
 # returns a dict of all config
 def read_kopsrox_ini2():
@@ -145,8 +156,12 @@ def init_kopsrox_ini():
 
   # kopsrox config
   kopsrox_config.add_section('kopsrox')
-  # disk size for kopsrox nodes
-  kopsrox_config.set('kopsrox', 'vm_disk_size', '40G')
+
+  # size for kopsrox nodes
+  kopsrox_config.set('kopsrox', 'vm_disk_size', '20G')
+  kopsrox_config.set('kopsrox', 'vm_cpu', '1')
+  kopsrox_config.set('kopsrox', 'vm_ram', '4')
+
   # cloudinit user and key
   kopsrox_config.set('kopsrox', 'cloudinituser', 'user')
   kopsrox_config.set('kopsrox', 'cloudinitsshkey', 'ssh-rsa cioieocieo')

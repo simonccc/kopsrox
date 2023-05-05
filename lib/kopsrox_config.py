@@ -28,10 +28,18 @@ proxbridge = common.conf_check(kopsrox_config,'proxmox','proxbridge',conf)
 
 # kopsrox config checks
 vm_disk_size = common.conf_check(kopsrox_config,'kopsrox','vm_disk_size',conf)
+vm_cpu = common.conf_check(kopsrox_config,'kopsrox','vm_cpu',conf)
+vm_ram = common.conf_check(kopsrox_config,'kopsrox','vm_ram',conf)
+
+# cloudinit
 cloudinituser = common.conf_check(kopsrox_config,'kopsrox','cloudinituser',conf)
 cloudinitsshkey = common.conf_check(kopsrox_config,'kopsrox','cloudinitsshkey',conf)
+
+# network
 network = common.conf_check(kopsrox_config,'kopsrox','network',conf)
 networkgw = common.conf_check(kopsrox_config,'kopsrox','networkgw',conf)
+
+# cluster level checks
 masters = common.conf_check(kopsrox_config,'cluster','masters',conf)
 workers = common.conf_check(kopsrox_config,'cluster','workers',conf)
 
