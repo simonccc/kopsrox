@@ -57,6 +57,11 @@ timeout=10)
 
   return prox
 
+def read_kopsrox_ini2():
+  kopsrox_config = ConfigParser()
+  kopsrox_config.read(kopsrox_conf)
+  return({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
+
 # return kopsrox config
 def read_kopsrox_ini():
   kopsrox_config = ConfigParser()

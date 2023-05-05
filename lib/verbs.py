@@ -7,6 +7,7 @@ try:
     passed_verb = str(sys.argv[1])
 except:
   print('ERROR: no command passed')
+  print('kopsrox ', end='')
   common.verbs_help(verbs)
   exit(0)
 
@@ -15,5 +16,6 @@ if passed_verb in verbs:
   exit(0)
 
 # if passed arg invalid
-print('ERROR: \'',passed_verb,'\' command not found.')
+print('ERROR: \'' + passed_verb + '\' command not found.')
+print('kopsrox ', end='')
 common.verbs_help(verbs)
