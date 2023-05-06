@@ -46,6 +46,15 @@ if (passed_verb == 'create'):
   if not os.path.isfile(up_image):
     print('Downloading:', up_image_url)
     wget.download(up_image_url)
+    print
+
+  # shell to patch image and install qemu-agent
+  try:
+    print('patching: ' + up_image + ' for qemu-agent')
+    imgpatch = os.system('sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent' ' >' + os.getcwd() + '/kopsrox_imgpatch.log 2>&1')
+  except:
+    print('error patching image')
+    exit(0)
 
   # destroy old image server if it exists
   try:
@@ -69,9 +78,11 @@ if (passed_verb == 'create'):
           ide2 = (proxstor + ':cloudinit'),
           tags = 'kopsrox',
           serial0 = 'socket',
+          agent = ('enabled=true'),
           )
   common.task_status(kprox.prox, str(create), proxnode)
 
+  # shell to import disk
   import_disk_string = ('sudo qm set ' + proximgid + ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image+ ' >' + os.getcwd() + '/kopsrox_disk_import.log 2>&1') 
 
   #print(import_disk_string)

@@ -1,2 +1,5 @@
 pip3 install proxmoxer  --user
 pip3 install wget --user
+
+sudo apt install libguestfs-tools -y
+

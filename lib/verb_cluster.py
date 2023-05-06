@@ -54,13 +54,16 @@ if passed_verb == 'info':
 if passed_verb == 'create':
     print('create')
 
-    # lets assume masters will always be 1 for now
-    # check for masterid
-    if kprox.prox.nodes(proxnode).qemu(masterid).status.get():
-        print('ERROR: existing master node found id', masterid)
- #      common.qaexec(masterid, 'ls')
-        exit(0)
+    # get list of vmids
+    vmids = []
+    for vm in kprox.prox.nodes(proxnode).qemu.get():
+       vmids.append(vm.get('vmid'))
 
+    # if masterid found
+    if (int(masterid) in vmids):
+        print('found existing master')
+        common.qaexec(masterid, 'ls')
+        exit(0)
 
     print(masterid, 'not found')
     common.clone(masterid)
