@@ -1,12 +1,10 @@
 # kopsrox
 automate creating a k3s cluster with proxmox api with a "kops like" cli and cluster config files
 
-## commands
-- image [ create | info ] - creates a koprox image / displays when it was created
-- cluster [ create | info ] - clones a vm from the template / lists the kopsrox related vms
+
 
 ## status
-- generates a cloneable vm template based on the debian image with qemu-agent patched in via virt-customize
+- generates a cloneable vm template based on a debian image with qemu-agent patched in via virt-customize
 - clones the template to vm's and manages the hostname and IP
 - barebone .ini files  are generated and checked against proxmox
 - creates a vm as a 'master' ( no k3s yet ) 
@@ -14,6 +12,14 @@ automate creating a k3s cluster with proxmox api with a "kops like" cli and clus
 
 ## in progress
 - creating a first master node
+
+
+## commands
+- image [ create | info ] - creates a koprox image / displays when it was created
+- cluster [ create | info ] - clones a vm from the template / lists the kopsrox related vms
+
+
+
 
 ## problems
 - has to run on a proxmox node to run "qm import" 
