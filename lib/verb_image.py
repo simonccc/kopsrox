@@ -98,7 +98,7 @@ if (passed_verb == 'create'):
   # resize disk to suitable size
   disc = kprox.prox.nodes(proxnode).qemu(proximgid).resize.put(
         disk = 'virtio0',
-        size = vm_disk_size,
+        size = vm_disk,
         )
 
   # cloud init

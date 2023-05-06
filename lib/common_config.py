@@ -138,14 +138,14 @@ def read_kopsrox_ini():
   proximgid = kopsrox_config.get('proxmox', 'proximgid')
   up_image_url = kopsrox_config.get('proxmox', 'up_image_url')
   proxbridge = kopsrox_config.get('proxmox', 'proxbridge')
-  vm_disk_size = kopsrox_config.get('kopsrox', 'vm_disk_size')
+  vm_disk = kopsrox_config.get('kopsrox', 'vm_disk')
   cloudinituser = kopsrox_config.get('kopsrox', 'cloudinituser')
   cloudinitsshkey = kopsrox_config.get('kopsrox', 'cloudinitsshkey')
   network = kopsrox_config.get('kopsrox', 'network')
   networkgw = kopsrox_config.get('kopsrox', 'networkgw')
 
   # return
-  return(proxnode,proxstor,proximgid,up_image_url,proxbridge,vm_disk_size,cloudinituser,cloudinitsshkey,network,networkgw)
+  return(proxnode,proxstor,proximgid,up_image_url,proxbridge,vm_disk,cloudinituser,cloudinitsshkey,network,networkgw)
 
 # generate the default kopsrox.ini
 def init_kopsrox_ini():
@@ -168,7 +168,7 @@ def init_kopsrox_ini():
   kopsrox_config.add_section('kopsrox')
 
   # size for kopsrox nodes
-  kopsrox_config.set('kopsrox', 'vm_disk_size', '20G')
+  kopsrox_config.set('kopsrox', 'vm_disk', '20G')
   kopsrox_config.set('kopsrox', 'vm_cpu', '1')
   kopsrox_config.set('kopsrox', 'vm_ram', '4')
 

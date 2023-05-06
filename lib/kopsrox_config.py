@@ -27,7 +27,7 @@ up_image_url = common.conf_check(kopsrox_config,'proxmox','up_image_url',conf)
 proxbridge = common.conf_check(kopsrox_config,'proxmox','proxbridge',conf)
 
 # kopsrox config checks
-vm_disk_size = common.conf_check(kopsrox_config,'kopsrox','vm_disk_size',conf)
+vm_disk = common.conf_check(kopsrox_config,'kopsrox','vm_disk',conf)
 vm_cpu = common.conf_check(kopsrox_config,'kopsrox','vm_cpu',conf)
 vm_ram = common.conf_check(kopsrox_config,'kopsrox','vm_ram',conf)
 
