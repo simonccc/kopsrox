@@ -41,21 +41,20 @@ if (passed_verb == 'create'):
   # get image name
   up_image = (up_image_url.split('/')[-1])
 
-  # check to see if already present
+  # download image with wget if not present
   if not os.path.isfile(up_image):
     print('Downloading:', up_image_url)
     wget.download(up_image_url)
-    print
 
-  # shell to patch image and install qemu-agent
-  try:
-    print('patching: ' + up_image + ' for qemu-agent')
-    imgpatch = os.system('sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent' ' >' + os.getcwd() + '/kopsrox_imgpatch.log 2>&1')
-  except:
-    print('error patching image')
-    exit(0)
+    # patch image with qemu-agent
+    try:
+      print('patching: ' + up_image + ' for qemu-agent')
+      imgpatch = os.system('sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent' ' >' + os.getcwd() + '/kopsrox_imgpatch.log 2>&1')
+    except:
+      print('error patching image')
+      exit(0)
 
-  # destroy old image server if it exists
+  # destroy template if it exists
   try:
     poweroff = kprox.prox.nodes(proxnode).qemu(proximgid).status.stop.post()
     common.task_status(kprox.prox, poweroff, proxnode)
@@ -111,7 +110,7 @@ if (passed_verb == 'create'):
   common.task_status(kprox.prox, str(cloudinit), proxnode)
 
   # power on and off the vm to resize disk
-  #print('resizing disk to', vm_disk_size)
+  #print('resizing disk to', vm_disk)
   poweron = kprox.prox.nodes(proxnode).qemu(proximgid).status.start.post()
   common.task_status(kprox.prox, str(poweron), proxnode)
 
