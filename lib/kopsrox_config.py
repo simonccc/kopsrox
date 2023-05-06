@@ -42,6 +42,7 @@ networkgw = common.conf_check(kopsrox_config,'kopsrox','networkgw',conf)
 # cluster level checks
 masters = common.conf_check(kopsrox_config,'cluster','masters',conf)
 workers = common.conf_check(kopsrox_config,'cluster','workers',conf)
+k3s_version = common.conf_check(kopsrox_config,'cluster','k3s_version',conf)
 
 #print('checking proxnode', proxnode)
 

@@ -62,7 +62,10 @@ if passed_verb == 'create':
     # if masterid found
     if (int(masterid) in vmids):
         print('found existing master')
+
+        # check for k3s install?
         common.qaexec(masterid, 'ls')
+
         exit(0)
 
     print(masterid, 'not found')
@@ -70,4 +73,7 @@ if passed_verb == 'create':
    
     # create new nodes per config
     print('build', workers, 'workers')
-    exit(0)
+
+# destroy
+if passed_verb == 'destroy':
+    print('destroy')

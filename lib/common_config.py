@@ -9,8 +9,9 @@ kopsrox_conf='kopsrox.ini'
 # verbs
 top_verbs = ['image', 'cluster']
 verbs_image = ['info', 'create']
-verbs_cluster = ['info', 'create']
+verbs_cluster = ['info', 'create', 'destroy']
 
+# imports
 import urllib3, sys
 from configparser import ConfigParser
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -57,13 +58,24 @@ timeout=10)
 
   return prox
 
+# run a exec via qemu-agent
 def qaexec(vmid,cmd):
     print('qaexec', vmid, cmd)
+
+    # config
     config = read_kopsrox_ini()
     proxnode = (config['proxmox']['proxnode'])
+
+    # proxmox 
     prox = prox_init()
+
+    # send command
     qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(command = cmd)
+
+    # get pid
     pid = qa_exec['pid']
+
+    # get status
     qa_exec_status = prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid)
     print(qa_exec_status)
 
@@ -93,7 +105,7 @@ def clone(vmid):
     if ( int(vmid) == ( int(proximgid) + 1 )):
       hostname = 'kopsrox-m1'
 
-    # get ip
+    # map ip from vmid
     network_octs = network.split('.')
     basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' ) 
     ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
@@ -130,8 +142,11 @@ def read_kopsrox_ini():
 
 # generate the default kopsrox.ini
 def init_kopsrox_ini():
+
+  # get config
   kopsrox_config = ConfigParser()
   kopsrox_config.read(kopsrox_conf)
+
   # create sections
   kopsrox_config.add_section('proxmox')
   # node to operate on
@@ -159,10 +174,12 @@ def init_kopsrox_ini():
   # kopsrox network baseip
   kopsrox_config.set('kopsrox', 'network', '192.168.0.160')
   kopsrox_config.set('kopsrox', 'networkgw', '192.168.0.1')
+
   # cluster level
   kopsrox_config.add_section('cluster')
   kopsrox_config.set('cluster', 'masters', '1')
   kopsrox_config.set('cluster', 'workers', '0')
+  kopsrox_config.set('cluster', 'k3s-version', 'v1.24.6+k3s1')
 
   # write default config
   with open(kopsrox_conf, 'w') as configfile:
