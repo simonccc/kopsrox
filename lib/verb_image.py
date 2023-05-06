@@ -20,18 +20,17 @@ if not passed_verb in verbs:
 
 # import config
 import proxmox_config as kprox
-(
-proxnode,
-proxstor,
-proximgid,
-up_image_url,
-proxbridge,
-vm_disk_size,
-cloudinituser,
-cloudinitsshkey,
-network,
-networkgw,
-        ) = common.read_kopsrox_ini()
+config = common.read_kopsrox_ini2()
+proxnode = (config['proxmox']['proxnode'])
+proxstor = (config['proxmox']['proxstor'])
+proximgid = (config['proxmox']['proximgid'])
+up_image_url = (config['proxmox']['up_image_url'])
+proxbridge = (config['proxmox']['proxbridge'])
+vm_disk = (config['kopsrox']['vm_disk'])
+cloudinituser = (config['kopsrox']['cloudinituser'])
+cloudinitsshkey = (config['kopsrox']['cloudinitsshkey'])
+network = (config['kopsrox']['network'])
+networkgw = (config['kopsrox']['networkgw'])
 
 # generate image name
 kopsrox_img = common.kopsrox_img(proxstor,proximgid)
