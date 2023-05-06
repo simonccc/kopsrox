@@ -57,10 +57,7 @@ if (passed_verb == 'create'):
 
   # destroy template if it exists
   try:
-    poweroff = kprox.prox.nodes(proxnode).qemu(proximgid).status.stop.post()
-    common.task_status(kprox.prox, poweroff, proxnode)
-    delete = kprox.prox.nodes(proxnode).qemu(proximgid).delete()
-    common.task_status(kprox.prox, delete, proxnode)
+    common.destroy(proximgid)
   except:
     next
 
@@ -140,3 +137,8 @@ if (passed_verb == 'info'):
   for i in images:
     if i.get('volid') == (kopsrox_img):
       print(i.get('volid'), i.get('ctime'))
+
+# destroy image
+if (passed_verb == 'destroy'):
+    print('destroying kopsrox image')
+    common.destroy(proximgid)

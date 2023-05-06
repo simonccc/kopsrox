@@ -8,7 +8,7 @@ kopsrox_conf='kopsrox.ini'
 
 # verbs
 top_verbs = ['image', 'cluster']
-verbs_image = ['info', 'create']
+verbs_image = ['info', 'create', 'destroy']
 verbs_cluster = ['info', 'create', 'destroy']
 
 # imports
@@ -60,7 +60,6 @@ timeout=10)
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
-    print('qaexec', vmid, cmd)
 
     # config
     config = read_kopsrox_ini()
@@ -78,18 +77,27 @@ def qaexec(vmid,cmd):
     pid = qa_exec['pid']
 
     # get status
-    qa_exec_status = prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid)
-    print(qa_exec_status)
-
+    return(prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
 
 # init 1st master
 def k3s_init_master(vmid):
-    print('k3s_init_master', vmid)
 
     # get config
     config = read_kopsrox_ini()
     proxnode = (config['proxmox']['proxnode'])
     k3s_version = (config['cluster']['k3s_version'])
+
+    # check for existing k3s
+    cmd = 'if [ -f /etc/rancher/k3s/k3s.yaml ] ; then echo -n present; else echo -n fail;fi'
+    k3s_check = qaexec(vmid,cmd)
+
+    # if existing k3s install found
+    if ( ( k3s_check['out-data'] ) and (k3s_check['out-data'] == 'present' )):
+       print('existing k3s cluster running')
+       cmd = '/usr/local/bin/k3s kubectl get nodes'
+       k3s_check2 = qaexec(vmid,cmd)
+       print(k3s_check2)
+       exit(0)
 
     # cmd to install k3s version 
     cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s'
@@ -123,7 +131,6 @@ def list_kopsrox_vm():
 
 # stop and destroy vm
 def destroy(vmid):
-    print('in destroy with', vmid)
 
     # get required config
     config = read_kopsrox_ini()

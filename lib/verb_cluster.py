@@ -73,9 +73,8 @@ if passed_verb == 'create':
 
 # destroy
 if passed_verb == 'destroy':
-  print('destroy')
+  print('destroying cluster')
   vmids = common.list_kopsrox_vm()
   for i in vmids:
-      print(i)
       if ( int(i) != int(proximgid)):
         common.destroy(i)
