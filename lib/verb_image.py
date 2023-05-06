@@ -45,11 +45,11 @@ if (passed_verb == 'create'):
   if not os.path.isfile(up_image):
     print('Downloading:', up_image_url)
     wget.download(up_image_url)
-    print('\n')
+    print('')
 
     # patch image with qemu-agent
     try:
-      print('patching: ' + up_image + ' for qemu-agent')
+      print('patching: ' + up_image)
       imgpatch = os.system('sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent,nfs-common' ' >' + os.getcwd() + '/kopsrox_imgpatch.log 2>&1')
     except:
       print('error patching image')

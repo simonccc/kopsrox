@@ -13,12 +13,5 @@ prox = common.prox_init()
 
 # if unable to get cluster status
 if not prox.cluster.status.get():
-  print('ERROR: unable to connect -problem in proxmox.ini')
+  print('ERROR: unable to connect problem in proxmox.ini?')
   exit(0)
-
-# get current tasks
-tasklist = prox.cluster.tasks.get()
-for tasks in tasklist:
-  if (tasks.get("status") == 'RUNNING'):
-    print(tasks)
-

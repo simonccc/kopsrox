@@ -34,46 +34,48 @@ masterid = str(int(proximgid) + 1)
 
 # info
 if passed_verb == 'info':
-    print('print info about cluster')
+  print('print info about cluster')
     
-    vms = kprox.prox.nodes(proxnode).qemu.get()
-    #common.task_status(kprox.prox, vms, proxnode)
-    for vm in vms:
-        vmid = vm.get('vmid')
-        vmname = vm.get('name')
+  vms = kprox.prox.nodes(proxnode).qemu.get()
+  #common.task_status(kprox.prox, vms, proxnode)
+  for vm in vms:
+    vmid = vm.get('vmid')
+    vmname = vm.get('name')
 
-        # print kopsrox info
-        if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 9))):
-          #print(vm)
-          print(vmid, '-', vmname, vm.get('status'), 'uptime:', vm.get('uptime'))
+    # print kopsrox info
+    if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 9))):
+      #print(vm)
+      print(vmid, '-', vmname, vm.get('status'), 'uptime:', vm.get('uptime'))
 
-    #print(vms)
-    exit(0)
+  #print(vms)
+  exit(0)
 
 # create
 if passed_verb == 'create':
-    print('create')
+  print('create')
 
-    # get list of vmids
-    vmids = []
-    for vm in kprox.prox.nodes(proxnode).qemu.get():
-       vmids.append(vm.get('vmid'))
+  # get list of runnning vms
+  vmids = common.list_kopsrox_vm()
 
-    # if masterid found
-    if (int(masterid) in vmids):
-        print('found existing master')
+  # if masterid found
+  if (int(masterid) in vmids):
+    print('found existing master')
 
-        # check for k3s install?
-        common.qaexec(masterid, 'ls')
+    # check for k3s install?
+    common.k3s_init_master(masterid)
+    exit(0)
 
-        exit(0)
-
-    print(masterid, 'not found')
-    common.clone(masterid)
+  print(masterid, 'not found')
+  common.clone(masterid)
    
-    # create new nodes per config
-    print('build', workers, 'workers')
+  # create new nodes per config
+  print('build', workers, 'workers')
 
 # destroy
 if passed_verb == 'destroy':
-    print('destroy')
+  print('destroy')
+  vmids = common.list_kopsrox_vm()
+  for i in vmids:
+      print(i)
+      if ( int(i) != int(proximgid)):
+        common.destroy(i)
