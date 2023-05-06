@@ -57,6 +57,14 @@ timeout=10)
 
   return prox
 
+def qaexec(vmid,cmd):
+    config = read_kopsrox_ini2()
+    proxnode = (config['proxmox']['proxnode'])
+    prox = prox_init()
+    out = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
+#    task_status(prox, out, proxnode)
+    print(out)
+
 # clone
 def clone(vmid):
 

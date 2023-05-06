@@ -56,17 +56,13 @@ if passed_verb == 'create':
 
     # lets assume masters will always be 1 for now
     # check for masterid
-    try:
-      if kprox.prox.nodes(proxnode).qemu(masterid).status.get():
+    if kprox.prox.nodes(proxnode).qemu(masterid).status.get():
         print('ERROR: existing master node found id', masterid)
-        poweroff = kprox.prox.nodes(proxnode).qemu(masterid).status.stop.post()
-        common.task_status(kprox.prox, poweroff, proxnode)
-        print('deleting')
-        delete = kprox.prox.nodes(proxnode).qemu(masterid).delete()
-        common.task_status(kprox.prox, delete, proxnode)
-    except:
-      print(masterid, 'not found')
+ #      common.qaexec(masterid, 'ls')
+        exit(0)
 
+
+    print(masterid, 'not found')
     common.clone(masterid)
    
     # create new nodes per config

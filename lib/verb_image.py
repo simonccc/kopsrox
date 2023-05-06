@@ -68,6 +68,7 @@ if (passed_verb == 'create'):
           ostype = 'l26',
           ide2 = (proxstor + ':cloudinit'),
           tags = 'kopsrox',
+          serial0 = 'socket',
           )
   common.task_status(kprox.prox, str(create), proxnode)
 
