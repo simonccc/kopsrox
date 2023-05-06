@@ -20,7 +20,7 @@ if not passed_verb in verbs:
   exit(0)
 
 # import config
-config = common.read_kopsrox_ini2()
+config = common.read_kopsrox_ini()
 import proxmox_config as kprox
 #print(config)
 

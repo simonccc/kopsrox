@@ -20,7 +20,7 @@ if not passed_verb in verbs:
 
 # import config
 import proxmox_config as kprox
-config = common.read_kopsrox_ini2()
+config = common.read_kopsrox_ini()
 proxnode = (config['proxmox']['proxnode'])
 proxstor = (config['proxmox']['proxstor'])
 proximgid = (config['proxmox']['proximgid'])
