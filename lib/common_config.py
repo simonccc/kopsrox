@@ -75,7 +75,7 @@ def qaexec(vmid,cmd):
       qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
       qagent_running = 'true'
     except:
-      time.sleep('0.5')
+      time.sleep('0.2')
       print('qagent: not started on', vmid)
 
   # send command
@@ -92,6 +92,8 @@ def qaexec(vmid,cmd):
     try:
       pid_check = (prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
     except:
+      time.sleep('0.2')
+      print('qagent-exec: waiting for', pid)
       next
 
     # will equal 1 when process is done
@@ -148,8 +150,6 @@ def k3s_init_master(vmid):
 
 # kubectl
 def kubectl(masterid,cmd):
-  #print('kubectl:', masterid, cmd)
-  # cmd
   k = str(('/usr/local/bin/k3s kubectl ' +cmd))
   return(qaexec(masterid,k))
 
@@ -171,10 +171,11 @@ def list_kopsrox_vm():
     for vm in prox.nodes(proxnode).qemu.get():
       vmid = vm.get('vmid')
       # if vm in range add to list
-      if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 9))):
+      if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 15))):
         vmids.append(vmid)
 
     # return list
+    vmidss = vmids.sort() 
     return(vmids)
 
 # stop and destroy vm
@@ -183,7 +184,7 @@ def destroy(vmid):
     # get required config
     config = read_kopsrox_ini()
     proxnode = (config['proxmox']['proxnode'])
-    proximgid = (config['proxmox']['proximgid'])
+#    proximgid = (config['proxmox']['proximgid'])
 
     # proxinit
     prox = prox_init()
@@ -200,6 +201,8 @@ def clone(vmid):
 
     # read config
     config = read_kopsrox_ini()
+
+    # normal defines
     proxnode = (config['proxmox']['proxnode'])
     proxstor = (config['proxmox']['proxstor'])
     proximgid = (config['proxmox']['proximgid'])

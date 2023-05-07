@@ -33,24 +33,29 @@ masterid = str(int(proximgid) + 1)
 
 # info
 if passed_verb == 'info':
-  print('print info about cluster')
- 
-  # get runningvms
-  vms = kprox.prox.nodes(proxnode).qemu.get()
-  for vm in vms:
-    vmid = vm.get('vmid')
-    vmname = vm.get('name')
-    vmstatus = vm.get('status')
+  print('kopsrox cluster info:')
 
-    # print kopsrox info
-    if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 9))):
-      print(vmid, '-', vmname, vmstatus, 'uptime:', vm.get('uptime'))
+  # for kopsrox vms
+  for vm in common.list_kopsrox_vm():
 
-      # if vm is running run kubectl
-      if ( vmstatus == 'running'):
-        print('kubectl')
-        kubectl = common.kubectl(vmid, 'get nodes')
-        print(kubectl)
+    # get vm status
+    vm_info = kprox.prox.nodes(proxnode).qemu(vm).status.current.get()
+
+    # vars
+    vmid = vm_info.get('vmid')
+    vmname = vm_info.get('name')
+    vmstatus = vm_info.get('status')
+    vmuptime = vm_info.get('uptime')
+    vmcpu = vm_info.get('cpu')
+
+    # print
+    print(vmid, '-', vmname, "status:", vmstatus, 'uptime:', vmuptime, 'cpu:', vmcpu)
+
+    # if vm is running run kubectl
+    if ( vmstatus == 'running'):
+      print('kubectl')
+      kubectl = common.kubectl(vmid, 'get nodes')
+      print(kubectl)
 
   #print(vms)
   exit(0)
