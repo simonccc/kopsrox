@@ -34,20 +34,20 @@ masterid = str(int(proximgid) + 1)
 # info
 if passed_verb == 'info':
   print('print info about cluster')
-    
+ 
+  # get runningvms
   vms = kprox.prox.nodes(proxnode).qemu.get()
   for vm in vms:
     vmid = vm.get('vmid')
     vmname = vm.get('name')
 
     # print kopsrox info
-    if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 9))):
+    if ((int(vmid) > int(proximgid)) and (int(vmid) < (int(proximgid) + 9))):
       #print(vm)
       print(vmid, '-', vmname, vm.get('status'), 'uptime:', vm.get('uptime'))
-
-
-  kubectl = common.kubectl('601', 'get nodes')
-  print(kubectl)
+      print('kubectl')
+      kubectl = common.kubectl(vmid, 'get nodes')
+      print(kubectl)
 
   #print(vms)
   exit(0)

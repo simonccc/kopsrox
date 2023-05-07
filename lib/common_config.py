@@ -142,12 +142,11 @@ def k3s_init_master(vmid):
 
 # kubectl
 def kubectl(masterid,cmd):
-  print('kubectl:', masterid, cmd)
+  #print('kubectl:', masterid, cmd)
 
-  # get config
+  # cmd
   k = str(('/usr/local/bin/k3s kubectl ' +cmd))
-  print(k)
-
+  #print(k)
   return(qaexec(masterid,k))
 
 # return kopsrox_vms as list
