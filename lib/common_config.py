@@ -75,8 +75,8 @@ def qaexec(vmid,cmd):
       qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
       qagent_running = 'true'
     except:
-      time.sleep('0.2')
       print('qagent: not started on', vmid)
+      time.sleep(10)
 
   # send command
   qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
@@ -92,9 +92,8 @@ def qaexec(vmid,cmd):
     try:
       pid_check = (prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
     except:
-      time.sleep('0.2')
       print('qagent-exec: waiting for', pid)
-      next
+      time.sleep(0.2)
 
     # will equal 1 when process is done
     pid_status = pid_check['exited']
@@ -117,13 +116,21 @@ def k3s_check_master(vmid):
 
     # fail early
     if ( k3s_check == 'fail' ):
+      print('k3s_check_master: no config found')
       return('fail')
 
     # check node is healthy
     if (k3s_check == 'present'):
-      print('existing k3s cluster running')
+      print('k3s_check_master: found cluster config')
+
+      # test call
       k = kubectl(vmid,'get nodes')
-      print(k)
+
+      while ( re.search('NotReady', k)):
+        print('k3s_check_master: node not ready', vmid)
+        time.sleep(7)
+        k = kubectl(vmid,'get nodes')
+
       return('true')
 
     # else return fail
@@ -142,10 +149,12 @@ def k3s_init_master(vmid):
 
     # if master check fails
     if ( status == 'fail'):
+      print('installing k3s')
       cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s'
       qaexec(vmid,cmd)
 
-    print('cluster running ok')
+    status = k3s_check_master(vmid)
+
     print('done')
 
 # kubectl
@@ -184,7 +193,6 @@ def destroy(vmid):
     # get required config
     config = read_kopsrox_ini()
     proxnode = (config['proxmox']['proxnode'])
-#    proximgid = (config['proxmox']['proximgid'])
 
     # proxinit
     prox = prox_init()
@@ -233,7 +241,7 @@ def clone(vmid):
     prox = prox_init()
    
     # clone
-    print('creating:', hostname, end='')
+    print('cloning:', vmid, hostname, end='')
     clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
             newid = vmid,
             name = hostname,
@@ -250,6 +258,7 @@ def clone(vmid):
     # power on
     poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
     task_status(prox, str(poweron), proxnode)
+    time.sleep(2)
 
     print(' ... done')
 

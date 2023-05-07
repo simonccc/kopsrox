@@ -71,9 +71,8 @@ if passed_verb == 'create':
 
   # handle master install
   if (int(masterid) in vmids):
-    print('found existing master vm', masterid)
+    print('cluster create: found existing master vm', masterid)
   else:
-    print('creating vmid', masterid)
     common.clone(masterid)
 
   # install k3s 
