@@ -1,4 +1,0 @@
-proxmoxer
-
-
-pip3 install proxmoxer
