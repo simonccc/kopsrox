@@ -52,21 +52,20 @@ if passed_verb == 'info':
 
 # create
 if passed_verb == 'create':
-  print('create')
+  print('creating new kopsrox cluster')
 
   # get list of runnning vms
   vmids = common.list_kopsrox_vm()
 
-  # if masterid found
+  # handle master install
   if (int(masterid) in vmids):
-    print('found existing master')
-
-    # check for k3s install?
+    print('found existing master vm', masterid)
     common.k3s_init_master(masterid)
-    exit(0)
-
-  print(masterid, 'not found')
-  common.clone(masterid)
+  else:
+    print('creating vmid', masterid)
+    common.clone(masterid)
+    print('installing k3s on', masterid)
+    common.k3s_init_master(masterid)
    
   # create new nodes per config
   print('build', workers, 'workers')
@@ -77,4 +76,5 @@ if passed_verb == 'destroy':
   vmids = common.list_kopsrox_vm()
   for i in vmids:
       if ( int(i) != int(proximgid)):
+        print('destroying vmid', i)
         common.destroy(i)

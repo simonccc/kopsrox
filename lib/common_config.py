@@ -68,6 +68,15 @@ def qaexec(vmid,cmd):
     # proxmox 
     prox = prox_init()
 
+    # qagent no yet running check
+    qagent_running = 'false'
+    while ( qagent_running == 'false' ):
+      try:
+        qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
+        qagent_running = 'true'
+      except:
+        print('qagent not running')
+
     # send command
     qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
             command = "sh -c \'" + cmd +"\'",
@@ -116,9 +125,14 @@ def k3s_init_master(vmid):
     status = k3s_check_master(vmid)
 
     # cmd to install k3s version 
+    print('installing k3s')
     cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s'
-    print(cmd)
     qaexec(vmid,cmd)
+
+    while ( k3s_check_master(vmid) == 'fail' ):
+        print('waiting for cluster to init')
+
+    print('done')
     exit(0)
 
 # return kopsrox_vms as list
