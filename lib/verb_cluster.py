@@ -76,6 +76,7 @@ if passed_verb == 'create':
 
   # create new nodes per config
   print('build', workers, 'workers')
+  exit(0)
 
 # destroy
 if passed_verb == 'destroy':

@@ -94,11 +94,12 @@ def qaexec(vmid,cmd):
     except:
       next
 
+    # will equal 1 when process is done
     pid_status = pid_check['exited']
 
   # check for error
   if ( int(pid_check['exitcode']) == 127 ):
-    print(pid_check['err-data'])
+    print('ERROR: exec failure', pid_check['err-data'])
     exit(0)
 
   # get status
@@ -121,7 +122,7 @@ def k3s_check_master(vmid):
       print('existing k3s cluster running')
       k = kubectl(vmid,'get nodes')
       print(k)
-      exit(0)
+      return('true')
 
     # else return fail
     return('fail')
@@ -144,7 +145,6 @@ def k3s_init_master(vmid):
 
     print('cluster running ok')
     print('done')
-    exit(0)
 
 # kubectl
 def kubectl(masterid,cmd):
