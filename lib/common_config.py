@@ -9,10 +9,10 @@ kopsrox_conf='kopsrox.ini'
 # verbs
 top_verbs = ['image', 'cluster']
 verbs_image = ['info', 'create', 'destroy']
-verbs_cluster = ['info', 'create', 'destroy']
+verbs_cluster = ['info', 'create', 'destroy', 'kubectl']
 
 # imports
-import urllib3, sys, time
+import urllib3, sys, time, re
 from configparser import ConfigParser
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from proxmoxer import ProxmoxAPI
@@ -25,7 +25,7 @@ def verbs_help(verbs):
 
 # generating the proxmox kopsrox image name
 def kopsrox_img(proxstor,proximgid):
-    return(proxstor + ':base-' + proximgid + '-disk-0')
+  return(proxstor + ':base-' + proximgid + '-disk-0')
 
 # config checker
 def conf_check(config,section,value,filename):
@@ -61,42 +61,49 @@ timeout=10)
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
 
-    # config
-    config = read_kopsrox_ini()
-    proxnode = (config['proxmox']['proxnode'])
+  # config
+  config = read_kopsrox_ini()
+  proxnode = (config['proxmox']['proxnode'])
 
-    # proxmox 
-    prox = prox_init()
+  # proxmox 
+  prox = prox_init()
 
-    # qagent no yet running check
-    qagent_running = 'false'
-    while ( qagent_running == 'false' ):
-      try:
-        qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
-        qagent_running = 'true'
-      except:
-        print('qagent not running')
+  # qagent no yet running check
+  qagent_running = 'false'
+  while ( qagent_running == 'false' ):
+    try:
+      qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
+      qagent_running = 'true'
+    except:
+      time.sleep('0.5')
+      print('qagent: not started on', vmid)
 
-    # send command
-    qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
-            command = "sh -c \'" + cmd +"\'",
-            )
+  # send command
+  qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
+          command = "sh -c \'" + cmd +"\'",
+          )
 
-    # get pid
-    pid = qa_exec['pid']
+  # get pid
+  pid = qa_exec['pid']
 
-    # loop until command has finish
-    pid_status = '0'
-    while ( int(pid_status) != 1 ):
-      try:
-        pid_check = (prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
-      except:
-        next
+  # loop until command has finish
+  pid_status = '0'
+  while ( int(pid_status) != 1 ):
+    try:
+      pid_check = (prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
+    except:
+      next
 
-      pid_status = pid_check['exited']
+    pid_status = pid_check['exited']
 
-    # get status
-    return(pid_check['out-data'])
+  # check for error
+  if ( int(pid_check['exitcode']) == 127 ):
+    print(pid_check['err-data'])
+    exit(0)
+
+  # get status
+  #print(pid_check)
+  return(pid_check['out-data'])
 
 # check for k3s master status
 def k3s_check_master(vmid):
@@ -105,12 +112,15 @@ def k3s_check_master(vmid):
     cmd = 'if [ -f /etc/rancher/k3s/k3s.yaml ] ; then echo -n present; else echo -n fail;fi'
     k3s_check = qaexec(vmid,cmd)
 
+    # fail early
+    if ( k3s_check == 'fail' ):
+      return('fail')
+
     # check node is healthy
     if (k3s_check == 'present'):
       print('existing k3s cluster running')
-      cmd = '/usr/local/bin/k3s kubectl get nodes'
-      k3s_check2 = qaexec(vmid,cmd)
-      print(k3s_check2)
+      k = kubectl(vmid,'get nodes')
+      print(k)
       exit(0)
 
     # else return fail
@@ -131,10 +141,6 @@ def k3s_init_master(vmid):
     if ( status == 'fail'):
       cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s'
       qaexec(vmid,cmd)
-    
-      # wait for cluster to init
-      while ( k3s_check_master(vmid) == 'fail' ):
-        print('waiting for cluster to init')
 
     print('cluster running ok')
     print('done')
@@ -143,10 +149,8 @@ def k3s_init_master(vmid):
 # kubectl
 def kubectl(masterid,cmd):
   #print('kubectl:', masterid, cmd)
-
   # cmd
   k = str(('/usr/local/bin/k3s kubectl ' +cmd))
-  #print(k)
   return(qaexec(masterid,k))
 
 # return kopsrox_vms as list

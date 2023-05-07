@@ -40,12 +40,14 @@ if passed_verb == 'info':
   for vm in vms:
     vmid = vm.get('vmid')
     vmname = vm.get('name')
+    vmstatus = vm.get('status')
 
     # print kopsrox info
     if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 9))):
-      #print(vm)
-      print(vmid, '-', vmname, vm.get('status'), 'uptime:', vm.get('uptime'))
-      if ( vm.get('status') == 'running'):
+      print(vmid, '-', vmname, vmstatus, 'uptime:', vm.get('uptime'))
+
+      # if vm is running run kubectl
+      if ( vmstatus == 'running'):
         print('kubectl')
         kubectl = common.kubectl(vmid, 'get nodes')
         print(kubectl)
