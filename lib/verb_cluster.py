@@ -22,7 +22,6 @@ if not passed_verb in verbs:
 # import config
 config = common.read_kopsrox_ini()
 import proxmox_config as kprox
-#print(config)
 
 # variables from config
 proxnode = (config['proxmox']['proxnode'])
@@ -37,7 +36,6 @@ if passed_verb == 'info':
   print('print info about cluster')
     
   vms = kprox.prox.nodes(proxnode).qemu.get()
-  #common.task_status(kprox.prox, vms, proxnode)
   for vm in vms:
     vmid = vm.get('vmid')
     vmname = vm.get('name')
@@ -47,10 +45,16 @@ if passed_verb == 'info':
       #print(vm)
       print(vmid, '-', vmname, vm.get('status'), 'uptime:', vm.get('uptime'))
 
+
+  kubectl = common.kubectl('601', 'get nodes')
+  print(kubectl)
+
   #print(vms)
   exit(0)
 
-# create
+# create new cluster
+# check for existing install
+# check files as well 
 if passed_verb == 'create':
   print('creating new kopsrox cluster')
 
@@ -60,13 +64,13 @@ if passed_verb == 'create':
   # handle master install
   if (int(masterid) in vmids):
     print('found existing master vm', masterid)
-    common.k3s_init_master(masterid)
   else:
     print('creating vmid', masterid)
     common.clone(masterid)
-    print('installing k3s on', masterid)
-    common.k3s_init_master(masterid)
-   
+
+  # install k3s 
+  common.k3s_init_master(masterid)
+
   # create new nodes per config
   print('build', workers, 'workers')
 

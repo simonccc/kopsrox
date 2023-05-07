@@ -100,10 +100,12 @@ def qaexec(vmid,cmd):
 
 # check for k3s master status
 def k3s_check_master(vmid):
-    # check for existing k3s
+
+    # check for existing k3s config file
     cmd = 'if [ -f /etc/rancher/k3s/k3s.yaml ] ; then echo -n present; else echo -n fail;fi'
     k3s_check = qaexec(vmid,cmd)
 
+    # check node is healthy
     if (k3s_check == 'present'):
       print('existing k3s cluster running')
       cmd = '/usr/local/bin/k3s kubectl get nodes'
@@ -111,6 +113,7 @@ def k3s_check_master(vmid):
       print(k3s_check2)
       exit(0)
 
+    # else return fail
     return('fail')
 
 # init 1st master
@@ -124,16 +127,28 @@ def k3s_init_master(vmid):
     # check for existing k3s
     status = k3s_check_master(vmid)
 
-    # cmd to install k3s version 
-    print('installing k3s')
-    cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s'
-    qaexec(vmid,cmd)
-
-    while ( k3s_check_master(vmid) == 'fail' ):
+    # if master check fails
+    if ( status == 'fail'):
+      cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s'
+      qaexec(vmid,cmd)
+    
+      # wait for cluster to init
+      while ( k3s_check_master(vmid) == 'fail' ):
         print('waiting for cluster to init')
 
+    print('cluster running ok')
     print('done')
     exit(0)
+
+# kubectl
+def kubectl(masterid,cmd):
+  print('kubectl:', masterid, cmd)
+
+  # get config
+  k = str(('/usr/local/bin/k3s kubectl ' +cmd))
+  print(k)
+
+  return(qaexec(masterid,k))
 
 # return kopsrox_vms as list
 def list_kopsrox_vm():
