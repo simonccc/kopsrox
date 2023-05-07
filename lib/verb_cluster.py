@@ -88,7 +88,20 @@ if passed_verb == 'create':
 
 # kubectl
 if passed_verb == 'kubectl':
-  print('cluster kubectl')
+
+  # convert command line into string
+  cmd= '';  
+  for arg in sys.argv[1:]:          # skip sys.argv[0] since the question didn't ask for it
+    if ' ' in arg:
+      cmd+= '"{}" '.format(arg) ;   # Put the quotes back in
+    else:
+      cmd+="{} ".format(arg) ;      # Assume no space => no quotes
+
+  cmd = cmd.replace('cluster kubectl ','')
+  print('cluster kubectl: ', cmd)
+  k = common.kubectl(masterid,cmd)
+  print(k)
+
 
 # destroy
 if passed_verb == 'destroy':
