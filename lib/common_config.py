@@ -12,7 +12,7 @@ verbs_image = ['info', 'create', 'destroy']
 verbs_cluster = ['info', 'create', 'destroy']
 
 # imports
-import urllib3, sys
+import urllib3, sys, time
 from configparser import ConfigParser
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from proxmoxer import ProxmoxAPI
@@ -76,8 +76,33 @@ def qaexec(vmid,cmd):
     # get pid
     pid = qa_exec['pid']
 
+    # loop until command has finish
+    pid_status = '0'
+    while ( int(pid_status) != 1 ):
+      try:
+        pid_check = (prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
+      except:
+        next
+
+      pid_status = pid_check['exited']
+
     # get status
-    return(prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
+    return(pid_check['out-data'])
+
+# check for k3s master status
+def k3s_check_master(vmid):
+    # check for existing k3s
+    cmd = 'if [ -f /etc/rancher/k3s/k3s.yaml ] ; then echo -n present; else echo -n fail;fi'
+    k3s_check = qaexec(vmid,cmd)
+
+    if (k3s_check == 'present'):
+      print('existing k3s cluster running')
+      cmd = '/usr/local/bin/k3s kubectl get nodes'
+      k3s_check2 = qaexec(vmid,cmd)
+      print(k3s_check2)
+      exit(0)
+
+    return('fail')
 
 # init 1st master
 def k3s_init_master(vmid):
@@ -88,16 +113,7 @@ def k3s_init_master(vmid):
     k3s_version = (config['cluster']['k3s_version'])
 
     # check for existing k3s
-    cmd = 'if [ -f /etc/rancher/k3s/k3s.yaml ] ; then echo -n present; else echo -n fail;fi'
-    k3s_check = qaexec(vmid,cmd)
-
-    # if existing k3s install found
-    if ( ( k3s_check['out-data'] ) and (k3s_check['out-data'] == 'present' )):
-       print('existing k3s cluster running')
-       cmd = '/usr/local/bin/k3s kubectl get nodes'
-       k3s_check2 = qaexec(vmid,cmd)
-       print(k3s_check2)
-       exit(0)
+    status = k3s_check_master(vmid)
 
     # cmd to install k3s version 
     cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s'
