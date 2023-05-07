@@ -64,23 +64,31 @@ if passed_verb == 'info':
 # check for existing install
 # check files as well 
 if passed_verb == 'create':
-  print('creating new kopsrox cluster')
+  print('create: cluster')
 
   # get list of runnning vms
   vmids = common.list_kopsrox_vm()
 
   # handle master install
   if (int(masterid) in vmids):
-    print('cluster create: found existing master vm', masterid)
+    print('create: found existing master vm', masterid)
   else:
     common.clone(masterid)
 
   # install k3s 
-  common.k3s_init_master(masterid)
+  install_master = common.k3s_init_master(masterid)
+  if ( install_master == 'true'):
+    print('create: master', masterid,'ok')
+  else:
+    print('ERROR: master not installed')
+    exit(0)
 
   # create new nodes per config
   print('build', workers, 'workers')
-  exit(0)
+
+# kubectl
+if passed_verb == 'kubectl':
+  print('cluster kubectl')
 
 # destroy
 if passed_verb == 'destroy':

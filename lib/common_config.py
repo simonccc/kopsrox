@@ -121,7 +121,6 @@ def k3s_check_master(vmid):
 
     # check node is healthy
     if (k3s_check == 'present'):
-      print('k3s_check_master: found cluster config')
 
       # test call
       k = kubectl(vmid,'get nodes')
@@ -149,13 +148,12 @@ def k3s_init_master(vmid):
 
     # if master check fails
     if ( status == 'fail'):
-      print('installing k3s')
+      print('k3s_init_master: installing k3s on', vmid)
       cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s'
       qaexec(vmid,cmd)
 
     status = k3s_check_master(vmid)
-
-    print('done')
+    return(status)
 
 # kubectl
 def kubectl(masterid,cmd):
