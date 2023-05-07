@@ -42,12 +42,13 @@ if passed_verb == 'info':
     vmname = vm.get('name')
 
     # print kopsrox info
-    if ((int(vmid) > int(proximgid)) and (int(vmid) < (int(proximgid) + 9))):
+    if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 9))):
       #print(vm)
       print(vmid, '-', vmname, vm.get('status'), 'uptime:', vm.get('uptime'))
-      print('kubectl')
-      kubectl = common.kubectl(vmid, 'get nodes')
-      print(kubectl)
+      if ( vm.get('status') == 'running'):
+        print('kubectl')
+        kubectl = common.kubectl(vmid, 'get nodes')
+        print(kubectl)
 
   #print(vms)
   exit(0)
