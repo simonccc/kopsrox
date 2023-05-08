@@ -91,7 +91,7 @@ if passed_verb == 'kubectl':
 
   # convert command line into string
   cmd= '';  
-  for arg in sys.argv[1:]:          # skip sys.argv[0] since the question didn't ask for it
+  for arg in sys.argv[1:]:          
     if ' ' in arg:
       cmd+= '"{}" '.format(arg) ;   # Put the quotes back in
     else:
@@ -102,6 +102,9 @@ if passed_verb == 'kubectl':
   k = common.kubectl(masterid,cmd)
   print(k)
 
+# export kubeconfig to file
+if passed_verb == 'kubeconfig':
+    common.kubeconfig(masterid)
 
 # destroy
 if passed_verb == 'destroy':

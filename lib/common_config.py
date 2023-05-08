@@ -9,7 +9,7 @@ kopsrox_conf='kopsrox.ini'
 # verbs
 top_verbs = ['image', 'cluster']
 verbs_image = ['info', 'create', 'destroy']
-verbs_cluster = ['info', 'create', 'destroy', 'kubectl']
+verbs_cluster = ['info', 'create', 'destroy', 'kubectl', 'kubeconfig']
 
 # imports
 import urllib3, sys, time, re
@@ -159,6 +159,12 @@ def k3s_init_master(vmid):
 def kubectl(masterid,cmd):
   k = str(('/usr/local/bin/k3s kubectl ' +cmd))
   return(qaexec(masterid,k))
+
+# kubeconfig
+def kubeconfig(masterid):
+    kubeconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
+    kubeconfig = kubeconfig.replace('127.0.0.1', 'foo')
+    print(kubeconfig)
 
 # return kopsrox_vms as list
 def list_kopsrox_vm():
