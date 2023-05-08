@@ -162,9 +162,20 @@ def kubectl(masterid,cmd):
 
 # kubeconfig
 def kubeconfig(masterid):
+    ip = vmip(masterid)
     kubeconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
-    kubeconfig = kubeconfig.replace('127.0.0.1', 'foo')
+    kubeconfig = kubeconfig.replace('127.0.0.1', ip)
     print(kubeconfig)
+
+# pass a vmid return the IP
+def vmip(vmid):
+    config = read_kopsrox_ini()
+    proximgid = (config['proxmox']['proximgid'])
+    network = (config['kopsrox']['network'])
+    network_octs = network.split('.')
+    basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )
+    ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
+    return(ip)
 
 # return kopsrox_vms as list
 def list_kopsrox_vm():
@@ -220,8 +231,8 @@ def clone(vmid):
     proximgid = (config['proxmox']['proximgid'])
 
     # map network info
-    network = (config['kopsrox']['network'])
     networkgw = (config['kopsrox']['networkgw'])
+    ip = vmip(vmid)
 
     # vm specs
     cores = (config['kopsrox']['vm_cpu'])
@@ -230,16 +241,10 @@ def clone(vmid):
 
     # defaults
     hostname = 'unknown'
-    ip = network
 
     # map hostname
     if ( int(vmid) == ( int(proximgid) + 1 )):
       hostname = 'kopsrox-m1'
-
-    # map ip from vmid
-    network_octs = network.split('.')
-    basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' ) 
-    ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
 
     # init proxmox
     prox = prox_init()

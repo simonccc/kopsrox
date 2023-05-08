@@ -93,12 +93,17 @@ if passed_verb == 'kubectl':
   cmd= '';  
   for arg in sys.argv[1:]:          
     if ' ' in arg:
-      cmd+= '"{}" '.format(arg) ;   # Put the quotes back in
+      # Put the quotes back in
+      cmd+='"{}" '.format(arg) ;  
     else:
-      cmd+="{} ".format(arg) ;      # Assume no space => no quotes
+      # Assume no space => no quotes
+      cmd+="{} ".format(arg) ;   
 
+  # remove first 2 commands
   cmd = cmd.replace('cluster kubectl ','')
-  print('cluster kubectl: ', cmd)
+
+  # run command and show output
+  print('cluster kubectl:', cmd)
   k = common.kubectl(masterid,cmd)
   print(k)
 
