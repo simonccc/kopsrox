@@ -165,7 +165,9 @@ def kubeconfig(masterid):
     ip = vmip(masterid)
     kubeconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
     kubeconfig = kubeconfig.replace('127.0.0.1', ip)
-    print(kubeconfig)
+    with open('kopsrox.kubeconfig', 'w') as kubeconfig_file:
+      kubeconfig_file.write(kubeconfig)
+    print("wrote kubeconfig to kopsrox.kubeconfig")
 
 # pass a vmid return the IP
 def vmip(vmid):
