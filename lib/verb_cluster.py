@@ -83,6 +83,9 @@ if passed_verb == 'create':
     print('ERROR: master not installed')
     exit(0)
 
+  # export kubeconfig
+  common.kubeconfig(masterid)
+
   # create new nodes per config
   print('build', workers, 'workers')
 
