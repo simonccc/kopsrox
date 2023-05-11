@@ -103,9 +103,13 @@ def qaexec(vmid,cmd):
     print('ERROR: exec failure', pid_check['err-data'])
     exit(0)
 
-  # get status
-  #print(pid_check)
-  return(pid_check['out-data'])
+  # check for err-data
+  try:
+    if (pid_check['err-data']):
+      print('ERROR:', pid_check['err-data'])
+  except:
+    return(pid_check['out-data'])
+
 
 # check for k3s master status
 def k3s_check_master(vmid):

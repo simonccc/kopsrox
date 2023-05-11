@@ -110,8 +110,7 @@ if passed_verb == 'kubectl':
 
   # run command and show output
   print('cluster kubectl:', cmd)
-  k = common.kubectl(masterid,cmd)
-  print(k)
+  print(common.kubectl(masterid,cmd))
 
 # export kubeconfig to file
 if passed_verb == 'kubeconfig':
