@@ -86,6 +86,9 @@ if passed_verb == 'create':
   # export kubeconfig
   common.kubeconfig(masterid)
 
+  # export token
+  common.k3stoken(masterid)
+
   # create new nodes per config
   print('build', workers, 'workers')
 

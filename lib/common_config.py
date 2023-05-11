@@ -169,6 +169,13 @@ def kubeconfig(masterid):
       kubeconfig_file.write(kubeconfig)
     print("wrote kubeconfig to kopsrox.kubeconfig")
 
+# node token
+def k3stoken(masterid):
+    token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
+    with open('kopsrox.k3stoken', 'w') as k3s:
+      k3s.write(token)
+    print("wrote cluster token to kopsrox.k3stoken")
+
 # pass a vmid return the IP
 def vmip(vmid):
     config = read_kopsrox_ini()
