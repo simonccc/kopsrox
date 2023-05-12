@@ -112,7 +112,7 @@ def qaexec(vmid,cmd):
 
 
 # check for k3s master status
-def k3s_check_master(vmid):
+def k3s_check(vmid):
 
     # check for existing k3s config file
     cmd = 'if [ -f /etc/rancher/k3s/k3s.yaml ] ; then echo -n present; else echo -n fail;fi'
@@ -120,7 +120,7 @@ def k3s_check_master(vmid):
 
     # fail early
     if ( k3s_check == 'fail' ):
-      print('k3s_check_master: no config found')
+      print('k3s_check: no config found')
       return('fail')
 
     # check node is healthy
@@ -130,7 +130,7 @@ def k3s_check_master(vmid):
       k = kubectl(vmid,'get nodes')
 
       while ( re.search('NotReady', k)):
-        print('k3s_check_master: node not ready', vmid)
+        print('k3s_check: node not ready', vmid)
         time.sleep(7)
         k = kubectl(vmid,'get nodes')
 
@@ -148,7 +148,7 @@ def k3s_init_master(vmid):
     k3s_version = (config['cluster']['k3s_version'])
 
     # check for existing k3s
-    status = k3s_check_master(vmid)
+    status = k3s_check(vmid)
 
     # if master check fails
     if ( status == 'fail'):
@@ -156,14 +156,14 @@ def k3s_init_master(vmid):
       cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s'
       qaexec(vmid,cmd)
 
-    status = k3s_check_master(vmid)
+    status = k3s_check(vmid)
     return(status)
 
 # init worker node
 def k3s_init_worker(vmid):
 
   # check for existing k3s
-  status = k3s_check_master(vmid)
+  status = k3s_check(vmid)
 
   # if check fails
   if ( status == 'fail'):
@@ -180,7 +180,7 @@ def k3s_init_worker(vmid):
       #qaexec(vmid,cmd)
      
     exit(0)
-    status = k3s_check_master(vmid)
+    status = k3s_check(vmid)
     return(status)
 
 
