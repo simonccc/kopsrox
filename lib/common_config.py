@@ -208,7 +208,7 @@ def list_kopsrox_vm():
     for vm in prox.nodes(proxnode).qemu.get():
       vmid = vm.get('vmid')
       # if vm in range add to list
-      if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 15))):
+      if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 10))):
         vmids.append(vmid)
 
     # return list
@@ -258,6 +258,12 @@ def clone(vmid):
     # map hostname
     if ( int(vmid) == ( int(proximgid) + 1 )):
       hostname = 'kopsrox-m1'
+    if ( int(vmid) == ( int(proximgid) + 5 )):
+      hostname = 'kopsrox-w1'
+    if ( int(vmid) == ( int(proximgid) + 6 )):
+      hostname = 'kopsrox-w2'
+    if ( int(vmid) == ( int(proximgid) + 7 )):
+      hostname = 'kopsrox-w3'
 
     # init proxmox
     prox = prox_init()

@@ -90,7 +90,28 @@ if passed_verb == 'create':
   common.k3stoken(masterid)
 
   # create new nodes per config
-  print('build', workers, 'workers')
+  if ( int(workers) > 0 ):
+    print('build', workers, 'workers')
+    worker_count = 1 
+
+    # cycle through possible workers
+    while ( worker_count <= int(workers) ):
+
+      # calculate workerid
+      workerid = str(int(proximgid) + 4 + worker_count)
+      print('checking worker', workerid)
+
+      # if existing vm with this id found
+      if (int(workerid) in vmids):
+          print('found existing worker', workerid)
+      else:
+        common.clone(workerid)
+      worker_count = worker_count + 1
+
+    # lets assume for now that we have max 3 workers
+    # worker 1 = 615, worker 2 = 616 etc?
+    # so loop through this sequence checking for existing vms?
+
 
 # kubectl
 if passed_verb == 'kubectl':
