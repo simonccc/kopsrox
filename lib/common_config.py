@@ -188,7 +188,6 @@ def k3s_init_worker(vmid):
     status = k3s_check(vmid)
     return(status)
 
-
 # get token
 def get_token():
   f = open("kopsrox.k3stoken", "r")
