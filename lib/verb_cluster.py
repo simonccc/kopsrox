@@ -64,14 +64,14 @@ if passed_verb == 'info':
 # check for existing install
 # check files as well 
 if passed_verb == 'create':
-  print('create: cluster')
+  print('checking cluster state')
 
   # get list of runnning vms
   vmids = common.list_kopsrox_vm()
 
   # handle master install
   if (int(masterid) in vmids):
-    print('create: found existing master vm', masterid)
+    print('found existing master vm', masterid)
   else:
     common.clone(masterid)
 
@@ -89,9 +89,11 @@ if passed_verb == 'create':
   # export token
   common.k3stoken(masterid)
 
-  # create new nodes per config
+  # create new worker nodes per config
   if ( int(workers) > 0 ):
-    print('build', workers, 'workers')
+    print('checking', workers, 'workers')
+
+    # first id in the loop
     worker_count = 1 
 
     # cycle through possible workers
@@ -99,7 +101,6 @@ if passed_verb == 'create':
 
       # calculate workerid
       workerid = str(int(proximgid) + 4 + worker_count)
-      print('checking worker', workerid)
 
       # if existing vm with this id found
       if (int(workerid) in vmids):
@@ -108,9 +109,7 @@ if passed_verb == 'create':
         common.clone(workerid)
       worker_count = worker_count + 1
 
-    # lets assume for now that we have max 3 workers
-    # worker 1 = 615, worker 2 = 616 etc?
-    # so loop through this sequence checking for existing vms?
+    install_worker = common.k3s_init_worker(workerid)
 
 
 # kubectl

@@ -159,6 +159,31 @@ def k3s_init_master(vmid):
     status = k3s_check_master(vmid)
     return(status)
 
+# init worker node
+def k3s_init_worker(vmid):
+
+  # check for existing k3s
+  status = k3s_check_master(vmid)
+
+  # if check fails
+  if ( status == 'fail'):
+
+    print('k3s_init_worker: installing k3s on', vmid)
+    config = read_kopsrox_ini()
+    masterid = (int(config['proxmox']['proximgid']) + 1)
+    k3s_version = (config['cluster']['k3s_version'])
+    ip = vmip(masterid)
+
+    print(masterid,ip)
+
+      #cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://$IP:6443\" K3S_TOKEN=\"$TOKEN\" sh -s'
+      #qaexec(vmid,cmd)
+     
+    exit(0)
+    status = k3s_check_master(vmid)
+    return(status)
+
+
 # kubectl
 def kubectl(masterid,cmd):
   k = str(('/usr/local/bin/k3s kubectl ' +cmd))
