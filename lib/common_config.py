@@ -106,7 +106,7 @@ def qaexec(vmid,cmd):
   # check for err-data
   try:
     if (pid_check['err-data']):
-      print('ERROR:', pid_check['err-data'])
+      return('ERROR:', pid_check['err-data'])
   except:
     return(pid_check['out-data'])
 
@@ -114,25 +114,27 @@ def qaexec(vmid,cmd):
 # check for k3s master status
 def k3s_check(vmid):
 
-    # check for existing k3s config file
-    cmd = 'if [ -f /etc/rancher/k3s/k3s.yaml ] ; then echo -n present; else echo -n fail;fi'
+    masterid = get_master_id()
+
+    # check for exiting k3s
+    cmd = 'if [ -f /usr/local/bin/k3s ] ; then echo -n present; else echo -n fail;fi'
     k3s_check = qaexec(vmid,cmd)
 
     # fail early
     if ( k3s_check == 'fail' ):
-      print('k3s_check: no config found')
+      print('k3s_check: no k3s bin found')
       return('fail')
 
     # check node is healthy
     if (k3s_check == 'present'):
 
       # test call
-      k = kubectl(vmid,'get nodes')
+      k = kubectl(masterid,'get nodes')
 
       while ( re.search('NotReady', k)):
         print('k3s_check: node not ready', vmid)
-        time.sleep(7)
-        k = kubectl(vmid,'get nodes')
+        time.sleep(5)
+        k = kubectl(masterid,'get nodes')
 
       return('true')
 
@@ -159,6 +161,11 @@ def k3s_init_master(vmid):
     status = k3s_check(vmid)
     return(status)
 
+# return master id
+def get_master_id():
+    config = read_kopsrox_ini()
+    return(int(config['proxmox']['proximgid']) + 1)
+
 # init worker node
 def k3s_init_worker(vmid):
 
@@ -170,13 +177,12 @@ def k3s_init_worker(vmid):
 
     print('k3s_init_worker: installing k3s on', vmid)
     config = read_kopsrox_ini()
-    masterid = (int(config['proxmox']['proximgid']) + 1)
+    masterid = get_master_id()
     k3s_version = (config['cluster']['k3s_version'])
     ip = vmip(masterid)
     token = get_token()
 
     cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
-    print(cmd)
     qaexec(vmid,cmd)
      
     status = k3s_check(vmid)

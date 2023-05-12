@@ -108,9 +108,7 @@ if passed_verb == 'create':
       else:
         common.clone(workerid)
       worker_count = worker_count + 1
-
-    install_worker = common.k3s_init_worker(workerid)
-
+      install_worker = common.k3s_init_worker(workerid)
 
 # kubectl
 if passed_verb == 'kubectl':
