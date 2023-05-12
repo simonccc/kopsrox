@@ -173,16 +173,20 @@ def k3s_init_worker(vmid):
     masterid = (int(config['proxmox']['proximgid']) + 1)
     k3s_version = (config['cluster']['k3s_version'])
     ip = vmip(masterid)
+    token = get_token()
 
-    print(masterid,ip)
-
-      #cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://$IP:6443\" K3S_TOKEN=\"$TOKEN\" sh -s'
-      #qaexec(vmid,cmd)
+    cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
+    print(cmd)
+    qaexec(vmid,cmd)
      
-    exit(0)
     status = k3s_check(vmid)
     return(status)
 
+
+# get token
+def get_token():
+  f = open("kopsrox.k3stoken", "r")
+  return(f.read().rstrip())
 
 # kubectl
 def kubectl(masterid,cmd):
