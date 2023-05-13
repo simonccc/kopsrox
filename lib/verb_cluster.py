@@ -29,7 +29,7 @@ proximgid = (config['proxmox']['proximgid'])
 workers = (config['cluster']['workers'])
 
 # this assignment will need to be in config in future
-masterid = str(int(proximgid) + 1)
+masterid = common.get_master_id()
 
 # info
 if passed_verb == 'info':
@@ -51,8 +51,8 @@ if passed_verb == 'info':
     # print
     print(vmid, '-', vmname, "status:", vmstatus, 'uptime:', vmuptime, 'cpu:', vmcpu)
 
-    # if vm is running run kubectl
-    if ( vmstatus == 'running'):
+    # if vm is a master / slave run kubectl
+    if ( ( vmid < int(masterid + 3 )) and (vmid > int(proximgid))):
       print('kubectl')
       kubectl = common.kubectl(vmid, 'get nodes')
       print(kubectl)
