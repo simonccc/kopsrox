@@ -68,6 +68,19 @@ def qaexec(vmid,cmd):
   # proxmox 
   prox = prox_init()
 
+  # vm not in list check
+  vmids = list_kopsrox_vm()
+  if not vmid in vmids:
+    print(vmid, 'not in list')
+    exit(0)
+
+  # vm not powered on
+  vmi = vm_info(vmid)
+  if ( vmi.get('status') == 'stopped' ):
+    print('powering on', vmid)
+    poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
+    task_status(prox, str(poweron), proxnode)
+
   # qagent no yet running check
   qagent_running = 'false'
   while ( qagent_running == 'false' ):
@@ -76,7 +89,7 @@ def qaexec(vmid,cmd):
       qagent_running = 'true'
     except:
       print('qagent: not started on', vmid)
-      time.sleep(10)
+      time.sleep(3)
 
   # send command
   qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
@@ -146,7 +159,6 @@ def k3s_init_master(vmid):
 
     # get config
     config = read_kopsrox_ini()
-    proxnode = (config['proxmox']['proxnode'])
     k3s_version = (config['cluster']['k3s_version'])
 
     # check for existing k3s
@@ -165,6 +177,13 @@ def k3s_init_master(vmid):
 def get_master_id():
     config = read_kopsrox_ini()
     return(int(config['proxmox']['proximgid']) + 1)
+
+# check vm is powered on 
+def vm_info(vmid):
+    config = read_kopsrox_ini()
+    proxnode = (config['proxmox']['proxnode'])
+    prox = prox_init()
+    return(prox.nodes(proxnode).qemu(vmid).status.current.get())
 
 # init worker node
 def k3s_init_worker(vmid):

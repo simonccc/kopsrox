@@ -39,7 +39,7 @@ if passed_verb == 'info':
   for vm in common.list_kopsrox_vm():
 
     # get vm status
-    vm_info = kprox.prox.nodes(proxnode).qemu(vm).status.current.get()
+    vm_info = common.vm_info(vm)
 
     # vars
     vmid = vm_info.get('vmid')
