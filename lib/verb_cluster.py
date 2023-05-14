@@ -33,7 +33,7 @@ masterid = common.get_master_id()
 
 # info
 if passed_verb == 'info':
-  print('kopsrox cluster info:')
+  print('kopsrox vm info:')
 
   # for kopsrox vms
   for vm in common.list_kopsrox_vm():
@@ -45,19 +45,18 @@ if passed_verb == 'info':
     vmid = vm_info.get('vmid')
     vmname = vm_info.get('name')
     vmstatus = vm_info.get('status')
-    vmuptime = vm_info.get('uptime')
-    vmcpu = vm_info.get('cpu')
+
+    ip = common.vmip(vmid)
 
     # print
-    print(vmid, '-', vmname, "status:", vmstatus, 'uptime:', vmuptime, 'cpu:', vmcpu)
-
-    # if vm is a master / slave run kubectl
-    if ( ( vmid < int(masterid + 3 )) and (vmid > int(proximgid))):
-      print('kubectl')
-      kubectl = common.kubectl(vmid, 'get nodes')
-      print(kubectl)
+    print(vmid, '-', vmname, "status:", vmstatus, 'ip:', ip)
 
   #print(vms)
+  print('kopsrox cluster:')
+  k = common.kubectl(masterid, 'get nodes')
+  print(k)
+  print('events')
+  print(common.kubectl(masterid, 'get events'))
   exit(0)
 
 # create new cluster
