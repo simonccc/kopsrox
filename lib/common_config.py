@@ -74,13 +74,6 @@ def qaexec(vmid,cmd):
     print(vmid, 'not in list')
     exit(0)
 
-  # vm not powered on
-  vmi = vm_info(vmid)
-  if ( vmi.get('status') == 'stopped' ):
-    print('powering on', vmid)
-    poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
-    task_status(prox, str(poweron), proxnode)
-
   # qagent no yet running check
   qagent_running = 'false'
   while ( qagent_running == 'false' ):
