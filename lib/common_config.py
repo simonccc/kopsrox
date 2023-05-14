@@ -68,13 +68,8 @@ def qaexec(vmid,cmd):
   # proxmox 
   prox = prox_init()
 
-  # vm not in list check
-  vmids = list_kopsrox_vm()
-  if not vmid in vmids:
-    print(vmid, 'not in list')
-    exit(0)
-
   # qagent no yet running check
+  # needs a loop counter and check adding...
   qagent_running = 'false'
   while ( qagent_running == 'false' ):
     try:
@@ -117,9 +112,10 @@ def qaexec(vmid,cmd):
     return(pid_check['out-data'])
 
 
-# check for k3s master status
+# check for k3s status
 def k3s_check(vmid):
 
+    # get masterid
     masterid = get_master_id()
 
     # check for exiting k3s
@@ -203,6 +199,7 @@ def k3s_init_worker(vmid):
 # get token
 def get_token():
   f = open("kopsrox.k3stoken", "r")
+  # return contents and strip linebreak
   return(f.read().rstrip())
 
 # kubectl
@@ -214,17 +211,21 @@ def kubectl(masterid,cmd):
 def kubeconfig(masterid):
     ip = vmip(masterid)
     kubeconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
+
+    # replace localhost with masters ip
     kubeconfig = kubeconfig.replace('127.0.0.1', ip)
+
+    # write file out
     with open('kopsrox.kubeconfig', 'w') as kubeconfig_file:
       kubeconfig_file.write(kubeconfig)
-    print("wrote kubeconfig to kopsrox.kubeconfig")
+    print("kubeconfig: generated kopsrox.kubeconfig")
 
 # node token
 def k3stoken(masterid):
     token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
     with open('kopsrox.k3stoken', 'w') as k3s:
       k3s.write(token)
-    print("wrote cluster token to kopsrox.k3stoken")
+    print("k3stoken: generated kopsrox.k3stoken")
 
 # pass a vmid return the IP
 def vmip(vmid):
@@ -258,7 +259,7 @@ def list_kopsrox_vm():
         vmids.append(vmid)
 
     # return list
-    vmidss = vmids.sort() 
+    vmids.sort()
     return(vmids)
 
 # stop and destroy vm
@@ -276,7 +277,8 @@ def destroy(vmid):
       delete = prox.nodes(proxnode).qemu(vmid).delete()
       task_status(prox, delete, proxnode)
     except:
-      next
+      print('unable to destroy', vmid)
+      exit(0)
 
 # clone
 def clone(vmid):
@@ -324,6 +326,7 @@ def clone(vmid):
 
     # configure
     configure = prox.nodes(proxnode).qemu(vmid).config.post(
+                onboot = 1,
                 cores = cores, 
                 memory = memory,
                 ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/32' ))

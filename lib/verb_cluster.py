@@ -42,26 +42,19 @@ if passed_verb == 'info':
     vm_info = common.vm_info(vm)
 
     # vars
-    vmid = vm_info.get('vmid')
     vmname = vm_info.get('name')
     vmstatus = vm_info.get('status')
-
-    ip = common.vmip(vmid)
+    ip = common.vmip(vm)
 
     # print
-    print(vmid, '-', vmname, "status:", vmstatus, 'ip:', ip)
+    print(vm, '-', vmname, "status:", vmstatus, 'ip:', ip)
 
-  #print(vms)
   print('kopsrox cluster:')
-  k = common.kubectl(masterid, 'get nodes')
-  print(k)
-  print('events')
+  print(common.kubectl(masterid, 'get nodes'))
   print(common.kubectl(masterid, 'get events'))
-  exit(0)
+  exit(1)
 
 # create new cluster
-# check for existing install
-# check files as well 
 if passed_verb == 'create':
   print('checking cluster state')
 
