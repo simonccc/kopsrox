@@ -327,6 +327,7 @@ def clone(vmid):
     # configure
     configure = prox.nodes(proxnode).qemu(vmid).config.post(
                 onboot = 1,
+                hotplug = 0,
                 cores = cores, 
                 memory = memory,
                 ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/32' ))

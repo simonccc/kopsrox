@@ -75,6 +75,7 @@ if (passed_verb == 'create'):
           tags = 'kopsrox',
           serial0 = 'socket',
           agent = ('enabled=true'),
+          hotplug = 0,
           )
   common.task_status(kprox.prox, str(create), proxnode)
 
