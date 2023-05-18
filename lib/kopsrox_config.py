@@ -77,19 +77,14 @@ try:
   if not ((str(sys.argv[1]) == str('image')) and (str(sys.argv[2]) == str('create'))):
     exit(1)
 except:
-    next
-
-# define name of expected kopsrox_img
-kopsrox_img = common.kopsrox_img(proxstor,proximgid)
-
-# get images listed on server to look for the kopsrox one
-images = kprox.prox.nodes(proxnode).storage(proxstor).content.get()
+  kopsrox_img = common.kopsrox_img(proxstor,proximgid)
+  images = kprox.prox.nodes(proxnode).storage(proxstor).content.get()
 
 # search the returned list of images
-if not (re.search(kopsrox_img, str(images))):
-  print(kopsrox_img, 'not found on '+ proxnode + ':' + proxstor)
-  print('run kopsrox image create')
-  exit(1)
+  if not (re.search(kopsrox_img, str(images))):
+    print(kopsrox_img, 'not found on '+ proxnode + ':' + proxstor)
+    print('run kopsrox image create')
+    exit(1)
 
 # check any existing vm's are powered on
 for vmid in (common.list_kopsrox_vm()):
