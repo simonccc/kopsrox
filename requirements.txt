@@ -1,0 +1,2 @@
+proxmoxer==2.0.1
+wget==3.2

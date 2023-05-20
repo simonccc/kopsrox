@@ -13,6 +13,10 @@ automate creating a k3s cluster with proxmox api with a "kops like" cli and clus
 - deleting a node when the config is updated
 - master slaves
 
+## install
+- sudo apt install libguestfs-tools -y
+- pip3 install --user -r requirements.txt
+
 ## commands
 - image - creates a kopsrox image / displays when it was created
 - cluster - clones a vm from the template / lists the kopsrox related vms
