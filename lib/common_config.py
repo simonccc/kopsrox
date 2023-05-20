@@ -268,6 +268,7 @@ def destroy(vmid):
     # get required config
     config = read_kopsrox_ini()
     proxnode = (config['proxmox']['proxnode'])
+    proximgid = (config['proxmox']['proximgid'])
 
     # proxinit
     prox = prox_init()
@@ -277,8 +278,9 @@ def destroy(vmid):
       delete = prox.nodes(proxnode).qemu(vmid).delete()
       task_status(prox, delete, proxnode)
     except:
-      print('unable to destroy', vmid)
-      exit(0)
+      if (int(proximgid) != int(vmid)):
+        print('unable to destroy', vmid)
+        exit(0)
 
 # clone
 def clone(vmid):
