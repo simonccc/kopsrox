@@ -94,6 +94,7 @@ def qaexec(vmid,cmd):
       pid_check = (prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
     except:
       print('qagent: waiting for', pid)
+      time.sleep(2)
 
     # will equal 1 when process is done
     pid_status = pid_check['exited']
@@ -194,6 +195,7 @@ def k3s_init_worker(vmid):
      
     status = k3s_check(vmid)
     return(status)
+  print('k3s_init_worker:', vmid, 'ok')
 
 # get token
 def get_token():
@@ -321,12 +323,12 @@ def clone(vmid):
     print('creating:', hostname)
     clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
             newid = vmid,
-            name = hostname,
             )
     task_status(prox, clone, proxnode)
 
     # configure
     configure = prox.nodes(proxnode).qemu(vmid).config.post(
+                name = hostname,
                 onboot = 1,
                 hotplug = 0,
                 cores = cores, 

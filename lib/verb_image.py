@@ -43,7 +43,7 @@ if (passed_verb == 'create'):
 
   # download image with wget if not present
   if not os.path.isfile(up_image):
-    print('Downloading:', up_image_url)
+    print('downloading:', up_image_url)
     wget.download(up_image_url)
     print('')
 
