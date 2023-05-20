@@ -94,7 +94,7 @@ def qaexec(vmid,cmd):
       pid_check = (prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
     except:
       print('qagent-exec: waiting for', pid)
-      time.sleep(0.2)
+      time.sleep(1)
 
     # will equal 1 when process is done
     pid_status = pid_check['exited']
@@ -332,7 +332,7 @@ def clone(vmid):
                 hotplug = 0,
                 cores = cores, 
                 memory = memory,
-                ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/32' ))
+                ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/24' ))
     task_status(prox, str(configure), proxnode)
 
     # power on
@@ -340,7 +340,7 @@ def clone(vmid):
     task_status(prox, str(poweron), proxnode)
     time.sleep(2)
 
-    print(' ... done')
+    print('done')
 
 # returns a dict of all config
 def read_kopsrox_ini():
