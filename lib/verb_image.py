@@ -104,7 +104,7 @@ if (passed_verb == 'create'):
   cloudinit = kprox.prox.nodes(proxnode).qemu(proximgid).config.post(
           ciuser = cloudinituser, 
           cipassword = 'admin', 
-          ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/32' ), 
+          ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/24' ), 
           sshkeys = ssh_encode )
   common.task_status(kprox.prox, str(cloudinit), proxnode)
 
