@@ -7,10 +7,9 @@ automate creating a k3s cluster with proxmox api with a "kops like" cli and clus
 - barebone .ini files are generated and checked against proxmox
 - creates a k3s cluster with a master node and configurable worker count
 - supports kubectl and exporting kubeconfig/k3s token
-- nothing else is working
+- nodes are deleted when the kopsprox.ini file changes counts
 
 ## in progress
-- deleting a node when the config is updated
 - master slaves
 
 ## install
@@ -22,7 +21,7 @@ automate creating a k3s cluster with proxmox api with a "kops like" cli and clus
 - cluster - clones a vm from the template / lists the kopsrox related vms
 
 ## problems
-- has to run on a proxmox node 'proxnode' to run "qm import" 
+- has to run on a proxmox node to run "qm import" 
 - needs virt-customize / libguestfs-tools to patch the image for qemu-agent
 - user needs sudo qm access
 - the api token needs quite high permissions
@@ -37,11 +36,11 @@ automate creating a k3s cluster with proxmox api with a "kops like" cli and clus
 - patch the image for qemu-agent 
 - create a master node and be able to add workers
 - kubectl level support - should export a local kubeconfig
+- be able to delete workers safely via cordon and purge
 
 ## reqs
 - support a cluster config file, instance type config files etc
 - be able to size nodes ( cpu / ram )
-- be able to delete workers safely via cordon and purge
 
 ## ideas
 - could it be a fat command to avoid dependencies and other complications?
