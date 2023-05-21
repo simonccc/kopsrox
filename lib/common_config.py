@@ -326,18 +326,8 @@ def clone(vmid):
     ram = (config['kopsrox']['vm_ram']) 
     memory = int(int(ram) * 1024)
 
-    # defaults
-    hostname = 'unknown'
-
-    # map hostname
-    if ( int(vmid) == ( int(proximgid) + 1 )):
-      hostname = 'kopsrox-m1'
-    if ( int(vmid) == ( int(proximgid) + 5 )):
-      hostname = 'kopsrox-w1'
-    if ( int(vmid) == ( int(proximgid) + 6 )):
-      hostname = 'kopsrox-w2'
-    if ( int(vmid) == ( int(proximgid) + 7 )):
-      hostname = 'kopsrox-w3'
+    # hostname
+    hostname = vmname(int(vmid))
 
     # init proxmox
     prox = prox_init()
