@@ -210,10 +210,11 @@ def kubectl(masterid,cmd):
 # remove a worker node
 def remove_worker(vmid):
     workername = vmname(vmid)
+    masterid = get_master_id()
     print('remove_worker: rm', workername)
-    kubectl(vmid, ('cordon ' + workername))
-    kubectl(vmid, ('drain --ignore-daemonsets --force ' +  workername))
-    kubectl(vmid, ('delete node ' + workername))
+    kubectl(masterid, ('cordon ' + workername))
+    kubectl(masterid, ('drain --ignore-daemonsets --force ' +  workername))
+    kubectl(masterid, ('delete node ' + workername))
     destroy(vmid)
 
 # map id to hostname
