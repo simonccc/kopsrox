@@ -44,7 +44,10 @@ masters = common.conf_check(kopsrox_config,'cluster','masters',conf)
 workers = common.conf_check(kopsrox_config,'cluster','workers',conf)
 k3s_version = common.conf_check(kopsrox_config,'cluster','k3s_version',conf)
 
-#print('checking proxnode', proxnode)
+# master check - can only be 1 or 3
+if not ( (int(masters) == 1) or(int(masters) == 3)):
+  print ('ERROR: only 1 or 3 masters supported. You have:', masters)
+  exit(0)
 
 # get list of nodes
 nodes = kprox.prox.nodes.get()

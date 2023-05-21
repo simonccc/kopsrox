@@ -27,6 +27,7 @@ import proxmox_config as kprox
 proxnode = (config['proxmox']['proxnode'])
 proximgid = (config['proxmox']['proximgid'])
 workers = (config['cluster']['workers'])
+masters = (config['cluster']['masters'])
 
 # this assignment will need to be in config in future
 masterid = common.get_master_id()
@@ -77,6 +78,25 @@ if passed_verb == 'create':
 
   # export token
   common.k3stoken(masterid)
+
+  # create new master nodes per config
+  if ( int(masters) > 1 ):
+    print('cluster-create: checking masters ('+ masters +')')
+    master_count = 2 
+    while ( master_count <= int(masters) ):
+      slave_masterid = (int(int(proximgid) + int(master_count)))
+      slave_hostname = common.vmname(slave_masterid)
+      print('cluster: checking', slave_hostname)
+      if (slave_masterid in vmids):
+        print('cluster: existing vm for', slave_hostname)
+        exit(0)
+      else:
+        common.clone(slave_masterid)
+
+      install_slave = common.k3s_init_slave(slave_masterid)
+
+      # next possible master
+      master_count = master_count + 1
 
   # create new worker nodes per config
   if ( int(workers) > 0 ):

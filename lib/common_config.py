@@ -76,7 +76,7 @@ def qaexec(vmid,cmd):
       qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
       qagent_running = 'true'
     except:
-      print('qaexec: ogent not started on', vmid)
+      print('qaexec: agent not started on', vmid)
       time.sleep(7)
 
   # send command
@@ -158,6 +158,28 @@ def k3s_init_master(vmid):
     if ( status == 'fail'):
       print('k3s_init_master: installing k3s on', vmid)
       cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
+      qaexec(vmid,cmd)
+
+    status = k3s_check(vmid)
+    return(status)
+
+# additional master
+def k3s_init_slave(vmid):
+
+    # get config
+    config = read_kopsrox_ini()
+    masterid = get_master_id()
+    k3s_version = (config['cluster']['k3s_version'])
+
+    # check for existing k3s
+    status = k3s_check(vmid)
+
+    # if master check fails
+    if ( status == 'fail'):
+      ip = vmip(masterid)
+      token = get_token()
+      print('k3s_init_slave: installing k3s on', vmid)
+      cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
       qaexec(vmid,cmd)
 
     status = k3s_check(vmid)
