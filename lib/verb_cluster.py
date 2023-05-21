@@ -56,21 +56,18 @@ if passed_verb == 'info':
 
 # create new cluster
 if passed_verb == 'create':
-  print('checking cluster state')
 
   # get list of runnning vms
   vmids = common.list_kopsrox_vm()
 
-  # handle master install
-  if (int(masterid) in vmids):
-    print('found existing master vm', masterid)
-  else:
+  # clone new master
+  if not (int(masterid) in vmids):
     common.clone(masterid)
 
   # install k3s 
   install_master = common.k3s_init_master(masterid)
   if ( install_master == 'true'):
-    print('create: master', masterid,'ok')
+    print('cluster-create: master', masterid,'ok')
   else:
     print('ERROR: master not installed')
     exit(0)
@@ -83,7 +80,7 @@ if passed_verb == 'create':
 
   # create new worker nodes per config
   if ( int(workers) > 0 ):
-    print('checking', workers, 'workers')
+    print('cluster-create: checking', workers, 'workers')
 
     # first id in the loop
     worker_count = 1 
@@ -99,8 +96,19 @@ if passed_verb == 'create':
           print('found existing worker', workerid)
       else:
         common.clone(workerid)
+
       worker_count = worker_count + 1
+
+      # checks worker has k3s installed first
       install_worker = common.k3s_init_worker(workerid)
+
+  # check for extra workers
+  for vm in vmids:
+    if ( int(vm) > int(workerid)):
+      print('found extra node', vm)
+      common.remove_worker(vm)
+      exit(0)
+  print(common.kubectl(masterid, 'get nodes'))
 
 # kubectl
 if passed_verb == 'kubectl':

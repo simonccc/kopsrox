@@ -197,16 +197,35 @@ def k3s_init_worker(vmid):
     return(status)
   print('k3s_init_worker:', vmid, 'ok')
 
-# get token
+# get token and strip linebreak
 def get_token():
   f = open("kopsrox.k3stoken", "r")
-  # return contents and strip linebreak
   return(f.read().rstrip())
 
 # kubectl
 def kubectl(masterid,cmd):
   k = str(('/usr/local/bin/k3s kubectl ' +cmd))
   return(qaexec(masterid,k))
+
+# remove a worker node
+def remove_worker(vmid):
+    workername = vmname(vmid)
+    print('in remove worker', workername)
+    exit(0)
+
+# map id to hostname
+def vmname(vmid):
+    config = read_kopsrox_ini()
+    proximgid = int(config['proxmox']['proximgid'])
+    names = { 
+            (proximgid + 1 ): 'kopsrox-m1',
+            (proximgid + 2 ): 'kopsrox-m2', 
+            (proximgid + 3 ): 'kopsrox-m3', 
+            (proximgid + 5 ): 'kopsrox-w1', 
+            (proximgid + 6 ): 'kopsrox-w2', 
+            (proximgid + 7 ): 'kopsrox-w3', 
+            }
+    return(names[vmid])
 
 # kubeconfig
 def kubeconfig(masterid):
