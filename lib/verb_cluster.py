@@ -51,8 +51,7 @@ if passed_verb == 'info':
     print(vm, '-', vmname, "status:", vmstatus, 'ip:', ip)
 
   print('kopsrox cluster:')
-  print(common.kubectl(masterid, 'get nodes'))
-  print(common.kubectl(masterid, 'get events'))
+  print(common.kubectl(masterid, 'get nodes -o wide'))
   exit(1)
 
 # create new cluster
@@ -87,16 +86,27 @@ if passed_verb == 'create':
       slave_masterid = (int(int(proximgid) + int(master_count)))
       slave_hostname = common.vmname(slave_masterid)
       print('cluster: checking', slave_hostname)
+
+      # existing server 
       if (slave_masterid in vmids):
-        print('cluster: existing vm for', slave_hostname)
-        exit(0)
+        print('cluster-create: existing vm for', slave_hostname)
       else:
         common.clone(slave_masterid)
 
+	  # install k3s on slave and join it to master
       install_slave = common.k3s_init_slave(slave_masterid)
 
       # next possible master
       master_count = master_count + 1
+  
+  # check for extra masters
+  if ( int(masters) == 1 ):
+    for vm in vmids:
+      if ( int(vm) == ( (int(masterid) + 1 ) or (int(masterid) + 2 ))):
+        master_name = common.vmname(int(vm))
+        print('cluster: removing extra master-slave', master_name)
+        exit(0)
+        #common.remove_worker(vm)
 
   # create new worker nodes per config
   if ( int(workers) > 0 ):

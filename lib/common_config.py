@@ -101,8 +101,7 @@ def qaexec(vmid,cmd):
 
   # check for error
   if ( int(pid_check['exitcode']) == 127 ):
-    print('ERROR: exec failure', pid_check['err-data'])
-    exit(0)
+    return('ERROR: exec failure', pid_check['err-data'])
 
   # check for err-data
   try:
@@ -134,8 +133,9 @@ def k3s_check(vmid):
       # test call
       k = kubectl(masterid, ('get node ' + node_name))
 
-      while ( re.search('NotReady', k)):
+      while ( re.search('NotReady', k) or re.search('ERROR', k)):
         print('k3s_check:', node_name, 'not ready')
+        print(k)
         time.sleep(3)
         k = kubectl(masterid, ('get node ' + node_name))
 
@@ -228,7 +228,8 @@ def get_token():
 # kubectl
 def kubectl(masterid,cmd):
   k = str(('/usr/local/bin/k3s kubectl ' +cmd))
-  return(qaexec(masterid,k))
+  kcmd = qaexec(masterid,k)
+  return(kcmd)
 
 # remove a worker node
 def remove_worker(vmid):
