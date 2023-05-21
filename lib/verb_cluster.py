@@ -80,7 +80,7 @@ if passed_verb == 'create':
 
   # create new worker nodes per config
   if ( int(workers) > 0 ):
-    print('cluster-create: checking', workers, 'workers')
+    print('cluster-create: checking workers ('+ workers +')')
 
     # first id in the loop
     worker_count = 1 
@@ -93,7 +93,8 @@ if passed_verb == 'create':
 
       # if existing vm with this id found
       if (int(workerid) in vmids):
-          print('found existing worker', workerid)
+          worker_name = common.vmname(int(workerid))
+          print('cluster: found existing', worker_name)
       else:
         common.clone(workerid)
 
@@ -105,9 +106,9 @@ if passed_verb == 'create':
   # check for extra workers
   for vm in vmids:
     if ( int(vm) > int(workerid)):
-      print('found extra node', vm)
+      worker_name = common.vmname(int(vm))
+      print('cluster: removing extra worker', worker_name)
       common.remove_worker(vm)
-      exit(0)
   print(common.kubectl(masterid, 'get nodes'))
 
 # kubectl
