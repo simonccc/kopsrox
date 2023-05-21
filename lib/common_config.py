@@ -77,7 +77,7 @@ def qaexec(vmid,cmd):
       qagent_running = 'true'
     except:
       print('qaexec: ogent not started on', vmid)
-      time.sleep(10)
+      time.sleep(7)
 
   # send command
   qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
@@ -117,6 +117,7 @@ def k3s_check(vmid):
 
     # get masterid
     masterid = get_master_id()
+    node_name = vmname(vmid)
 
     # check for exiting k3s
     cmd = 'if [ -f /usr/local/bin/k3s ] ; then echo -n present; else echo -n fail;fi'
@@ -131,12 +132,12 @@ def k3s_check(vmid):
     if (k3s_check == 'present'):
 
       # test call
-      k = kubectl(masterid,'get nodes')
+      k = kubectl(masterid, ('get node ' + node_name))
 
       while ( re.search('NotReady', k)):
-        print('k3s_check: node not ready', vmid)
-        time.sleep(5)
-        k = kubectl(masterid,'get nodes')
+        print('k3s_check:', node_name, 'not ready')
+        time.sleep(3)
+        k = kubectl(masterid, ('get node ' + node_name))
 
       return('true')
 
@@ -156,7 +157,7 @@ def k3s_init_master(vmid):
     # if master check fails
     if ( status == 'fail'):
       print('k3s_init_master: installing k3s on', vmid)
-      cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s'
+      cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
       qaexec(vmid,cmd)
 
     status = k3s_check(vmid)
@@ -219,6 +220,7 @@ def remove_worker(vmid):
 
 # map id to hostname
 def vmname(vmid):
+    vmid = int(vmid)
     config = read_kopsrox_ini()
     proximgid = int(config['proxmox']['proximgid'])
     names = { 
