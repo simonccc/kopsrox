@@ -101,12 +101,12 @@ def qaexec(vmid,cmd):
 
   # check for error
   if ( int(pid_check['exitcode']) == 127 ):
-    return('ERROR: exec failure', pid_check['err-data'])
+    return(pid_check['err-data'])
 
   # check for err-data
   try:
     if (pid_check['err-data']):
-      return('ERROR:', pid_check['err-data'])
+      return(pid_check['err-data'])
   except:
     return(pid_check['out-data'])
 
@@ -133,9 +133,9 @@ def k3s_check(vmid):
       # test call
       k = kubectl(masterid, ('get node ' + node_name))
 
-      while ( re.search('NotReady', k) or re.search('ERROR', k)):
+      # check for node not ready or not yet joined cluster
+      while ( re.search('NotReady', k) or re.search('NotFound', k)):
         print('k3s_check:', node_name, 'not ready')
-        print(k)
         time.sleep(3)
         k = kubectl(masterid, ('get node ' + node_name))
 
