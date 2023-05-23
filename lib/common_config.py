@@ -231,11 +231,11 @@ def kubectl(masterid,cmd):
   kcmd = qaexec(masterid,k)
   return(kcmd)
 
-# remove a worker node
-def remove_worker(vmid):
+# remove a node
+def k3s_rm(vmid):
     workername = vmname(vmid)
     masterid = get_master_id()
-    print('remove_worker: rm', workername)
+    print('k3s_rm:', workername)
     kubectl(masterid, ('cordon ' + workername))
     kubectl(masterid, ('drain --ignore-daemonsets --force ' +  workername))
     kubectl(masterid, ('delete node ' + workername))
