@@ -1,5 +1,5 @@
 # upstream image
-up_image_url = 'https://cdimage.debian.org/images/cloud/bullseye/latest/debian-11-generic-amd64.qcow2'
+up_image_url = 'https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img'
 
 # defines
 kopsrox_prompt='kopsrox:'
@@ -7,9 +7,11 @@ proxmox_conf='proxmox.ini'
 kopsrox_conf='kopsrox.ini'
 
 # verbs
-top_verbs = ['image', 'cluster']
+top_verbs = ['image', 'cluster', 'node', 'etcd']
 verbs_image = ['info', 'create', 'destroy']
 verbs_cluster = ['info', 'create', 'destroy', 'kubectl', 'kubeconfig']
+verbs_node = ['snapshot', 'destroy']
+verbs_etcd = ['snapshot', 'restore']
 
 # imports
 import urllib3, sys, time, re
