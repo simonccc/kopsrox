@@ -94,7 +94,7 @@ if passed_verb == 'create':
         proxmox.clone(slave_masterid)
 
 	  # install k3s on slave and join it to master
-      install_slave = common.k3s_init_slave(slave_masterid)
+      install_slave = k3s.k3s_init_slave(slave_masterid)
 
       # next possible master
       master_count = master_count + 1
@@ -135,7 +135,7 @@ if passed_verb == 'create':
       worker_count = worker_count + 1
 
       # checks worker has k3s installed first
-      install_worker = common.k3s_init_worker(workerid)
+      install_worker = k3s.k3s_init_worker(workerid)
 
   # check for extra workers
   for vm in vmids:

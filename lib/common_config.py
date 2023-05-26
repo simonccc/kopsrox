@@ -39,28 +39,6 @@ def conf_check(config,section,value,filename):
     print('ERROR: no value found for ' + section + ':' + value + ' in ' + filename)
     exit(0)
 
-# additional master
-def k3s_init_slave(vmid):
-
-    # get config
-    config = read_kopsrox_ini()
-    masterid = get_master_id()
-    k3s_version = (config['cluster']['k3s_version'])
-
-    # check for existing k3s
-    status = k3s.k3s_check(vmid)
-
-    # if master check fails
-    if ( status == 'fail'):
-      ip = vmip(masterid)
-      token = get_token()
-      print('k3s_init_slave: installing k3s on', vmid)
-      cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
-      proxmox.qaexec(vmid,cmd)
-
-    status = k3s.k3s_check(vmid)
-    return(status)
-
 # return master id
 def get_master_id():
     config = read_kopsrox_ini()
@@ -72,29 +50,6 @@ def vm_info(vmid):
     proxnode = (config['proxmox']['proxnode'])
     prox = proxmox.prox_init()
     return(prox.nodes(proxnode).qemu(vmid).status.current.get())
-
-# init worker node
-def k3s_init_worker(vmid):
-
-  # check for existing k3s
-  status = k3s.k3s_check(vmid)
-
-  # if check fails
-  if ( status == 'fail'):
-
-    print('k3s_init_worker: installing k3s on', vmid)
-    config = read_kopsrox_ini()
-    masterid = get_master_id()
-    k3s_version = (config['cluster']['k3s_version'])
-    ip = vmip(masterid)
-    token = get_token()
-
-    cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
-    proxmox.qaexec(vmid,cmd)
-     
-    status = k3s.k3s_check(vmid)
-    return(status)
-  print('k3s_init_worker:', vmid, 'ok')
 
 # get token and strip linebreak
 def get_token():
