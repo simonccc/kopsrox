@@ -62,16 +62,6 @@ def kubectl(masterid,cmd):
   kcmd = proxmox.qaexec(masterid,k)
   return(kcmd)
 
-# remove a node
-def k3s_rm(vmid):
-    workername = vmname(vmid)
-    masterid = get_master_id()
-    print('k3s_rm:', workername)
-    kubectl(masterid, ('cordon ' + workername))
-    kubectl(masterid, ('drain --ignore-daemonsets --force ' +  workername))
-    kubectl(masterid, ('delete node ' + workername))
-    proxmox.destroy(vmid)
-
 # map id to hostname
 def vmname(vmid):
     vmid = int(vmid)

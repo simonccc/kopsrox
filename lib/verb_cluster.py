@@ -106,7 +106,7 @@ if passed_verb == 'create':
       if ( (int(vm) == ((int(masterid) + 1 ))) or (int(vm) == ((int(masterid) + 2 )))):
         master_name = common.vmname(int(vm))
         print('cluster: removing extra master-slave', master_name)
-        common.k3s_rm(vm)
+        k3s.k3s_rm(vm)
         print(common.kubectl(masterid, 'get nodes'))
 
   # define default workerid 
@@ -142,7 +142,7 @@ if passed_verb == 'create':
     if ( int(vm) > int(workerid)):
       worker_name = common.vmname(int(vm))
       print('cluster: removing extra worker', worker_name)
-      common.k3s_rm(vm)
+      k3s.k3s_rm(vm)
   print(common.kubectl(masterid, 'get nodes'))
 
 # kubectl
