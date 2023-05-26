@@ -15,6 +15,7 @@ verbs_etcd = ['snapshot', 'restore']
 
 # imports
 import urllib3, sys, time, re
+import kopsrox_proxmox as proxmox
 from configparser import ConfigParser
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from proxmoxer import ProxmoxAPI
@@ -37,29 +38,6 @@ def conf_check(config,section,value,filename):
     print('ERROR: no value found for ' + section + ':' + value + ' in ' + filename)
     exit(0)
 
-# connect to proxmox
-def prox_init():
-
-  # read proxmox config
-  proxmox_config = ConfigParser()
-  proxmox_config.read(proxmox_conf)
-
-  # check values in config
-  endpoint = conf_check(proxmox_config,'proxmox','endpoint',proxmox_conf)
-  user = conf_check(proxmox_config,'proxmox','user',proxmox_conf)
-  token_name = conf_check(proxmox_config,'proxmox','token_name',proxmox_conf)
-  api_key = conf_check(proxmox_config,'proxmox','api_key',proxmox_conf)
-
-  prox = ProxmoxAPI(
-endpoint,
-user=user,
-token_name=token_name,
-token_value=api_key,
-verify_ssl=False,
-timeout=10)
-
-  return prox
-
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
 
@@ -68,7 +46,7 @@ def qaexec(vmid,cmd):
   proxnode = (config['proxmox']['proxnode'])
 
   # proxmox 
-  prox = prox_init()
+  prox = proxmox.prox_init()
 
   # qagent no yet running check
   # needs a loop counter and check adding...
@@ -196,7 +174,7 @@ def get_master_id():
 def vm_info(vmid):
     config = read_kopsrox_ini()
     proxnode = (config['proxmox']['proxnode'])
-    prox = prox_init()
+    prox = proxmox.prox_init()
     return(prox.nodes(proxnode).qemu(vmid).status.current.get())
 
 # init worker node
@@ -297,7 +275,7 @@ def list_kopsrox_vm():
     proximgid = (config['proxmox']['proximgid'])
 
     #get proxmox connection
-    prox = prox_init()
+    prox = proxmox.prox_init()
 
     # init list
     vmids = []
@@ -322,7 +300,7 @@ def destroy(vmid):
     proximgid = (config['proxmox']['proximgid'])
 
     # proxinit
-    prox = prox_init()
+    prox = proxmox.prox_init()
     try:
       poweroff = prox.nodes(proxnode).qemu(vmid).status.stop.post()
       task_status(prox, poweroff, proxnode)
@@ -357,7 +335,7 @@ def clone(vmid):
     hostname = vmname(int(vmid))
 
     # init proxmox
-    prox = prox_init()
+    prox = proxmox.prox_init()
    
     # clone
     print('creating:', hostname)

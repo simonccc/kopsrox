@@ -1,4 +1,4 @@
-import common_config as common, sys, os, wget, re, time, urllib.parse
+import common_config as common, sys, os, re, time, urllib.parse
 verb = 'cluster'
 verbs = common.verbs_cluster
 
