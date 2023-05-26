@@ -112,7 +112,7 @@ def list_kopsrox_vm():
 def destroy(vmid):
 
     # get required config
-    config = read_kopsrox_ini()
+    config = common.read_kopsrox_ini()
     proxnode = (config['proxmox']['proxnode'])
     proximgid = (config['proxmox']['proximgid'])
 
@@ -120,9 +120,9 @@ def destroy(vmid):
     prox = prox_init()
     try:
       poweroff = prox.nodes(proxnode).qemu(vmid).status.stop.post()
-      task_status(prox, poweroff, proxnode)
+      common.task_status(prox, poweroff, proxnode)
       delete = prox.nodes(proxnode).qemu(vmid).delete()
-      task_status(prox, delete, proxnode)
+      common.task_status(prox, delete, proxnode)
     except:
       if (int(proximgid) != int(vmid)):
         print('unable to destroy', vmid)

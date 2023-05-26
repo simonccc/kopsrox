@@ -176,4 +176,4 @@ if passed_verb == 'destroy':
   for i in vmids:
       if ( int(i) != int(proximgid)):
         print('destroying vmid', i)
-        common.destroy(i)
+        proxmox.destroy(i)

@@ -97,5 +97,5 @@ for vmid in (proxmox.list_kopsrox_vm()):
 
   if (( vmi.get('status') == 'stopped') and ( int(vmid) != int(proximgid) )):
     print('WARN: powering on', vmi.get('name'))
-    poweron = proxmox.prox_init.nodes(proxnode).qemu(vmid).status.start.post()
-    common.task_status(proxmox.prox, str(poweron), proxnode)
+    poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
+    common.task_status(prox, str(poweron), proxnode)

@@ -1,4 +1,5 @@
 import common_config as common, sys, os, wget, re, time, urllib.parse
+import kopsrox_proxmox as proxmox
 verb = 'image'
 verbs = common.verbs_image
 
@@ -57,7 +58,7 @@ if (passed_verb == 'create'):
 
   # destroy template if it exists
   try:
-    common.destroy(proximgid)
+    proxmox.destroy(proximgid)
   except:
     next
 
@@ -129,9 +130,6 @@ if (passed_verb == 'create'):
           template = 1)
   common.task_status(kprox.prox, str(set_template), proxnode)
 
-  print('done')
-  exit(0)
-
 # list images on proxstor
 if (passed_verb == 'info'):
   images = kprox.prox.nodes(proxnode).storage(proxstor).content.get()
@@ -142,4 +140,4 @@ if (passed_verb == 'info'):
 # destroy image
 if (passed_verb == 'destroy'):
     print('destroying kopsrox image')
-    common.destroy(proximgid)
+    proxmox.destroy(proximgid)

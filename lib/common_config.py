@@ -166,7 +166,7 @@ def k3s_rm(vmid):
     kubectl(masterid, ('cordon ' + workername))
     kubectl(masterid, ('drain --ignore-daemonsets --force ' +  workername))
     kubectl(masterid, ('delete node ' + workername))
-    destroy(vmid)
+    proxmox.destroy(vmid)
 
 # map id to hostname
 def vmname(vmid):
@@ -212,26 +212,6 @@ def vmip(vmid):
     basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )
     ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
     return(ip)
-
-# stop and destroy vm
-def destroy(vmid):
-
-    # get required config
-    config = read_kopsrox_ini()
-    proxnode = (config['proxmox']['proxnode'])
-    proximgid = (config['proxmox']['proximgid'])
-
-    # proxinit
-    prox = proxmox.prox_init()
-    try:
-      poweroff = prox.nodes(proxnode).qemu(vmid).status.stop.post()
-      task_status(prox, poweroff, proxnode)
-      delete = prox.nodes(proxnode).qemu(vmid).delete()
-      task_status(prox, delete, proxnode)
-    except:
-      if (int(proximgid) != int(vmid)):
-        print('unable to destroy', vmid)
-        exit(0)
 
 # clone
 def clone(vmid):
