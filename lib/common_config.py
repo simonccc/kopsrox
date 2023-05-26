@@ -38,59 +38,6 @@ def conf_check(config,section,value,filename):
     print('ERROR: no value found for ' + section + ':' + value + ' in ' + filename)
     exit(0)
 
-# run a exec via qemu-agent
-def qaexec(vmid,cmd):
-
-  # config
-  config = read_kopsrox_ini()
-  proxnode = (config['proxmox']['proxnode'])
-
-  # proxmox 
-  prox = proxmox.prox_init()
-
-  # qagent no yet running check
-  # needs a loop counter and check adding...
-  qagent_running = 'false'
-  while ( qagent_running == 'false' ):
-    try:
-      qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
-      qagent_running = 'true'
-    except:
-      print('qaexec: agent not started on', vmid)
-      time.sleep(7)
-
-  # send command
-  qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
-          command = "sh -c \'" + cmd +"\'",
-          )
-
-  # get pid
-  pid = qa_exec['pid']
-
-  # loop until command has finish
-  pid_status = '0'
-  while ( int(pid_status) != 1 ):
-    try:
-      pid_check = (prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
-    except:
-      print('qagent: waiting for', pid)
-      time.sleep(2)
-
-    # will equal 1 when process is done
-    pid_status = pid_check['exited']
-
-  # check for error
-  if ( int(pid_check['exitcode']) == 127 ):
-    return(pid_check['err-data'])
-
-  # check for err-data
-  try:
-    if (pid_check['err-data']):
-      return(pid_check['err-data'])
-  except:
-    return(pid_check['out-data'])
-
-
 # check for k3s status
 def k3s_check(vmid):
 
@@ -100,7 +47,7 @@ def k3s_check(vmid):
 
     # check for exiting k3s
     cmd = 'if [ -f /usr/local/bin/k3s ] ; then echo -n present; else echo -n fail;fi'
-    k3s_check = qaexec(vmid,cmd)
+    k3s_check = proxmox.qaexec(vmid,cmd)
 
     # fail early
     if ( k3s_check == 'fail' ):
@@ -138,7 +85,7 @@ def k3s_init_master(vmid):
     if ( status == 'fail'):
       print('k3s_init_master: installing k3s on', vmid)
       cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
-      qaexec(vmid,cmd)
+      proxmox.qaexec(vmid,cmd)
 
     status = k3s_check(vmid)
     return(status)
@@ -160,7 +107,7 @@ def k3s_init_slave(vmid):
       token = get_token()
       print('k3s_init_slave: installing k3s on', vmid)
       cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
-      qaexec(vmid,cmd)
+      proxmox.qaexec(vmid,cmd)
 
     status = k3s_check(vmid)
     return(status)
@@ -194,7 +141,7 @@ def k3s_init_worker(vmid):
     token = get_token()
 
     cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
-    qaexec(vmid,cmd)
+    proxmox.qaexec(vmid,cmd)
      
     status = k3s_check(vmid)
     return(status)
@@ -208,7 +155,7 @@ def get_token():
 # kubectl
 def kubectl(masterid,cmd):
   k = str(('/usr/local/bin/k3s kubectl ' +cmd))
-  kcmd = qaexec(masterid,k)
+  kcmd = proxmox.qaexec(masterid,k)
   return(kcmd)
 
 # remove a node
@@ -239,7 +186,7 @@ def vmname(vmid):
 # kubeconfig
 def kubeconfig(masterid):
     ip = vmip(masterid)
-    kubeconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
+    kubeconfig = proxmox.qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
 
     # replace localhost with masters ip
     kubeconfig = kubeconfig.replace('127.0.0.1', ip)
@@ -251,7 +198,7 @@ def kubeconfig(masterid):
 
 # node token
 def k3stoken(masterid):
-    token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
+    token = proxmox.qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
     with open('kopsrox.k3stoken', 'w') as k3s:
       k3s.write(token)
     print("k3stoken: generated kopsrox.k3stoken")

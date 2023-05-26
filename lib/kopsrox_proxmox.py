@@ -35,7 +35,7 @@ timeout=10)
 def qaexec(vmid,cmd):
 
   # config
-  config = read_kopsrox_ini()
+  config = common.read_kopsrox_ini()
   proxnode = (config['proxmox']['proxnode'])
 
   # proxmox 
