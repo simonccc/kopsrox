@@ -17,3 +17,7 @@ if not passed_verb in verbs:
   print('ERROR:\''+ passed_verb + '\'- command not found')
   print('kopsrox', verb, '', end='')
   common.verbs_help(verbs)
+
+# snapshot
+if passed_verb == 'snapshot':
+  print('snapshot')
