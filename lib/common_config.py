@@ -39,25 +39,6 @@ def conf_check(config,section,value,filename):
     print('ERROR: no value found for ' + section + ':' + value + ' in ' + filename)
     exit(0)
 
-# init 1st master
-def k3s_init_master(vmid):
-
-    # get config
-    config = read_kopsrox_ini()
-    k3s_version = (config['cluster']['k3s_version'])
-
-    # check for existing k3s
-    status = k3s.k3s_check(vmid)
-
-    # if master check fails
-    if ( status == 'fail'):
-      print('k3s_init_master: installing k3s on', vmid)
-      cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
-      proxmox.qaexec(vmid,cmd)
-
-    status = k3s.k3s_check(vmid)
-    return(status)
-
 # additional master
 def k3s_init_slave(vmid):
 

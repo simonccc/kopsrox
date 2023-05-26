@@ -1,5 +1,6 @@
 import common_config as common, sys, os, re, time, urllib.parse
 import kopsrox_proxmox as proxmox
+import kopsrox_k3s as k3s
 verb = 'cluster'
 verbs = common.verbs_cluster
 
@@ -64,7 +65,7 @@ if passed_verb == 'create':
     proxmox.clone(masterid)
 
   # install k3s 
-  install_master = common.k3s_init_master(masterid)
+  install_master = k3s.k3s_init_master(masterid)
   if ( install_master == 'true'):
     print('cluster-create: master', masterid,'ok')
   else:
