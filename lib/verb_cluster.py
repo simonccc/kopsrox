@@ -22,7 +22,6 @@ if not passed_verb in verbs:
 
 # import config
 config = common.read_kopsrox_ini()
-import proxmox_config as kprox
 
 # variables from config
 proxnode = (config['proxmox']['proxnode'])

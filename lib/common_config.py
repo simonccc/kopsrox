@@ -62,9 +62,9 @@ def k3s_check(vmid):
 
       # check for node not ready or not yet joined cluster
       while ( re.search('NotReady', k) or re.search('NotFound', k)):
-        print('k3s_check:', node_name, 'not ready')
-        time.sleep(3)
+        time.sleep(2)
         k = kubectl(masterid, ('get node ' + node_name))
+        print('k3s_check:', node_name, 'not ready')
 
       return('true')
 

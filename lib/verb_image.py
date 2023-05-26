@@ -1,5 +1,6 @@
 import common_config as common, sys, os, wget, re, time, urllib.parse
 import kopsrox_proxmox as proxmox
+prox = proxmox.prox_init()
 verb = 'image'
 verbs = common.verbs_image
 
@@ -20,7 +21,6 @@ if not passed_verb in verbs:
   common.verbs_help(verbs)
 
 # import config
-import proxmox_config as kprox
 config = common.read_kopsrox_ini()
 proxnode = (config['proxmox']['proxnode'])
 proxstor = (config['proxmox']['proxstor'])
@@ -63,7 +63,7 @@ if (passed_verb == 'create'):
     next
 
   # create new server
-  create = kprox.prox.nodes(proxnode).qemu.post(
+  create = prox.nodes(proxnode).qemu.post(
           vmid = proximgid,
           scsihw = 'virtio-scsi-pci',
           memory = '2048',
@@ -78,7 +78,7 @@ if (passed_verb == 'create'):
           agent = ('enabled=true'),
           hotplug = 0,
           )
-  proxmox.task_status(kprox.prox, str(create), proxnode)
+  proxmox.task_status(prox, str(create), proxnode)
 
   # shell to import disk
   import_disk_string = ('sudo qm set ' + proximgid + ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image+ ' >' + os.getcwd() + '/kopsrox_disk_import.log 2>&1') 
@@ -94,7 +94,7 @@ if (passed_verb == 'create'):
     exit(0)
 
   # resize disk to suitable size
-  disc = kprox.prox.nodes(proxnode).qemu(proximgid).resize.put(
+  disc = prox.nodes(proxnode).qemu(proximgid).resize.put(
         disk = 'virtio0',
         size = vm_disk,
         )
@@ -102,37 +102,37 @@ if (passed_verb == 'create'):
   # cloud init
   # url encode ssh key
   ssh_encode = urllib.parse.quote(cloudinitsshkey, safe='')
-  cloudinit = kprox.prox.nodes(proxnode).qemu(proximgid).config.post(
+  cloudinit = prox.nodes(proxnode).qemu(proximgid).config.post(
           ciuser = cloudinituser, 
           cipassword = 'admin', 
           ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/24' ), 
           sshkeys = ssh_encode )
-  proxmox.task_status(kprox.prox, str(cloudinit), proxnode)
+  proxmox.task_status(prox, str(cloudinit), proxnode)
 
   # power on and off the vm to resize disk
   #print('resizing disk to', vm_disk)
-  poweron = kprox.prox.nodes(proxnode).qemu(proximgid).status.start.post()
-  proxmox.task_status(kprox.prox, str(poweron), proxnode)
+  poweron = prox.nodes(proxnode).qemu(proximgid).status.start.post()
+  proxmox.task_status(prox, str(poweron), proxnode)
 
   # power off
   time.sleep(10)
-  poweroff = kprox.prox.nodes(proxnode).qemu(proximgid).status.stop.post()
-  proxmox.task_status(kprox.prox, str(poweroff), proxnode)
+  poweroff = prox.nodes(proxnode).qemu(proximgid).status.stop.post()
+  proxmox.task_status(prox, str(poweroff), proxnode)
 
   # template
   # create base disk
   #print('setting base disk')
-  set_basedisk = kprox.prox.nodes(proxnode).qemu(proximgid).template.post()
-  proxmox.task_status(kprox.prox, str(set_basedisk), proxnode)
+  set_basedisk = prox.nodes(proxnode).qemu(proximgid).template.post()
+  proxmox.task_status(prox, str(set_basedisk), proxnode)
 
   # set also in vmconfig
-  set_template = kprox.prox.nodes(proxnode).qemu(proximgid).config.post(
+  set_template = prox.nodes(proxnode).qemu(proximgid).config.post(
           template = 1)
-  proxmox.task_status(kprox.prox, str(set_template), proxnode)
+  proxmox.task_status(prox, str(set_template), proxnode)
 
 # list images on proxstor
 if (passed_verb == 'info'):
-  images = kprox.prox.nodes(proxnode).storage(proxstor).content.get()
+  images = prox.nodes(proxnode).storage(proxstor).content.get()
   for i in images:
     if i.get('volid') == (kopsrox_img):
       print(i.get('volid'), i.get('ctime'))
