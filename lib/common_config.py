@@ -213,54 +213,6 @@ def vmip(vmid):
     ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
     return(ip)
 
-# clone
-def clone(vmid):
-
-    # read config
-    config = read_kopsrox_ini()
-
-    # normal defines
-    proxnode = (config['proxmox']['proxnode'])
-    proxstor = (config['proxmox']['proxstor'])
-    proximgid = (config['proxmox']['proximgid'])
-
-    # map network info
-    networkgw = (config['kopsrox']['networkgw'])
-    ip = vmip(vmid)
-
-    # vm specs
-    cores = (config['kopsrox']['vm_cpu'])
-    ram = (config['kopsrox']['vm_ram']) 
-    memory = int(int(ram) * 1024)
-
-    # hostname
-    hostname = vmname(int(vmid))
-
-    # init proxmox
-    prox = proxmox.prox_init()
-   
-    # clone
-    print('creating:', hostname)
-    clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
-            newid = vmid,
-            )
-    task_status(prox, clone, proxnode)
-
-    # configure
-    configure = prox.nodes(proxnode).qemu(vmid).config.post(
-                name = hostname,
-                onboot = 1,
-                hotplug = 0,
-                cores = cores, 
-                memory = memory,
-                ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/24' ))
-    task_status(prox, str(configure), proxnode)
-
-    # power on
-    poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
-    task_status(prox, str(poweron), proxnode)
-    time.sleep(2)
-
 # returns a dict of all config
 def read_kopsrox_ini():
   kopsrox_config = ConfigParser()

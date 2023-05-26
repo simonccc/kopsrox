@@ -132,7 +132,7 @@ def destroy(vmid):
 def clone(vmid):
 
     # read config
-    config = read_kopsrox_ini()
+    config = common.read_kopsrox_ini()
 
     # normal defines
     proxnode = (config['proxmox']['proxnode'])
@@ -141,7 +141,7 @@ def clone(vmid):
 
     # map network info
     networkgw = (config['kopsrox']['networkgw'])
-    ip = vmip(vmid)
+    ip = common.vmip(vmid)
 
     # vm specs
     cores = (config['kopsrox']['vm_cpu'])
@@ -149,7 +149,7 @@ def clone(vmid):
     memory = int(int(ram) * 1024)
 
     # hostname
-    hostname = vmname(int(vmid))
+    hostname = common.vmname(int(vmid))
 
     # init proxmox
     prox = prox_init()
@@ -159,7 +159,7 @@ def clone(vmid):
     clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
             newid = vmid,
             )
-    task_status(prox, clone, proxnode)
+    common.task_status(prox, clone, proxnode)
 
     # configure
     configure = prox.nodes(proxnode).qemu(vmid).config.post(
@@ -169,9 +169,9 @@ def clone(vmid):
                 cores = cores, 
                 memory = memory,
                 ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/24' ))
-    task_status(prox, str(configure), proxnode)
+    common.task_status(prox, str(configure), proxnode)
 
     # power on
     poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
-    task_status(prox, str(poweron), proxnode)
-    time.sleep(2)
+    common.task_status(prox, str(poweron), proxnode)
+    time.sleep(5)

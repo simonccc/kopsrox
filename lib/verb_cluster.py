@@ -62,7 +62,7 @@ if passed_verb == 'create':
 
   # clone new master
   if not (int(masterid) in vmids):
-    common.clone(masterid)
+    proxmox.clone(masterid)
 
   # install k3s 
   install_master = common.k3s_init_master(masterid)
@@ -91,7 +91,7 @@ if passed_verb == 'create':
       if (slave_masterid in vmids):
         print('cluster-create: existing vm for', slave_hostname)
       else:
-        common.clone(slave_masterid)
+        proxmox.clone(slave_masterid)
 
 	  # install k3s on slave and join it to master
       install_slave = common.k3s_init_slave(slave_masterid)
@@ -130,7 +130,7 @@ if passed_verb == 'create':
           worker_name = common.vmname(int(workerid))
           print('cluster: found existing', worker_name)
       else:
-        common.clone(workerid)
+        proxmox.clone(workerid)
 
       worker_count = worker_count + 1
 
