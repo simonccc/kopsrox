@@ -218,10 +218,3 @@ def read_kopsrox_ini():
   kopsrox_config = ConfigParser()
   kopsrox_config.read(kopsrox_conf)
   return({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
-
-# proxmox api task blocker
-def task_status(proxmox_api, task_id, node_name):
-    data = {"status": ""}
-    while (data["status"] != "stopped"):
-      data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
-    #print('d', data)

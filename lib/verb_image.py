@@ -78,7 +78,7 @@ if (passed_verb == 'create'):
           agent = ('enabled=true'),
           hotplug = 0,
           )
-  common.task_status(kprox.prox, str(create), proxnode)
+  proxmox.task_status(kprox.prox, str(create), proxnode)
 
   # shell to import disk
   import_disk_string = ('sudo qm set ' + proximgid + ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image+ ' >' + os.getcwd() + '/kopsrox_disk_import.log 2>&1') 
@@ -107,28 +107,28 @@ if (passed_verb == 'create'):
           cipassword = 'admin', 
           ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/24' ), 
           sshkeys = ssh_encode )
-  common.task_status(kprox.prox, str(cloudinit), proxnode)
+  proxmox.task_status(kprox.prox, str(cloudinit), proxnode)
 
   # power on and off the vm to resize disk
   #print('resizing disk to', vm_disk)
   poweron = kprox.prox.nodes(proxnode).qemu(proximgid).status.start.post()
-  common.task_status(kprox.prox, str(poweron), proxnode)
+  proxmox.task_status(kprox.prox, str(poweron), proxnode)
 
   # power off
   time.sleep(10)
   poweroff = kprox.prox.nodes(proxnode).qemu(proximgid).status.stop.post()
-  common.task_status(kprox.prox, str(poweroff), proxnode)
+  proxmox.task_status(kprox.prox, str(poweroff), proxnode)
 
   # template
   # create base disk
   #print('setting base disk')
   set_basedisk = kprox.prox.nodes(proxnode).qemu(proximgid).template.post()
-  common.task_status(kprox.prox, str(set_basedisk), proxnode)
+  proxmox.task_status(kprox.prox, str(set_basedisk), proxnode)
 
   # set also in vmconfig
   set_template = kprox.prox.nodes(proxnode).qemu(proximgid).config.post(
           template = 1)
-  common.task_status(kprox.prox, str(set_template), proxnode)
+  proxmox.task_status(kprox.prox, str(set_template), proxnode)
 
 # list images on proxstor
 if (passed_verb == 'info'):

@@ -1,5 +1,3 @@
-
-
 # imports
 import urllib3, sys, time, re
 import common_config as common
@@ -120,9 +118,9 @@ def destroy(vmid):
     prox = prox_init()
     try:
       poweroff = prox.nodes(proxnode).qemu(vmid).status.stop.post()
-      common.task_status(prox, poweroff, proxnode)
+      task_status(prox, poweroff, proxnode)
       delete = prox.nodes(proxnode).qemu(vmid).delete()
-      common.task_status(prox, delete, proxnode)
+      task_status(prox, delete, proxnode)
     except:
       if (int(proximgid) != int(vmid)):
         print('unable to destroy', vmid)
@@ -159,7 +157,7 @@ def clone(vmid):
     clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
             newid = vmid,
             )
-    common.task_status(prox, clone, proxnode)
+    task_status(prox, clone, proxnode)
 
     # configure
     configure = prox.nodes(proxnode).qemu(vmid).config.post(
@@ -169,9 +167,15 @@ def clone(vmid):
                 cores = cores, 
                 memory = memory,
                 ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/24' ))
-    common.task_status(prox, str(configure), proxnode)
+    task_status(prox, str(configure), proxnode)
 
     # power on
     poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
-    common.task_status(prox, str(poweron), proxnode)
+    task_status(prox, str(poweron), proxnode)
     time.sleep(5)
+
+def task_status(proxmox_api, task_id, node_name):
+    data = {"status": ""}
+    while (data["status"] != "stopped"):
+      data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
+    #print('d', data)
