@@ -213,31 +213,6 @@ def vmip(vmid):
     ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
     return(ip)
 
-# return kopsrox_vms as list
-def list_kopsrox_vm():
-
-    # config
-    config = read_kopsrox_ini()
-    proxnode = (config['proxmox']['proxnode'])
-    proximgid = (config['proxmox']['proximgid'])
-
-    #get proxmox connection
-    prox = proxmox.prox_init()
-
-    # init list
-    vmids = []
-
-    # foreach returned vm
-    for vm in prox.nodes(proxnode).qemu.get():
-      vmid = vm.get('vmid')
-      # if vm in range add to list
-      if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 10))):
-        vmids.append(vmid)
-
-    # return list
-    vmids.sort()
-    return(vmids)
-
 # stop and destroy vm
 def destroy(vmid):
 

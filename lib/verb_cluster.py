@@ -1,4 +1,5 @@
 import common_config as common, sys, os, re, time, urllib.parse
+import kopsrox_proxmox as proxmox
 verb = 'cluster'
 verbs = common.verbs_cluster
 
@@ -37,7 +38,7 @@ if passed_verb == 'info':
   print('kopsrox vm info:')
 
   # for kopsrox vms
-  for vm in common.list_kopsrox_vm():
+  for vm in proxmox.list_kopsrox_vm():
 
     # get vm status
     vm_info = common.vm_info(vm)
@@ -57,7 +58,7 @@ if passed_verb == 'info':
 if passed_verb == 'create':
 
   # get list of runnning vms
-  vmids = common.list_kopsrox_vm()
+  vmids = proxmox.list_kopsrox_vm()
 
   # clone new master
   if not (int(masterid) in vmids):
@@ -171,7 +172,7 @@ if passed_verb == 'kubeconfig':
 # destroy
 if passed_verb == 'destroy':
   print('destroying cluster')
-  vmids = common.list_kopsrox_vm()
+  vmids = proxmox.list_kopsrox_vm()
   for i in vmids:
       if ( int(i) != int(proximgid)):
         print('destroying vmid', i)

@@ -3,9 +3,8 @@
 import os, re, sys
 import common_config as common
 import kopsrox_ini as ini
-
-# proxmox init
-import proxmox_config as kprox
+import kopsrox_proxmox as proxmox
+prox = proxmox.prox_init()
 
 # kopsrox config
 conf = common.kopsrox_conf
@@ -51,7 +50,7 @@ if not ( (int(masters) == 1) or(int(masters) == 3)):
   exit(0)
 
 # get list of nodes
-nodes = kprox.prox.nodes.get()
+nodes = prox.nodes.get()
 if not (re.search(proxnode, (str(nodes)))):
   print(proxnode, 'node not found - working nodes are:')
   for i in nodes:
@@ -59,7 +58,7 @@ if not (re.search(proxnode, (str(nodes)))):
   exit(0)
 
 # check configured storage on cluster
-storage = kprox.prox.nodes(proxnode).storage.get()
+storage = prox.nodes(proxnode).storage.get()
 if not (re.search(proxstor, (str(storage)))):
   print(proxstor, 'storage not found - available storage:')
   for i in storage:
@@ -67,7 +66,7 @@ if not (re.search(proxstor, (str(storage)))):
   exit(0)
 
 # check configured bridge on cluster
-bridge = kprox.prox.nodes(proxnode).network.get()
+bridge = prox.nodes(proxnode).network.get()
 if not (re.search(proxbridge, (str(bridge)))):
   print(proxbridge, 'bridge not found - available:')
   for i in bridge:
@@ -82,7 +81,7 @@ try:
     exit(1)
 except:
   kopsrox_img = common.kopsrox_img(proxstor,proximgid)
-  images = kprox.prox.nodes(proxnode).storage(proxstor).content.get()
+  images = prox.nodes(proxnode).storage(proxstor).content.get()
 
   # search the returned list of images
   if not (re.search(kopsrox_img, str(images))):
@@ -91,12 +90,12 @@ except:
     exit(1)
 
 # check any existing vm's are powered on
-for vmid in (common.list_kopsrox_vm()):
+for vmid in (proxmox.list_kopsrox_vm()):
 
   # vm not powered on check
   vmi = common.vm_info(vmid)
 
   if (( vmi.get('status') == 'stopped') and ( int(vmid) != int(proximgid) )):
     print('WARN: powering on', vmi.get('name'))
-    poweron = kprox.prox.nodes(proxnode).qemu(vmid).status.start.post()
-    common.task_status(kprox.prox, str(poweron), proxnode)
+    poweron = proxmox.prox_init.nodes(proxnode).qemu(vmid).status.start.post()
+    common.task_status(proxmox.prox, str(poweron), proxnode)

@@ -87,7 +87,7 @@ def qaexec(vmid,cmd):
 def list_kopsrox_vm():
 
     # config
-    config = read_kopsrox_ini()
+    config = common.read_kopsrox_ini()
     proxnode = (config['proxmox']['proxnode'])
     proximgid = (config['proxmox']['proximgid'])
 
