@@ -6,7 +6,7 @@ def init_kopsrox_ini():
 
   # get config
   kopsrox_config = ConfigParser()
-  kopsrox_config.read(kopsrox_conf)
+  kopsrox_config.read(common.kopsrox_conf)
 
   # create sections
   kopsrox_config.add_section('proxmox')
@@ -17,7 +17,7 @@ def init_kopsrox_ini():
   # local image id
   kopsrox_config.set('proxmox', 'proximgid', '600')
   # upstream image
-  kopsrox_config.set('proxmox', 'up_image_url', up_image_url)
+  kopsrox_config.set('proxmox', 'up_image_url', common.up_image_url)
   # network bridge
   kopsrox_config.set('proxmox', 'proxbridge', 'vmbr0')
 
@@ -43,9 +43,9 @@ def init_kopsrox_ini():
   kopsrox_config.set('cluster', 'k3s-version', 'v1.24.6+k3s1')
 
   # write default config
-  with open(kopsrox_conf, 'w') as configfile:
+  with open(common.kopsrox_conf, 'w') as configfile:
     kopsrox_config.write(configfile)
-  print('NOTE: please edit', kopsrox_conf, 'as required for your setup')
+  print('NOTE: please edit', common.kopsrox_conf, 'as required for your setup')
   exit(0)
 
 # generate a default proxmox.ini

@@ -7,7 +7,7 @@ if not os.path.isfile(common.proxmox_conf):
   ini.init_proxmox_ini()
 
 # init connection to prox
-common.prox = prox_init()
+prox = common.prox_init()
 
 # if unable to get cluster status
 if not prox.cluster.status.get():

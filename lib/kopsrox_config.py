@@ -2,6 +2,7 @@
 
 import os, re, sys
 import common_config as common
+import kopsrox_ini as ini
 
 # proxmox init
 import proxmox_config as kprox
@@ -14,7 +15,7 @@ kopsrox_config = ConfigParser()
 
 # if cluster config exists
 if not os.path.isfile(conf):
-  common.init_kopsrox_ini()
+  ini.init_kopsrox_ini()
 
 # read kopsrox.ini
 kopsrox_config.read(conf)
@@ -83,7 +84,7 @@ except:
   kopsrox_img = common.kopsrox_img(proxstor,proximgid)
   images = kprox.prox.nodes(proxnode).storage(proxstor).content.get()
 
-# search the returned list of images
+  # search the returned list of images
   if not (re.search(kopsrox_img, str(images))):
     print(kopsrox_img, 'not found on '+ proxnode + ':' + proxstor)
     print('run kopsrox image create')
@@ -94,6 +95,7 @@ for vmid in (common.list_kopsrox_vm()):
 
   # vm not powered on check
   vmi = common.vm_info(vmid)
+
   if (( vmi.get('status') == 'stopped') and ( int(vmid) != int(proximgid) )):
     print('WARN: powering on', vmi.get('name'))
     poweron = kprox.prox.nodes(proxnode).qemu(vmid).status.start.post()
