@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+import common_config as common
 
 # generate the default kopsrox.ini
 def init_kopsrox_ini():
@@ -51,7 +52,7 @@ def init_kopsrox_ini():
 def init_proxmox_ini():
 
   # proxmox conf
-  conf = proxmox_conf
+  conf = common.proxmox_conf
   proxmox_config = ConfigParser()
   proxmox_config.read(conf)
   proxmox_config.add_section('proxmox')
@@ -67,10 +68,3 @@ def init_proxmox_ini():
     proxmox_config.write(configfile)
   print('NOTE: please edit', conf, 'as required for your setup')
   exit(0)
-
-# proxmox api task blocker
-def task_status(proxmox_api, task_id, node_name):
-    data = {"status": ""}
-    while (data["status"] != "stopped"):
-      data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
-    #print('d', data)

@@ -434,27 +434,6 @@ def init_kopsrox_ini():
   print('NOTE: please edit', kopsrox_conf, 'as required for your setup')
   exit(0)
 
-# generate a default proxmox.ini
-def init_proxmox_ini():
-
-  # proxmox conf
-  conf = proxmox_conf
-  proxmox_config = ConfigParser()
-  proxmox_config.read(conf)
-  proxmox_config.add_section('proxmox')
-
-  # need to add port in the future
-  proxmox_config.set('proxmox', 'endpoint', 'domain or ip')
-  proxmox_config.set('proxmox', 'user', 'root@pam')
-  proxmox_config.set('proxmox', 'token_name', 'token name')
-  proxmox_config.set('proxmox', 'api_key', 'xxxxxxxxxxxxx')
-
-  # write file
-  with open(conf, 'w') as configfile:
-    proxmox_config.write(configfile)
-  print('NOTE: please edit', conf, 'as required for your setup')
-  exit(0)
-
 # proxmox api task blocker
 def task_status(proxmox_api, task_id, node_name):
     data = {"status": ""}

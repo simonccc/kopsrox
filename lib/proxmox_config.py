@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-
-import os
-import common_config as common
+import common_config as common, kopsrox_ini as ini, os
 
 # check for config
 if not os.path.isfile(common.proxmox_conf):
   # if file not exists generate and exit
-  common.init_proxmox_ini()
+  ini.init_proxmox_ini()
 
 # init connection to prox
-prox = common.prox_init()
+common.prox = prox_init()
 
 # if unable to get cluster status
 if not prox.cluster.status.get():
