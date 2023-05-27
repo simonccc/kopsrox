@@ -84,27 +84,27 @@ def qaexec(vmid,cmd):
 # return kopsrox_vms as list
 def list_kopsrox_vm():
 
-    # config
-    config = common.read_kopsrox_ini()
-    proxnode = (config['proxmox']['proxnode'])
-    proximgid = (config['proxmox']['proximgid'])
+  # config
+  config = common.read_kopsrox_ini()
+  proxnode = (config['proxmox']['proxnode'])
+  proximgid = (config['proxmox']['proximgid'])
 
-    #get proxmox connection
-    prox = prox_init()
+  #get proxmox connection
+  prox = prox_init()
 
-    # init list
-    vmids = []
+  # init list
+  vmids = []
 
-    # foreach returned vm
-    for vm in prox.nodes(proxnode).qemu.get():
-      vmid = vm.get('vmid')
-      # if vm in range add to list
-      if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 10))):
-        vmids.append(vmid)
+  # foreach returned vm
+  for vm in prox.nodes(proxnode).qemu.get():
+    vmid = vm.get('vmid')
+    # if vm in range add to list
+    if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 10))):
+      vmids.append(vmid)
 
-    # return list
-    vmids.sort()
-    return(vmids)
+  # return list
+  vmids.sort()
+  return(vmids)
 
 # stop and destroy vm
 def destroy(vmid):
