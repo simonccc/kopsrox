@@ -1,4 +1,4 @@
-import common_config as common, sys
+import common_config as common, sys, re
 import kopsrox_proxmox as proxmox
 
 # verb config
@@ -21,6 +21,16 @@ if not passed_verb in verbs:
   print('kopsrox', verb, '', end='')
   common.verbs_help(verbs)
 
+# check for number of nodes
+
 # snapshot
 if passed_verb == 'snapshot':
-  print('snapshot')
+  masterid = common.get_master_id()
+  print('snapshot', masterid)
+  snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot')
+  for line in snapout.split():
+    if (re.search('path', line)):
+        rpath = line.split(':')
+  path = rpath[8].replace('}', '')
+  print(path)
+
