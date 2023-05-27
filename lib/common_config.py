@@ -62,18 +62,44 @@ def kubectl(masterid,cmd):
   kcmd = proxmox.qaexec(masterid,k)
   return(kcmd)
 
+# return a list of valid koprox vms
+def vmnames():
+  config = read_kopsrox_ini()
+  proximgid = int(config['proxmox']['proximgid'])
+  vmid = proximgid
+  vmnames = []
+  while ( vmid <= (int(proximgid) + 9 )):
+    vmnames.append(vmname(int(vmid)))
+    vmid = (int(vmid) + 1)
+  return(vmnames)
+
+# look up vmid from name
+def vmname2id(name):
+  config = read_kopsrox_ini()
+  proximgid = int(config['proxmox']['proximgid'])
+  vmid = proximgid
+  while ( vmid <= (int(proximgid) + 9 )):
+    # if match return id
+    if ( name == vmname(int(vmid)) ):
+      return(int(vmid))
+    vmid = (int(vmid) + 1)
+
 # map id to hostname
 def vmname(vmid):
     vmid = int(vmid)
     config = read_kopsrox_ini()
     proximgid = int(config['proxmox']['proximgid'])
     names = { 
+            (proximgid): 'kopsrox-image',
             (proximgid + 1 ): 'kopsrox-m1',
             (proximgid + 2 ): 'kopsrox-m2', 
             (proximgid + 3 ): 'kopsrox-m3', 
+            (proximgid + 4 ): 'kopsrox-p1', 
             (proximgid + 5 ): 'kopsrox-w1', 
             (proximgid + 6 ): 'kopsrox-w2', 
             (proximgid + 7 ): 'kopsrox-w3', 
+            (proximgid + 8 ): 'kopsrox-w4', 
+            (proximgid + 9 ): 'kopsrox-w5', 
             }
     return(names[vmid])
 
