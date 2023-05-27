@@ -39,8 +39,8 @@ def conf_check(config,section,value,filename):
 
 # return master id
 def get_master_id():
-    config = read_kopsrox_ini()
-    return(int(config['proxmox']['proximgid']) + 1)
+  config = read_kopsrox_ini()
+  return(int(config['proxmox']['proximgid']) + 1)
 
 # get token and strip linebreak
 def get_token():
@@ -59,9 +59,9 @@ def vmnames():
   proximgid = int(config['proxmox']['proximgid'])
   vmid = proximgid
   vmnames = []
-  while ( vmid <= (int(proximgid) + 9 )):
-    vmnames.append(vmname(int(vmid)))
-    vmid = (int(vmid) + 1)
+  for vmid in proxmox.list_kopsrox_vm():
+    if ( vmid > proximgid ):
+      vmnames.append(vmname(int(vmid)))
   return(vmnames)
 
 # look up vmid from name

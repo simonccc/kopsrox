@@ -1,4 +1,7 @@
-import common_config as common, sys, os, wget, re, time, urllib.parse
+import common_config as common, sys
+import kopsrox_proxmox as proxmox
+
+# verb config
 verb = 'etcd'
 verbs = common.verbs_etcd
 
