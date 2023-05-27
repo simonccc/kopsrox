@@ -125,5 +125,5 @@ def read_kopsrox_ini():
   kopsrox_config.read(kopsrox_conf)
   return({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
-# read config
 config = read_kopsrox_ini()
+
