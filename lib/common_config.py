@@ -39,7 +39,6 @@ def conf_check(config,section,value,filename):
 
 # return master id
 def get_master_id():
-  config = read_kopsrox_ini()
   return(int(config['proxmox']['proximgid']) + 1)
 
 # get token and strip linebreak
@@ -129,3 +128,5 @@ def read_kopsrox_ini():
   kopsrox_config = ConfigParser()
   kopsrox_config.read(kopsrox_conf)
   return({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
+
+config = read_kopsrox_ini()
