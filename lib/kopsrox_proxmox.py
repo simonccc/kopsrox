@@ -174,8 +174,16 @@ def clone(vmid):
     task_status(prox, str(poweron), proxnode)
     time.sleep(5)
 
+# proxmox task blocker
 def task_status(proxmox_api, task_id, node_name):
     data = {"status": ""}
     while (data["status"] != "stopped"):
       data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
     #print('d', data)
+
+# get vm info
+def vm_info(vmid):
+    config = common.read_kopsrox_ini()
+    proxnode = (config['proxmox']['proxnode'])
+    prox = prox_init()
+    return(prox.nodes(proxnode).qemu(vmid).status.current.get())

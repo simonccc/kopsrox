@@ -1,8 +1,9 @@
+import urllib3, sys, time, re
+
 # upstream image
 up_image_url = 'https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img'
 
 # defines
-kopsrox_prompt='kopsrox:'
 proxmox_conf='proxmox.ini'
 kopsrox_conf='kopsrox.ini'
 
@@ -14,12 +15,9 @@ verbs_node = ['destroy']
 verbs_etcd = ['snapshot', 'restore']
 
 # imports
-import urllib3, sys, time, re
 import kopsrox_proxmox as proxmox
 import kopsrox_k3s as k3s
 from configparser import ConfigParser
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-from proxmoxer import ProxmoxAPI
 
 # print passed verbs
 def verbs_help(verbs):
@@ -43,13 +41,6 @@ def conf_check(config,section,value,filename):
 def get_master_id():
     config = read_kopsrox_ini()
     return(int(config['proxmox']['proximgid']) + 1)
-
-# check vm is powered on 
-def vm_info(vmid):
-    config = read_kopsrox_ini()
-    proxnode = (config['proxmox']['proxnode'])
-    prox = proxmox.prox_init()
-    return(prox.nodes(proxnode).qemu(vmid).status.current.get())
 
 # get token and strip linebreak
 def get_token():

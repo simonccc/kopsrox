@@ -93,7 +93,7 @@ except:
 for vmid in (proxmox.list_kopsrox_vm()):
 
   # vm not powered on check
-  vmi = common.vm_info(vmid)
+  vmi = proxmox.vm_info(vmid)
 
   if (( vmi.get('status') == 'stopped') and ( int(vmid) != int(proximgid) )):
     print('WARN: powering on', vmi.get('name'))

@@ -41,7 +41,7 @@ if passed_verb == 'info':
   for vm in proxmox.list_kopsrox_vm():
 
     # get vm status
-    vm_info = common.vm_info(vm)
+    vm_info = proxmox.vm_info(vm)
 
     # vars
     vmname = vm_info.get('name')
