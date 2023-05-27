@@ -54,7 +54,6 @@ def kubectl(masterid,cmd):
 
 # return a list of valid koprox vms
 def vmnames():
-  config = read_kopsrox_ini()
   proximgid = int(config['proxmox']['proximgid'])
   vmid = proximgid
   vmnames = []
@@ -65,7 +64,6 @@ def vmnames():
 
 # look up vmid from name
 def vmname2id(name):
-  config = read_kopsrox_ini()
   proximgid = int(config['proxmox']['proximgid'])
   vmid = proximgid
   while ( vmid <= (int(proximgid) + 9 )):
@@ -77,7 +75,6 @@ def vmname2id(name):
 # map id to hostname
 def vmname(vmid):
     vmid = int(vmid)
-    config = read_kopsrox_ini()
     proximgid = int(config['proxmox']['proximgid'])
     names = { 
             (proximgid): 'kopsrox-image',
@@ -115,7 +112,6 @@ def k3stoken(masterid):
 
 # pass a vmid return the IP
 def vmip(vmid):
-    config = read_kopsrox_ini()
     proximgid = (config['proxmox']['proximgid'])
     network = (config['kopsrox']['network'])
     network_octs = network.split('.')
@@ -129,4 +125,5 @@ def read_kopsrox_ini():
   kopsrox_config.read(kopsrox_conf)
   return({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
+# read config
 config = read_kopsrox_ini()
