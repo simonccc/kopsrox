@@ -9,8 +9,8 @@ kopsrox_conf='kopsrox.ini'
 # verbs
 top_verbs = ['image', 'cluster', 'node', 'etcd']
 verbs_image = ['info', 'create', 'destroy']
-verbs_cluster = ['info', 'create', 'destroy', 'kubectl', 'kubeconfig']
-verbs_node = ['snapshot', 'destroy']
+verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
+verbs_node = ['destroy']
 verbs_etcd = ['snapshot', 'restore']
 
 # imports

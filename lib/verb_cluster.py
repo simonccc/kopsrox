@@ -55,7 +55,7 @@ if passed_verb == 'info':
   print(common.kubectl(masterid, 'get nodes'))
 
 # create new cluster
-if passed_verb == 'create':
+if ( passed_verb == 'create' or passed_verb == 'update'):
 
   # get list of runnning vms
   vmids = proxmox.list_kopsrox_vm()
