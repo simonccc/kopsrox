@@ -126,4 +126,3 @@ def read_kopsrox_ini():
   return({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
 config = read_kopsrox_ini()
-

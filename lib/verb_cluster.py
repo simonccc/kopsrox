@@ -35,7 +35,7 @@ masterid = common.get_master_id()
 
 # info
 if passed_verb == 'info':
-  print('kopsrox vm info:')
+  print('vm info:')
 
   # for kopsrox vms
   for vm in proxmox.list_kopsrox_vm():
@@ -51,7 +51,7 @@ if passed_verb == 'info':
     # print
     print(vm, '-', vmname, "status:", vmstatus, 'ip:', ip)
 
-  print('kopsrox cluster:')
+  print('cluster:')
   print(common.kubectl(masterid, 'get nodes'))
 
 # create new cluster
@@ -67,7 +67,7 @@ if ( passed_verb == 'create' or passed_verb == 'update'):
   # install k3s 
   install_master = k3s.k3s_init_master(masterid)
   if ( install_master == 'true'):
-    print('cluster-create: master', masterid,'ok')
+    print('cluster: master', masterid,'ok')
   else:
     print('ERROR: master not installed')
     exit(0)
@@ -80,7 +80,7 @@ if ( passed_verb == 'create' or passed_verb == 'update'):
 
   # create new master nodes per config
   if ( int(masters) > 1 ):
-    print('cluster-create: checking masters ('+ masters +')')
+    print('cluster: checking masters ('+ masters +')')
     master_count = 2 
     while ( master_count <= int(masters) ):
       slave_masterid = (int(int(proximgid) + int(master_count)))
@@ -89,7 +89,7 @@ if ( passed_verb == 'create' or passed_verb == 'update'):
 
       # existing server 
       if (slave_masterid in vmids):
-        print('cluster-create: existing vm for', slave_hostname)
+        print('cluster: existing vm for', slave_hostname)
       else:
         proxmox.clone(slave_masterid)
 
@@ -114,7 +114,7 @@ if ( passed_verb == 'create' or passed_verb == 'update'):
 
   # create new worker nodes per config
   if ( int(workers) > 0 ):
-    print('cluster-create: checking workers ('+ workers +')')
+    print('cluster: checking workers ('+ workers +')')
 
     # first id in the loop
     worker_count = 1 
@@ -171,9 +171,9 @@ if passed_verb == 'kubeconfig':
 
 # destroy
 if passed_verb == 'destroy':
-  print('destroying cluster')
+  print('cluster: destroy')
   vmids = proxmox.list_kopsrox_vm()
   for i in vmids:
-      if ( int(i) != int(proximgid)):
-        print('destroying vmid', i)
-        proxmox.destroy(i)
+    if ( int(i) != int(proximgid)):
+      print('cluster: destroying vmid', i)
+      proxmox.destroy(i)

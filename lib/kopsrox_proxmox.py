@@ -59,12 +59,15 @@ def qaexec(vmid,cmd):
   pid = qa_exec['pid']
 
   # loop until command has finish
-  pid_status = '0'
-  while ( int(pid_status) != 1 ):
+  pid_status = int(0)
+  while ( int(pid_status) != int(1) ):
     try:
-      pid_check = (prox.nodes(proxnode).qemu(vmid).agent("exec-status").get(pid = pid))
+      print(pid_status)
+      pid_check = (prox.nodes(proxnode).qemu(vmid).agent('exec-status').get(pid = pid))
+      print(pid_check)
     except:
-      print('qagent: waiting for', pid)
+      print(pid_status)
+      print('qexec: waiting for', pid)
       time.sleep(2)
 
     # will equal 1 when process is done
