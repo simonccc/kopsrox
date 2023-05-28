@@ -183,8 +183,7 @@ def task_status(proxmox_api, task_id, node_name):
     data = {"status": ""}
     while (data["status"] != "stopped"):
       data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
-      print('.', end='')
-      print()
+      time.sleep(1)
 
 # get vm info
 def vm_info(vmid):
@@ -192,3 +191,12 @@ def vm_info(vmid):
     proxnode = (config['proxmox']['proxnode'])
     prox = prox_init()
     return(prox.nodes(proxnode).qemu(vmid).status.current.get())
+
+# get file
+def getfile(vmid, path):
+    print(vmid, path)
+    config = common.read_kopsrox_ini()
+    proxnode = (config['proxmox']['proxnode'])
+    prox = prox_init()
+    return(prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path))
+
