@@ -47,13 +47,17 @@ def qaexec(vmid,cmd):
       qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
       qagent_running = 'true'
     except:
+      time.sleep(5)
       print('qaexec: agent not started on', vmid)
-      time.sleep(7)
 
   # send command
-  qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
-          command = "sh -c \'" + cmd +"\'",
-          )
+  try: 
+    qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
+            command = "sh -c \'" + cmd +"\'",
+            )
+  except:
+    print('ERROR: qaexec problem with cmd: ', cmd)
+    exit(0)
 
   # get pid
   pid = qa_exec['pid']
@@ -62,13 +66,10 @@ def qaexec(vmid,cmd):
   pid_status = int(0)
   while ( int(pid_status) != int(1) ):
     try:
-      print(pid_status)
-      pid_check = (prox.nodes(proxnode).qemu(vmid).agent('exec-status').get(pid = pid))
-      print(pid_check)
+      pid_check = prox.nodes(proxnode).qemu(vmid).agent('exec-status').get(pid = pid)
     except:
-      print(pid_status)
-      print('qexec: waiting for', pid)
-      time.sleep(2)
+      print('ERROR: qaexec problem with pid ' + str(pid) + ' cmd:', cmd)
+      exit(0)
 
     # will equal 1 when process is done
     pid_status = pid_check['exited']
@@ -175,14 +176,15 @@ def clone(vmid):
     # power on
     poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
     task_status(prox, str(poweron), proxnode)
-    time.sleep(5)
+    time.sleep(3)
 
 # proxmox task blocker
 def task_status(proxmox_api, task_id, node_name):
     data = {"status": ""}
     while (data["status"] != "stopped"):
       data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
-    #print('d', data)
+      print('.', end='')
+      print()
 
 # get vm info
 def vm_info(vmid):
