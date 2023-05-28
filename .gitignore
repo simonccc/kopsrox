@@ -1,7 +1,8 @@
-dev/installer/build/
-dev/installer/dist/
-config.py
 /__pycache__/
 lib/__pycache__/
 *.ini
 *.swp
+kopsrox.k3stoken
+kopsrox.kubeconfig
+kopsrox_disk_import.log
+kopsrox_imgpatch.log
