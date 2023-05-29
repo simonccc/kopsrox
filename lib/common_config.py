@@ -1,8 +1,5 @@
 import urllib3, sys, time, re
 
-# upstream image
-up_image_url = 'https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img'
-
 # defines
 proxmox_conf='proxmox.ini'
 kopsrox_conf='kopsrox.ini'

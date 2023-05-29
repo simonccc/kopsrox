@@ -1,3 +1,4 @@
+import common_config as common
 from configparser import ConfigParser
 
 # generate the default kopsrox.ini

@@ -5,18 +5,22 @@ import common_config as common
 import kopsrox_ini as ini
 import kopsrox_proxmox as proxmox
 
-# define proxmox connection
-prox = proxmox.prox_init()
-
 # kopsrox config
 conf = common.kopsrox_conf
 
 from configparser import ConfigParser
 kopsrox_config = ConfigParser()
 
+# generate barebones proxmox.ini if it doesn't exist
+if not os.path.isfile(common.proxmox_conf):
+  ini.init_proxmox_ini()
+
 # generate barebones kopsrox.ini if it doesn't exist
 if not os.path.isfile(conf):
   ini.init_kopsrox_ini()
+
+# define proxmox connection
+prox = proxmox.prox_init()
 
 # read kopsrox.ini
 kopsrox_config.read(conf)
@@ -49,6 +53,12 @@ k3s_version = common.conf_check(kopsrox_config,'cluster','k3s_version',conf)
 # master check - can only be 1 or 3
 if not ( (int(masters) == 1) or(int(masters) == 3)):
   print ('ERROR: only 1 or 3 masters supported. You have:', masters)
+  exit(0)
+
+# check connection to proxmox
+# if unable to get cluster status
+if not prox.cluster.status.get():
+  print('ERROR: unable to connect to proxmox - check proxmox.ini')
   exit(0)
 
 # get list of nodes
