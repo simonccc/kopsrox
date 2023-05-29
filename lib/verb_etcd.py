@@ -1,4 +1,4 @@
-import common_config as common, sys, re, base64
+import common_config as common, sys, re, base64, os
 import kopsrox_proxmox as proxmox
 
 # verb config
@@ -42,18 +42,26 @@ if passed_verb == 'snapshot':
 
   # qaexec needs commands to have output ( the echo ok ) 
   b64cmd = ('sudo base64 ' + path + ' > ' + ( path + '.b64' ) + ' && echo ok')
-  print(b64cmd)
   b64 = proxmox.qaexec(masterid, b64cmd)
 
   # try qagent file get 
   # this will break when the file gets too large
   get_file = proxmox.getfile(masterid, str((path + '.b64')))
+
+  # encode the already b64 file
   content = get_file['content']
   contentb64 = content.encode()
-  #print(get_file['content'])
-  #exit(0)
+
+  # write the snapshot
   with open('kopsrox.etcd.snapshot.zip', 'wb') as snapshot:
-    d = base64.b64decode(contentb64)
-    #snapshot.write(get_file['content'])
-    snapshot.write(d)
+    snapshot.write(base64.b64decode(contentb64))
   print("etcd:snapshot: written kopsrox.etcd.snapshot.zip")
+
+
+# etcd snapshot restor
+if passed_verb == 'restore':
+  if not os.path.isfile('kopsrox.etcd.snapshot.zip'):
+    print('etcd:restore: no kopsrox.etcd.snapshot.zip file found')
+    exit(0) 
+  print('etcd:restore: restoring etcd snapshot')
+
