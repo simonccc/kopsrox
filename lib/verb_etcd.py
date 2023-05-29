@@ -49,14 +49,12 @@ if passed_verb == 'snapshot':
   get_file = proxmox.getfile(masterid, str((path + '.b64')))
 
   # encode the already b64 file
-  content = get_file['content']
-  contentb64 = content.encode()
+  contentb64 = get_file.encode()
 
   # write the snapshot
   with open('kopsrox.etcd.snapshot.zip', 'wb') as snapshot:
     snapshot.write(base64.b64decode(contentb64))
   print("etcd:snapshot: written kopsrox.etcd.snapshot.zip")
-
 
 # etcd snapshot restor
 if passed_verb == 'restore':

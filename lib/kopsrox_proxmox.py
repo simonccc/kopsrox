@@ -194,9 +194,9 @@ def vm_info(vmid):
 
 # get file
 def getfile(vmid, path):
-    print(vmid, path)
     config = common.read_kopsrox_ini()
     proxnode = (config['proxmox']['proxnode'])
     prox = prox_init()
-    return(prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path))
+    get_file = prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path)
+    return(get_file['content'])
 
