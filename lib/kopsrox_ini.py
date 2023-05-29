@@ -1,5 +1,4 @@
 from configparser import ConfigParser
-import common_config as common
 
 # generate the default kopsrox.ini
 def init_kopsrox_ini():
@@ -17,7 +16,7 @@ def init_kopsrox_ini():
   # local image id
   kopsrox_config.set('proxmox', 'proximgid', '600')
   # upstream image
-  kopsrox_config.set('proxmox', 'up_image_url', common.up_image_url)
+  kopsrox_config.set('proxmox', 'up_image_url', 'https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img')
   # network bridge
   kopsrox_config.set('proxmox', 'proxbridge', 'vmbr0')
 
