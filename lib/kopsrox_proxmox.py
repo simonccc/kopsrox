@@ -1,5 +1,5 @@
 # imports
-import urllib3, sys, time, re
+import urllib3, sys, time, re, base64
 import common_config as common
 from configparser import ConfigParser
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -25,7 +25,7 @@ user=user,
 token_name=token_name,
 token_value=api_key,
 verify_ssl=False,
-timeout=10)
+timeout=5)
 
   return prox
 
@@ -61,6 +61,7 @@ def qaexec(vmid,cmd):
 
   # get pid
   pid = qa_exec['pid']
+  print(qa_exec)
 
   # loop until command has finish
   pid_status = int(0)
@@ -76,13 +77,18 @@ def qaexec(vmid,cmd):
 
   # check for error
   if ( int(pid_check['exitcode']) == 127 ):
+    print('exitcode 127')
+    exit(0)
     return(pid_check['err-data'])
 
   # check for err-data
   try:
     if (pid_check['err-data']):
+      print(pid_check)
+      exit(0)
       return(pid_check['err-data'])
   except:
+    print(pid_check)
     return(pid_check['out-data'])
 
 # return kopsrox_vms as list
@@ -133,70 +139,106 @@ def destroy(vmid):
 # clone
 def clone(vmid):
 
-    # read config
-    config = common.read_kopsrox_ini()
+  # read config
+  config = common.read_kopsrox_ini()
 
-    # normal defines
-    proxnode = (config['proxmox']['proxnode'])
-    proxstor = (config['proxmox']['proxstor'])
-    proximgid = (config['proxmox']['proximgid'])
+  # normal defines
+  proxnode = (config['proxmox']['proxnode'])
+  proxstor = (config['proxmox']['proxstor'])
+  proximgid = (config['proxmox']['proximgid'])
 
-    # map network info
-    networkgw = (config['kopsrox']['networkgw'])
-    ip = common.vmip(vmid)
+  # map network info
+  networkgw = (config['kopsrox']['networkgw'])
+  ip = common.vmip(vmid)
 
-    # vm specs
-    cores = (config['kopsrox']['vm_cpu'])
-    ram = (config['kopsrox']['vm_ram']) 
-    memory = int(int(ram) * 1024)
+  # vm specs
+  cores = (config['kopsrox']['vm_cpu'])
+  ram = (config['kopsrox']['vm_ram']) 
+  memory = int(int(ram) * 1024)
 
-    # hostname
-    hostname = common.vmname(int(vmid))
+  # hostname
+  hostname = common.vmname(int(vmid))
 
-    # init proxmox
-    prox = prox_init()
+  # init proxmox
+  prox = prox_init()
    
-    # clone
-    print('creating:', hostname)
-    clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
-            newid = vmid,
-            )
-    task_status(prox, clone, proxnode)
+  # clone
+  print('creating:', hostname)
+  clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
+          newid = vmid,
+          )
+  task_status(prox, clone, proxnode)
 
-    # configure
-    configure = prox.nodes(proxnode).qemu(vmid).config.post(
-                name = hostname,
-                onboot = 1,
-                hotplug = 0,
-                cores = cores, 
-                memory = memory,
-                ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/24' ))
-    task_status(prox, str(configure), proxnode)
+  # configure
+  configure = prox.nodes(proxnode).qemu(vmid).config.post(
+              name = hostname,
+              onboot = 1,
+              hotplug = 0,
+              cores = cores, 
+              memory = memory,
+              ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/24' ))
+  task_status(prox, str(configure), proxnode)
 
-    # power on
-    poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
-    task_status(prox, str(poweron), proxnode)
-    time.sleep(3)
+  # power on
+  poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
+  task_status(prox, str(poweron), proxnode)
+  time.sleep(3)
 
 # proxmox task blocker
 def task_status(proxmox_api, task_id, node_name):
-    data = {"status": ""}
-    while (data["status"] != "stopped"):
-      data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
-      time.sleep(1)
+  data = {"status": ""}
+  while (data["status"] != "stopped"):
+    data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
+    time.sleep(1)
 
 # get vm info
 def vm_info(vmid):
-    config = common.read_kopsrox_ini()
-    proxnode = (config['proxmox']['proxnode'])
-    prox = prox_init()
-    return(prox.nodes(proxnode).qemu(vmid).status.current.get())
+  config = common.read_kopsrox_ini()
+  proxnode = (config['proxmox']['proxnode'])
+  prox = prox_init()
+  return(prox.nodes(proxnode).qemu(vmid).status.current.get())
 
 # get file
 def getfile(vmid, path):
-    config = common.read_kopsrox_ini()
-    proxnode = (config['proxmox']['proxnode'])
-    prox = prox_init()
-    get_file = prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path)
-    return(get_file['content'])
+  config = common.read_kopsrox_ini()
+  proxnode = (config['proxmox']['proxnode'])
+  prox = prox_init()
+  get_file = prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path)
+  return(get_file['content'])
 
+def SplitEvery(string, length):
+    if len(string) <= length: return [string]        
+    sections = int( int((len(string) / int(length) ) + 1))
+    print(sections, "sections")
+    lines = []
+    start = 0;
+    for i in range(int(sections)):
+        line = string[start:start+length]
+        lines.append(line)
+        start += length
+    return lines
+
+# writes a file to /var/tmp
+def writefile(vmid, file):
+  config = common.read_kopsrox_ini()
+  proxnode = (config['proxmox']['proxnode'])
+  prox = prox_init()
+  print(file)
+  myfile = open(file,"rb")
+  file_bin = myfile.read()
+  content = (base64.b64encode(file_bin)).decode()
+  lines = SplitEvery(content, int(32768))
+  count = 1
+  for line in lines:
+    write_file = prox.nodes(proxnode).qemu(vmid).agent('file-write').post(
+          file = ( '/var/tmp/' + str(count) +'.'+ file + '.b64'), 
+          content = line, 
+          encode = 1 )
+    count = count + 1
+
+  make_zip_cmd = ('cat < /bin/ls -v /var/tmp/*.b64 | base64 -d > /var/tmp' + file)
+  print(make_zip_cmd)
+
+  make_zip = qaexec(vmid, make_zip_cmd)
+  exit(0)
+  return(write_file)

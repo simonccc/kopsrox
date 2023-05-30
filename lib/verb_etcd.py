@@ -23,9 +23,11 @@ if not passed_verb in verbs:
 
 # check for number of nodes
 
+# get masterid
+masterid = common.get_master_id()
+
 # snapshot
 if passed_verb == 'snapshot':
-  masterid = common.get_master_id()
   print('etcd:snapshot: kopsrox-m1:' + str(masterid))
   snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot --etcd-snapshot-compress --name kopsrox')
 
@@ -62,4 +64,5 @@ if passed_verb == 'restore':
     print('etcd:restore: no kopsrox.etcd.snapshot.zip file found')
     exit(0) 
   print('etcd:restore: restoring etcd snapshot')
+  write_file = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.zip')
 
