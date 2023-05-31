@@ -22,6 +22,8 @@ if not passed_verb in verbs:
   common.verbs_help(verbs)
 
 # check for number of nodes
+config = common.read_kopsrox_ini()
+masters = config['cluster']['masters']
 
 # get masterid
 masterid = common.get_master_id()
@@ -29,9 +31,11 @@ masterid = common.get_master_id()
 # snapshot
 if passed_verb == 'snapshot':
   print('etcd:snapshot: kopsrox-m1:' + str(masterid))
+
+  # run the command to take snapshot
   snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot --etcd-snapshot-compress --name kopsrox')
 
-  # get path of snapshot 
+  # get path of snapshot from output 
   for line in snapout.split():
     # in path in output line
     if (re.search('path', line)):
@@ -43,7 +47,7 @@ if passed_verb == 'snapshot':
   print('etcd:snapshot:', path, 'created')
 
   # qaexec needs commands to have output ( the echo ok ) 
-  b64cmd = ('sudo base64 ' + path + ' > ' + ( path + '.b64' ) + ' && echo ok')
+  b64cmd = ('base64 ' + path + ' > ' + ( path + '.b64' ) + ' && echo ok')
   b64 = proxmox.qaexec(masterid, b64cmd)
 
   # try qagent file get 
@@ -58,11 +62,23 @@ if passed_verb == 'snapshot':
     snapshot.write(base64.b64decode(contentb64))
   print("etcd:snapshot: written kopsrox.etcd.snapshot.zip")
 
-# etcd snapshot restor
+# etcd snapshot restore
 if passed_verb == 'restore':
+
+  # check for local snapshot zip
   if not os.path.isfile('kopsrox.etcd.snapshot.zip'):
     print('etcd:restore: no kopsrox.etcd.snapshot.zip file found')
     exit(0) 
-  print('etcd:restore: restoring etcd snapshot')
-  write_file = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.zip')
+
+  # check for number of masters here
+  if ( int(masters) == 1 ):
+    print('etcd:restore: restoring etcd snapshot to single master')
+    write_file = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.zip')
+    print('etcd:restore: written snapshot')
+
+    # stop k3s
+    restore_cmd = 'systemctl stop k3s && k3s server --cluster-reset  --cluster-reset-restore-path=/var/tmp/kopsrox.etcd.snapshot.zip && systemctl start k3s'
+    restore = proxmox.qaexec(masterid, restore_cmd)
+    print(restore)
+    print(common.kubectl(masterid, 'get nodes'))
 

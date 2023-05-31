@@ -177,7 +177,7 @@ def clone(vmid):
   # power on
   poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
   task_status(prox, str(poweron), proxnode)
-  time.sleep(3)
+  time.sleep(5)
 
 # proxmox task blocker
 def task_status(proxmox_api, task_id, node_name):
