@@ -60,7 +60,13 @@ if passed_verb == 'snapshot':
   # write the snapshot
   with open('kopsrox.etcd.snapshot.zip', 'wb') as snapshot:
     snapshot.write(base64.b64decode(contentb64))
-  print("etcd:snapshot: written kopsrox.etcd.snapshot.zip")
+  print("etcd:snapshot: wrote kopsrox.etcd.snapshot.zip")
+
+  # write the snapshot tokenfile
+  token = common.get_token()
+  with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
+    snapshot_token.write(token)
+  print("etcd:snapshot: wrote kopsrox.etcd.snapshot.token")
 
 # etcd snapshot restore
 if passed_verb == 'restore':
@@ -75,10 +81,15 @@ if passed_verb == 'restore':
     print('etcd:restore: restoring etcd snapshot to single master')
     write_file = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.zip')
     print('etcd:restore: written snapshot')
+    write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token')
+    print('etcd:restore: written snapshot token')
 
     # stop k3s
-    restore_cmd = 'systemctl stop k3s && k3s server --cluster-reset  --cluster-reset-restore-path=/var/tmp/kopsrox.etcd.snapshot.zip && systemctl start k3s'
+    restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db && rm -rf /var/lib/rancher/k3s/server/tls* && k3s server --cluster-reset  --cluster-reset-restore-path=/var/tmp/kopsrox.etcd.snapshot.zip --token-file=/var/tmp/kopsrox.etcd.snapshot.token && systemctl start k3s'
+
+    print('etcd:restore: restoring please wait')
     restore = proxmox.qaexec(masterid, restore_cmd)
+    print(restore_cmd)
     print(restore)
     print(common.kubectl(masterid, 'get nodes'))
 
