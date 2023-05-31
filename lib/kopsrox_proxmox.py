@@ -61,7 +61,6 @@ def qaexec(vmid,cmd):
 
   # get pid
   pid = qa_exec['pid']
-  print(qa_exec)
 
   # loop until command has finish
   pid_status = int(0)
@@ -78,17 +77,13 @@ def qaexec(vmid,cmd):
   # check for error
   if ( int(pid_check['exitcode']) == 127 ):
     print('exitcode 127')
-    exit(0)
     return(pid_check['err-data'])
 
   # check for err-data
   try:
     if (pid_check['err-data']):
-      print(pid_check)
-      exit(0)
       return(pid_check['err-data'])
   except:
-    print(pid_check)
     return(pid_check['out-data'])
 
 # return kopsrox_vms as list
@@ -206,10 +201,17 @@ def getfile(vmid, path):
   get_file = prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path)
   return(get_file['content'])
 
+# split string by filename length 
 def SplitEvery(string, length):
-    if len(string) <= length: return [string]        
+
+    # if string less than size just return string 
+    if len(string) <= length: return [string]
+
+    # create sections count 
     sections = int( int((len(string) / int(length) ) + 1))
-    print(sections, "sections")
+    # print(sections, "sections")
+
+    # to be documemnted 
     lines = []
     start = 0;
     for i in range(int(sections)):
@@ -223,22 +225,35 @@ def writefile(vmid, file):
   config = common.read_kopsrox_ini()
   proxnode = (config['proxmox']['proxnode'])
   prox = prox_init()
-  print(file)
+
+  print('writefile:', file)
+
+  # need to check is in localdir
   myfile = open(file,"rb")
+
+  # read binary file
   file_bin = myfile.read()
+
+  # base64 encode it
   content = (base64.b64encode(file_bin)).decode()
-  lines = SplitEvery(content, int(32768))
+
+  # split it by the maximum size ( approx ) the api can handle
+  lines = SplitEvery(content, int(59825))
+
+  # a counter for the base 64 file names
   count = 1
+
+  # for each line in the base64 file split 
   for line in lines:
+    # write file name count.b64encoded.line
     write_file = prox.nodes(proxnode).qemu(vmid).agent('file-write').post(
           file = ( '/var/tmp/' + str(count) +'.'+ file + '.b64'), 
           content = line, 
           encode = 1 )
+    # increment file name counter
     count = count + 1
 
-  make_zip_cmd = ('cat < /bin/ls -v /var/tmp/*.b64 | base64 -d > /var/tmp' + file)
-  print(make_zip_cmd)
-
+  # command to make the zip file
+  make_zip_cmd = ('cat `bin/ls -v /var/tmp/*.b64` | base64 -d > /var/tmp/' + file + ' && rm -f /var/tmp/*.b64 && echo ok')
   make_zip = qaexec(vmid, make_zip_cmd)
-  exit(0)
   return(write_file)
