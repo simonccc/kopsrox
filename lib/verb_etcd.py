@@ -24,7 +24,6 @@ if not passed_verb in verbs:
 # check for number of nodes
 config = common.read_kopsrox_ini()
 masters = config['cluster']['masters']
-k3s_version = (config['cluster']['k3s_version'])
 
 # get masterid
 masterid = common.get_master_id()
@@ -63,9 +62,13 @@ if passed_verb == 'snapshot':
     snapshot.write(base64.b64decode(contentb64))
   print("etcd:snapshot: wrote kopsrox.etcd.snapshot.zip")
 
-  # write the snapshot tokenfile
+  # get the snapshot tokenfile
   token = common.get_token()
+  
+  # add a line break to the token
   token = token + '\n'
+
+  # write the token
   with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
     snapshot_token.write(token)
   print("etcd:snapshot: wrote kopsrox.etcd.snapshot.token")
@@ -91,7 +94,6 @@ if passed_verb == 'restore':
 
     print('etcd:restore: restoring please wait')
     restore = proxmox.qaexec(masterid, restore_cmd)
-    print(restore_cmd)
     print(restore)
     print(common.kubectl(masterid, 'get nodes'))
 
