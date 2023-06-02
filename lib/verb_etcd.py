@@ -24,6 +24,7 @@ if not passed_verb in verbs:
 # check for number of nodes
 config = common.read_kopsrox_ini()
 masters = config['cluster']['masters']
+k3s_version = (config['cluster']['k3s_version'])
 
 # get masterid
 masterid = common.get_master_id()
@@ -64,6 +65,7 @@ if passed_verb == 'snapshot':
 
   # write the snapshot tokenfile
   token = common.get_token()
+  token = token + '\n'
   with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
     snapshot_token.write(token)
   print("etcd:snapshot: wrote kopsrox.etcd.snapshot.token")
@@ -85,7 +87,7 @@ if passed_verb == 'restore':
     print('etcd:restore: written snapshot token')
 
     # stop k3s
-    restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db && rm -rf /var/lib/rancher/k3s/server/tls* && k3s server --cluster-reset  --cluster-reset-restore-path=/var/tmp/kopsrox.etcd.snapshot.zip --token-file=/var/tmp/kopsrox.etcd.snapshot.token && systemctl start k3s'
+    restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=/var/tmp/kopsrox.etcd.snapshot.zip --token-file=/var/tmp/kopsrox.etcd.snapshot.token && systemctl start k3s'
 
     print('etcd:restore: restoring please wait')
     restore = proxmox.qaexec(masterid, restore_cmd)
