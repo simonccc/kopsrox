@@ -85,11 +85,9 @@ if passed_verb == 'restore':
   if ( int(masters) == 1 ):
     print('etcd:restore: restoring etcd snapshot to single master')
     write_file = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.zip')
-    print('etcd:restore: written snapshot')
     write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token')
-    print('etcd:restore: written snapshot token')
 
-    # stop k3s
+    # command to restore
     restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=/var/tmp/kopsrox.etcd.snapshot.zip --token-file=/var/tmp/kopsrox.etcd.snapshot.token && systemctl start k3s'
 
     print('etcd:restore: restoring please wait')
@@ -100,4 +98,32 @@ if passed_verb == 'restore':
   # restore for masters / slave
   if ( int(masters) == 3 ):
     print('etcd:restore: restoring etcd snapshot to ha setup')
+    write_file = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.zip')
+    write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token')
+
+    # stop k3s and restore on m1
+    restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=/var/tmp/kopsrox.etcd.snapshot.zip --token-file=/var/tmp/kopsrox.etcd.snapshot.token'
+
+    print('etcd:restore: restoring please wait')
+    restore = proxmox.qaexec(masterid, restore_cmd)
+    print(restore)
+
+    # stop k3s on slaves
+    print('etcd:restore: cleaning slaves')
+    stop_m2 = proxmox.qaexec(int(masterid) + 1, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/')
+    stop_m3 = proxmox.qaexec(int(masterid) + 2, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/')
+
+    # start k3s on master then slaves
+    print('etcd:restore: starting k3s on m1')
+    start_m1 = proxmox.qaexec(masterid, 'systemctl start k3s')
+    print('etcd:restore: starting k3s on m2')
+    start_m2 = proxmox.qaexec(int(masterid) + 1, 'systemctl start k3s')
+    print('etcd:restore: starting k3s on m3')
+    start_m3 = proxmox.qaexec(int(masterid) + 2, 'systemctl start k3s')
+
+    print(common.kubectl(masterid, 'get nodes'))
+   
+
+    
+
 

@@ -104,7 +104,11 @@ def k3s_rm(vmid):
     workername = common.vmname(vmid)
     masterid = common.get_master_id()
     print('k3s_rm:', workername)
+
+    # kubectl commands to remove node
     common.kubectl(masterid, ('cordon ' + workername))
-    common.kubectl(masterid, ('drain --ignore-daemonsets --force ' +  workername))
+    common.kubectl(masterid, ('drain --timeout=5s --ignore-daemonsets --force ' +  workername))
     common.kubectl(masterid, ('delete node ' + workername))
+
+    # destroy vm
     proxmox.destroy(vmid)
