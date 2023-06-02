@@ -97,3 +97,7 @@ if passed_verb == 'restore':
     print(restore)
     print(common.kubectl(masterid, 'get nodes'))
 
+  # restore for masters / slave
+  if ( int(masters) == 3 ):
+    print('etcd:restore: restoring etcd snapshot to ha setup')
+

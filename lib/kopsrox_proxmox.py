@@ -84,7 +84,12 @@ def qaexec(vmid,cmd):
     if (pid_check['err-data']):
       return(pid_check['err-data'])
   except:
-    return(pid_check['out-data'])
+    try:
+      if (pid_check['out-data']):
+        return(pid_check['out-data'])
+    except:
+      return('no output')
+    return('error')
 
 # return kopsrox_vms as list
 def list_kopsrox_vm():
@@ -177,14 +182,14 @@ def clone(vmid):
   # power on
   poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
   task_status(prox, str(poweron), proxnode)
-  time.sleep(5)
+  time.sleep(3)
 
 # proxmox task blocker
 def task_status(proxmox_api, task_id, node_name):
   data = {"status": ""}
   while (data["status"] != "stopped"):
     data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
-    time.sleep(1)
+    time.sleep(0.5)
 
 # get vm info
 def vm_info(vmid):
@@ -238,7 +243,7 @@ def writefile(vmid, file):
   content = (base64.b64encode(file_bin)).decode()
 
   # split it by the maximum size ( approx ) the api can handle
-  lines = SplitEvery(content, int(59825))
+  lines = SplitEvery(content, int(55825))
 
   # a counter for the base 64 file names
   count = 1
