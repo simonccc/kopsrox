@@ -7,9 +7,11 @@ import kopsrox_proxmox as proxmox
 
 # kopsrox config
 conf = ini.kopsrox_conf
+proxmox_conf = ini.proxmox_conf
 
 from configparser import ConfigParser
 kopsrox_config = ConfigParser()
+proxmox_config = ConfigParser()
 
 # generate barebones proxmox.ini if it doesn't exist
 if not os.path.isfile(ini.proxmox_conf):
@@ -19,11 +21,15 @@ if not os.path.isfile(ini.proxmox_conf):
 if not os.path.isfile(conf):
   ini.init_kopsrox_ini()
 
-# define proxmox connection
-prox = proxmox.prox_init()
-
-# read kopsrox.ini
+# read ini files
+proxmox_config.read(proxmox_conf)
 kopsrox_config.read(conf)
+
+# proxmox checks
+endpoint = common.conf_check(proxmox_config,'proxmox','endpoint',proxmox_conf)
+user = common.conf_check(proxmox_config,'proxmox','user',proxmox_conf)
+token_name = common.conf_check(proxmox_config,'proxmox','token_name',proxmox_conf)
+api_key = common.conf_check(proxmox_config,'proxmox','api_key',proxmox_conf)
 
 # proxmox -> kopsrox config checks
 proxnode = common.conf_check(kopsrox_config,'proxmox','proxnode',conf)
@@ -56,6 +62,7 @@ if not ( (int(masters) == 1) or(int(masters) == 3)):
   exit(0)
 
 # check connection to proxmox
+prox = proxmox.prox_init()
 # if unable to get cluster status
 if not prox.cluster.status.get():
   print('ERROR: unable to connect to proxmox - check proxmox.ini')
