@@ -6,28 +6,27 @@ from configparser import ConfigParser
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from proxmoxer import ProxmoxAPI
 
+# get proxmox config
+from configparser import ConfigParser
+proxmox_config = ConfigParser()
+proxmox_conf = ini.proxmox_conf
+proxmox_config.read(proxmox_conf)
+endpoint = proxmox_config.get('proxmox', 'endpoint')
+user = proxmox_config.get('proxmox', 'user')
+token_name = proxmox_config.get('proxmox', 'token_name')
+api_key = proxmox_config.get('proxmox', 'api_key')
+
+# api connection
+prox = ProxmoxAPI(
+        endpoint,
+        user=user,
+        token_name=token_name,
+        token_value=api_key,
+        verify_ssl=False,
+        timeout=5)
+
 # connect to proxmox
 def prox_init():
-
-  # read proxmox config
-  proxmox_config = ConfigParser()
-  proxmox_conf = ini.proxmox_conf
-  proxmox_config.read(proxmox_conf)
-
-  # check values in config
-  endpoint = common.conf_check(proxmox_config,'proxmox','endpoint',proxmox_conf)
-  user = common.conf_check(proxmox_config,'proxmox','user',proxmox_conf)
-  token_name = common.conf_check(proxmox_config,'proxmox','token_name',proxmox_conf)
-  api_key = common.conf_check(proxmox_config,'proxmox','api_key',proxmox_conf)
-
-  prox = ProxmoxAPI(
-endpoint,
-user=user,
-token_name=token_name,
-token_value=api_key,
-verify_ssl=False,
-timeout=5)
-
   return prox
 
 # run a exec via qemu-agent
@@ -38,7 +37,7 @@ def qaexec(vmid,cmd):
   proxnode = (config['proxmox']['proxnode'])
 
   # proxmox 
-  prox = prox_init()
+  #prox = prox_init()
 
   # qagent no yet running check
   # needs a loop counter and check adding...
