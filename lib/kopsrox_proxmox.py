@@ -25,6 +25,9 @@ prox = ProxmoxAPI(
         verify_ssl=False,
         timeout=5)
 
+# config
+config = 'foo'
+
 # connect to proxmox
 def prox_init():
   return prox

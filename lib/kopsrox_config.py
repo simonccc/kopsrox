@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import os, re, sys
-import common_config as common
 import kopsrox_ini as ini
 import kopsrox_proxmox as proxmox
+import common_config as common
 
 # kopsrox config
 conf = ini.kopsrox_conf

@@ -1,11 +1,11 @@
 import urllib3, sys, time, re
 
+#
+import kopsrox_ini as ini
+
 # used by eg kubectl
 import kopsrox_proxmox as proxmox
 
-# not required?
-#import kopsrox_k3s as k3s
-import kopsrox_ini as ini
 from configparser import ConfigParser
 
 # verbs
@@ -47,7 +47,7 @@ def conf_check(config,section,value,filename):
 
 # return master id
 def get_master_id():
-  return(int(config['proxmox']['proximgid']) + 1)
+  return(int(proximgid) + 1)
 
 # get token and strip linebreak
 def get_token():
