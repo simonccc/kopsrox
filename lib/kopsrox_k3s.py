@@ -2,6 +2,9 @@ import common_config as common
 import kopsrox_proxmox as proxmox
 import re, time
 
+# config
+config = common.read_kopsrox_ini()
+
 # check for k3s status
 def k3s_check(vmid):
 
@@ -106,9 +109,10 @@ def k3s_rm(vmid):
     print('k3s_rm:', workername)
 
     # kubectl commands to remove node
-    common.kubectl(masterid, ('cordon ' + workername))
-    common.kubectl(masterid, ('drain --timeout=5s --ignore-daemonsets --force ' +  workername))
-    common.kubectl(masterid, ('delete node ' + workername))
+    print(common.kubectl(masterid, ('cordon ' + workername)))
+    print(common.kubectl(masterid, ('drain --timeout=5s --ignore-daemonsets --force ' +  workername)))
+    print(common.kubectl(masterid, ('delete node ' + workername)))
 
     # destroy vm
+    print('proxmox:destroy:', vmid)
     proxmox.destroy(vmid)
