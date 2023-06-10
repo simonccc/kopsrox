@@ -36,9 +36,6 @@ def qaexec(vmid,cmd):
   config = common.read_kopsrox_ini()
   proxnode = (config['proxmox']['proxnode'])
 
-  # proxmox 
-  #prox = prox_init()
-
   # qagent no yet running check
   # needs a loop counter and check adding...
   qagent_running = 'false'
@@ -99,9 +96,6 @@ def list_kopsrox_vm():
   proxnode = (config['proxmox']['proxnode'])
   proximgid = (config['proxmox']['proximgid'])
 
-  #get proxmox connection
-  prox = prox_init()
-
   # init list
   vmids = []
 
@@ -124,8 +118,6 @@ def destroy(vmid):
     proxnode = (config['proxmox']['proxnode'])
     proximgid = (config['proxmox']['proximgid'])
 
-    # proxinit
-    prox = prox_init()
     try:
       poweroff = prox.nodes(proxnode).qemu(vmid).status.stop.post()
       task_status(prox, poweroff, proxnode)
@@ -159,9 +151,6 @@ def clone(vmid):
   # hostname
   hostname = common.vmname(int(vmid))
 
-  # init proxmox
-  prox = prox_init()
-   
   # clone
   print('creating:', hostname)
   clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
@@ -195,14 +184,12 @@ def task_status(proxmox_api, task_id, node_name):
 def vm_info(vmid):
   config = common.read_kopsrox_ini()
   proxnode = (config['proxmox']['proxnode'])
-  prox = prox_init()
   return(prox.nodes(proxnode).qemu(vmid).status.current.get())
 
 # get file
 def getfile(vmid, path):
   config = common.read_kopsrox_ini()
   proxnode = (config['proxmox']['proxnode'])
-  prox = prox_init()
   get_file = prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path)
   return(get_file['content'])
 
@@ -229,7 +216,6 @@ def SplitEvery(string, length):
 def writefile(vmid, file):
   config = common.read_kopsrox_ini()
   proxnode = (config['proxmox']['proxnode'])
-  prox = prox_init()
 
   print('writefile:', file)
 
