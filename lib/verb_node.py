@@ -25,6 +25,8 @@ if not passed_verb in verbs:
 
 # list of valid vm names
 if passed_verb == 'destroy':
+
+  # get list of running vms
   vmnames = common.vmnames()
 
   # node needs a 3rd argument
@@ -49,10 +51,19 @@ if passed_verb == 'destroy':
     for name in vmnames:
       print(name)
     exit(0)
+
+  # remove the node
   k3s.k3s_rm(common.vmname2id(node))
 
 # build utility node
 if passed_verb == 'util':
+
+    # util id
     uid = int(common.get_master_id()) + 3
-    print('util', uid)
-    proxmox.clone(uid)
+
+    # if uid not in list of running vms clone it
+    if uid not in (proxmox.list_kopsrox_vm()):
+      proxmox.clone(uid)
+
+    print('node:util: checking apps')
+    print(proxmox.qaexec(uid, 'curl '))
