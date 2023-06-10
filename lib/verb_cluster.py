@@ -1,6 +1,7 @@
-import common_config as common, sys, os, re, time, urllib.parse
+import common_config as common, sys, os, re, time
 import kopsrox_proxmox as proxmox
 import kopsrox_k3s as k3s
+
 verb = 'cluster'
 verbs = common.verbs_cluster
 
@@ -35,7 +36,7 @@ masterid = common.get_master_id()
 
 # info
 if passed_verb == 'info':
-  print('vm info:')
+  print('cluster:info:')
 
   # for kopsrox vms
   for vm in proxmox.list_kopsrox_vm():

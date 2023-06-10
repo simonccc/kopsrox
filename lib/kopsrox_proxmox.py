@@ -196,10 +196,9 @@ def SplitEvery(string, length):
 
 # writes a file to /var/tmp
 def writefile(vmid, file):
-#  config = common.read_kopsrox_ini()
-#  proxnode = (config['proxmox']['proxnode'])
 
-  print('writefile:', file)
+  name = common.vmname(vmid)
+  print('proxmox:writefile: ' + name + ':' + file)
 
   # need to check is in localdir
   myfile = open(file,"rb")
@@ -226,7 +225,7 @@ def writefile(vmid, file):
     # increment file name counter
     count = count + 1
 
-  # command to make the zip file
-  make_zip_cmd = ('cat `bin/ls -v /var/tmp/*.b64` | base64 -d > /var/tmp/' + file + ' && rm -f /var/tmp/*.b64 && echo ok')
-  make_zip = qaexec(vmid, make_zip_cmd)
+  # command to make the file
+  make_file_cmd = ('cat `bin/ls -v /var/tmp/*.b64` | base64 -d > /var/tmp/' + file + ' && rm -f /var/tmp/*.b64 && echo ok')
+  make_file = qaexec(vmid, make_file_cmd)
   return(write_file)

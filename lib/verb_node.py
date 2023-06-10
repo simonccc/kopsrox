@@ -66,4 +66,6 @@ if passed_verb == 'util':
       proxmox.clone(uid)
 
     print('node:util: checking apps')
-    print(proxmox.qaexec(uid, 'curl '))
+    write_file = proxmox.writefile(uid, 'kopsrox-utility-node.sh')
+
+    print(proxmox.qaexec(uid, 'sh -x /var/tmp/kopsrox-utility-node.sh'))
