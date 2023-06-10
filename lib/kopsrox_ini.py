@@ -1,12 +1,16 @@
-import common_config as common
+#import common_config as common
 from configparser import ConfigParser
+
+# ini file names
+proxmox_conf='proxmox.ini'
+kopsrox_conf='kopsrox.ini'
 
 # generate the default kopsrox.ini
 def init_kopsrox_ini():
 
   # get config
   kopsrox_config = ConfigParser()
-  kopsrox_config.read(common.kopsrox_conf)
+  kopsrox_config.read(kopsrox_conf)
 
   # create sections
   kopsrox_config.add_section('proxmox')
@@ -52,9 +56,8 @@ def init_kopsrox_ini():
 def init_proxmox_ini():
 
   # proxmox conf
-  conf = common.proxmox_conf
   proxmox_config = ConfigParser()
-  proxmox_config.read(conf)
+  proxmox_config.read(proxmox_conf)
   proxmox_config.add_section('proxmox')
 
   # need to add port in the future

@@ -1,11 +1,12 @@
 import urllib3, sys, time, re
-import kopsrox_proxmox as proxmox
-import kopsrox_k3s as k3s
-from configparser import ConfigParser
 
-# defines
-proxmox_conf='proxmox.ini'
-kopsrox_conf='kopsrox.ini'
+# used by eg kubectl
+import kopsrox_proxmox as proxmox
+
+# not required?
+#import kopsrox_k3s as k3s
+import kopsrox_ini as ini
+from configparser import ConfigParser
 
 # verbs
 top_verbs = ['image', 'cluster', 'node', 'etcd']
@@ -14,13 +15,17 @@ verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
 verbs_node = ['destroy']
 verbs_etcd = ['snapshot', 'restore']
 
+# config dict
+kopsrox_config = ConfigParser()
+kopsrox_config.read(ini.kopsrox_conf)
+config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
+
+# used items
+proximgid = int(config['proxmox']['proximgid'])
+
 # returns a dict of all config
 def read_kopsrox_ini():
-  kopsrox_config = ConfigParser()
-  kopsrox_config.read(kopsrox_conf)
-  return({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
-
-config = read_kopsrox_ini()
+  return(config)
 
 # print passed verbs
 def verbs_help(verbs):
@@ -57,7 +62,6 @@ def kubectl(masterid,cmd):
 
 # return a list of valid koprox vms
 def vmnames():
-  proximgid = int(config['proxmox']['proximgid'])
   vmid = proximgid
   vmnames = []
   for vmid in proxmox.list_kopsrox_vm():
@@ -67,7 +71,6 @@ def vmnames():
 
 # look up vmid from name
 def vmname2id(name):
-  proximgid = int(config['proxmox']['proximgid'])
   vmid = proximgid
   while ( vmid <= (int(proximgid) + 9 )):
     # if match return id
@@ -78,7 +81,6 @@ def vmname2id(name):
 # map id to hostname
 def vmname(vmid):
     vmid = int(vmid)
-    proximgid = int(config['proxmox']['proximgid'])
     names = { 
             (proximgid): 'kopsrox-image',
             (proximgid + 1 ): 'kopsrox-m1',
@@ -104,18 +106,17 @@ def kubeconfig(masterid):
     # write file out
     with open('kopsrox.kubeconfig', 'w') as kubeconfig_file:
       kubeconfig_file.write(kubeconfig)
-    print("kubeconfig: generated kopsrox.kubeconfig")
+#    print("kubeconfig: generated kopsrox.kubeconfig")
 
 # node token
 def k3stoken(masterid):
     token = proxmox.qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
     with open('kopsrox.k3stoken', 'w') as k3s:
       k3s.write(token)
-    print("k3stoken: generated kopsrox.k3stoken")
+#    print("k3stoken: generated kopsrox.k3stoken")
 
 # pass a vmid return the IP
 def vmip(vmid):
-    proximgid = (config['proxmox']['proximgid'])
     network = (config['kopsrox']['network'])
     network_octs = network.split('.')
     basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )

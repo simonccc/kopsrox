@@ -6,13 +6,13 @@ import kopsrox_ini as ini
 import kopsrox_proxmox as proxmox
 
 # kopsrox config
-conf = common.kopsrox_conf
+conf = ini.kopsrox_conf
 
 from configparser import ConfigParser
 kopsrox_config = ConfigParser()
 
 # generate barebones proxmox.ini if it doesn't exist
-if not os.path.isfile(common.proxmox_conf):
+if not os.path.isfile(ini.proxmox_conf):
   ini.init_proxmox_ini()
 
 # generate barebones kopsrox.ini if it doesn't exist

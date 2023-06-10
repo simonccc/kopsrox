@@ -1,6 +1,7 @@
 # imports
 import urllib3, sys, time, re, base64
 import common_config as common
+import kopsrox_ini as ini
 from configparser import ConfigParser
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from proxmoxer import ProxmoxAPI
@@ -10,7 +11,7 @@ def prox_init():
 
   # read proxmox config
   proxmox_config = ConfigParser()
-  proxmox_conf = common.proxmox_conf
+  proxmox_conf = ini.proxmox_conf
   proxmox_config.read(proxmox_conf)
 
   # check values in config
