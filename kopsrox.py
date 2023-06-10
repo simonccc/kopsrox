@@ -7,7 +7,7 @@ sys.path[0:0] = ['lib/']
 import kopsrox_config as kopsrox_config
 
 # common functions
-import common_config as common
+#import common_config as common
 
 # verbs
 import verbs as verbs;

@@ -1,4 +1,7 @@
 import urllib3, sys, time, re
+import kopsrox_proxmox as proxmox
+import kopsrox_k3s as k3s
+from configparser import ConfigParser
 
 # defines
 proxmox_conf='proxmox.ini'
@@ -11,10 +14,13 @@ verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
 verbs_node = ['destroy']
 verbs_etcd = ['snapshot', 'restore']
 
-# imports
-import kopsrox_proxmox as proxmox
-import kopsrox_k3s as k3s
-from configparser import ConfigParser
+# returns a dict of all config
+def read_kopsrox_ini():
+  kopsrox_config = ConfigParser()
+  kopsrox_config.read(kopsrox_conf)
+  return({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
+
+config = read_kopsrox_ini()
 
 # print passed verbs
 def verbs_help(verbs):
@@ -115,11 +121,3 @@ def vmip(vmid):
     basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )
     ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
     return(ip)
-
-# returns a dict of all config
-def read_kopsrox_ini():
-  kopsrox_config = ConfigParser()
-  kopsrox_config.read(kopsrox_conf)
-  return({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
-
-config = read_kopsrox_ini()
