@@ -1,4 +1,5 @@
 import common_config as common, sys, re
+import kopsrox_proxmox as proxmox
 import kopsrox_k3s as k3s
 
 # verb info
@@ -23,31 +24,35 @@ if not passed_verb in verbs:
   exit(0)
 
 # list of valid vm names
-vmnames = common.vmnames()
-
-# node needs a 3rd argument
-try:
-  if (sys.argv[3]):
-    node = str(sys.argv[3])
-except:
-  print('ERROR: pass a node. ')
-  exit(0)
-
-# error checking for protected vms
-if ( node == 'kopsrox-image' ):
-  print('ERROR: run image destroy to remove image')
-  exit(0)
-if ( node == 'kopsrox-m1' ):
-  print('ERROR: run cluster destroy to remove master')
-  exit(0)
-
-# look for node name in list
-if not (re.search(node, str(vmnames))):
-  print(node, 'not found! running nodes are:')
-  for name in vmnames:
-    print(name)
-  exit(0)
-
-# delete node
 if passed_verb == 'destroy':
+  vmnames = common.vmnames()
+
+  # node needs a 3rd argument
+  try:
+    if (sys.argv[3]):
+      node = str(sys.argv[3])
+  except:
+    print('ERROR: pass a node. ')
+    exit(0)
+
+  # error checking for protected vms
+  if ( node == 'kopsrox-image' ):
+    print('ERROR: run image destroy to remove image')
+    exit(0)
+  if ( node == 'kopsrox-m1' ):
+    print('ERROR: run cluster destroy to remove master')
+    exit(0)
+
+  # delete node
+  if not (re.search(node, str(vmnames))):
+    print(node, 'not found! running nodes are:')
+    for name in vmnames:
+      print(name)
+    exit(0)
   k3s.k3s_rm(common.vmname2id(node))
+
+# build utility node
+if passed_verb == 'util':
+    uid = int(common.get_master_id()) + 3
+    print('util', uid)
+    proxmox.clone(uid)

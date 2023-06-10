@@ -29,9 +29,9 @@ def k3s_check(vmid):
 
       # check for node not ready or not yet joined cluster
       while ( re.search('NotReady', k) or re.search('NotFound', k)):
-        time.sleep(2)
         k = common.kubectl(masterid, ('get node ' + node_name))
         print('k3s_check:', node_name, 'not ready')
+        time.sleep(5)
 
       return('true')
 
@@ -109,9 +109,9 @@ def k3s_rm(vmid):
     print('k3s_rm:', workername)
 
     # kubectl commands to remove node
-    print(common.kubectl(masterid, ('cordon ' + workername)))
-    print(common.kubectl(masterid, ('drain --timeout=5s --ignore-daemonsets --force ' +  workername)))
-    print(common.kubectl(masterid, ('delete node ' + workername)))
+    common.kubectl(masterid, ('cordon ' + workername))
+    common.kubectl(masterid, ('drain --timeout=5s --ignore-daemonsets --force ' +  workername))
+    common.kubectl(masterid, ('delete node ' + workername))
 
     # destroy vm
     print('proxmox:destroy:', vmid)

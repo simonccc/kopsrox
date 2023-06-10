@@ -12,7 +12,7 @@ from configparser import ConfigParser
 top_verbs = ['image', 'cluster', 'node', 'etcd']
 verbs_image = ['info', 'create', 'destroy']
 verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
-verbs_node = ['destroy']
+verbs_node = ['destroy', 'util']
 verbs_etcd = ['snapshot', 'restore']
 
 # config dict
@@ -31,7 +31,7 @@ def read_kopsrox_ini():
 def verbs_help(verbs):
   print('commands:', '\n')
   for i in verbs:
-    print(i)
+    print(' * ',i)
 
 # generating the proxmox kopsrox image name
 def kopsrox_img(proxstor,proximgid):
@@ -86,7 +86,7 @@ def vmname(vmid):
             (proximgid + 1 ): 'kopsrox-m1',
             (proximgid + 2 ): 'kopsrox-m2', 
             (proximgid + 3 ): 'kopsrox-m3', 
-            (proximgid + 4 ): 'kopsrox-p1', 
+            (proximgid + 4 ): 'kopsrox-u1', 
             (proximgid + 5 ): 'kopsrox-w1', 
             (proximgid + 6 ): 'kopsrox-w2', 
             (proximgid + 7 ): 'kopsrox-w3', 

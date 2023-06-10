@@ -1,7 +1,7 @@
 # imports
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-import sys, time, re, base64
+import time, re, base64
 
 from configparser import ConfigParser
 from proxmoxer import ProxmoxAPI
@@ -48,7 +48,7 @@ def qaexec(vmid,cmd):
       qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
       qagent_running = 'true'
     except:
-      time.sleep(5)
+      time.sleep(7)
       print('qaexec: agent not started on', vmid)
 
   # send command
