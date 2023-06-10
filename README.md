@@ -13,7 +13,8 @@ automate creating a k3s cluster with proxmox api with a "kops like" cli and clus
 - nodes - delete a node
 
 ## in progress
-- make file get support > 16m
+- start on "utility" node to run minio and other things
+- make file get support > 16m ( paused ) 
 
 ## problems
 - has to run on a proxmox node to run "qm import" 
