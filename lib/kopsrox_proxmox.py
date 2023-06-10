@@ -1,13 +1,15 @@
 # imports
-import urllib3, sys, time, re, base64
-import common_config as common
-import kopsrox_ini as ini
-from configparser import ConfigParser
+import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+import sys, time, re, base64
+
+from configparser import ConfigParser
 from proxmoxer import ProxmoxAPI
 
+import common_config as common
+import kopsrox_ini as ini
+
 # get proxmox config
-from configparser import ConfigParser
 proxmox_config = ConfigParser()
 proxmox_conf = ini.proxmox_conf
 proxmox_config.read(proxmox_conf)
@@ -26,7 +28,10 @@ prox = ProxmoxAPI(
         timeout=5)
 
 # config
-config = 'foo'
+config = common.config
+proxnode = (config['proxmox']['proxnode'])
+proximgid = (config['proxmox']['proximgid'])
+proxstor = (config['proxmox']['proxstor'])
 
 # connect to proxmox
 def prox_init():
@@ -34,10 +39,6 @@ def prox_init():
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
-
-  # config
-  config = common.read_kopsrox_ini()
-  proxnode = (config['proxmox']['proxnode'])
 
   # qagent no yet running check
   # needs a loop counter and check adding...
@@ -94,11 +95,6 @@ def qaexec(vmid,cmd):
 # return kopsrox_vms as list
 def list_kopsrox_vm():
 
-  # config
-  config = common.read_kopsrox_ini()
-  proxnode = (config['proxmox']['proxnode'])
-  proximgid = (config['proxmox']['proximgid'])
-
   # init list
   vmids = []
 
@@ -116,11 +112,6 @@ def list_kopsrox_vm():
 # stop and destroy vm
 def destroy(vmid):
 
-    # get required config
-    config = common.read_kopsrox_ini()
-    proxnode = (config['proxmox']['proxnode'])
-    proximgid = (config['proxmox']['proximgid'])
-
     try:
       poweroff = prox.nodes(proxnode).qemu(vmid).status.stop.post()
       task_status(prox, poweroff, proxnode)
@@ -133,14 +124,6 @@ def destroy(vmid):
 
 # clone
 def clone(vmid):
-
-  # read config
-  config = common.read_kopsrox_ini()
-
-  # normal defines
-  proxnode = (config['proxmox']['proxnode'])
-  proxstor = (config['proxmox']['proxstor'])
-  proximgid = (config['proxmox']['proximgid'])
 
   # map network info
   networkgw = (config['kopsrox']['networkgw'])
@@ -185,14 +168,10 @@ def task_status(proxmox_api, task_id, node_name):
 
 # get vm info
 def vm_info(vmid):
-  config = common.read_kopsrox_ini()
-  proxnode = (config['proxmox']['proxnode'])
   return(prox.nodes(proxnode).qemu(vmid).status.current.get())
 
 # get file
 def getfile(vmid, path):
-  config = common.read_kopsrox_ini()
-  proxnode = (config['proxmox']['proxnode'])
   get_file = prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path)
   return(get_file['content'])
 
@@ -217,8 +196,8 @@ def SplitEvery(string, length):
 
 # writes a file to /var/tmp
 def writefile(vmid, file):
-  config = common.read_kopsrox_ini()
-  proxnode = (config['proxmox']['proxnode'])
+#  config = common.read_kopsrox_ini()
+#  proxnode = (config['proxmox']['proxnode'])
 
   print('writefile:', file)
 
