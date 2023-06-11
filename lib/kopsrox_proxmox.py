@@ -198,7 +198,7 @@ def SplitEvery(string, length):
 def writefile(vmid, file):
 
   name = common.vmname(vmid)
-  print('proxmox:writefile: ' + name + ':' + file)
+  print('proxmox:writefile: ' + name + ':/var/tmp/' + file)
 
   # need to check is in localdir
   myfile = open(file,"rb")
