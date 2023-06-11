@@ -20,7 +20,7 @@ fi
 echo "minio installed"
 
 # add user 
-if id "minio-user" &>/dev/null; then
+if id minio-user; then
   echo 'minio-user user found'
 else
   echo 'minio-user user not found'
@@ -76,7 +76,7 @@ fi
 # check mc installed
 if ! test -f "/usr/local/bin/mc"; then
   echo "installing mc"
-  wget https://dl.min.io/client/mc/release/linux-amd64/mc
+  wget -q https://dl.min.io/client/mc/release/linux-amd64/mc
   chmod +x mc
   sudo mv mc /usr/local/bin/mc
 fi
@@ -92,8 +92,3 @@ if ! /usr/local/bin/mc --insecure ls local/kopsrox; then
   /usr/local/bin/mc --insecure mb local/kopsrox
 fi
 echo "bucket found"
-
-
-
-
-
