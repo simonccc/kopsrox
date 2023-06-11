@@ -55,6 +55,16 @@ if ! test -f "/usr/local/bin/certgen"; then
 fi
 echo "certgen installed"
 
+# look for certs
+if ! test -f "/home/minio-user/.minio/certs/public.crt"; then
+  echo "no public.crt found"
+  cd /home/minio-user/.minio/certs
+  certgen -host minio
+  chown minio-user * 
+  cd /var/tmp
+fi
+echo "minio cert found"
+
 # check service is running
 if systemctl is-active --quiet "minio.service" ; then
   echo "minio running"
@@ -73,13 +83,13 @@ fi
 echo "mc installed"
 
 # set local context
-/usr/local/bin/mc alias set local http://127.0.0.1:9000 minio miniostorage
+/usr/local/bin/mc --insecure alias set local https://127.0.0.1:9000 minio miniostorage
 echo "mc set local"
 
 # create bucket
-if ! /usr/local/bin/mc ls local/kopsrox; then
+if ! /usr/local/bin/mc --insecure ls local/kopsrox; then
   echo "mc make bucket"
-  /usr/local/bin/mc mb local/kopsrox
+  /usr/local/bin/mc --insecure mb local/kopsrox
 fi
 echo "bucket found"
 
