@@ -163,18 +163,30 @@ if passed_verb == 'kubectl':
   cmd = cmd.replace('cluster kubectl ','')
 
   # run command and show output
-  print('cluster kubectl:', cmd)
+  print('cluster::kubectl:', cmd)
   print(common.kubectl(masterid,cmd))
 
 # export kubeconfig to file
 if passed_verb == 'kubeconfig':
-    common.kubeconfig(masterid)
+  common.kubeconfig(masterid)
 
-# destroy
+# destroy the cluster
 if passed_verb == 'destroy':
-  print('cluster: destroy')
-  vmids = proxmox.list_kopsrox_vm()
-  for i in vmids:
-    if ( int(i) != int(proximgid)):
-      print('cluster: destroying vmid', i)
-      proxmox.destroy(i)
+  print('cluster::destroy: destroying cluster')
+
+  # for each listed vmid
+  for vmid in proxmox.list_kopsrox_vm():
+
+    # map hostname
+    vmname = common.vmname(vmid)
+
+    # do not delete image
+    if ( vmname =='kopsrox-image'):
+      continue
+
+    # do not delete utility server
+    if ( vmname =='kopsrox-u1'):
+      continue
+
+    print('cluster::destroy: destroying '+ vmname + ' ('+ str(vmid) + ')')
+    proxmox.destroy(vmid)

@@ -1,4 +1,4 @@
-#import common_config as common
+#!/usr/bin/env python3
 from configparser import ConfigParser
 
 # ini file names
