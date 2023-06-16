@@ -1,6 +1,7 @@
-import urllib3, sys, time, re
+#!/usr/bin/env python3
+import sys, time, re
 
-#
+# ini file support
 import kopsrox_ini as ini
 
 # used by eg kubectl
@@ -13,7 +14,7 @@ top_verbs = ['image', 'cluster', 'node', 'etcd']
 verbs_image = ['info', 'create', 'destroy']
 verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
 verbs_node = ['destroy', 'util']
-verbs_etcd = ['snapshot', 'restore', 'local-snapshot', 'local-restore']
+verbs_etcd = ['snapshot', 'restore', 'local-snapshot', 'local-restore', 'list']
 
 # config dict
 kopsrox_config = ConfigParser()

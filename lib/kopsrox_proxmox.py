@@ -75,6 +75,9 @@ def qaexec(vmid,cmd):
     # will equal 1 when process is done
     pid_status = pid_check['exited']
 
+  # debug
+  # print(pid_check)
+
   # check for error
   if ( int(pid_check['exitcode']) == 127 ):
     print('exitcode 127')

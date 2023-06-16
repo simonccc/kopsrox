@@ -23,10 +23,35 @@ if not passed_verb in verbs:
 
 # check for number of nodes
 config = common.read_kopsrox_ini()
+
+# count of master nodes ( 1 or 3 ) 
 masters = config['cluster']['masters']
 
 # get masterid
 masterid = common.get_master_id()
+
+# snapshot 
+if passed_verb == 'snapshot':
+
+  # need to check status of minio / bucket
+  print('etcd::snapshot: kopsrox-m1 '+'('+ str(masterid)+')')
+
+  # run the command to take snapshot
+  snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify')
+
+  # now also need to figure out what to do with the token
+
+  print(snapout)
+
+# list
+if passed_verb == 'list':
+  # need to check status of minio / bucket
+  print('etcd::list: kopsrox-m1 '+'('+ str(masterid)+')')
+
+  # run the command to ls ( 2>1 required ) 
+  snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot ls --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify 2>1')
+
+  print(snapout)
 
 # local snapshot
 if passed_verb == 'local-snapshot':
