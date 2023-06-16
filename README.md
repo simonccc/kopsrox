@@ -2,18 +2,25 @@
 automate creating a k3s cluster with proxmox api with a "kops like" cli and cluster config files
 
 ## install
+
 - sudo apt install libguestfs-tools -y
 - pip3 install --user -r requirements.txt
-- run ./proxmox.py
+- run ./kopsrox.py
+- update your proxmox.ini and kopsrox.ini configs
+
+## features
+- create k3s clusters quickly and easily using proxmox vms
+- simple static networking config for vm's based on parameters in config
+- snapshot and restore etcd quickly and easily
 
 ## commands
-- image - creates a kopsrox image / displays when it was created
+- image - creates a kopsrox image template
 - cluster - creates and updates a cluster
 - etcd - etcd operations eg snapshot / restore
 - nodes - delete a node
 
 ## in progress
-- start on "utility" node to run minio and other things
+- "utility" node to run minio and other things
 - make file get support > 16m ( paused ) 
 
 ## problems
