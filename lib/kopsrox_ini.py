@@ -68,7 +68,7 @@ def init_kopsrox_ini():
   config.add_section('cluster')
   config.set('cluster', 'masters', '1')
   config.set('cluster', 'workers', '0')
-  config.set('cluster', 'k3s-version', 'v1.24.6+k3s1')
+  config.set('cluster', 'k3s_version', 'v1.24.6+k3s1')
 
   # write default config
   with open(conf, 'w') as configfile:
