@@ -8,7 +8,8 @@ conf='kopsrox.ini'
 def init_kopsrox_ini():
 
   # get config
-  config = ConfigParser()
+  #config = ConfigParser(allow_no_value=True())
+  config = ConfigParser(allow_no_value=True)
   config.read(conf)
 
   # proxmox
@@ -55,6 +56,12 @@ def init_kopsrox_ini():
 
   # kopsrox network baseip
   config.set('kopsrox', 'network', '192.168.0.160')
+
+  # netmask / subnet
+  config.set('kopsrox', '; /24 is 255.255.255.0')
+  config.set('kopsrox', 'netmask', '24')
+
+  # default gateway
   config.set('kopsrox', 'networkgw', '192.168.0.1')
 
   # cluster level

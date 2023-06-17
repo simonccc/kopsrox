@@ -42,6 +42,7 @@ cloudinitsshkey = common.conf_check(kopsrox_config,'kopsrox','cloudinitsshkey',c
 # network
 network = common.conf_check(kopsrox_config,'kopsrox','network',conf)
 networkgw = common.conf_check(kopsrox_config,'kopsrox','networkgw',conf)
+netmask = common.conf_check(kopsrox_config,'kopsrox','netmask',conf)
 
 # cluster level checks
 masters = common.conf_check(kopsrox_config,'cluster','masters',conf)
