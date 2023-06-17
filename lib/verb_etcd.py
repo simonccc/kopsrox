@@ -55,15 +55,16 @@ if passed_verb == 'snapshot':
   print('etcd::snapshot: done')
   write_token()
 
-# list
-if passed_verb == 'list':
+# list images on storage
+def list_images():
   # need to check status of minio / bucket
-  print('etcd::list: kopsrox-m1 '+'('+ str(masterid)+')')
-
   # run the command to ls ( 2>1 required ) 
-  snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot ls --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify 2>1 | grep kopsrox-k | sort')
+  return(proxmox.qaexec(masterid, 'k3s etcd-snapshot ls --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify 2>1 | grep kopsrox-k | sort'))
 
-  print(snapout)
+# print returned images
+if passed_verb == 'list':
+  print('etcd::list: kopsrox-m1 '+'('+ str(masterid)+')')
+  print(list_images())
 
 # local snapshot
 if passed_verb == 'local-snapshot':
@@ -102,6 +103,42 @@ if passed_verb == 'local-snapshot':
   # write token
   write_token()
 
+# minio etcd snapshot restore
+if passed_verb == 'restore':
+
+  # need to check for minio availability
+  print("etcd::restore: starting")
+  images = list_images()
+
+  # look for passed snapshot
+  try:
+    if (sys.argv[3]):
+      snapshot = str(sys.argv[3])
+  except:
+    print('etcd::restore: error pass a snapshot name eg:')
+    print(images)
+    exit(0)
+
+  # check passed snapshot name exists
+  if not (re.search(str(snapshot),str(images))):
+    print('etcd::restore: no snapshot found:', snapshot)
+    print(images)
+    exit(0)
+
+  print('etcd::restore: restoring', snapshot)
+
+  # single master restore
+  if ( int(masters) == 1 ):
+    write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token')
+
+    restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/var/tmp/kopsrox.etcd.snapshot.token --etcd-s3 --etcd-s3-bucket=kopsrox --etcd-s3-access-key=minio  --etcd-s3-secret-key=miniostorage --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-skip-ssl-verify && systemctl start k3s'
+
+    #print(restore_cmd)
+    print('etcd::restore: restoring please wait')
+    restore = proxmox.qaexec(masterid, restore_cmd)
+    print(restore)
+    print(common.kubectl(masterid, 'get nodes'))
+
 # local etcd snapshot restore
 if passed_verb == 'local-restore':
 
@@ -112,7 +149,7 @@ if passed_verb == 'local-restore':
 
   # check for number of masters here
   if ( int(masters) == 1 ):
-    print('etcd::local-restore: restoring etcd snapshot to single master')
+    print('etcd::local-restore: restoring local etcd snapshot to single master')
     write_file = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.zip')
     write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token')
 

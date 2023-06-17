@@ -48,7 +48,7 @@ def qaexec(vmid,cmd):
       qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
       qagent_running = 'true'
     except:
-      time.sleep(7)
+      time.sleep(10)
       print('qaexec: agent not started on', vmid)
 
   # send command
