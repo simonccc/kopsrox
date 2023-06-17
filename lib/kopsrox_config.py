@@ -12,42 +12,42 @@ import kopsrox_proxmox as proxmox
 import common_config as common
 
 from configparser import ConfigParser
-kopsrox_config = ConfigParser()
+config = ConfigParser()
 
 # read ini files
-kopsrox_config.read(conf)
+config.read(conf)
 
 # proxmox checks
-endpoint = common.conf_check(kopsrox_config,'proxmox','endpoint',conf)
-user = common.conf_check(kopsrox_config,'proxmox','user',conf)
-token_name = common.conf_check(kopsrox_config,'proxmox','token_name',conf)
-api_key = common.conf_check(kopsrox_config,'proxmox','api_key',conf)
+endpoint = common.conf_check(config,'proxmox','endpoint',conf)
+user = common.conf_check(config,'proxmox','user',conf)
+token_name = common.conf_check(config,'proxmox','token_name',conf)
+api_key = common.conf_check(config,'proxmox','api_key',conf)
 
 # proxmox -> kopsrox config checks
-proxnode = common.conf_check(kopsrox_config,'proxmox','proxnode',conf)
-proxstor = common.conf_check(kopsrox_config,'proxmox','proxstor',conf)
-proximgid = common.conf_check(kopsrox_config,'proxmox','proximgid',conf)
-up_image_url = common.conf_check(kopsrox_config,'proxmox','up_image_url',conf)
-proxbridge = common.conf_check(kopsrox_config,'proxmox','proxbridge',conf)
+proxnode = common.conf_check(config,'proxmox','proxnode',conf)
+proxstor = common.conf_check(config,'proxmox','proxstor',conf)
+proximgid = common.conf_check(config,'proxmox','proximgid',conf)
+up_image_url = common.conf_check(config,'proxmox','up_image_url',conf)
+proxbridge = common.conf_check(config,'proxmox','proxbridge',conf)
 
 # kopsrox config checks
-vm_disk = common.conf_check(kopsrox_config,'kopsrox','vm_disk',conf)
-vm_cpu = common.conf_check(kopsrox_config,'kopsrox','vm_cpu',conf)
-vm_ram = common.conf_check(kopsrox_config,'kopsrox','vm_ram',conf)
+vm_disk = common.conf_check(config,'kopsrox','vm_disk',conf)
+vm_cpu = common.conf_check(config,'kopsrox','vm_cpu',conf)
+vm_ram = common.conf_check(config,'kopsrox','vm_ram',conf)
 
 # cloudinit
-cloudinituser = common.conf_check(kopsrox_config,'kopsrox','cloudinituser',conf)
-cloudinitsshkey = common.conf_check(kopsrox_config,'kopsrox','cloudinitsshkey',conf)
+cloudinituser = common.conf_check(config,'kopsrox','cloudinituser',conf)
+cloudinitsshkey = common.conf_check(config,'kopsrox','cloudinitsshkey',conf)
 
 # network
-network = common.conf_check(kopsrox_config,'kopsrox','network',conf)
-networkgw = common.conf_check(kopsrox_config,'kopsrox','networkgw',conf)
-netmask = common.conf_check(kopsrox_config,'kopsrox','netmask',conf)
+network = common.conf_check(config,'kopsrox','network',conf)
+networkgw = common.conf_check(config,'kopsrox','networkgw',conf)
+netmask = common.conf_check(config,'kopsrox','netmask',conf)
 
 # cluster level checks
-masters = common.conf_check(kopsrox_config,'cluster','masters',conf)
-workers = common.conf_check(kopsrox_config,'cluster','workers',conf)
-k3s_version = common.conf_check(kopsrox_config,'cluster','k3s_version',conf)
+masters = common.conf_check(config,'cluster','masters',conf)
+workers = common.conf_check(config,'cluster','workers',conf)
+k3s_version = common.conf_check(config,'cluster','k3s_version',conf)
 
 # master check - can only be 1 or 3
 if not ( (int(masters) == 1) or(int(masters) == 3)):

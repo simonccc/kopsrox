@@ -126,6 +126,7 @@ def clone(vmid):
 
   # map network info
   networkgw = (config['kopsrox']['networkgw'])
+  netmask  = (config['kopsrox']['netmask'])
   ip = common.vmip(vmid)
 
   # vm specs
@@ -150,7 +151,7 @@ def clone(vmid):
               hotplug = 0,
               cores = cores, 
               memory = memory,
-              ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/24' ))
+              ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/'+ netmask ))
   task_status(prox, str(configure), proxnode)
 
   # power on
