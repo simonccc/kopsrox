@@ -7,29 +7,22 @@ import common_config as common
 
 # kopsrox config
 conf = ini.kopsrox_conf
-proxmox_conf = ini.proxmox_conf
 
 from configparser import ConfigParser
 kopsrox_config = ConfigParser()
-proxmox_config = ConfigParser()
-
-# generate barebones proxmox.ini if it doesn't exist
-if not os.path.isfile(ini.proxmox_conf):
-  ini.init_proxmox_ini()
 
 # generate barebones kopsrox.ini if it doesn't exist
 if not os.path.isfile(conf):
   ini.init_kopsrox_ini()
 
 # read ini files
-proxmox_config.read(proxmox_conf)
 kopsrox_config.read(conf)
 
 # proxmox checks
-endpoint = common.conf_check(proxmox_config,'proxmox','endpoint',proxmox_conf)
-user = common.conf_check(proxmox_config,'proxmox','user',proxmox_conf)
-token_name = common.conf_check(proxmox_config,'proxmox','token_name',proxmox_conf)
-api_key = common.conf_check(proxmox_config,'proxmox','api_key',proxmox_conf)
+endpoint = common.conf_check(kopsrox_config,'proxmox','endpoint',conf)
+user = common.conf_check(kopsrox_config,'proxmox','user',conf)
+token_name = common.conf_check(kopsrox_config,'proxmox','token_name',conf)
+api_key = common.conf_check(kopsrox_config,'proxmox','api_key',conf)
 
 # proxmox -> kopsrox config checks
 proxnode = common.conf_check(kopsrox_config,'proxmox','proxnode',conf)

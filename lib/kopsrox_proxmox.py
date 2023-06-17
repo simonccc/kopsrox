@@ -10,25 +10,18 @@ import common_config as common
 import kopsrox_ini as ini
 
 # get proxmox config
-proxmox_config = ConfigParser()
-proxmox_conf = ini.proxmox_conf
-proxmox_config.read(proxmox_conf)
-endpoint = proxmox_config.get('proxmox', 'endpoint')
-user = proxmox_config.get('proxmox', 'user')
-token_name = proxmox_config.get('proxmox', 'token_name')
-api_key = proxmox_config.get('proxmox', 'api_key')
+config = common.config
 
 # api connection
 prox = ProxmoxAPI(
-        endpoint,
-        user=user,
-        token_name=token_name,
-        token_value=api_key,
-        verify_ssl=False,
-        timeout=5)
+  config['proxmox']['endpoint'],
+  user=config['proxmox']['user'],
+  token_name=config['proxmox']['token_name'],
+  token_value=config['proxmox']['api_key'],
+  verify_ssl=False,
+  timeout=5)
 
 # config
-config = common.config
 proxnode = (config['proxmox']['proxnode'])
 proximgid = (config['proxmox']['proximgid'])
 proxstor = (config['proxmox']['proxstor'])
