@@ -36,7 +36,7 @@ masterid = common.get_master_id()
 
 # info
 if passed_verb == 'info':
-  print('cluster:info:')
+  print('cluster::info:')
 
   # for kopsrox vms
   for vm in proxmox.list_kopsrox_vm():
@@ -67,8 +67,9 @@ if ( passed_verb == 'create' or passed_verb == 'update'):
 
   # install k3s 
   install_master = k3s.k3s_init_master(masterid)
+  vmname = common.vmname(masterid)
   if ( install_master == 'true'):
-    print('cluster: master', masterid,'ok')
+    print('cluster::'+ vmname + ': (' + str(masterid) + ') ok')
   else:
     print('ERROR: master not installed')
     exit(0)

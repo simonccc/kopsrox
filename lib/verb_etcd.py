@@ -46,14 +46,17 @@ masterid = common.get_master_id()
 if passed_verb == 'snapshot':
 
   # need to check status of minio / bucket
-  print('etcd::snapshot: kopsrox-m1 '+'('+ str(masterid)+')')
+  print('etcd::snapshot: running on kopsrox-m1 '+'('+ str(masterid)+')')
 
   # run the command to take snapshot
   snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify --name kopsrox')
 
   # now also need to figure out what to do with the token
   print('etcd::snapshot: done')
-  write_token()
+
+  # check for existing token file
+  if not os.path.isfile('kopsrox.etcd.snapshot.token'):
+    write_token()
 
 # list images on storage
 def list_images():
@@ -63,7 +66,7 @@ def list_images():
 
 # print returned images
 if passed_verb == 'list':
-  print('etcd::list: kopsrox-m1 '+'('+ str(masterid)+')')
+  print('etcd::list:')
   print(list_images())
 
 # local snapshot
@@ -100,8 +103,9 @@ if passed_verb == 'local-snapshot':
     snapshot.write(base64.b64decode(contentb64))
   print("etcd::local-snapshot: wrote kopsrox.etcd.snapshot.zip")
 
-  # write token
-  write_token()
+  # write token if doesn't exist
+  if not os.path.isfile('kopsrox.etcd.snapshot.token'):
+    write_token()
 
 # minio etcd snapshot restore
 if passed_verb == 'restore':

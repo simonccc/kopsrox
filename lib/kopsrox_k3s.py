@@ -31,7 +31,7 @@ def k3s_check(vmid):
       while ( re.search('NotReady', k) or re.search('NotFound', k)):
         k = common.kubectl(masterid, ('get node ' + node_name))
         print('k3s_check:', node_name, 'not ready')
-        time.sleep(5)
+        time.sleep(10)
 
       return('true')
 

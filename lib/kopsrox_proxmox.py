@@ -48,8 +48,8 @@ def qaexec(vmid,cmd):
       qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
       qagent_running = 'true'
     except:
-      time.sleep(10)
-      print('qaexec: agent not started on', vmid)
+      #print('proxmox::qaexec: agent not started on', vmid)
+      time.sleep(1)
 
   # send command
   # could try redirecting stderr to out since we don't error on stderr
@@ -144,7 +144,7 @@ def clone(vmid):
   hostname = common.vmname(int(vmid))
 
   # clone
-  print('creating:', hostname)
+  print('proxmox::clone:', hostname)
   clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
           newid = vmid,
           )
@@ -163,7 +163,9 @@ def clone(vmid):
   # power on
   poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
   task_status(prox, str(poweron), proxnode)
-  time.sleep(3)
+
+  # sleep for qemu agent to start
+  time.sleep(10)
 
 # proxmox task blocker
 def task_status(proxmox_api, task_id, node_name):
