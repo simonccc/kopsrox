@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
 import common_config as common, sys, os, wget, re, time, urllib.parse
+
 import kopsrox_proxmox as proxmox
 prox = proxmox.prox_init()
+
 verb = 'image'
 verbs = common.verbs_image
 
@@ -32,6 +35,7 @@ cloudinituser = (config['kopsrox']['cloudinituser'])
 cloudinitsshkey = (config['kopsrox']['cloudinitsshkey'])
 network = (config['kopsrox']['network'])
 networkgw = (config['kopsrox']['networkgw'])
+netmask = (config['kopsrox']['netmask'])
 
 # generate image name
 kopsrox_img = common.kopsrox_img(proxstor,proximgid)
@@ -105,7 +109,7 @@ if (passed_verb == 'create'):
   cloudinit = prox.nodes(proxnode).qemu(proximgid).config.post(
           ciuser = cloudinituser, 
           cipassword = 'admin', 
-          ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/24' ), 
+          ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/' + netmask ), 
           sshkeys = ssh_encode )
   proxmox.task_status(prox, str(cloudinit), proxnode)
 
@@ -119,8 +123,7 @@ if (passed_verb == 'create'):
   poweroff = prox.nodes(proxnode).qemu(proximgid).status.stop.post()
   proxmox.task_status(prox, str(poweroff), proxnode)
 
-  # template
-  # create base disk
+  # convert to template via create base disk
   #print('setting base disk')
   set_basedisk = prox.nodes(proxnode).qemu(proximgid).template.post()
   proxmox.task_status(prox, str(set_basedisk), proxnode)

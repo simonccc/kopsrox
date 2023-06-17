@@ -166,7 +166,6 @@ def task_status(proxmox_api, task_id, node_name):
   data = {"status": ""}
   while (data["status"] != "stopped"):
     data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
-    time.sleep(0.5)
 
 # get vm info
 def vm_info(vmid):
