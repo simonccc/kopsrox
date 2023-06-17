@@ -2,7 +2,6 @@
 from configparser import ConfigParser
 
 # ini file names
-proxmox_conf='proxmox.ini'
 kopsrox_conf='kopsrox.ini'
 
 # generate the default kopsrox.ini
@@ -68,24 +67,4 @@ def init_kopsrox_ini():
   with open(kopsrox_conf, 'w') as configfile:
     kopsrox_config.write(configfile)
   print('NOTE: please edit', kopsrox_conf, 'as required for your setup')
-  exit(0)
-
-# generate a default proxmox.ini
-def init_proxmox_ini():
-
-  # proxmox conf
-  proxmox_config = ConfigParser()
-  proxmox_config.read(proxmox_conf)
-  proxmox_config.add_section('proxmox')
-
-  # need to add port in the future
-  proxmox_config.set('proxmox', 'endpoint', 'domain or ip')
-  proxmox_config.set('proxmox', 'user', 'root@pam')
-  proxmox_config.set('proxmox', 'token_name', 'token name')
-  proxmox_config.set('proxmox', 'api_key', 'xxxxxxxxxxxxx')
-
-  # write file
-  with open(conf, 'w') as configfile:
-    proxmox_config.write(configfile)
-  print('NOTE: please edit', conf, 'as required for your setup')
   exit(0)

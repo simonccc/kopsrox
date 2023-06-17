@@ -4,12 +4,13 @@ import re, time
 
 # config
 config = common.read_kopsrox_ini()
+k3s_version = (config['cluster']['k3s_version'])
+masterid = common.get_master_id()
 
 # check for k3s status
 def k3s_check(vmid):
 
     # get masterid
-    masterid = common.get_master_id()
     node_name = common.vmname(vmid)
 
     # check for exiting k3s
@@ -18,7 +19,7 @@ def k3s_check(vmid):
 
     # fail early
     if ( k3s_check == 'fail' ):
-      print('k3s_check: no k3s bin found')
+      #3print('k3s_check: no k3s bin found')
       return('fail')
 
     # check node is healthy
@@ -41,10 +42,6 @@ def k3s_check(vmid):
 # init 1st master
 def k3s_init_master(vmid):
 
-    # get config
-    config = common.read_kopsrox_ini()
-    k3s_version = (config['cluster']['k3s_version'])
-
     # check for existing k3s
     status = k3s_check(vmid)
 
@@ -59,11 +56,6 @@ def k3s_init_master(vmid):
 
 # additional master
 def k3s_init_slave(vmid):
-
-    # get config
-    config = common.read_kopsrox_ini()
-    masterid = common.get_master_id()
-    k3s_version = (config['cluster']['k3s_version'])
 
     # check for existing k3s
     status = k3s_check(vmid)
@@ -89,9 +81,6 @@ def k3s_init_worker(vmid):
   if ( status == 'fail'):
 
     print('k3s_init_worker: installing k3s on', vmid)
-    config = common.read_kopsrox_ini()
-    masterid = common.get_master_id()
-    k3s_version = (config['cluster']['k3s_version'])
     ip = common.vmip(masterid)
     token = common.get_token()
 
@@ -105,7 +94,6 @@ def k3s_init_worker(vmid):
 # remove a node
 def k3s_rm(vmid):
     workername = common.vmname(vmid)
-    masterid = common.get_master_id()
     print('k3s_rm:', workername)
 
     # kubectl commands to remove node
