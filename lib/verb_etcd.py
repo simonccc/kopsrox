@@ -21,6 +21,18 @@ if not passed_verb in verbs:
   print('kopsrox', verb, '', end='')
   common.verbs_help(verbs)
 
+def write_token():
+    # get the snapshot tokenfile
+    token = common.get_token()
+
+    # add a line break to the token
+    token = token + '\n'
+
+    # write the token
+    with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
+      snapshot_token.write(token)
+    print("etcd::write-token: wrote kopsrox.etcd.snapshot.token")
+
 # check for number of nodes
 config = common.read_kopsrox_ini()
 
@@ -37,11 +49,11 @@ if passed_verb == 'snapshot':
   print('etcd::snapshot: kopsrox-m1 '+'('+ str(masterid)+')')
 
   # run the command to take snapshot
-  snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify')
+  snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify --name kopsrox')
 
   # now also need to figure out what to do with the token
-
-  print(snapout)
+  print('etcd::snapshot: done')
+  write_token()
 
 # list
 if passed_verb == 'list':
@@ -49,7 +61,7 @@ if passed_verb == 'list':
   print('etcd::list: kopsrox-m1 '+'('+ str(masterid)+')')
 
   # run the command to ls ( 2>1 required ) 
-  snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot ls --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify 2>1')
+  snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot ls --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify 2>1 | grep kopsrox-k | sort')
 
   print(snapout)
 
@@ -87,16 +99,8 @@ if passed_verb == 'local-snapshot':
     snapshot.write(base64.b64decode(contentb64))
   print("etcd::local-snapshot: wrote kopsrox.etcd.snapshot.zip")
 
-  # get the snapshot tokenfile
-  token = common.get_token()
-  
-  # add a line break to the token
-  token = token + '\n'
-
-  # write the token
-  with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
-    snapshot_token.write(token)
-  print("etcd::local-snapshot: wrote kopsrox.etcd.snapshot.token")
+  # write token
+  write_token()
 
 # local etcd snapshot restore
 if passed_verb == 'local-restore':

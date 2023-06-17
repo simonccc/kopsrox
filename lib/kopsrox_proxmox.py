@@ -52,6 +52,7 @@ def qaexec(vmid,cmd):
       print('qaexec: agent not started on', vmid)
 
   # send command
+  # could try redirecting stderr to out since we don't error on stderr
   try: 
     qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
             command = "sh -c \'" + cmd +"\'",
@@ -93,6 +94,8 @@ def qaexec(vmid,cmd):
         return(pid_check['out-data'])
     except:
       return('no output')
+
+    # redundant?
     return('error')
 
 # return kopsrox_vms as list
