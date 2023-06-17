@@ -2,18 +2,17 @@
 
 import os, re, sys
 import kopsrox_ini as ini
+
+# generate barebones kopsrox.ini if it doesn't exist
+conf = ini.conf
+if not os.path.isfile(conf):
+  ini.init_kopsrox_ini()
+
 import kopsrox_proxmox as proxmox
 import common_config as common
 
-# kopsrox config
-conf = ini.kopsrox_conf
-
 from configparser import ConfigParser
 kopsrox_config = ConfigParser()
-
-# generate barebones kopsrox.ini if it doesn't exist
-if not os.path.isfile(conf):
-  ini.init_kopsrox_ini()
 
 # read ini files
 kopsrox_config.read(conf)

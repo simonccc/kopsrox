@@ -2,14 +2,14 @@
 from configparser import ConfigParser
 
 # ini file names
-kopsrox_conf='kopsrox.ini'
+conf='kopsrox.ini'
 
 # generate the default kopsrox.ini
 def init_kopsrox_ini():
 
   # get config
   config = ConfigParser()
-  config.read(kopsrox_conf)
+  config.read(conf)
 
   # proxmox
   config.add_section('proxmox')
@@ -18,13 +18,13 @@ def init_kopsrox_ini():
   config.set('proxmox', 'endpoint', 'domain or ip')
 
   # username
-  proxmox_config.set('proxmox', 'user', 'root@pam')
+  config.set('proxmox', 'user', 'root@pam')
 
   # token name
-  proxmox_config.set('proxmox', 'token_name', 'kopsrox')
+  config.set('proxmox', 'token_name', 'kopsrox')
 
   # api key
-  proxmox_config.set('proxmox', 'api_key', 'xxxxxxxxxxxxx')
+  config.set('proxmox', 'api_key', 'xxxxxxxxxxxxx')
 
   # node to operate on
   config.set('proxmox', 'proxnode', 'proxmox')
@@ -64,7 +64,7 @@ def init_kopsrox_ini():
   config.set('cluster', 'k3s-version', 'v1.24.6+k3s1')
 
   # write default config
-  with open(kopsrox_conf, 'w') as configfile:
-    kopsrox_config.write(configfile)
-  print('NOTE: please edit', kopsrox_conf, 'as required for your setup')
+  with open(conf, 'w') as configfile:
+    config.write(configfile)
+  print('NOTE: please edit', conf, 'as required for your setup')
   exit(0)

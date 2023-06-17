@@ -18,7 +18,7 @@ verbs_etcd = ['snapshot', 'restore', 'local-snapshot', 'local-restore', 'list']
 
 # config dict
 kopsrox_config = ConfigParser()
-kopsrox_config.read(ini.kopsrox_conf)
+kopsrox_config.read(ini.conf)
 config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
 # used items
