@@ -1,10 +1,12 @@
 # kopsrox
 automate creating a k3s cluster with proxmox api with a "kops like" cli and cluster config files
 
+tested with pve 8.0.3
+
 ## install
 
 - sudo apt install libguestfs-tools -y
-- pip3 install --user -r requirements.txt
+- pip3 install --break-system-packages --user -r requirements.txt
 - run ./kopsrox.py
 - update your proxmox.ini and kopsrox.ini configs
 

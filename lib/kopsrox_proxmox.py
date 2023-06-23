@@ -51,7 +51,8 @@ def qaexec(vmid,cmd):
             command = "sh -c \'" + cmd +"\'",
             )
   except:
-    print('ERROR: qaexec problem with cmd: ', cmd)
+    print('proxmox::qaexec problem with cmd: ', cmd)
+    print(qa_exec )
     exit(0)
 
   # get pid

@@ -67,10 +67,10 @@ echo "minio cert found"
 
 # check service is running
 if systemctl is-active --quiet "minio.service" ; then
-  echo "minio running"
+  echo "minio already running"
 else
-  echo "startig minio "
-  systemctl start minio
+  echo "enabling minio "
+  systemctl enable minio && systemctl start minio
 fi
 
 # check mc installed

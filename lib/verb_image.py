@@ -48,13 +48,13 @@ if (passed_verb == 'create'):
 
   # download image with wget if not present
   if not os.path.isfile(up_image):
-    print('downloading:', up_image_url)
+    print('image::create: downloading:', up_image_url)
     wget.download(up_image_url)
     print('')
 
     # patch image with qemu-agent
     try:
-      print('patching: ' + up_image)
+      print('image::create: patching: ' + up_image)
       imgpatch = os.system('sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent,nfs-common' ' >' + os.getcwd() + '/kopsrox_imgpatch.log 2>&1')
     except:
       print('error patching image')
@@ -91,10 +91,11 @@ if (passed_verb == 'create'):
 
   # run shell command to import
   try:
-    print('importing: ' + up_image + ' ...')
+    print('image::create: importing: ' + up_image)
     qmimport = os.system(import_disk_string)
   except:
-    print('error importing disk to VM')
+    print('image::create: ERROR importing disk to VM')
+    print(qmimport)
     exit(0)
 
   # resize disk to suitable size
