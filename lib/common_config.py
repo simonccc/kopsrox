@@ -15,7 +15,7 @@ verbs_image = ['info', 'create', 'destroy']
 verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
 verbs_node = ['destroy', 'util']
 verbs_etcd = ['snapshot', 'restore', 'local-snapshot', 'local-restore', 'list']
-verbs_config = ['ini']
+verbs_config = ['example.ini']
 
 # config dict
 kopsrox_config = ConfigParser()
@@ -44,7 +44,7 @@ def conf_check(config,section,value,filename):
   try:
     return(config.get(section, value))
   except:
-    print('ERROR: no value found for ' + section + ':' + value + ' in ' + filename)
+    print('kopsrox::conf_check: ERROR: no value found for ' + section + ':' + value + ' in ' + filename)
     exit(0)
 
 # return master id

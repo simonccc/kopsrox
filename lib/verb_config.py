@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-import common_config as common, sys, re, time
-#import kopsrox_proxmox as proxmox
-#import kopsrox_k3s as k3s
+import sys, os
+import common_config as common
+import kopsrox_ini as ini
 
 # verb info
 verb = 'config'
@@ -23,3 +23,12 @@ if not passed_verb in verbs:
   print('kopsrox', verb, '', end='')
   common.verbs_help(verbs)
   exit(0)
+
+# dump ini to example.ini
+if passed_verb == 'example.ini':
+  print('config::example.ini: generating')
+  try:
+    os.remove('example.ini')
+  except:
+    next
+  ini.init_kopsrox_ini(conf = 'example.ini')

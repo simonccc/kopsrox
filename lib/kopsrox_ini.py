@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 from configparser import ConfigParser
 
-# ini file names
+# default ini file name
 conf='kopsrox.ini'
 
 # generate the default kopsrox.ini
-def init_kopsrox_ini():
+def init_kopsrox_ini(conf = conf):
 
   # get config
-  #config = ConfigParser(allow_no_value=True())
   config = ConfigParser(allow_no_value=True)
   config.read(conf)
 
@@ -50,8 +49,14 @@ def init_kopsrox_ini():
   config.set('kopsrox', 'vm_cpu', '1')
   config.set('kopsrox', 'vm_ram', '2')
 
-  # cloudinit user and key
+  # cloudinit user key and password
   config.set('kopsrox', 'cloudinituser', 'user')
+
+  # cloud init user password
+  config.set('kopsrox', '; the password for the cloudinit user')
+  config.set('kopsrox', 'cloudinitpass', 'admin')
+
+  # cloud init user ssh key
   config.set('kopsrox', 'cloudinitsshkey', 'ssh-rsa cioieocieo')
 
   # kopsrox network baseip
@@ -73,5 +78,9 @@ def init_kopsrox_ini():
   # write default config
   with open(conf, 'w') as configfile:
     config.write(configfile)
-  print('NOTE: please edit', conf, 'as required for your setup')
+
+  # skip notification for example conf
+  if not ( conf == 'example.ini' ):
+    print('kopsrox::ini:: please edit', conf, 'as required for your setup')
+
   exit(0)

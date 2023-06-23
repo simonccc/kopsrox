@@ -1,4 +1,4 @@
-set -e
+#set -e
 echo "removing files"
 rm mantic-minimal-cloudimg-amd64.img
 rm kopsrox_disk_import.log

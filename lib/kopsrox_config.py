@@ -37,6 +37,7 @@ vm_ram = common.conf_check(config,'kopsrox','vm_ram',conf)
 
 # cloudinit
 cloudinituser = common.conf_check(config,'kopsrox','cloudinituser',conf)
+cloudinitpass = common.conf_check(config,'kopsrox','cloudinitpass',conf)
 cloudinitsshkey = common.conf_check(config,'kopsrox','cloudinitsshkey',conf)
 
 # network

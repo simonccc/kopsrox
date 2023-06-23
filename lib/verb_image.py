@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-import common_config as common, sys, os, wget, re, time, urllib.parse
+import common_config as common, sys, os, wget, re, time
+
+# required for ssh key encoding
+import urllib.parse
 
 import kopsrox_proxmox as proxmox
 prox = proxmox.prox_init()
@@ -32,10 +35,11 @@ up_image_url = (config['proxmox']['up_image_url'])
 proxbridge = (config['proxmox']['proxbridge'])
 vm_disk = (config['kopsrox']['vm_disk'])
 cloudinituser = (config['kopsrox']['cloudinituser'])
+cloudinitpass = config['kopsrox']['cloudinitpass']
 cloudinitsshkey = (config['kopsrox']['cloudinitsshkey'])
 network = (config['kopsrox']['network'])
 networkgw = (config['kopsrox']['networkgw'])
-netmask = (config['kopsrox']['netmask'])
+netmask = config['kopsrox']['netmask']
 
 # generate image name
 kopsrox_img = common.kopsrox_img(proxstor,proximgid)
@@ -104,18 +108,17 @@ if (passed_verb == 'create'):
         size = vm_disk,
         )
 
-  # cloud init
+  # cloud init user setup
   # url encode ssh key
   ssh_encode = urllib.parse.quote(cloudinitsshkey, safe='')
   cloudinit = prox.nodes(proxnode).qemu(proximgid).config.post(
           ciuser = cloudinituser, 
-          cipassword = 'admin', 
+          cipassword = cloudinitpass,
           ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/' + netmask ), 
           sshkeys = ssh_encode )
   proxmox.task_status(prox, str(cloudinit), proxnode)
 
   # power on and off the vm to resize disk
-  #print('resizing disk to', vm_disk)
   poweron = prox.nodes(proxnode).qemu(proximgid).status.start.post()
   proxmox.task_status(prox, str(poweron), proxnode)
 
