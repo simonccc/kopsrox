@@ -47,19 +47,31 @@ endpoint = config['s3']['endpoint']
 access_key = config['s3']['access-key']
 access_secret = config['s3']['access-secret']
 bucket = config['s3']['bucket']
+s3_string = ' --etcd-s3 --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify '
 
 # get masterid
 masterid = common.get_master_id()
 
-# list images in s3 storage
-def list_images():
-  # run the command to ls ( 2>1 required )
-  cmd = 'k3s etcd-snapshot ls --etcd-s3 --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify 2>1 | grep kopsrox-k | sort'
-  cmd_out = proxmox.qaexec(masterid, cmd)
+# run k3s s3 command passed
+def s3_run(cmd):
+  # run the command ( 2>1 required )
+  k3s_run = 'k3s etcd-snapshot ' + cmd + s3_string + '2>1'
+  cmd_out = proxmox.qaexec(masterid, k3s_run)
+
+  # the response from qaexec for eg timeout
   if ( cmd_out == 'no output'):
     print('etcd: problem with s3 storage')
     exit(0)
   return(cmd_out)
+
+# list images in s3 storage
+def list_images():
+  ls = s3_run('ls').split('\n')
+  out = ''
+  for line in sorted(ls):
+    if re.search('kopsrox-k', line):
+      out += line + '\n'
+  return(out)
 
 # snapshot 
 if passed_verb == 'snapshot':
@@ -67,7 +79,6 @@ if passed_verb == 'snapshot':
   # check status of minio / bucket
   list_images()
   print('etcd::snapshot: starting')
-
   # run the command to take snapshot
   snapout = proxmox.qaexec(masterid, ( 'k3s etcd-snapshot --etcd-s3 --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify --name kopsrox'))
 
