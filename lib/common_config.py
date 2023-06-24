@@ -39,14 +39,6 @@ def verbs_help(verbs):
 def kopsrox_img(proxstor,proximgid):
   return(proxstor + ':base-' + proximgid + '-disk-0')
 
-# config checker
-def conf_check(config,section,value,filename):
-  try:
-    return(config.get(section, value))
-  except:
-    print('kopsrox::conf_check: ERROR: no value found for ' + section + ':' + value + ' in ' + filename)
-    exit(0)
-
 # return master id
 def get_master_id():
   return(int(proximgid) + 1)

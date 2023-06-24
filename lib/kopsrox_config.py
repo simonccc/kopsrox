@@ -12,9 +12,8 @@ try:
     except:
       next
     ini.init_kopsrox_ini(conf = 'example.ini')
-    exit(1)
 except:
-  exit(1)
+  next
 
 # generate barebones kopsrox.ini if it doesn't exist
 conf = ini.conf
