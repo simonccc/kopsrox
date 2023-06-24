@@ -42,14 +42,19 @@ config = common.read_kopsrox_ini()
 # count of master nodes ( 1 or 3 ) 
 masters = config['cluster']['masters']
 
+# s3 details
+endpoint = config['s3']['endpoint']
+access_key = config['s3']['access-key']
+access_secret = config['s3']['access-secret']
+bucket = config['s3']['bucket']
+
 # get masterid
 masterid = common.get_master_id()
 
 # list images in s3 storage
 def list_images():
-  # need to check status of minio / bucket
   # run the command to ls ( 2>1 required )
-  cmd = 'k3s etcd-snapshot ls --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify 2>1 | grep kopsrox-k | sort'
+  cmd = 'k3s etcd-snapshot ls --etcd-s3 --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify 2>1 | grep kopsrox-k | sort'
   cmd_out = proxmox.qaexec(masterid, cmd)
   if ( cmd_out == 'no output'):
     print('etcd: problem with s3 storage')
@@ -61,13 +66,14 @@ if passed_verb == 'snapshot':
 
   # check status of minio / bucket
   list_images()
-  print('etcd::snapshot: running on kopsrox-m1 '+'('+ str(masterid)+')')
+  print('etcd::snapshot: starting')
 
   # run the command to take snapshot
-  snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot --etcd-s3 --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-access-key minio --etcd-s3-secret-key miniostorage --etcd-s3-bucket kopsrox --etcd-s3-skip-ssl-verify --name kopsrox')
+  snapout = proxmox.qaexec(masterid, ( 'k3s etcd-snapshot --etcd-s3 --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify --name kopsrox'))
 
   # now also need to figure out what to do with the token
   print('etcd::snapshot: done')
+  print(snapout)
 
   # check for existing token file
   if not os.path.isfile('kopsrox.etcd.snapshot.token'):
