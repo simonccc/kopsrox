@@ -3,13 +3,24 @@
 import os, re, sys
 import kopsrox_ini as ini
 
+# skip check for config example.ini
+try:
+  if ((str(sys.argv[1]) == str('config')) and (str(sys.argv[2]) == str('example.ini'))):
+    print('config::example.ini: generating')
+    try:
+      os.remove('example.ini')
+    except:
+      next
+    ini.init_kopsrox_ini(conf = 'example.ini')
+    exit(1)
+except:
+  exit(1)
+
 # generate barebones kopsrox.ini if it doesn't exist
 conf = ini.conf
 if not os.path.isfile(conf):
   ini.init_kopsrox_ini()
-
-import kopsrox_proxmox as proxmox
-import common_config as common
+  exit(0)
 
 from configparser import ConfigParser
 config = ConfigParser()
@@ -17,44 +28,56 @@ config = ConfigParser()
 # read ini files
 config.read(conf)
 
+# check value
+def conf_check(section,value):
+  try:
+    return(config.get(section, value))
+  except:
+    print('kopsrox::conf_check: ERROR: no value found for ' + section + ':' + value + ' in ' + conf)
+    exit(0)
+
 # proxmox checks
-endpoint = common.conf_check(config,'proxmox','endpoint',conf)
-user = common.conf_check(config,'proxmox','user',conf)
-token_name = common.conf_check(config,'proxmox','token_name',conf)
-api_key = common.conf_check(config,'proxmox','api_key',conf)
+endpoint = conf_check('proxmox','endpoint')
+user = conf_check('proxmox','user')
+token_name = conf_check('proxmox','token_name')
+api_key = conf_check('proxmox','api_key')
 
 # proxmox -> kopsrox config checks
-proxnode = common.conf_check(config,'proxmox','proxnode',conf)
-proxstor = common.conf_check(config,'proxmox','proxstor',conf)
-proximgid = common.conf_check(config,'proxmox','proximgid',conf)
-up_image_url = common.conf_check(config,'proxmox','up_image_url',conf)
-proxbridge = common.conf_check(config,'proxmox','proxbridge',conf)
+proxnode = conf_check('proxmox','proxnode')
+proxstor = conf_check('proxmox','proxstor')
+proximgid = conf_check('proxmox','proximgid')
+up_image_url = conf_check('proxmox','up_image_url')
+proxbridge = conf_check('proxmox','proxbridge')
 
 # kopsrox config checks
-vm_disk = common.conf_check(config,'kopsrox','vm_disk',conf)
-vm_cpu = common.conf_check(config,'kopsrox','vm_cpu',conf)
-vm_ram = common.conf_check(config,'kopsrox','vm_ram',conf)
+vm_disk = conf_check('kopsrox','vm_disk')
+vm_cpu = conf_check('kopsrox','vm_cpu')
+vm_ram = conf_check('kopsrox','vm_ram')
 
 # cloudinit
-cloudinituser = common.conf_check(config,'kopsrox','cloudinituser',conf)
-cloudinitpass = common.conf_check(config,'kopsrox','cloudinitpass',conf)
-cloudinitsshkey = common.conf_check(config,'kopsrox','cloudinitsshkey',conf)
+cloudinituser = conf_check('kopsrox','cloudinituser')
+cloudinitpass = conf_check('kopsrox','cloudinitpass')
+cloudinitsshkey = conf_check('kopsrox','cloudinitsshkey')
 
 # network
-network = common.conf_check(config,'kopsrox','network',conf)
-networkgw = common.conf_check(config,'kopsrox','networkgw',conf)
-netmask = common.conf_check(config,'kopsrox','netmask',conf)
+network = conf_check('kopsrox','network')
+networkgw = conf_check('kopsrox','networkgw')
+netmask = conf_check('kopsrox','netmask')
 
 # cluster level checks
-masters = common.conf_check(config,'cluster','masters',conf)
-workers = common.conf_check(config,'cluster','workers',conf)
-k3s_version = common.conf_check(config,'cluster','k3s_version',conf)
+masters = conf_check('cluster','masters')
+workers = conf_check('cluster','workers')
+k3s_version = conf_check('cluster','k3s_version')
 
 # s3
-s3_endpoint = common.conf_check(config,'s3','endpoint',conf)
-s3_key = common.conf_check(config,'s3','access-key',conf)
-s3_secret = common.conf_check(config,'s3','access-secret',conf)
-s3_bucket = common.conf_check(config,'s3','bucket',conf)
+s3_endpoint = conf_check('s3','endpoint')
+s3_key = conf_check('s3','access-key')
+s3_secret = conf_check('s3','access-secret')
+s3_bucket = conf_check('s3','bucket')
+
+# safe to import these now ( has to be this order ) 
+import kopsrox_proxmox as proxmox
+import common_config as common
 
 # master check - can only be 1 or 3
 if not ( (int(masters) == 1) or(int(masters) == 3)):
