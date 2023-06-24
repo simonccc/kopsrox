@@ -85,12 +85,14 @@ if passed_verb == 'prune':
 if passed_verb == 'snapshot':
 
   print('etcd::snapshot: starting')
-  # run the command to take snapshot
-  snapout = proxmox.qaexec(masterid, ( 'k3s etcd-snapshot ' + s3_string + ' --name kopsrox'))
+  snapout = proxmox.qaexec(masterid,('k3s etcd-snapshot ' + s3_string + ' --name kopsrox'))
 
-  # now also need to figure out what to do with the token
+  # filter output
+  snapout = snapout.split('\n')
+  for line in snapout:
+    if re.search('S3', line):
+     print(line)
   print('etcd::snapshot: done')
-  print(snapout)
 
   # check for existing token file
   if not os.path.isfile('kopsrox.etcd.snapshot.token'):
@@ -142,7 +144,11 @@ if passed_verb == 'restore':
 
     print('etcd::restore: cleaning slaves')
     stop_m2 = proxmox.qaexec(int(masterid) + 1, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/')
+    write_token_m2 = proxmox.writefile(int(masterid) + 1, 'kopsrox.etcd.snapshot.token')
+    cp_token_m2 = proxmox.qaexec(int(masterid) + 1, 'cp -f /var/tmp/kopsrox.etcd.snapshot.token /var/lib/rancher/k3s/server/token')
     stop_m3 = proxmox.qaexec(int(masterid) + 2, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/')
+    write_token_m3 = proxmox.writefile(int(masterid) + 2, 'kopsrox.etcd.snapshot.token')
+    cp_token_m3 = proxmox.qaexec(int(masterid) + 2, 'cp -f /var/tmp/kopsrox.etcd.snapshot.token /var/lib/rancher/k3s/server/token')
 
     print('etcd::restore: restoring etcd snapshot to ha setup')
     restore = proxmox.qaexec(masterid, restore_cmd)
