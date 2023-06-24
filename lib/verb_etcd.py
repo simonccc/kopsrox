@@ -80,7 +80,7 @@ if passed_verb == 'snapshot':
   list_images()
   print('etcd::snapshot: starting')
   # run the command to take snapshot
-  snapout = proxmox.qaexec(masterid, ( 'k3s etcd-snapshot --etcd-s3 --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify --name kopsrox'))
+  snapout = proxmox.qaexec(masterid, ( 'k3s etcd-snapshot ' + s3_string + ' --name kopsrox'))
 
   # now also need to figure out what to do with the token
   print('etcd::snapshot: done')
@@ -91,7 +91,7 @@ if passed_verb == 'snapshot':
     write_token()
 
 # print returned images
-if ( passed_verb == 'list' ) or ( passed_verb == 'ls'):
+if ( passed_verb == 'list' ):
   print('etcd::list:')
   print(list_images())
 
@@ -120,7 +120,7 @@ if passed_verb == 'restore':
   write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token')
 
   # define restore command
-  restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/var/tmp/kopsrox.etcd.snapshot.token --etcd-s3 --etcd-s3-bucket=' + bucket + ' --etcd-s3-access-key=' + access_key + ' --etcd-s3-secret-key=' + access_secret + ' --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-skip-ssl-verify'
+  restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/var/tmp/kopsrox.etcd.snapshot.token ' + s3_string
 
   # single master restore
   if ( int(masters) == 1 ):
