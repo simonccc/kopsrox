@@ -50,6 +50,9 @@ masters = common.conf_check(config,'cluster','masters',conf)
 workers = common.conf_check(config,'cluster','workers',conf)
 k3s_version = common.conf_check(config,'cluster','k3s_version',conf)
 
+# s3
+kopsrox_minio = common.conf_check(config,'s3','kopsrox',conf)
+
 # master check - can only be 1 or 3
 if not ( (int(masters) == 1) or(int(masters) == 3)):
   print ('ERROR: only 1 or 3 masters supported. You have:', masters)

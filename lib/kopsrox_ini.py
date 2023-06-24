@@ -15,6 +15,7 @@ def init_kopsrox_ini(conf = conf):
   config.add_section('proxmox')
 
   # endpoint
+  config.set('proxmox', '; domain name or IP to access proxmox this has to be port 8006 atm')
   config.set('proxmox', 'endpoint', 'domain or ip')
 
   # username
@@ -73,9 +74,18 @@ def init_kopsrox_ini(conf = conf):
   config.add_section('cluster')
   config.set('cluster', 'masters', '1')
   config.set('cluster', 'workers', '0')
+
+  # k3s version
+  config.set('cluster', '; k3s version')
   config.set('cluster', 'k3s_version', 'v1.24.6+k3s1')
 
-  # write default config
+  # s3 etcd snapshot config
+  config.add_section('s3')
+  config.set('s3', '; use kopsrox default minio true or false')
+  config.set('s3', 'kopsrox', 'true')
+
+  # write config
+  # file should not already exist...
   with open(conf, 'w') as configfile:
     config.write(configfile)
 

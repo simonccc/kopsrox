@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import common_config as common, sys, re, base64, os
 import kopsrox_proxmox as proxmox
 
@@ -21,6 +22,8 @@ if not passed_verb in verbs:
   print('kopsrox', verb, '', end='')
   common.verbs_help(verbs)
 
+# should check for an existing token?
+# writes a etcd snapshot token from the current running clusters token
 def write_token():
     # get the snapshot tokenfile
     token = common.get_token()
