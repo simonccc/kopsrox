@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import common_config as common, sys, re, base64, os
+import common_config as common, sys, re, os
 import kopsrox_proxmox as proxmox
 
 # verb config
@@ -80,53 +80,15 @@ if passed_verb == 'snapshot':
     write_token()
 
 # print returned images
-if passed_verb == 'list':
+if ( passed_verb == 'list' ) or ( passed_verb == 'ls'):
   print('etcd::list:')
   print(list_images())
-
-# local snapshot
-if passed_verb == 'local-snapshot':
-  print('etcd::local-snapshot: kopsrox-m1 '+'('+ str(masterid)+')')
-
-  # run the command to take snapshot
-  snapout = proxmox.qaexec(masterid, 'k3s etcd-snapshot --etcd-snapshot-compress --name kopsrox')
-
-  # get path of snapshot from output 
-  for line in snapout.split():
-    # in path in output line
-    if (re.search('path', line)):
-      # split the line with output by :
-      rpath = line.split(':')
-
-  # remove extra chars and add .zip
-  path = (rpath[8].replace('}', '').replace('"', '') + '.zip')
-  print('etcd::local-snapshot:', path, 'created')
-
-  # qaexec needs commands to have output ( the echo ok ) 
-  b64cmd = ('base64 ' + path + ' > ' + ( path + '.b64' ) + ' && echo ok')
-  b64 = proxmox.qaexec(masterid, b64cmd)
-
-  # try qagent file get 
-  # this will break when the file gets too large
-  get_file = proxmox.getfile(masterid, str((path + '.b64')))
-
-  # encode the already b64 file
-  contentb64 = get_file.encode()
-
-  # write the snapshot
-  with open('kopsrox.etcd.snapshot.zip', 'wb') as snapshot:
-    snapshot.write(base64.b64decode(contentb64))
-  print("etcd::local-snapshot: wrote kopsrox.etcd.snapshot.zip")
-
-  # write token if doesn't exist
-  if not os.path.isfile('kopsrox.etcd.snapshot.token'):
-    write_token()
 
 # minio etcd snapshot restore
 if passed_verb == 'restore':
 
+  # get list of images 
   images = list_images()
-  print("etcd::restore: starting")
 
   # look for passed snapshot
   try:
@@ -154,21 +116,20 @@ if passed_verb == 'restore':
 
     print('etcd::restore: restoring please wait')
     restore = proxmox.qaexec(masterid, restore_cmd)
-    start = proxmox.qaexec(masterid, 'systemctl start k3s')
     print(restore)
+    start = proxmox.qaexec(masterid, 'systemctl start k3s')
     print(common.kubectl(masterid, 'get nodes'))
 
   # restore for masters / slave
   if ( int(masters) == 3 ):
 
-    print('etcd::restore: restoring etcd snapshot to ha setup')
-    restore = proxmox.qaexec(masterid, restore_cmd)
-    print(restore)
-
-    # stop k3s on slaves
     print('etcd::restore: cleaning slaves')
     stop_m2 = proxmox.qaexec(int(masterid) + 1, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/')
     stop_m3 = proxmox.qaexec(int(masterid) + 2, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/')
+
+    print('etcd::restore: restoring etcd snapshot to ha setup')
+    restore = proxmox.qaexec(masterid, restore_cmd)
+    print(restore)
 
     # start k3s on master then slaves
     print('etcd::local-restore: starting k3s on m1')

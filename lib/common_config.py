@@ -14,7 +14,7 @@ top_verbs = ['image', 'cluster', 'node', 'etcd', 'config']
 verbs_image = ['info', 'create', 'destroy']
 verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
 verbs_node = ['destroy', 'util']
-verbs_etcd = ['snapshot', 'restore', 'local-snapshot', 'local-restore', 'list']
+verbs_etcd = ['snapshot', 'restore', 'list']
 verbs_config = ['example.ini']
 
 # config dict
