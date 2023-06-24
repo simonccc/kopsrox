@@ -144,56 +144,29 @@ if passed_verb == 'restore':
     exit(0)
 
   print('etcd::restore: restoring', snapshot)
+  write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token')
+
+  # define restore command
+  restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/var/tmp/kopsrox.etcd.snapshot.token --etcd-s3 --etcd-s3-bucket=' + bucket + ' --etcd-s3-access-key=' + access_key + ' --etcd-s3-secret-key=' + access_secret + ' --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-skip-ssl-verify'
 
   # single master restore
   if ( int(masters) == 1 ):
-    write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token')
 
-    restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/var/tmp/kopsrox.etcd.snapshot.token --etcd-s3 --etcd-s3-bucket=kopsrox --etcd-s3-access-key=minio  --etcd-s3-secret-key=miniostorage --etcd-s3-endpoint 192.168.0.164:9000 --etcd-s3-skip-ssl-verify && systemctl start k3s'
-
-    #print(restore_cmd)
     print('etcd::restore: restoring please wait')
     restore = proxmox.qaexec(masterid, restore_cmd)
-    print(restore)
-    print(common.kubectl(masterid, 'get nodes'))
-
-# local etcd snapshot restore
-if passed_verb == 'local-restore':
-
-  # check for local snapshot zip
-  if not os.path.isfile('kopsrox.etcd.snapshot.zip'):
-    print('etcd::local-restore: no kopsrox.etcd.snapshot.zip file found')
-    exit(0) 
-
-  # check for number of masters here
-  if ( int(masters) == 1 ):
-    print('etcd::local-restore: restoring local etcd snapshot to single master')
-    write_file = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.zip')
-    write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token')
-
-    # command to restore
-    restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=/var/tmp/kopsrox.etcd.snapshot.zip --token-file=/var/tmp/kopsrox.etcd.snapshot.token && systemctl start k3s'
-
-    print('etcd::local-restore: restoring please wait')
-    restore = proxmox.qaexec(masterid, restore_cmd)
+    start = proxmox.qaexec(masterid, 'systemctl start k3s')
     print(restore)
     print(common.kubectl(masterid, 'get nodes'))
 
   # restore for masters / slave
   if ( int(masters) == 3 ):
-    print('etcd::local-restore: restoring etcd snapshot to ha setup')
-    write_file = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.zip')
-    write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token')
 
-    # stop k3s and restore on m1
-    restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=/var/tmp/kopsrox.etcd.snapshot.zip --token-file=/var/tmp/kopsrox.etcd.snapshot.token'
-
-    print('etcd::local-restore: restoring please wait')
+    print('etcd::restore: restoring etcd snapshot to ha setup')
     restore = proxmox.qaexec(masterid, restore_cmd)
     print(restore)
 
     # stop k3s on slaves
-    print('etcd::local-restore: cleaning slaves')
+    print('etcd::restore: cleaning slaves')
     stop_m2 = proxmox.qaexec(int(masterid) + 1, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/')
     stop_m3 = proxmox.qaexec(int(masterid) + 2, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/')
 
