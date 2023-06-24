@@ -14,7 +14,7 @@ top_verbs = ['image', 'cluster', 'node', 'etcd', 'config']
 verbs_image = ['info', 'create', 'destroy']
 verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
 verbs_node = ['destroy', 'util']
-verbs_etcd = ['snapshot', 'restore', 'list']
+verbs_etcd = ['snapshot', 'restore', 'list', 'prune']
 verbs_config = ['example.ini']
 
 # config dict
@@ -111,8 +111,8 @@ def k3stoken(masterid):
 
 # pass a vmid return the IP
 def vmip(vmid):
-    network = (config['kopsrox']['network'])
-    network_octs = network.split('.')
-    basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )
-    ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
-    return(ip)
+  network = (config['kopsrox']['network'])
+  network_octs = network.split('.')
+  basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )
+  ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
+  return(ip)

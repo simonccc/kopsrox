@@ -54,15 +54,18 @@ masterid = common.get_master_id()
 
 # run k3s s3 command passed
 def s3_run(cmd):
-  # run the command ( 2>1 required )
-  k3s_run = 'k3s etcd-snapshot ' + cmd + s3_string + '2>1'
+  # run the command ( 2>&1 required )
+  k3s_run = 'k3s etcd-snapshot ' + cmd + s3_string + '2>&1'
   cmd_out = proxmox.qaexec(masterid, k3s_run)
 
   # the response from qaexec for eg timeout
   if ( cmd_out == 'no output'):
-    print('etcd: problem with s3 storage')
+    print('etcd::s3_run: problem with s3 storage')
     exit(0)
   return(cmd_out)
+
+# check we can run s3 ls
+s3_run('ls')
 
 # list images in s3 storage
 def list_images():
@@ -73,11 +76,14 @@ def list_images():
       out += line + '\n'
   return(out)
 
+# s3 prune
+if passed_verb == 'prune':
+  print(s3_run('prune --name kopsrox'))
+  exit(0)
+
 # snapshot 
 if passed_verb == 'snapshot':
 
-  # check status of minio / bucket
-  list_images()
   print('etcd::snapshot: starting')
   # run the command to take snapshot
   snapout = proxmox.qaexec(masterid, ( 'k3s etcd-snapshot ' + s3_string + ' --name kopsrox'))
