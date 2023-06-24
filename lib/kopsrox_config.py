@@ -51,7 +51,10 @@ workers = common.conf_check(config,'cluster','workers',conf)
 k3s_version = common.conf_check(config,'cluster','k3s_version',conf)
 
 # s3
-kopsrox_minio = common.conf_check(config,'s3','kopsrox',conf)
+s3_endpoint = common.conf_check(config,'s3','endpoint',conf)
+s3_key = common.conf_check(config,'s3','access-key',conf)
+s3_secret = common.conf_check(config,'s3','access-secret',conf)
+s3_bucket = common.conf_check(config,'s3','bucket',conf)
 
 # master check - can only be 1 or 3
 if not ( (int(masters) == 1) or(int(masters) == 3)):
