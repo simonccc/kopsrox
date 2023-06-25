@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import common_config as common, sys, re, time
 import kopsrox_proxmox as proxmox
 import kopsrox_k3s as k3s
@@ -67,6 +68,6 @@ if passed_verb == 'util':
       time.sleep(5)
 
     print('node:util: checking apps')
-    write_file = proxmox.writefile(uid, 'kopsrox-utility-node.sh')
+    write_file = proxmox.writefile(uid, 'kopsrox-utility-node.sh', '/var/tmp/kopsrox-utility-node.sh')
 
     print(proxmox.qaexec(uid, 'sh -x /var/tmp/kopsrox-utility-node.sh'))

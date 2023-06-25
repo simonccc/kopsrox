@@ -196,8 +196,19 @@ def SplitEvery(string, length):
         start += length
     return lines
 
+# writes a file from localdir to path
+def writefile(vmid,file,path):
+  name = common.vmname(vmid)
+  print('proxmox:writefile: ' + name + ':' + path)
+  myfile = open(file,"rb")
+  file_bin = myfile.read()
+  write_file = prox.nodes(proxnode).qemu(vmid).agent('file-write').post(
+          file = path, 
+          content = file_bin)
+  return(write_file)
+
 # writes a file to /var/tmp
-def writefile(vmid, file):
+def oldwritefile(vmid, file):
 
   name = common.vmname(vmid)
   print('proxmox:writefile: ' + name + ':/var/tmp/' + file)
