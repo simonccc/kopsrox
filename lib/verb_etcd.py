@@ -109,10 +109,6 @@ if ( passed_verb == 'list' ):
 # minio etcd snapshot restore
 if passed_verb == 'restore':
 
-  # move this to after the arg checks
-  k3s.k3s_rm_cluster(restore = True)
-  exit(0)
-
   # get list of images 
   images = list_images()
 
@@ -130,6 +126,9 @@ if passed_verb == 'restore':
     print('etcd::restore: no snapshot found:', snapshot)
     print(images)
     exit(0)
+
+  print('etcd::restore: downsizing cluster for restore')
+  k3s.k3s_rm_cluster(restore = True)
 
   print('etcd::restore: restoring', snapshot)
   write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token', '/var/tmp/kopsrox.etcd.snapshot.token')
