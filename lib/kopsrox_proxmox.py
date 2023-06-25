@@ -206,39 +206,3 @@ def writefile(vmid,file,path):
           file = path, 
           content = file_bin)
   return(write_file)
-
-# writes a file to /var/tmp
-def oldwritefile(vmid, file):
-
-  name = common.vmname(vmid)
-  print('proxmox:writefile: ' + name + ':/var/tmp/' + file)
-
-  # need to check is in localdir
-  myfile = open(file,"rb")
-
-  # read binary file
-  file_bin = myfile.read()
-
-  # base64 encode it
-  content = (base64.b64encode(file_bin)).decode()
-
-  # split it by the maximum size ( approx ) the api can handle
-  lines = SplitEvery(content, int(55825))
-
-  # a counter for the base 64 file names
-  count = 1
-
-  # for each line in the base64 file split 
-  for line in lines:
-    # write file name count.b64encoded.line
-    write_file = prox.nodes(proxnode).qemu(vmid).agent('file-write').post(
-          file = ( '/var/tmp/' + str(count) +'.'+ file + '.b64'), 
-          content = line, 
-          encode = 1 )
-    # increment file name counter
-    count = count + 1
-
-  # command to make the file
-  make_file_cmd = ('cat `bin/ls -v /var/tmp/*.b64` | base64 -d > /var/tmp/' + file + ' && rm -f /var/tmp/*.b64 && echo ok')
-  make_file = qaexec(vmid, make_file_cmd)
-  return(write_file)

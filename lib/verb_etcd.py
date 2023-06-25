@@ -143,7 +143,7 @@ if passed_verb == 'restore':
   if ( int(masters) == 3 ):
 
     print('etcd::restore: cleaning slaves')
-    stop_m2 = proxmox.qaexec(int(masterid) + 1, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && rm /var/lib/rancher/k3s/server/token')
+    stop_m2 = proxmox.qaexec(int(masterid) + 1, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && rm -f /var/lib/rancher/k3s/server/token')
     write_token_m2 = proxmox.writefile(int(masterid) + 1, 'kopsrox.etcd.snapshot.token', '/var/lib/rancher/k3s/server/token')
     stop_m3 = proxmox.qaexec(int(masterid) + 2, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && rm -f /var/lib/rancher/k3s/server/token')
     write_token_m3 = proxmox.writefile(int(masterid) + 2, 'kopsrox.etcd.snapshot.token', '/var/lib/rancher/k3s/server/token')
