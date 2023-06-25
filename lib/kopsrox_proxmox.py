@@ -12,7 +12,7 @@ import kopsrox_ini as ini
 # get proxmox config
 config = common.config
 
-# api connection
+# define api connection
 prox = ProxmoxAPI(
   config['proxmox']['endpoint'],
   user=config['proxmox']['user'],
@@ -22,9 +22,9 @@ prox = ProxmoxAPI(
   timeout=5)
 
 # config
-proxnode = (config['proxmox']['proxnode'])
-proximgid = (config['proxmox']['proximgid'])
-proxstor = (config['proxmox']['proxstor'])
+proxnode = config['proxmox']['proxnode']
+proximgid = config['proxmox']['proximgid']
+proxstor = config['proxmox']['proxstor']
 
 # connect to proxmox
 def prox_init():
@@ -177,25 +177,6 @@ def vm_info(vmid):
 def getfile(vmid, path):
   get_file = prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path)
   return(get_file['content'])
-
-# split string by filename length 
-def SplitEvery(string, length):
-
-    # if string less than size just return string 
-    if len(string) <= length: return [string]
-
-    # create sections count 
-    sections = int( int((len(string) / int(length) ) + 1))
-    # print(sections, "sections")
-
-    # to be documemnted 
-    lines = []
-    start = 0;
-    for i in range(int(sections)):
-        line = string[start:start+length]
-        lines.append(line)
-        start += length
-    return lines
 
 # writes a file from localdir to path
 def writefile(vmid,file,path):
