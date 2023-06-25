@@ -173,21 +173,4 @@ if passed_verb == 'kubeconfig':
 
 # destroy the cluster
 if passed_verb == 'destroy':
-  print('cluster::destroy: destroying cluster')
-
-  # for each listed vmid
-  for vmid in proxmox.list_kopsrox_vm():
-
-    # map hostname
-    vmname = common.vmname(vmid)
-
-    # do not delete image
-    if ( vmname =='kopsrox-image'):
-      continue
-
-    # do not delete utility server
-    if ( vmname =='kopsrox-u1'):
-      continue
-
-    print('cluster::destroy: destroying '+ vmname + ' ('+ str(vmid) + ')')
-    proxmox.destroy(vmid)
+  k3s.k3s_rm_cluster()

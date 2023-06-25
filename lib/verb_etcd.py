@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import common_config as common, sys, re, os
 import kopsrox_proxmox as proxmox
+import kopsrox_k3s as k3s
 
 # verb config
 verb = 'etcd'
@@ -47,6 +48,8 @@ endpoint = config['s3']['endpoint']
 access_key = config['s3']['access-key']
 access_secret = config['s3']['access-secret']
 bucket = config['s3']['bucket']
+
+# generated string to use in s3 commands
 s3_string = ' --etcd-s3 --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify '
 
 # get masterid
@@ -106,6 +109,10 @@ if ( passed_verb == 'list' ):
 # minio etcd snapshot restore
 if passed_verb == 'restore':
 
+  # move this to after the arg checks
+  k3s.k3s_rm_cluster(restore = True)
+  exit(0)
+
   # get list of images 
   images = list_images()
 
@@ -130,35 +137,9 @@ if passed_verb == 'restore':
   # define restore command
   restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/var/tmp/kopsrox.etcd.snapshot.token ' + s3_string
 
-  # single master restore
-  if ( int(masters) == 1 ):
-
-    print('etcd::restore: restoring please wait')
-    restore = proxmox.qaexec(masterid, restore_cmd)
-    print(restore)
-    start = proxmox.qaexec(masterid, 'systemctl start k3s')
-    print(common.kubectl(masterid, 'get nodes'))
-
-  # restore for masters / slave
-  if ( int(masters) == 3 ):
-
-    print('etcd::restore: cleaning slaves')
-    stop_m2 = proxmox.qaexec(int(masterid) + 1, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && rm -f /var/lib/rancher/k3s/server/token')
-    write_token_m2 = proxmox.writefile(int(masterid) + 1, 'kopsrox.etcd.snapshot.token', '/var/lib/rancher/k3s/server/token')
-    stop_m3 = proxmox.qaexec(int(masterid) + 2, 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && rm -f /var/lib/rancher/k3s/server/token')
-    write_token_m3 = proxmox.writefile(int(masterid) + 2, 'kopsrox.etcd.snapshot.token', '/var/lib/rancher/k3s/server/token')
-
-    print('etcd::restore: restoring etcd snapshot to ha setup')
-    restore = proxmox.qaexec(masterid, restore_cmd)
-    print(restore)
-
-    # start k3s on master then slaves
-    print('etcd::local-restore: starting k3s on m1')
-    start_m1 = proxmox.qaexec(masterid, 'systemctl start k3s')
-    print('etcd::local-restore: starting k3s on m2')
-    start_m2 = proxmox.qaexec(int(masterid) + 1, 'systemctl start k3s')
-    print('etcd::local-restore: starting k3s on m3')
-    start_m3 = proxmox.qaexec(int(masterid) + 2, 'systemctl start k3s')
-
-    print(common.kubectl(masterid, 'get nodes'))
+  print('etcd::restore: restoring please wait')
+  restore = proxmox.qaexec(masterid, restore_cmd)
+  print(restore)
+  start = proxmox.qaexec(masterid, 'systemctl start k3s')
+  print(common.kubectl(masterid, 'get nodes'))
 

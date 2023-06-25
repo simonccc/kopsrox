@@ -93,14 +93,42 @@ def k3s_init_worker(vmid):
 
 # remove a node
 def k3s_rm(vmid):
-    workername = common.vmname(vmid)
-    print('k3s_rm:', workername)
+  vmname = common.vmname(vmid)
+  print('k3s::k3s_rm:', vmname)
 
-    # kubectl commands to remove node
-    common.kubectl(masterid, ('cordon ' + workername))
-    common.kubectl(masterid, ('drain --timeout=5s --ignore-daemonsets --force ' +  workername))
-    common.kubectl(masterid, ('delete node ' + workername))
+  # kubectl commands to remove node
+  common.kubectl(masterid, ('cordon ' + vmname))
+  common.kubectl(masterid, ('drain --timeout=5s --ignore-daemonsets --force ' + vmname))
+  common.kubectl(masterid, ('delete node ' + vmname))
 
-    # destroy vm
-    print('proxmox:destroy:', vmid)
-    proxmox.destroy(vmid)
+  # destroy vm
+  proxmox.destroy(vmid)
+
+# remove cluster - leave master if restore = true
+def k3s_rm_cluster(restore = False):
+
+  # list all kopsrox vm id's
+  for vmid in sorted(proxmox.list_kopsrox_vm(), reverse = True):
+
+    # map hostname
+    vmname = common.vmname(vmid)
+
+    # do not delete m1 if restore is true 
+    if restore:
+      if vmname == 'kopsrox-m1':
+        continue
+
+    # do not delete image
+    if ( vmname =='kopsrox-image'):
+      continue
+
+    # do not delete utility server
+    if ( vmname =='kopsrox-u1'):
+      continue
+    
+    # remove node from cluster and proxmox
+    #print(vmname)
+    if vmname == 'kopsrox-m1':
+      proxmox.destroy(vmid)
+    else:
+      k3s_rm(vmid)

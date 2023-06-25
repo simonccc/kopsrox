@@ -3,7 +3,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import time, re, base64
 
-from configparser import ConfigParser
+#from configparser import ConfigParser
 from proxmoxer import ProxmoxAPI
 
 import common_config as common
@@ -117,6 +117,7 @@ def destroy(vmid):
       task_status(prox, poweroff, proxnode)
       delete = prox.nodes(proxnode).qemu(vmid).delete()
       task_status(prox, delete, proxnode)
+      print('proxmox::destroy: ', vmid)
     except:
       if (int(proximgid) != int(vmid)):
         print('unable to destroy', vmid)
