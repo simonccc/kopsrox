@@ -144,7 +144,7 @@ def k3s_update_cluster():
    if ( int(masters) > 1 ):
     print('k3s::k3s_update_cluster: checking masters ('+ masters +')')
     master_count = 1
-    while ( master_count <= int(masters) ):
+    while ( master_count <=  ( int(masters) - 1 )):
 
       # so eg 601 + 1 = 602 = m2
       slave_masterid = (int(masterid) + int(master_count))
