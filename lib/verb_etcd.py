@@ -138,7 +138,19 @@ if passed_verb == 'restore':
 
   print('etcd::restore: restoring please wait')
   restore = proxmox.qaexec(masterid, restore_cmd)
-  print(restore)
-  start = proxmox.qaexec(masterid, 'systemctl start k3s')
-  print(common.kubectl(masterid, 'get nodes'))
 
+  # needs to be filtered like snapshot
+  print(restore)
+  print('etcd::restore: starting k3s')
+  start = proxmox.qaexec(masterid, 'systemctl start k3s')
+  print('etcd::restore: started')
+
+  # delete extra nodes in the restored cluster
+  nodes = common.kubectl(masterid, 'get nodes').split()
+  for node in nodes:
+    if ( re.search('kopsrox-', node) and (node != 'kopsrox-m1')):
+      print('etcd::restore:: removing stale node', node)
+      common.kubectl(masterid,'delete node ' + node)
+
+  # run k3s update?
+  k3s.k3s_update_cluster()

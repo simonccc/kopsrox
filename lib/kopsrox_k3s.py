@@ -4,7 +4,8 @@ import re, time
 
 # config
 config = common.read_kopsrox_ini()
-k3s_version = (config['cluster']['k3s_version'])
+k3s_version = config['cluster']['k3s_version']
+masters = config['cluster']['masters']
 masterid = common.get_master_id()
 
 # check for k3s status
@@ -132,3 +133,33 @@ def k3s_rm_cluster(restore = False):
       proxmox.destroy(vmid)
     else:
       k3s_rm(vmid)
+
+# builds or removes other nodes from the cluster as required per config
+def k3s_update_cluster():
+
+   # get list of running vms
+   vmids = proxmox.list_kopsrox_vm()
+
+   # do we need to run any more masters
+   if ( int(masters) > 1 ):
+    print('k3s::k3s_update_cluster: checking masters ('+ masters +')')
+    master_count = 1
+    while ( master_count <= int(masters) ):
+
+      # so eg 601 + 1 = 602 = m2
+      slave_masterid = (int(masterid) + int(master_count))
+      slave_hostname = common.vmname(slave_masterid)
+
+      print('cluster: checking', slave_hostname)
+
+      # existing server
+      if (slave_masterid in vmids):
+        print('cluster: existing vm for', slave_hostname)
+      else:
+        proxmox.clone(slave_masterid)
+
+      # install k3s on slave and join it to master
+      install_slave = k3s_init_slave(slave_masterid)
+
+      # next possible master ( m3 ) 
+      master_count = master_count + 1
