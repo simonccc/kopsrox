@@ -6,6 +6,7 @@ import re, time
 config = common.read_kopsrox_ini()
 k3s_version = config['cluster']['k3s_version']
 masters = config['cluster']['masters']
+workers = config['cluster']['workers']
 masterid = common.get_master_id()
 
 # check for k3s status
@@ -154,7 +155,7 @@ def k3s_update_cluster():
 
       # existing server
       if (slave_masterid in vmids):
-        print('cluster: existing vm for', slave_hostname)
+          print('k3s::k3s_update_cluster: existing vm for', slave_hostname)
       else:
         proxmox.clone(slave_masterid)
 
@@ -163,3 +164,49 @@ def k3s_update_cluster():
 
       # next possible master ( m3 ) 
       master_count = master_count + 1
+
+   if ( int(masters) == 1 ):
+     for vm in vmids:
+       # if vm is a master ??
+       if ( (int(vm) == ((int(masterid) + 1 ))) or (int(vm) == ((int(masterid) + 2 )))):
+         master_name = common.vmname(int(vm))
+         print('k3s::k3s_update_cluster: removing extra master-slave', master_name)
+         k3s_rm(vm)
+         print(common.kubectl(masterid, 'get nodes'))
+
+   # define default workerid
+   workerid = str(int(masterid) + 3)
+
+   # create new worker nodes per config
+   if ( int(workers) > 0 ):
+     print('k3s::k3s_update_cluster: checking workers ('+ workers +')')
+
+     # first id in the loop
+     worker_count = 1
+
+     # cycle through possible workers
+     while ( worker_count <= int(workers) ):
+
+       # calculate workerid
+       workerid = str(int(masterid) + 3 + worker_count)
+
+       # if existing vm with this id found
+       if (int(workerid) in vmids):
+          worker_name = common.vmname(int(workerid))
+          print('k3s::k3s_update_cluster: found existing', worker_name)
+       else:
+         proxmox.clone(workerid)
+
+       worker_count = worker_count + 1
+
+      # checks worker has k3s installed first
+       install_worker = k3s_init_worker(workerid) 
+
+   # remove extra workers
+   for vm in vmids:
+     if ( int(vm) > int(workerid)):
+       worker_name = common.vmname(int(vm))
+       print('k3s::k3s_update_cluster: removing extra worker', worker_name)
+       k3s_rm(vm)
+   print(common.kubectl(masterid, 'get nodes'))
+   
