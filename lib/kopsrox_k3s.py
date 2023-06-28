@@ -138,6 +138,9 @@ def k3s_rm_cluster(restore = False):
 # builds or removes other nodes from the cluster as required per config
 def k3s_update_cluster():
 
+   # refresh the master token
+   common.k3stoken(masterid)
+
    # get list of running vms
    vmids = proxmox.list_kopsrox_vm()
 

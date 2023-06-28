@@ -52,11 +52,15 @@ if passed_verb == 'info':
     # print
     print(vm, '-', vmname, "status:", vmstatus, 'ip:', ip)
 
-  print('cluster:')
+  print('cluster::k3s::nodes')
   print(common.kubectl(masterid, 'get nodes'))
 
+# update current cluster
+if ( passed_verb == 'update' ):
+  k3s.k3s_update_cluster()
+
 # create new cluster
-if ( passed_verb == 'create' or passed_verb == 'update'):
+if ( passed_verb == 'create' ):
 
   # get list of runnning vms
   vmids = proxmox.list_kopsrox_vm()
@@ -67,85 +71,23 @@ if ( passed_verb == 'create' or passed_verb == 'update'):
 
   # install k3s 
   install_master = k3s.k3s_init_master(masterid)
+
+  # map hostname
   vmname = common.vmname(masterid)
+
+  # if init worked ok
   if ( install_master == 'true'):
-    print('cluster::'+ vmname + ': (' + str(masterid) + ') ok')
+    print('cluster::create:'+ vmname + ': (' + str(masterid) + ') ok')
   else:
-    print('ERROR: master not installed')
+    print('cluster::create: ERROR: master not installed')
+    print(install_master)
     exit(0)
 
   # export kubeconfig
   common.kubeconfig(masterid)
 
-  # export token
-  common.k3stoken(masterid)
-
-  # create new master nodes per config
-  if ( int(masters) > 1 ):
-    print('cluster: checking masters ('+ masters +')')
-    master_count = 2 
-    while ( master_count <= int(masters) ):
-      slave_masterid = (int(int(proximgid) + int(master_count)))
-      slave_hostname = common.vmname(slave_masterid)
-      print('cluster: checking', slave_hostname)
-
-      # existing server 
-      if (slave_masterid in vmids):
-        print('cluster: existing vm for', slave_hostname)
-      else:
-        proxmox.clone(slave_masterid)
-
-	  # install k3s on slave and join it to master
-      install_slave = k3s.k3s_init_slave(slave_masterid)
-
-      # next possible master
-      master_count = master_count + 1
-  
-  # check for extra masters
-  if ( int(masters) == 1 ):
-    for vm in vmids:
-      # if vm is a master ??
-      if ( (int(vm) == ((int(masterid) + 1 ))) or (int(vm) == ((int(masterid) + 2 )))):
-        master_name = common.vmname(int(vm))
-        print('cluster: removing extra master-slave', master_name)
-        k3s.k3s_rm(vm)
-        print(common.kubectl(masterid, 'get nodes'))
-
-  # define default workerid 
-  workerid = str(int(proximgid) + 4)
-
-  # create new worker nodes per config
-  if ( int(workers) > 0 ):
-    print('cluster: checking workers ('+ workers +')')
-
-    # first id in the loop
-    worker_count = 1 
-
-    # cycle through possible workers
-    while ( worker_count <= int(workers) ):
-
-      # calculate workerid
-      workerid = str(int(proximgid) + 4 + worker_count)
-
-      # if existing vm with this id found
-      if (int(workerid) in vmids):
-          worker_name = common.vmname(int(workerid))
-          print('cluster: found existing', worker_name)
-      else:
-        proxmox.clone(workerid)
-
-      worker_count = worker_count + 1
-
-      # checks worker has k3s installed first
-      install_worker = k3s.k3s_init_worker(workerid)
-
-  # check for extra workers
-  for vm in vmids:
-    if ( int(vm) > int(workerid)):
-      worker_name = common.vmname(int(vm))
-      print('cluster: removing extra worker', worker_name)
-      k3s.k3s_rm(vm)
-  print(common.kubectl(masterid, 'get nodes'))
+  # perform rest of cluster creation
+  k3s.k3s_update_cluster()
 
 # kubectl
 if passed_verb == 'kubectl':
