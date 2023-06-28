@@ -78,20 +78,23 @@ def k3s_init_worker(vmid):
 
   # check for existing k3s
   status = k3s_check(vmid)
+ 
+  # map vmname
+  vmname = common.vmname(vmid)
 
   # if check fails
   if ( status == 'fail'):
 
-    print('k3s_init_worker: installing k3s on', vmid)
     ip = common.vmip(masterid)
     token = common.get_token()
-
     cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
+
+    print('k3s::k3s_init_worker: installing k3s on', vmid)
     proxmox.qaexec(vmid,cmd)
      
     status = k3s_check(vmid)
     return(status)
-  print('k3s_init_worker:', vmid, 'ok')
+  print('k3s::k3s_init_worker:',vmname, 'ok')
 
 # remove a node
 def k3s_rm(vmid):
@@ -168,6 +171,7 @@ def k3s_update_cluster():
       # next possible master ( m3 ) 
       master_count = master_count + 1
 
+   # check for extra masters
    if ( int(masters) == 1 ):
      for vm in vmids:
        # if vm is a master ??
@@ -175,7 +179,6 @@ def k3s_update_cluster():
          master_name = common.vmname(int(vm))
          print('k3s::k3s_update_cluster: removing extra master-slave', master_name)
          k3s_rm(vm)
-         print(common.kubectl(masterid, 'get nodes'))
 
    # define default workerid
    workerid = str(int(masterid) + 3)
