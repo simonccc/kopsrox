@@ -113,11 +113,19 @@ def list_kopsrox_vm():
 def destroy(vmid):
 
     try:
+
+      # power off
       poweroff = prox.nodes(proxnode).qemu(vmid).status.stop.post()
       task_status(prox, poweroff, proxnode)
+
+      # delete
       delete = prox.nodes(proxnode).qemu(vmid).delete()
       task_status(prox, delete, proxnode)
-      print('proxmox::destroy: ', vmid)
+
+      # map hostname
+      vmname = common.vmname(vmid)
+      print('proxmox::destroy: ' + vmname)
+
     except:
       if (int(proximgid) != int(vmid)):
         print('unable to destroy', vmid)

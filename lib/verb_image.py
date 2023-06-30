@@ -4,6 +4,7 @@ import common_config as common, sys, os, wget, re, time
 # required for ssh key encoding
 import urllib.parse
 
+# proxmox connection
 import kopsrox_proxmox as proxmox
 prox = proxmox.prox_init()
 
@@ -28,8 +29,8 @@ if not passed_verb in verbs:
 
 # import config
 config = common.read_kopsrox_ini()
-proxnode = (config['proxmox']['proxnode'])
-proxstor = (config['proxmox']['proxstor'])
+proxnode = config['proxmox']['proxnode']
+proxstor = config['proxmox']['proxstor']
 proximgid = (config['proxmox']['proximgid'])
 up_image_url = (config['proxmox']['up_image_url'])
 proxbridge = (config['proxmox']['proxbridge'])
@@ -37,7 +38,7 @@ vm_disk = (config['kopsrox']['vm_disk'])
 cloudinituser = (config['kopsrox']['cloudinituser'])
 cloudinitpass = config['kopsrox']['cloudinitpass']
 cloudinitsshkey = (config['kopsrox']['cloudinitsshkey'])
-network = (config['kopsrox']['network'])
+network = config['kopsrox']['network']
 networkgw = config['kopsrox']['networkgw']
 netmask = config['kopsrox']['netmask']
 k3s_version = config['cluster']['k3s_version']
@@ -53,14 +54,17 @@ if (passed_verb == 'create'):
 
   # download image with wget if not present
   if not os.path.isfile(up_image):
-    print('image::create: downloading:', up_image_url)
+    print('image::create: downloading:', up_image)
     wget.download(up_image_url)
     print('')
+
+    # define image patch command 
+    patch_cmd = 'sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent > kopsrox_imgpatch.log 2>&1 && sudo qemu-img resize ' + up_image + ' ' + vm_disk + ' >> kopsrox_imgpatch.log 2>&1 '
 
     # patch image with qemu-agent
     try:
       print('image::create: patching: ' + up_image)
-      imgpatch = os.system('sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent,nfs-common' ' >' + os.getcwd() + '/kopsrox_imgpatch.log 2>&1')
+      imgpatch = os.system(patch_cmd)
     except:
       print('error patching image')
       exit(0)
@@ -75,7 +79,7 @@ if (passed_verb == 'create'):
   create = prox.nodes(proxnode).qemu.post(
           vmid = proximgid,
           scsihw = 'virtio-scsi-pci',
-          memory = '2048',
+          memory = '1024',
           net0 = ('model=virtio,bridge=' + proxbridge),
           boot = 'c',
           bootdisk = 'virtio0',
@@ -120,16 +124,13 @@ if (passed_verb == 'create'):
   proxmox.task_status(prox, str(cloudinit), proxnode)
 
   # power on and off the vm to resize disk
-  print('powering on to crash')
-  poweron = prox.nodes(proxnode).qemu(proximgid).status.start.post()
-  proxmox.task_status(prox, str(poweron), proxnode)
+  #poweron = prox.nodes(proxnode).qemu(proximgid).status.start.post()
+  #proxmox.task_status(prox, str(poweron), proxnode)
 
   # power off
-  time.sleep(10)
-  print('powering off post crash')
-  poweroff = prox.nodes(proxnode).qemu(proximgid).status.stop.post()
-  proxmox.task_status(prox, str(poweroff), proxnode)
-  time.sleep(1)
+#  time.sleep(10)
+#  poweroff = prox.nodes(proxnode).qemu(proximgid).status.stop.post()
+#  proxmox.task_status(prox, str(poweroff), proxnode)
 
   # convert to template via create base disk
   #print('setting base disk')
@@ -137,8 +138,7 @@ if (passed_verb == 'create'):
   proxmox.task_status(prox, str(set_basedisk), proxnode)
 
   # set also in vmconfig
-  set_template = prox.nodes(proxnode).qemu(proximgid).config.post(
-          template = 1)
+  set_template = prox.nodes(proxnode).qemu(proximgid).config.post(template = 1)
   proxmox.task_status(prox, str(set_template), proxnode)
 
 # list images on proxstor
@@ -147,8 +147,9 @@ if (passed_verb == 'info'):
   for i in images:
     if i.get('volid') == (kopsrox_img):
       print(i.get('volid'), i.get('ctime'))
+      print(i)
 
 # destroy image
 if (passed_verb == 'destroy'):
-    print('destroying kopsrox image')
+    print('image::destroy: destroying image')
     proxmox.destroy(proximgid)
