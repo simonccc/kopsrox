@@ -37,7 +37,7 @@ proxbridge = (config['proxmox']['proxbridge'])
 vm_disk = (config['kopsrox']['vm_disk'])
 cloudinituser = (config['kopsrox']['cloudinituser'])
 cloudinitpass = config['kopsrox']['cloudinitpass']
-cloudinitsshkey = (config['kopsrox']['cloudinitsshkey'])
+cloudinitsshkey = config['kopsrox']['cloudinitsshkey']
 network = config['kopsrox']['network']
 networkgw = config['kopsrox']['networkgw']
 netmask = config['kopsrox']['netmask']
@@ -122,15 +122,6 @@ if (passed_verb == 'create'):
           ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/' + netmask ), 
           sshkeys = ssh_encode )
   proxmox.task_status(prox, str(cloudinit), proxnode)
-
-  # power on and off the vm to resize disk
-  #poweron = prox.nodes(proxnode).qemu(proximgid).status.start.post()
-  #proxmox.task_status(prox, str(poweron), proxnode)
-
-  # power off
-#  time.sleep(10)
-#  poweroff = prox.nodes(proxnode).qemu(proximgid).status.stop.post()
-#  proxmox.task_status(prox, str(poweroff), proxnode)
 
   # convert to template via create base disk
   #print('setting base disk')
