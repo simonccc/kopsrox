@@ -58,10 +58,16 @@ if (passed_verb == 'create'):
     wget.download(up_image_url)
     print('')
 
-    # define image patch command 
-    patch_cmd = 'sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent > kopsrox_imgpatch.log 2>&1 && sudo qemu-img resize ' + up_image + ' ' + vm_disk + ' >> kopsrox_imgpatch.log 2>&1 '
+    # define image patch command
+    log = ' >> kopsrox_imgpatch.log 2>&1'
+    qa_patch = 'sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent' + log
+    k3s_patch = 'sudo virt-customize -a ' + up_image + ' --run-command "curl -sfL https://get.k3s.io| INSTALL_K3S_VERSION="' + k3s_version + '" sh -"' + log 
+    resize_patch = 'sudo qemu-img resize ' + up_image + ' ' + vm_disk + log
+    patch_cmd = (qa_patch + ' && ' + k3s_patch + ' && ' + resize_patch)
 
-    # patch image with qemu-agent
+    #print(patch_cmd)
+
+    # patch image 
     try:
       print('image::create: patching: ' + up_image)
       imgpatch = os.system(patch_cmd)
