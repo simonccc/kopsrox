@@ -38,8 +38,9 @@ cloudinituser = (config['kopsrox']['cloudinituser'])
 cloudinitpass = config['kopsrox']['cloudinitpass']
 cloudinitsshkey = (config['kopsrox']['cloudinitsshkey'])
 network = (config['kopsrox']['network'])
-networkgw = (config['kopsrox']['networkgw'])
+networkgw = config['kopsrox']['networkgw']
 netmask = config['kopsrox']['netmask']
+k3s_version = config['cluster']['k3s_version']
 
 # generate image name
 kopsrox_img = common.kopsrox_img(proxstor,proximgid)
@@ -119,13 +120,16 @@ if (passed_verb == 'create'):
   proxmox.task_status(prox, str(cloudinit), proxnode)
 
   # power on and off the vm to resize disk
+  print('powering on to crash')
   poweron = prox.nodes(proxnode).qemu(proximgid).status.start.post()
   proxmox.task_status(prox, str(poweron), proxnode)
 
   # power off
   time.sleep(10)
+  print('powering off post crash')
   poweroff = prox.nodes(proxnode).qemu(proximgid).status.stop.post()
   proxmox.task_status(prox, str(poweroff), proxnode)
+  time.sleep(1)
 
   # convert to template via create base disk
   #print('setting base disk')
