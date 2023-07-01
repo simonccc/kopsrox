@@ -61,7 +61,7 @@ if (passed_verb == 'create'):
     # define image patch command
     log = ' >> kopsrox_imgpatch.log 2>&1'
     qa_patch = 'sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent' + log
-    k3s_patch = 'sudo virt-customize -a ' + up_image + ' --run-command "curl -sfL https://get.k3s.io| INSTALL_K3S_VERSION="' + k3s_version + '" sh -"' + log 
+    k3s_patch = 'sudo virt-customize -a ' + up_image + ' --run-command "curl -sfL https://get.k3s.io| INSTALL_K3S_SKIP_ENABLE=true INSTALL_K3S_VERSION="' + k3s_version + '" sh -"' + log 
     resize_patch = 'sudo qemu-img resize ' + up_image + ' ' + vm_disk + log
     patch_cmd = (qa_patch + ' && ' + k3s_patch + ' && ' + resize_patch)
 
