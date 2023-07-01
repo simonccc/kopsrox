@@ -26,12 +26,10 @@ if not passed_verb in verbs:
 config = common.read_kopsrox_ini()
 
 # variables from config
-proxnode = (config['proxmox']['proxnode'])
-proximgid = (config['proxmox']['proximgid'])
-workers = (config['cluster']['workers'])
-masters = (config['cluster']['masters'])
-
-# this assignment will need to be in config in future
+proxnode = config['proxmox']['proxnode']
+proximgid = config['proxmox']['proximgid']
+workers = config['cluster']['workers']
+masters = config['cluster']['masters']
 masterid = common.get_master_id()
 
 # info
@@ -57,10 +55,12 @@ if passed_verb == 'info':
 
 # update current cluster
 if ( passed_verb == 'update' ):
+  print('cluster::update: running')
   k3s.k3s_update_cluster()
 
 # create new cluster
 if ( passed_verb == 'create' ):
+  print('cluster::create: running')
 
   # get list of runnning vms
   vmids = proxmox.list_kopsrox_vm()
@@ -76,9 +76,7 @@ if ( passed_verb == 'create' ):
   vmname = common.vmname(masterid)
 
   # if init worked ok
-  if ( install_master == 'true'):
-    print('cluster::create:'+ vmname + ': (' + str(masterid) + ') ok')
-  else:
+  if not ( install_master == 'true'):
     print('cluster::create: ERROR: master not installed')
     print(install_master)
     exit(0)
@@ -88,6 +86,9 @@ if ( passed_verb == 'create' ):
 
   # perform rest of cluster creation
   k3s.k3s_update_cluster()
+
+  # done
+  print('cluster::create:'+ vmname + ' ok')
 
 # kubectl
 if passed_verb == 'kubectl':
