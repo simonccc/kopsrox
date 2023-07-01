@@ -1,3 +1,5 @@
+#!/usr/bin/env python3 
+
 import common_config as common
 import kopsrox_proxmox as proxmox
 import re, time
@@ -15,31 +17,13 @@ def k3s_check(vmid):
     # get masterid
     node_name = common.vmname(vmid)
 
-    # check for exiting k3s
-    cmd = 'if [ -f /usr/local/bin/k3s ] ; then echo -n present; else echo -n fail;fi'
-    k3s_check = proxmox.qaexec(vmid,cmd)
-
-    # fail early
-    if ( k3s_check == 'fail' ):
-      #3print('k3s_check: no k3s bin found')
+    # test call
+    k = common.kubectl(masterid, ('get node ' + node_name))
+    if ( re.search('NotReady', k) or re.search('NotFound', k)):
+      print('k3s::k3s_check:', node_name, 'not ready')
+      print(k)
       return('fail')
-
-    # check node is healthy
-    if (k3s_check == 'present'):
-
-      # test call
-      k = common.kubectl(masterid, ('get node ' + node_name))
-
-      # check for node not ready or not yet joined cluster
-      while ( re.search('NotReady', k) or re.search('NotFound', k)):
-        k = common.kubectl(masterid, ('get node ' + node_name))
-        print('k3s_check:', node_name, 'not ready')
-        time.sleep(10)
-
-      return('true')
-
-    # else return fail
-    return('fail')
+    return('true')
 
 # init 1st master
 def k3s_init_master(vmid):
@@ -62,22 +46,23 @@ def k3s_init_master(vmid):
 def k3s_init_slave(vmid):
 
     # check for existing k3s
-  #  status = k3s_check(vmid)
+    status = k3s_check(vmid)
 
     # if master check fails
-  #  if ( status == 'fail'):
-    ip = common.vmip(masterid)
-    token = common.get_token()
-    vmname = common.vmname(vmid)
-    print('k3s::k3s_init_slave: installing k3s on', vmname)
+    if ( status == 'fail'):
+      ip = common.vmip(masterid)
+      token = common.get_token()
+      vmname = common.vmname(vmid)
+      print('k3s::k3s_init_slave: installing k3s on', vmname)
 
-    # cmd
-    cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
-    print(cmd)
-    cmdout = proxmox.qaexec(vmid,cmd)
-    print(cmdout)
+      # cmd
+      cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
+      cmdout = proxmox.qaexec(vmid,cmd)
 
-    status = k3s_check(vmid)
+      while ( k3s_check(vmid) != 'true' ):
+        print(vmname, 'not ready')
+        time.sleep(5)
+
     return(status)
 
 # init worker node
