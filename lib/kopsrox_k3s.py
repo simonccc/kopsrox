@@ -45,13 +45,15 @@ def k3s_check(vmid):
 def k3s_init_master(vmid):
 
     # check for existing k3s
-    status = k3s_check(vmid)
+  #  status = k3s_check(vmid)
 
     # if master check fails
-    if ( status == 'fail'):
-      print('k3s_init_master: installing k3s on', vmid)
-      cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
-      proxmox.qaexec(vmid,cmd)
+  #  if ( status == 'fail'):
+    print('k3s_init_master: installing k3s on', vmid)
+    cmd = 'systemctl stop k3s && curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init && systemctl start k3s'
+    print(cmd)
+    cmd_out = proxmox.qaexec(vmid,cmd)
+    print(cmd_out)
 
     status = k3s_check(vmid)
     return(status)
@@ -60,15 +62,20 @@ def k3s_init_master(vmid):
 def k3s_init_slave(vmid):
 
     # check for existing k3s
-    status = k3s_check(vmid)
+  #  status = k3s_check(vmid)
 
     # if master check fails
-    if ( status == 'fail'):
-      ip = common.vmip(masterid)
-      token = common.get_token()
-      print('k3s_init_slave: installing k3s on', vmid)
-      cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
-      proxmox.qaexec(vmid,cmd)
+  #  if ( status == 'fail'):
+    ip = common.vmip(masterid)
+    token = common.get_token()
+    vmname = common.vmname(vmid)
+    print('k3s::k3s_init_slave: installing k3s on', vmname)
+
+    # cmd
+    cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
+    print(cmd)
+    cmdout = proxmox.qaexec(vmid,cmd)
+    print(cmdout)
 
     status = k3s_check(vmid)
     return(status)
@@ -77,23 +84,23 @@ def k3s_init_slave(vmid):
 def k3s_init_worker(vmid):
 
   # check for existing k3s
-  status = k3s_check(vmid)
+  #status = k3s_check(vmid)
  
   # map vmname
   vmname = common.vmname(vmid)
 
   # if check fails
-  if ( status == 'fail'):
+  #if ( status == 'fail'):
 
-    ip = common.vmip(masterid)
-    token = common.get_token()
-    cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
+  ip = common.vmip(masterid)
+  token = common.get_token()
+  cmd = 'curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
 
-    print('k3s::k3s_init_worker: installing k3s on', vmid)
-    proxmox.qaexec(vmid,cmd)
+  print('k3s::k3s_init_worker: installing k3s on', vmid)
+  proxmox.qaexec(vmid,cmd)
      
-    status = k3s_check(vmid)
-    return(status)
+  status = k3s_check(vmid)
+  return(status)
   print('k3s::k3s_init_worker:',vmname, 'ok')
 
 # remove a node
@@ -206,7 +213,7 @@ def k3s_update_cluster():
        worker_count = worker_count + 1
 
       # checks worker has k3s installed first
-       install_worker = k3s_init_worker(workerid) 
+     install_worker = k3s_init_worker(workerid) 
 
    # remove extra workers
    for vm in vmids:
