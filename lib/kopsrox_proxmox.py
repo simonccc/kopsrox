@@ -159,6 +159,7 @@ def clone(vmid):
               name = hostname,
               onboot = 1,
               hotplug = 0,
+              tags = hostname,
               cores = cores, 
               memory = memory,
               ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/'+ netmask ))
@@ -167,9 +168,6 @@ def clone(vmid):
   # power on
   poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
   task_status(prox, str(poweron), proxnode)
-
-  # sleep for qemu agent to start
-  time.sleep(10)
 
 # proxmox task blocker
 def task_status(proxmox_api, task_id, node_name):

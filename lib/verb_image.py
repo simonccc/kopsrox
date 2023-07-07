@@ -31,11 +31,11 @@ if not passed_verb in verbs:
 config = common.read_kopsrox_ini()
 proxnode = config['proxmox']['proxnode']
 proxstor = config['proxmox']['proxstor']
-proximgid = (config['proxmox']['proximgid'])
-up_image_url = (config['proxmox']['up_image_url'])
-proxbridge = (config['proxmox']['proxbridge'])
-vm_disk = (config['kopsrox']['vm_disk'])
-cloudinituser = (config['kopsrox']['cloudinituser'])
+proximgid = config['proxmox']['proximgid']
+up_image_url = config['proxmox']['up_image_url']
+proxbridge = config['proxmox']['proxbridge']
+vm_disk = config['kopsrox']['vm_disk']
+cloudinituser = config['kopsrox']['cloudinituser']
 cloudinitpass = config['kopsrox']['cloudinitpass']
 cloudinitsshkey = config['kopsrox']['cloudinitsshkey']
 network = config['kopsrox']['network']
@@ -60,10 +60,21 @@ if (passed_verb == 'create'):
 
     # define image patch command
     log = ' >> kopsrox_imgpatch.log 2>&1'
-    qa_patch = 'sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent' + log
-    k3s_patch = 'sudo virt-customize -a ' + up_image + ' --run-command "curl -sfL https://get.k3s.io| INSTALL_K3S_SKIP_ENABLE=true INSTALL_K3S_VERSION="' + k3s_version + '" sh -"' + log 
+
+    # define virt-customize command
+    virtc_cmd = 'sudo virt-customize -a ' + up_image
+
+    # install qemu-guest-agent
+    qa_patch = virtc_cmd + ' --install qemu-guest-agent' + log
+
+    # install k3s 
+    k3s_install  = virtc_cmd  + ' --run-command "curl -sfL https://get.k3s.io > /k3s.sh"' + log 
+    k3s_patch = virtc_cmd  + ' --run-command "cat /k3s.sh | INSTALL_K3S_SKIP_ENABLE=true INSTALL_K3S_VERSION="' + k3s_version + '" sh -"' + log 
+    # resize image with vm_disk size from config
     resize_patch = 'sudo qemu-img resize ' + up_image + ' ' + vm_disk + log
-    patch_cmd = (qa_patch + ' && ' + k3s_patch + ' && ' + resize_patch)
+
+    # generate the final patch command
+    patch_cmd = (qa_patch + ' && ' + k3s_install + ' && ' + k3s_patch + ' && ' + resize_patch)
 
     #print(patch_cmd)
 
@@ -130,7 +141,6 @@ if (passed_verb == 'create'):
   proxmox.task_status(prox, str(cloudinit), proxnode)
 
   # convert to template via create base disk
-  #print('setting base disk')
   set_basedisk = prox.nodes(proxnode).qemu(proximgid).template.post()
   proxmox.task_status(prox, str(set_basedisk), proxnode)
 
