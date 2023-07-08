@@ -37,7 +37,7 @@ def verbs_help(verbs):
 
 # generating the proxmox kopsrox image name
 def kopsrox_img(proxstor,proximgid):
-  return(proxstor + ':base-' + proximgid + '-disk-2')
+  return(proxstor + ':base-' + proximgid + '-disk-0')
 
 # return master id
 def get_master_id():
