@@ -60,7 +60,7 @@ def vmnames():
   vmnames = []
   for vmid in proxmox.list_kopsrox_vm():
     if ( vmid > proximgid ):
-      vmnames.append(vmname(int(vmid)))
+      vmnames.append(vmname(vmid))
   return(vmnames)
 
 # look up vmid from name
@@ -100,18 +100,18 @@ def kubeconfig(masterid):
     # write file out
     with open('kopsrox.kubeconfig', 'w') as kubeconfig_file:
       kubeconfig_file.write(kubeconfig)
-#    print("kubeconfig: generated kopsrox.kubeconfig")
 
 # node token
 def k3stoken(masterid):
     token = proxmox.qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
     with open('kopsrox.k3stoken', 'w') as k3s:
+
+      # this function name seems weird
       k3s.write(token)
-#    print("k3stoken: generated kopsrox.k3stoken")
 
 # pass a vmid return the IP
 def vmip(vmid):
-  network = (config['kopsrox']['network'])
+  network = config['kopsrox']['network']
   network_octs = network.split('.')
   basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )
   ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))

@@ -28,19 +28,23 @@ config = common.read_kopsrox_ini()
 # variables from config
 proxnode = config['proxmox']['proxnode']
 proximgid = config['proxmox']['proximgid']
-workers = config['cluster']['workers']
-masters = config['cluster']['masters']
+workers = int(config['cluster']['workers'])
+masters = int(config['cluster']['masters'])
 masterid = common.get_master_id()
 
 # info
 if passed_verb == 'info':
   print('cluster::info:')
 
+  # map dict of ids and node
+  vms = proxmox.list_kopsrox_vm()
+
   # for kopsrox vms
-  for vm in proxmox.list_kopsrox_vm():
+  for vm in vms:
 
     # get vm status
-    vm_info = proxmox.vm_info(vm)
+    node = vms[vm]
+    vm_info = proxmox.vm_info(vm,node)
 
     # vars
     vmname = vm_info.get('name')
@@ -48,7 +52,7 @@ if passed_verb == 'info':
     ip = common.vmip(vm)
 
     # print
-    print(vm, '-', vmname, "status:", vmstatus, 'ip:', ip)
+    print(vm, '-', vmname, "status:", vmstatus, 'ip:', ip + ' [' + node + ']')
 
   print('cluster::k3s::nodes')
   print(common.kubectl(masterid, 'get nodes'))

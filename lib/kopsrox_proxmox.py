@@ -23,7 +23,7 @@ prox = ProxmoxAPI(
 
 # config
 proxnode = config['proxmox']['proxnode']
-proximgid = config['proxmox']['proximgid']
+proximgid = int(config['proxmox']['proximgid'])
 proxstor = config['proxmox']['proxstor']
 
 # connect to proxmox
@@ -42,6 +42,7 @@ def qaexec(vmid,cmd):
       qagent_running = 'true'
     except:
       #print('proxmox::qaexec: agent not started on', vmid)
+      #print('.', end='')
       time.sleep(1)
 
   # send command
@@ -92,23 +93,23 @@ def qaexec(vmid,cmd):
     # redundant?
     return('error')
 
-# return kopsrox_vms as list
+# return kopsrox vms as a dict with node
 def list_kopsrox_vm():
 
-  # init list
-  vmids = []
+  # init dict
+  vmids = {}
 
   # foreach returned vm
   for vm in prox.cluster.resources.get(type = 'vm'):
     vmid = int(vm.get('vmid'))
-    # if vm in range add to list
-    # magic number
-    if ((vmid >= int(proximgid)) and (vmid < (int(proximgid) + 10))):
-      vmids.append(vmid)
+    node = vm.get('node')
 
-  # return list
-  vmids.sort()
-  return(vmids)
+    # magic number ( end of the proxmox id range ) 
+    if ((vmid >= proximgid) and (vmid < (proximgid + 10))):
+      vmids[vmid] = node
+
+  # return sorted dict
+  return(dict(sorted(vmids.items())))
 
 # return the proxnode for a vmid
 def get_node(vmid):
@@ -183,9 +184,8 @@ def task_status(proxmox_api, task_id, node_name):
     data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
 
 # get vm info
-def vm_info(vmid):
-  proxnode = get_node(vmid)
-  return(prox.nodes(proxnode).qemu(vmid).status.current.get())
+def vm_info(vmid,node):
+  return(prox.nodes(node).qemu(vmid).status.current.get())
 
 # get file
 def getfile(vmid, path):

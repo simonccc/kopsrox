@@ -64,8 +64,8 @@ networkgw = conf_check('kopsrox','networkgw')
 netmask = conf_check('kopsrox','netmask')
 
 # cluster level checks
-masters = conf_check('cluster','masters')
-workers = conf_check('cluster','workers')
+masters = int(conf_check('cluster','masters'))
+workers = int(conf_check('cluster','workers'))
 k3s_version = conf_check('cluster','k3s_version')
 
 # s3
@@ -79,7 +79,7 @@ import kopsrox_proxmox as proxmox
 import common_config as common
 
 # master check - can only be 1 or 3
-if not ( (int(masters) == 1) or(int(masters) == 3)):
+if not ( (masters == 1) or (masters == 3)):
   print ('ERROR: only 1 or 3 masters supported. You have:', masters)
   exit(0)
 
@@ -130,11 +130,15 @@ except:
     print('run kopsrox image create')
     exit(0)
 
-# check any existing vm's are powered on
-for vmid in (proxmox.list_kopsrox_vm()):
+# get dict of vms
+vms = proxmox.list_kopsrox_vm()
+for vmid in vms:
+
+  # map node
+  proxnode = vms[vmid]
 
   # vm not powered on check
-  vmi = proxmox.vm_info(vmid)
+  vmi = proxmox.vm_info(vmid,proxnode)
 
   # power on all nodes aside from image
   if (( vmi.get('status') == 'stopped') and ( int(vmid) != int(proximgid) )):
