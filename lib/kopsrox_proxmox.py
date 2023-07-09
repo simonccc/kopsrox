@@ -99,15 +99,22 @@ def list_kopsrox_vm():
   vmids = []
 
   # foreach returned vm
-  for vm in prox.nodes(proxnode).qemu.get():
-    vmid = vm.get('vmid')
+  for vm in prox.cluster.resources.get(type = 'vm'):
+    vmid = int(vm.get('vmid'))
     # if vm in range add to list
-    if ((int(vmid) >= int(proximgid)) and (int(vmid) < (int(proximgid) + 10))):
+    # magic number
+    if ((vmid >= int(proximgid)) and (vmid < (int(proximgid) + 10))):
       vmids.append(vmid)
 
   # return list
   vmids.sort()
   return(vmids)
+
+# return the proxnode for a vmid
+def get_node(vmid):
+  for vm in prox.cluster.resources.get(type = 'vm'):
+    if (int(vm.get('vmid')) == vmid ):
+      return(vm.get('node'))
 
 # stop and destroy vm
 def destroy(vmid):
@@ -177,6 +184,7 @@ def task_status(proxmox_api, task_id, node_name):
 
 # get vm info
 def vm_info(vmid):
+  proxnode = get_node(vmid)
   return(prox.nodes(proxnode).qemu(vmid).status.current.get())
 
 # get file
