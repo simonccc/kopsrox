@@ -120,6 +120,10 @@ def get_node(vmid):
 # stop and destroy vm
 def destroy(vmid):
 
+    proxnode = get_node(vmid)
+    vmname = common.vmname(vmid)
+    print('proxmox::destroy: ' + vmname)
+
     try:
 
       # power off
@@ -129,10 +133,6 @@ def destroy(vmid):
       # delete
       delete = prox.nodes(proxnode).qemu(vmid).delete()
       task_status(prox, delete, proxnode)
-
-      # map hostname
-      vmname = common.vmname(vmid)
-      print('proxmox::destroy: ' + vmname)
 
     except:
       if (int(proximgid) != int(vmid)):
