@@ -114,15 +114,15 @@ def list_kopsrox_vm():
 # return the proxnode for a vmid
 def get_node(vmid):
   for vm in prox.cluster.resources.get(type = 'vm'):
-    if (int(vm.get('vmid')) == vmid ):
+    if (int(vm.get('vmid')) == int(vmid)):
       return(vm.get('node'))
 
 # stop and destroy vm
 def destroy(vmid):
 
+    # get node and vmname
     proxnode = get_node(vmid)
     vmname = common.vmname(vmid)
-    print('proxmox::destroy: ' + vmname)
 
     try:
 
@@ -134,22 +134,24 @@ def destroy(vmid):
       delete = prox.nodes(proxnode).qemu(vmid).delete()
       task_status(prox, delete, proxnode)
 
+      print('proxmox::destroyed: ' + vmname + ' [' + proxnode + ']')
+
     except:
-      if (int(proximgid) != int(vmid)):
-        print('unable to destroy', vmid)
+      if (proximgid != vmid):
+        print('proxmox::destroy: unable to destroy', vmid)
         exit(0)
 
 # clone
 def clone(vmid):
 
   # map network info
-  networkgw = (config['kopsrox']['networkgw'])
-  netmask  = (config['kopsrox']['netmask'])
+  networkgw = config['kopsrox']['networkgw']
+  netmask  = config['kopsrox']['netmask']
   ip = common.vmip(vmid)
 
   # vm specs
-  cores = (config['kopsrox']['vm_cpu'])
-  ram = (config['kopsrox']['vm_ram']) 
+  cores = config['kopsrox']['vm_cpu']
+  ram = config['kopsrox']['vm_ram'] 
   memory = int(int(ram) * 1024)
 
   # hostname

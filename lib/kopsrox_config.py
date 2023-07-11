@@ -64,6 +64,7 @@ networkgw = conf_check('kopsrox','networkgw')
 netmask = conf_check('kopsrox','netmask')
 
 # cluster level checks
+cname = conf_check('cluster', 'name')
 masters = int(conf_check('cluster','masters'))
 workers = int(conf_check('cluster','workers'))
 k3s_version = conf_check('cluster','k3s_version')

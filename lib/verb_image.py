@@ -41,6 +41,7 @@ cloudinitsshkey = config['kopsrox']['cloudinitsshkey']
 network = config['kopsrox']['network']
 networkgw = config['kopsrox']['networkgw']
 netmask = config['kopsrox']['netmask']
+cname = config['cluster']['name']
 k3s_version = config['cluster']['k3s_version']
 
 # generate image name
@@ -100,10 +101,10 @@ if (passed_verb == 'create'):
           net0 = ('model=virtio,bridge=' + proxbridge),
           boot = 'c',
           bootdisk = 'virtio0',
-          name = 'kopsrox-image',
+          name = ( cname + '-image'),
           ostype = 'l26',
           ide2 = (proxstor + ':cloudinit'),
-          tags = 'kopsrox',
+          tags = ( cname + '-image'),
           serial0 = 'socket',
           agent = ('enabled=true'),
           hotplug = 0,

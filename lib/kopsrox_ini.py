@@ -72,6 +72,7 @@ def init_kopsrox_ini(conf = conf):
 
   # cluster level
   config.add_section('cluster')
+  config.set('cluster', 'name', 'mycluster')
   config.set('cluster', 'masters', '1')
   config.set('cluster', 'workers', '0')
 
