@@ -169,7 +169,6 @@ def clone(vmid):
               name = hostname,
               onboot = 1,
               hotplug = 0,
-              tags = hostname,
               cores = cores, 
               memory = memory,
               ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/'+ netmask ))

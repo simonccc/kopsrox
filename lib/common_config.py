@@ -74,18 +74,19 @@ def vmname2id(name):
 
 # map id to hostname
 def vmname(vmid):
+    cname = config['cluster']['name']
     vmid = int(vmid)
     names = { 
-            (proximgid): 'kopsrox-image',
-            (proximgid + 1 ): 'kopsrox-m1',
-            (proximgid + 2 ): 'kopsrox-m2', 
-            (proximgid + 3 ): 'kopsrox-m3', 
-            (proximgid + 4 ): 'kopsrox-u1', 
-            (proximgid + 5 ): 'kopsrox-w1', 
-            (proximgid + 6 ): 'kopsrox-w2', 
-            (proximgid + 7 ): 'kopsrox-w3', 
-            (proximgid + 8 ): 'kopsrox-w4', 
-            (proximgid + 9 ): 'kopsrox-w5', 
+            (proximgid): cname +'-image',
+            (proximgid + 1 ): cname + '-m1',
+            (proximgid + 2 ): cname + '-m2', 
+            (proximgid + 3 ): cname + '-m3', 
+            (proximgid + 4 ): cname + '-u1', 
+            (proximgid + 5 ): cname + '-w1', 
+            (proximgid + 6 ): cname + '-w2', 
+            (proximgid + 7 ): cname + '-w3', 
+            (proximgid + 8 ): cname + '-w4', 
+            (proximgid + 9 ): cname + '-w5', 
             }
     return(names[vmid])
 

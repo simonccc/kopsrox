@@ -104,7 +104,7 @@ if (passed_verb == 'create'):
           name = ( cname + '-image'),
           ostype = 'l26',
           ide2 = (proxstor + ':cloudinit'),
-          tags = ( cname + '-image'),
+          tags = cname,
           serial0 = 'socket',
           agent = ('enabled=true'),
           hotplug = 0,

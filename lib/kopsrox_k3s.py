@@ -7,9 +7,10 @@ import re, time
 # config
 config = common.read_kopsrox_ini()
 k3s_version = config['cluster']['k3s_version']
-masters = config['cluster']['masters']
-workers = config['cluster']['workers']
-masterid = common.get_master_id()
+masters = int(config['cluster']['masters'])
+workers = int(config['cluster']['workers'])
+masterid = int(common.get_master_id())
+cname = config['cluster']['name']
 
 # check for k3s status
 def k3s_check(vmid):
@@ -125,20 +126,20 @@ def k3s_rm_cluster(restore = False):
 
     # do not delete m1 if restore is true 
     if restore:
-      if vmname == 'kopsrox-m1':
+      if vmname == ( cname + '-m1' ):
         continue
 
     # do not delete image
-    if ( vmname =='kopsrox-image'):
+    if vmname == ( cname + '-image' ):
       continue
 
     # do not delete utility server
-    if ( vmname =='kopsrox-u1'):
+    if vmname == ( cname + '-u1' ):
       continue
     
     # remove node from cluster and proxmox
     #print(vmname)
-    if vmname == 'kopsrox-m1':
+    if vmname ==  ( cname + '-m1' ):
       proxmox.destroy(vmid)
     else:
       k3s_rm(vmid)
@@ -153,8 +154,8 @@ def k3s_update_cluster():
    vmids = proxmox.list_kopsrox_vm()
 
    # do we need to run any more masters
-   if ( int(masters) > 1 ):
-    print('k3s::k3s_update_cluster: checking masters ('+ masters +')')
+   if ( masters > 1 ):
+    print('k3s::k3s_update_cluster: checking masters ('+ str(masters) +')')
     master_count = 1
     while ( master_count <=  ( int(masters) - 1 )):
 
@@ -177,10 +178,10 @@ def k3s_update_cluster():
       master_count = master_count + 1
 
    # check for extra masters
-   if ( int(masters) == 1 ):
+   if ( masters == 1 ):
      for vm in vmids:
        # if vm is a master ??
-       if ( (int(vm) == ((int(masterid) + 1 ))) or (int(vm) == ((int(masterid) + 2 )))):
+       if ( (int(vm) == ((masterid + 1 ))) or (int(vm) == ((masterid + 2 )))):
          master_name = common.vmname(int(vm))
          print('k3s::k3s_update_cluster: removing extra master-slave', master_name)
          k3s_rm(vm)
@@ -189,17 +190,17 @@ def k3s_update_cluster():
    workerid = str(int(masterid) + 3)
 
    # create new worker nodes per config
-   if ( int(workers) > 0 ):
-     print('k3s::k3s_update_cluster: checking workers ('+ workers +')')
+   if ( workers > 0 ):
+     print('k3s::k3s_update_cluster: checking workers ('+ str(workers) +')')
 
      # first id in the loop
      worker_count = 1
 
      # cycle through possible workers
-     while ( worker_count <= int(workers) ):
+     while ( worker_count <= workers ):
 
        # calculate workerid
-       workerid = str(int(masterid) + 3 + worker_count)
+       workerid = str(masterid + 3 + worker_count)
 
        # if existing vm with this id found
        if (int(workerid) in vmids):

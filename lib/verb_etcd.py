@@ -41,7 +41,10 @@ def write_token():
 config = common.read_kopsrox_ini()
 
 # count of master nodes ( 1 or 3 ) 
-masters = config['cluster']['masters']
+masters = int(config['cluster']['masters'])
+
+# cluster name
+cname = config['cluster']['name']
 
 # s3 details
 endpoint = config['s3']['endpoint']
@@ -75,7 +78,7 @@ def list_images():
   ls = s3_run('ls').split('\n')
   out = ''
   for line in sorted(ls):
-    if re.search('kopsrox-k', line):
+    if re.search(('kopsrox-' + cname), line):
       out += line + '\n'
   return(out)
 
@@ -148,7 +151,7 @@ if passed_verb == 'restore':
   # delete extra nodes in the restored cluster
   nodes = common.kubectl(masterid, 'get nodes').split()
   for node in nodes:
-    if ( re.search('kopsrox-', node) and (node != 'kopsrox-m1')):
+    if ( re.search((cname + '-i'), node) and (node != ( cname + '-m1'))):
       print('etcd::restore:: removing stale node', node)
       common.kubectl(masterid,'delete node ' + node)
 
