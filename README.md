@@ -3,6 +3,8 @@ automate creating a k3s cluster with proxmox api with a "kops like" cli
 
 tested with pve 8.0.3
 
+Quick demo: https://asciinema.org/a/597074
+
 ## install
 
 - sudo apt install libguestfs-tools -y
