@@ -82,8 +82,8 @@ def init_kopsrox_ini(conf = conf):
 
   # s3 etcd snapshot config
   config.add_section('s3')
-  config.set('s3', '; use kopsrox to use default endpoint')
   config.set('s3', 'endpoint', 'kopsrox')
+  config.set('s3', 'region', 'kopsrox')
   config.set('s3', '; these are the supported kopsrox defaults')
   config.set('s3', 'access-key', 'minio')
   config.set('s3', 'access-secret', 'miniostorage')

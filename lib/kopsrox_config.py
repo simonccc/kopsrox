@@ -71,6 +71,7 @@ k3s_version = conf_check('cluster','k3s_version')
 
 # s3
 s3_endpoint = conf_check('s3','endpoint')
+s3_region = conf_check('s3','region')
 s3_key = conf_check('s3','access-key')
 s3_secret = conf_check('s3','access-secret')
 s3_bucket = conf_check('s3','bucket')

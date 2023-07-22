@@ -48,12 +48,13 @@ cname = config['cluster']['name']
 
 # s3 details
 endpoint = config['s3']['endpoint']
+region = config['s3']['region']
 access_key = config['s3']['access-key']
 access_secret = config['s3']['access-secret']
 bucket = config['s3']['bucket']
 
 # generated string to use in s3 commands
-s3_string = ' --etcd-s3 --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify '
+s3_string = ' --etcd-s3 --etcd-s3-region ' + region + ' --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify '
 
 # get masterid
 masterid = common.get_master_id()
@@ -91,7 +92,8 @@ if passed_verb == 'prune':
 if passed_verb == 'snapshot':
 
   print('etcd::snapshot: starting')
-  snapout = proxmox.qaexec(masterid,('k3s etcd-snapshot ' + s3_string + ' --name kopsrox'))
+  print('k3s etcd-snapshot ' + s3_string + ' --name kopsrox')
+  snapout = proxmox.qaexec(masterid,('k4s etcd-snapshot ' + s3_string + ' --name kopsrox'))
 
   # filter output
   snapout = snapout.split('\n')
