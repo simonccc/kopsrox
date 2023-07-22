@@ -92,8 +92,8 @@ if passed_verb == 'prune':
 if passed_verb == 'snapshot':
 
   print('etcd::snapshot: starting')
-  print('k3s etcd-snapshot ' + s3_string + ' --name kopsrox')
-  snapout = proxmox.qaexec(masterid,('k4s etcd-snapshot ' + s3_string + ' --name kopsrox'))
+  #print('k3s etcd-snapshot ' + s3_string + ' --name kopsrox')
+  snapout = proxmox.qaexec(masterid,('k3s etcd-snapshot ' + s3_string + ' --name kopsrox'))
 
   # filter output
   snapout = snapout.split('\n')
