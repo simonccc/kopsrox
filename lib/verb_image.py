@@ -66,7 +66,7 @@ if (passed_verb == 'create'):
     virtc_cmd = 'sudo virt-customize -a ' + up_image
 
     # install qemu-guest-agent
-    qa_patch = virtc_cmd + ' --install qemu-guest-agent' + log
+    qa_patch = virtc_cmd + ' --install qemu-guest-agent,nfs-common' + log
 
     # install k3s 
     k3s_install  = virtc_cmd  + ' --run-command "curl -sfL https://get.k3s.io > /k3s.sh"' + log 
@@ -112,7 +112,7 @@ if (passed_verb == 'create'):
   proxmox.task_status(prox, str(create), proxnode)
 
   # shell to import disk
-  import_disk_string = ('sudo qm set ' + proximgid + ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image+ ' >' + os.getcwd() + '/kopsrox_disk_import.log 2>&1') 
+  import_disk_string = ('sudo qm set ' + proximgid + ' --ciupgrade 0 --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image+ ' >' + os.getcwd() + '/kopsrox_disk_import.log 2>&1') 
 
   #print(import_disk_string)
 
@@ -131,9 +131,10 @@ if (passed_verb == 'create'):
         size = vm_disk,
         )
 
-  # cloud init user setup
-  # url encode ssh key
+  # url encode ssh key for cloudinit
   ssh_encode = urllib.parse.quote(cloudinitsshkey, safe='')
+
+  # cloud init user setup
   cloudinit = prox.nodes(proxnode).qemu(proximgid).config.post(
           ciuser = cloudinituser, 
           cipassword = cloudinitpass,
@@ -159,5 +160,5 @@ if (passed_verb == 'info'):
 
 # destroy image
 if (passed_verb == 'destroy'):
-    print('image::destroy: destroying image')
-    proxmox.destroy(proximgid)
+  print('image::destroy: destroying image')
+  proxmox.destroy(proximgid)
