@@ -210,9 +210,8 @@ def k3s_update_cluster():
          proxmox.clone(workerid)
 
        worker_count = worker_count + 1
-
-      # checks worker has k3s installed first
-     install_worker = k3s_init_worker(workerid) 
+       # checks worker has k3s installed first
+       install_worker = k3s_init_worker(workerid) 
 
    # remove extra workers
    for vm in vmids:
