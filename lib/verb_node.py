@@ -66,8 +66,3 @@ if passed_verb == 'util':
     if uid not in (proxmox.list_kopsrox_vm()):
       proxmox.clone(uid)
       time.sleep(5)
-
-    print('node:util: checking apps')
-    write_file = proxmox.writefile(uid, 'kopsrox-utility-node.sh', '/var/tmp/kopsrox-utility-node.sh')
-
-    print(proxmox.qaexec(uid, 'sh -x /var/tmp/kopsrox-utility-node.sh'))
