@@ -78,7 +78,7 @@ def init_kopsrox_ini(conf = conf):
 
   # k3s version
   config.set('cluster', '; k3s version')
-  config.set('cluster', 'k3s_version', 'v1.24.6+k3s1')
+  config.set('cluster', 'k3s_version', 'v1.27.4+k3s1')
 
   # s3 etcd snapshot config
   config.add_section('s3')
