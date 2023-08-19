@@ -11,20 +11,21 @@ quick demo: https://asciinema.org/a/597074
 
 - sudo apt install libguestfs-tools -y
 - pip3 install --break-system-packages --user -r requirements.txt
-
-# setup
-- run ./kopsrox.py a default koprox.ini will be created
-## kopsrox.ini
-- how to generate api key can it be done with pvesh?
-
-
+- run ./kopsrox.py a default and koprox.ini will be created
   
+## kopsrox.ini
+
+Please edit this file for your setup as below:
+
+- endpoint ( usually localhost ) 
+- how to generate api key can it be done with pvesh?
+- proxnode
 - network considerations
-- run ./kopsrox.py
-- edit the kopsrox.ini file for your setup
 
 # commands
-- image - creates a kopsrox image template
+#image
+- creates a kopsrox image template
+# cluster
 - cluster - creates and updates a cluster
 - etcd - etcd operations eg snapshot / restore
 - nodes - delete a node
