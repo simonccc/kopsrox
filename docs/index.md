@@ -5,8 +5,6 @@ tested with pve 8.0.3
 
 Quick demo: https://asciinema.org/a/597074
 
-[docs](../blob/master/docs/index.md)
-
 ## install
 
 - sudo apt install libguestfs-tools -y
