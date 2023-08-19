@@ -13,7 +13,7 @@ You need a running Proxmox VE setup ( cluster or node ) with full root access.
 
 - `sudo apt install libguestfs-tools -y`
 
-_this is required to patch the cloudimage to install qagent_
+_this is required to patch the cloudimage to install __qemu-guest-agent___
 
 - `pip3 install --break-system-packages --user -r requirements.txt`
 
