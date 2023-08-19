@@ -19,18 +19,31 @@ _this is required to patch the cloudimage to install qagent_
 
 _installs the required pip packages vs using os packages_
 
-- then run `./kopsrox.py` a default and koprox.ini will be created for you
+- then run `./kopsrox.py` and a default koprox.ini will be created for you - please edit this file next.
   
 ## kopsrox.ini
 
-Please edit this file for your setup as below:
+Please edit this file for your setup.. details below:
+
+### proxmox section 
 
 - __endpoint__ ( usually localhost ) this is where we will connect to proxmox on port 8006
 
-### api key
-- how to generate api key can it be done with pvesh?
+- __user__ ( usually root@pam )
+
+
+###€ API key
+
+You can generate an API key via the command line eg: `pvesh create /access/users/root@pam/token/kopsrox`
+
+- how to set permissions?
+
+- __token_name__  ( default is kopsrox ) 
 
 - __proxnode__ the proxmox node name where you're running kopsrox from
+
+### kopsrox section 
+#### network and host layout
 - network considerations
 
 # commands
@@ -39,16 +52,20 @@ Please edit this file for your setup as below:
 ## cluster
 - creates and updates a cluster
 ## etcd
-- etcd operations eg snapshot / restore
+- operations eg snapshot / restore
 - nodes - delete a node
 - config - config operations
 
 # etcd
+## setup
 
 To use the etcd snapshot and restore functions you need some s3 compatable storeage
 
 - minio
-- backblaze ( 10 / 75G free )  
+- backblaze ( 10 / 75G free )
+
+  ## snapshot
+  ## restore
 
 # FAQ
 __can I use debian as a base image vs ubuntu?__
