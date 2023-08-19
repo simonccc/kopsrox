@@ -16,15 +16,21 @@ You need a running Proxmox VE setup ( cluster or node ) with full root access.
 _this is required to patch the cloudimage to install qagent_
 
 - `pip3 install --break-system-packages --user -r requirements.txt`
-- run ./kopsrox.py a default and koprox.ini will be created
+
+_installs the required pip packages vs using os packages_
+
+- then run `./kopsrox.py` a default and koprox.ini will be created for you
   
 ## kopsrox.ini
 
 Please edit this file for your setup as below:
 
-- __endpoint__ ( usually localhost ) this is where we will connect to proxmox 
+- __endpoint__ ( usually localhost ) this is where we will connect to proxmox on port 8006
+
+### api key
 - how to generate api key can it be done with pvesh?
-- proxnode
+
+- __proxnode__ the proxmox node name where you're running kopsrox from
 - network considerations
 
 # commands
@@ -32,14 +38,17 @@ Please edit this file for your setup as below:
 - creates a kopsrox image template
 ## cluster
 - creates and updates a cluster
-- etcd - etcd operations eg snapshot / restore
+## etcd
+- etcd operations eg snapshot / restore
 - nodes - delete a node
 - config - config operations
 
 # etcd
 
-To use the etcd snapshot and restore functions you need some 
-- s3 service required
+To use the etcd snapshot and restore functions you need some s3 compatable storeage
+
+- minio
+- backblaze ( 10 / 75G free )  
 
 # FAQ
 __can I use debian as a base image vs ubuntu?__
