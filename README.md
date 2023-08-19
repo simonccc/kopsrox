@@ -15,7 +15,10 @@ quick demo: https://asciinema.org/a/597074
 # setup
 - run ./kopsrox.py a default koprox.ini will be created
 ## kopsrox.ini
-- api key
+- how to generate api key can it be done with pvesh?
+
+
+  
 - network considerations
 - run ./kopsrox.py
 - edit the kopsrox.ini file for your setup
@@ -31,6 +34,7 @@ quick demo: https://asciinema.org/a/597074
 - s3 service required
 
 # FAQ
-__can I use debian as a base image?__
-_Had to switch from debian due to some problem with it adding another discovered interface which was dhcp and caused some network problems_
+__can I use debian as a base image vs ubuntu?__
+
+_I Had to switch from debian due to some problem with it adding another discovered interface which was dhcp and caused some network problems_
 
