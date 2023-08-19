@@ -32,19 +32,32 @@ Please edit this file for your setup.. details below:
 - __user__ ( usually root@pam )
 
 
-###€ API key
+#### API key
 
 You can generate an API key via the command line eg: `pvesh create /access/users/root@pam/token/kopsrox`
 
-- how to set permissions?
+Take a not of the token as we'll need this below
 
-- __token_name__  ( default is kopsrox ) 
+Then to set the correct permissions om the token `pveum acl modify / --roles Administrator --user root@pam  --token kopsrox`
+
+- __token_name__  ( default is kopsrox )
+
+- __api_key__  as from above
 
 - __proxnode__ the proxmox node name where you're running kopsrox from
 
+- 
+
 ### kopsrox section 
 #### network and host layout
-- network considerations
+A kopsrox cluster is made up of these node
+
+0 - the image server  
+1 - master node
+2 - master node2
+3 - master node3
+4 - spare
+5 - worker 1
 
 # commands
 ## image
