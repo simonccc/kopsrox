@@ -1,6 +1,10 @@
 name: pages
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+    - 'README.md'
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
