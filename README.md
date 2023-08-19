@@ -5,12 +5,21 @@ tested with pve 8.0.3
 
 Quick demo: https://asciinema.org/a/597074
 
-[docs](../blob/master/docs/index.md)
+
+# requirements
+- proxmox server/cluster
+- 1G disk space
 
 ## install
 
 - sudo apt install libguestfs-tools -y
 - pip3 install --break-system-packages --user -r requirements.txt
+
+# setup
+- what a kopsrox cluster needs
+-- api key
+-- disk space
+-- network considerations
 - run ./kopsrox.py
 - edit the kopsrox.ini file for your setup
 
@@ -20,6 +29,3 @@ Quick demo: https://asciinema.org/a/597074
 - etcd - etcd operations eg snapshot / restore
 - nodes - delete a node
 - config - config operations
-
-## in progress
-- "utility" node to run minio and other things
