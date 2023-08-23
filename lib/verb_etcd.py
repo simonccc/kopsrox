@@ -79,7 +79,7 @@ def list_images():
   ls = s3_run('ls').split('\n')
   out = ''
   for line in sorted(ls):
-    if re.search(('kopsrox-' + cname), line):
+    if re.search((cname + '-' + cname), line):
       out += line + '\n'
   return(out)
 
