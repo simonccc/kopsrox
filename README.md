@@ -1,7 +1,7 @@
 # kopsrox
 automate creating a k3s cluster on proxmox VE using cloud images
 
-create a cluster, add more nodes, run kubectl and take etcd snapshots quickly with a "kops like" cli
+create a cluster, add more master/worker nodes, run kubectl and create etcd snapshots to s3 quickly with a "kops like" cli
 
 tested with pve 8.0.3 / k3s v1.27.4+k3s1
 
@@ -49,15 +49,26 @@ Then to set the correct permissions om the token `pveum acl modify / --roles Adm
 - 
 
 ### kopsrox section 
-#### network and host layout
-A kopsrox cluster is made up of these node
 
-0 - the image server  
-1 - master node
-2 - master node2
-3 - master node3
-4 - spare
-5 - worker 1
+#### network and host layout
+
+A kopsrox cluster is made up of upto 3 masters and 5 workers numbered a bit like this
+
+0. the image
+1. master node 1
+2. master node 2
+3. master node 3
+4. spare / unused
+5. worker 1
+6. worker 2
+7. worker 3
+8. worker 4
+9. worker 5
+
+in the kopsrox.ini you need to define 2 settings that relate to this
+
+- __proximgid__ - this defines the image qemu/proxmox id amd is used as the base for the cluster - so the furst master will be ( proximgid + 1 ) 
+   
 
 # commands
 ## image
