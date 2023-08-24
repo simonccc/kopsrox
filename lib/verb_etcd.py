@@ -54,7 +54,7 @@ access_secret = config['s3']['access-secret']
 bucket = config['s3']['bucket']
 
 # generated string to use in s3 commands
-s3_string = ' --s3 --s3-region ' + region + ' --s3-endpoint ' + endpoint + ' --s3-access-key ' + access_key + ' --s3-secret-key ' + access_secret + ' --s3-bucket ' + bucket + ' --s3-skip-ssl-verify '
+s3_string = ' --etcd-s3 --etcd-s3-region ' + region + ' --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify '
 
 # get masterid
 masterid = common.get_master_id()
