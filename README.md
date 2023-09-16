@@ -1,11 +1,11 @@
 # kopsrox
-automate creating a k3s cluster on proxmox VE using cloud images
-
-create a cluster, add more master/worker nodes, run kubectl and create etcd snapshots to s3 quickly with a "kops like" cli
+uster
+- cli to automate creating a k3s cluster on proxmox VE using cloud images
+- add more master/worker nodes, run kubectl via the cli and a simple config file
+- baxkuo  and restore your cluster easily via S3 snapshots
+- quick demo: https://asciinema.org/a/597074
 
 tested with pve 8.0.3 / k3s v1.27.4+k3s1
-
-quick demo: https://asciinema.org/a/597074
 
 # install
 
@@ -19,7 +19,7 @@ _this is required to patch the cloudimage to install __qemu-guest-agent___
 
 _installs the required pip packages vs using os packages_
 
-- then run `./kopsrox.py` and a default koprox.ini will be created for you - please edit this file next.
+- then run `./kopsrox.py` and a default _koprox.ini will_ be created for you - please edit this file next.
   
 ## kopsrox.ini
 
@@ -53,7 +53,9 @@ Then to set the correct permissions om the token `pveum acl modify / --roles Adm
 
 A kopsrox cluster is made up of upto 3 masters and 5 workers numbered a bit like this
 
-0. the image
+|
+
+- 0. the image
 1. master node 1
 2. master node 2
 3. master node 3
