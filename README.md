@@ -1,5 +1,5 @@
 # kopsrox
-uster
+
 - cli to automate creating a k3s cluster on proxmox VE using cloud images
 - add more master/worker nodes, run kubectl via the cli and a simple config file
 - baxkuo  and restore your cluster easily via S3 snapshots
@@ -9,7 +9,7 @@ tested with pve 8.0.3 / k3s v1.27.4+k3s1
 
 # install
 
-You need a running Proxmox VE setup ( cluster or node ) with full root access. 
+You need a running Proxmox VE setup ( cluster or node ) with root or sudo access. 
 
 - `sudo apt install libguestfs-tools -y`
 
