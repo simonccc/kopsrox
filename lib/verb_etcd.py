@@ -53,8 +53,13 @@ access_key = config['s3']['access-key']
 access_secret = config['s3']['access-secret']
 bucket = config['s3']['bucket']
 
+# region checker
+region_string = ''
+if region:
+    region_string = '--etcd-s3-region ' + region
+
 # generated string to use in s3 commands
-s3_string = ' --etcd-s3 --etcd-s3-region ' + region + ' --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify '
+s3_string = ' --etcd-s3 ' + region_string + ' --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify '
 
 # get masterid
 masterid = common.get_master_id()
@@ -94,6 +99,7 @@ if passed_verb == 'snapshot':
 
   # define snapshot command
   snap_cmd = 'k3s etcd-snapshot save ' + s3_string + ' --name kopsrox'
+  print(snap_cmd)
   snapout = proxmox.qaexec(masterid,snap_cmd)
 
   # filter output
