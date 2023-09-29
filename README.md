@@ -38,11 +38,9 @@ Please edit this file for your setup.. details below:
 
 - __api_key__   ( as generated above ) 
 
-- __proxnode__ - the proxmox node name where you're running kopsrox from
+- __proxnode__ - the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
 
-
-
-- __proximgid__ - the "baseid" used within proxmox for proxmox - needs to be a free range of 10 starting with 0 eg: 170 
+- __proximgid__ - the "baseid" for proxmox vm id's- needs to be a free range of 10 starting with 0 eg: 170 
 
 A kopsrox cluster is made up of upto 3 masters and 5 workers numbered a bit like this ( with proximgid = 170 ) 
 
