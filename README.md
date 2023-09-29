@@ -40,30 +40,27 @@ Please edit this file for your setup.. details below:
 
 - __proxnode__ - the proxmox node name where you're running kopsrox from
 
-- __proximgid__ - the "baseid" used within proxmox for proxmox  ( see network and host layout below for more info ) 
 
-### kopsrox section 
 
-#### network and host layout
+- __proximgid__ - the "baseid" used within proxmox for proxmox - needs to be a free range of 10 starting with 0 eg: 170 
 
-A kopsrox cluster is made up of upto 3 masters and 5 workers numbered a bit like this
+A kopsrox cluster is made up of upto 3 masters and 5 workers numbered a bit like this ( with proximgid = 170 ) 
 
-|
+|id|proximgid|type|                      
+|--|--|--|
+|0|170|image|
+|1|171|master 1|
+|2|172|master 2|
+|3|173|master 3|
+|4|174|spare|
+|5|175|worker 1|
+|6|176|worker 2|
+|7|177|worker 3|
+|8|178|worker 4|
+|9|179|worker 5|
 
-- 0. the image
-1. master node 1
-2. master node 2
-3. master node 3
-4. spare / unused
-5. worker 1
-6. worker 2
-7. worker 3
-8. worker 4
-9. worker 5
 
-in the kopsrox.ini you need to define 2 settings that relate to this
 
-- __proximgid__ - this defines the image qemu/proxmox id amd is used as the base for the cluster - so the furst master will be ( proximgid + 1 ) 
    
 
 # commands
