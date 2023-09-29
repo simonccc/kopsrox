@@ -2,14 +2,11 @@
 
 - cli to automate creating a k3s cluster on proxmox VE using cloud images
 - add more master/worker nodes, run kubectl via the cli and a simple config file
-- baxkuo  and restore your cluster easily via S3 snapshots
+- backup  and restore your cluster easily via S3 snapshots
 - quick demo: https://asciinema.org/a/597074
 
-tested with pve 8.0.3 / k3s v1.27.4+k3s1
 
-# install
-
-You need a running Proxmox VE setup ( cluster or node ) with root or sudo access. 
+## install pre reqs
 
 - `sudo apt install libguestfs-tools -y`
 
@@ -19,21 +16,19 @@ _this is required to patch the cloudimage to install __qemu-guest-agent___
 
 _installs the required pip packages vs using os packages_
 
-- then run `./kopsrox.py` and a default _koprox.ini will_ be created for you - please edit this file next.
-  
+## API key
+
+You can generate an API key via the command line eg: `pvesh create /access/users/root@pam/token/kopsrox`
+
+Take a note of the token as we'll need this below
+
+Then to set the correct permissions om the token `pveum acl modify / --roles Administrator --user root@pam  --token kopsrox`
+
 ## kopsrox.ini
 
 Please edit this file for your setup.. details below:
 
 ### proxmox section 
-
-##### API key
-
-You can generate an API key via the command line eg: `pvesh create /access/users/root@pam/token/kopsrox`
-
-Take a not of the token as we'll need this below
-
-Then to set the correct permissions om the token `pveum acl modify / --roles Administrator --user root@pam  --token kopsrox`
 
 - __endpoint__ ( usually localhost ) this is where we will connect to proxmox on port 8006
 
