@@ -10,12 +10,11 @@ import kopsrox_proxmox as proxmox
 from configparser import ConfigParser
 
 # verbs
-top_verbs = ['image', 'cluster', 'node', 'etcd', 'config']
+top_verbs = ['image', 'cluster', 'node', 'etcd']
 verbs_image = ['info', 'create', 'destroy']
 verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
 verbs_node = ['destroy', 'util']
 verbs_etcd = ['snapshot', 'restore', 'list', 'prune']
-verbs_config = ['example.ini']
 
 # config dict
 kopsrox_config = ConfigParser()

@@ -19,6 +19,7 @@ def init_kopsrox_ini(conf = conf):
   config.set('proxmox', 'endpoint', 'domain or ip')
 
   # username
+  config.set('proxmox', '; username in token')
   config.set('proxmox', 'user', 'root@pam')
 
   # token name
@@ -86,8 +87,8 @@ def init_kopsrox_ini(conf = conf):
   config.set('s3', '; optional')
   config.set('s3', 'region', '')
   config.set('s3', '; follow your providers details')
-  config.set('s3', 'access-key', 'minio')
-  config.set('s3', 'access-secret', 'miniostorage')
+  config.set('s3', 'access-key', 'e3898d39d39id93')
+  config.set('s3', 'access-secret', 'ioewioeiowe')
   config.set('s3', 'bucket', 'koprox')
 
   # write config
@@ -95,8 +96,5 @@ def init_kopsrox_ini(conf = conf):
   with open(conf, 'w') as configfile:
     config.write(configfile)
 
-  # skip notification for example conf
-  if not ( conf == 'example.ini' ):
-    print('kopsrox::ini:: please edit', conf, 'as required for your setup')
-
+  # finished?
   exit(0)

@@ -1,11 +1,11 @@
 # kopsrox
 
 - cli to automate creating a k3s cluster on proxmox VE using cloud images
-- add more master/worker nodes, run kubectl via the cli and a simple config file
-- backup  and restore your cluster easily via S3 snapshots
+- add more master/worker nodes using simple config file
+- backup and restore your cluster easily via S3 snapshots
 - quick demo: https://asciinema.org/a/597074
 
-## install pre reqs
+## Setup Prerequisites
 
 - `sudo apt install libguestfs-tools -y`
 
@@ -15,7 +15,7 @@ _this is required to patch the cloudimage to install __qemu-guest-agent___
 
 _installs the required pip packages vs using os packages_
 
-## [API KEY]
+## Generate API Key
 
 Generate an API key via the command line eg: 
 
@@ -29,7 +29,7 @@ Set the correct permissions om the token
 
 ## kopsrox.ini
 
-Run `./kopsrox.py` and an example kopsrox.ini will be generated
+Run `./kopsrox.py` and an example _kopsrox.ini_ will be generated
 
 Please edit this file for your setup
 
@@ -43,7 +43,7 @@ Please edit this file for your setup
 
 - __api_key__ = as generated above
 
-- __proxnode__ - the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
+- __proxnode__ = the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
 
 - __proximgid__ = the proxmox id used for the kopsrox image/template eg: 170
 
@@ -76,6 +76,8 @@ the other nodes in the cluster use incrementing id's for example with 170:
 
 - __cloudinituser__ = 
 
+- __cloudinitpass__ = 
+
 ### [cluster]
 
 - __name__ = name of the cluster
@@ -83,6 +85,8 @@ the other nodes in the cluster use incrementing id's for example with 170:
 - __k3s_version__ = 
 
 -__masters__ = 
+
+- __workers__ = 
 
 ### [s3]
 
@@ -94,6 +98,8 @@ These values are optional see etcd section below
 
 - __access-key__ = 
 
+- __access-secret__ = 
+
 # create a cluster
 Lets get started by creating a cluster
 
@@ -103,15 +109,26 @@ To create a kopsrox template run:
 
 `./kopsrox.py create image`
 
+This will download the img file patch it and create a template to create vms
+
 Edit your `kopsrox.ini` and set `masters = 1` in the `[cluster]` section
+
 ## create a cluster
 `./kopsrox.py cluster create`
-- create cluster 
+
+This will create a single node cluster
+
+
 ## run kubectl
 We can run kubectl via connecting to the master via qagent and running `k3s kubectl`
+
+`./kopsrox.py cluster kubectl get pods -A`
+
 ## add worker
 Edit [kopsrox.ini] 
 - add worker
+`./kopsrox.py cluster update`
+`./kopsrox.py cluster info`
 
 
 # commands
@@ -130,7 +147,7 @@ delete the .img file manually if you want a fresh download
 ### info
 - displays cluster info
 ### kubectl
-- run kubectl 
+- run kubectl commands
 ### kubeconfig
 - export the kubeconfig
 ### destroy
@@ -138,6 +155,7 @@ delete the .img file manually if you want a fresh download
 ## etcd
 - commands to manage s3 snapshots of etcd
 ### snapshot
+- create a etcd snapshot in the configured S3 storage
 ### restore
 ### list
 ### prune
@@ -145,17 +163,19 @@ delete the .img file manually if you want a fresh download
 
 # etcd backups guide
 - stuff about tokens
+- `kopsrox.etcd.snapshot.token`
 
 ## setup
-- s3 api
+Kopsrox uses the k3s built in commands to backup to s3 api compatible storage
 
 ### providers tested
 - minio
 - cloudflare ( 20G free ) 
-- backblaze ( 10 / 75G free )
+- backblaze ( 10G free )
 
 ## snapshot
 - takes a snapshot
+`./kopsrox.py etcd snapshot`
 - check it with ls
 ## restore
 - restoring a cluster

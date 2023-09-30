@@ -3,20 +3,10 @@
 import os, re, sys
 import kopsrox_ini as ini
 
-# skip check for config example.ini
-try:
-  if ((str(sys.argv[1]) == str('config')) and (str(sys.argv[2]) == str('example.ini'))):
-    print('config::example.ini: generating')
-    try:
-      os.remove('example.ini')
-    except:
-      next
-    ini.init_kopsrox_ini(conf = 'example.ini')
-except:
-  next
+# lookup config file name from ini
+conf = ini.conf
 
 # generate barebones kopsrox.ini if it doesn't exist
-conf = ini.conf
 if not os.path.isfile(conf):
   ini.init_kopsrox_ini()
   exit(0)
@@ -92,10 +82,15 @@ if not prox.cluster.status.get():
 
 # get list of nodes
 nodes = prox.nodes.get()
-if not (re.search(proxnode, (str(nodes)))):
-  print(proxnode, 'node not found - working nodes are:')
+
+# if proxnode not in listed nodes
+if not re.search(proxnode, (str(nodes))):
+  print(proxnode, 'kopsrox::config: ERROR!' + proxnode + ' not found - working nodes are:')
+
+  # print list of discovered proxmox nodes
   for i in nodes:
     print(i.get("node"))
+
   exit(0)
 
 # check configured storage on cluster
