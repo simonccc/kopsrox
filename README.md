@@ -158,6 +158,7 @@ delete the .img file manually if you want a fresh download
 - create a etcd snapshot in the configured S3 storage
 ### restore
 ### list
+- lists snapshots taken in s3 storage
 ### prune
 - deletes old snapshots
 

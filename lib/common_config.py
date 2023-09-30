@@ -10,10 +10,9 @@ import kopsrox_proxmox as proxmox
 from configparser import ConfigParser
 
 # verbs
-top_verbs = ['image', 'cluster', 'node', 'etcd']
+top_verbs = ['image', 'cluster', 'etcd']
 verbs_image = ['info', 'create', 'destroy']
 verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
-verbs_node = ['destroy', 'util']
 verbs_etcd = ['snapshot', 'restore', 'list', 'prune']
 
 # config dict
@@ -114,5 +113,7 @@ def vmip(vmid):
   network = config['kopsrox']['network']
   network_octs = network.split('.')
   basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )
+
+  # generate the last ip
   ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
   return(ip)
