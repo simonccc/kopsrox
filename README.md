@@ -5,7 +5,6 @@
 - backup  and restore your cluster easily via S3 snapshots
 - quick demo: https://asciinema.org/a/597074
 
-
 ## install pre reqs
 
 - `sudo apt install libguestfs-tools -y`
@@ -26,9 +25,11 @@ Then to set the correct permissions om the token `pveum acl modify / --roles Adm
 
 ## kopsrox.ini
 
-Please edit this file for your setup.. details below:
+Run `./kopsrox.py` and an example kopsrox.ini will be generated
 
-### proxmox section 
+Please edit this file for your setup
+
+### [proxmox]
 
 - __endpoint__ ( usually localhost ) this is where we will connect to proxmox on port 8006
 
@@ -40,9 +41,9 @@ Please edit this file for your setup.. details below:
 
 - __proxnode__ - the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
 
-- __proximgid__ - the "baseid" for proxmox vm id's- needs to be a free range of 10 starting with 0 eg: 170 
+- __proximgid__ - the proxmox id used for the kopsrox image/template eg: 170
 
-A kopsrox cluster is made up of upto 3 masters and 5 workers numbered a bit like this ( with proximgid = 170 ) 
+the other nodes in the cluster use incrementing id's for example with 170:
 
 |id|proximgid|type|                      
 |--|--|--|
@@ -57,10 +58,23 @@ A kopsrox cluster is made up of upto 3 masters and 5 workers numbered a bit like
 |8|178|worker 4|
 |9|179|worker 5|
 
+- __up_image_url__ = the url to the cloud image you want to use
 
+- __proxbridge__ = the proxmox bridge to use for the cluster
 
-   
+### kopsrox section 
 
+- __vm_disk__ = size of the disk in kopsrox vms
+
+### cluster section 
+
+### s3 section 
+
+# getting started
+
+- create image
+- set masters=1
+- create cluster 
 # commands
 ## image
 - creates a kopsrox image template
@@ -77,6 +91,7 @@ A kopsrox cluster is made up of upto 3 masters and 5 workers numbered a bit like
 To use the etcd snapshot and restore functions you need some s3 compatable storeage
 
 - minio
+- cloudflare ( 20G free ) 
 - backblaze ( 10 / 75G free )
 
   ## snapshot
@@ -85,5 +100,5 @@ To use the etcd snapshot and restore functions you need some s3 compatable store
 # FAQ
 __can I use debian as a base image vs ubuntu?__
 
-_I Had to switch from debian due to some problem with it adding another discovered interface which was dhcp and caused some network problems_
+_I had to switch from debian due to some problem with a discovered interface which was dhcp and caused some network problems_
 

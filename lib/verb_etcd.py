@@ -66,30 +66,48 @@ masterid = common.get_master_id()
 
 # run k3s s3 command passed
 def s3_run(cmd):
+
   # run the command ( 2>&1 required )
   k3s_run = 'k3s etcd-snapshot ' + cmd + s3_string + '2>&1'
   cmd_out = proxmox.qaexec(masterid, k3s_run)
 
+  # look for fatal error in output
+  if re.search('level=fatal', cmd_out):
+    print('etcd::s3_run: problem with s3 config')
+    print(cmd_out)
+    exit(0)
+
   # the response from qaexec for eg timeout
   if ( cmd_out == 'no output'):
-    print('etcd::s3_run: problem with s3 storage')
+    print('etcd::s3_run: problem with s3 ( no output ) ')
     exit(0)
+
+  # return command outpit
   return(cmd_out)
 
-# check we can run s3 ls
+# test connection to s3 by running ls 
 s3_run('ls')
 
 # list images in s3 storage
 def list_images():
+
+  # run s3 ls and create a list per line
   ls = s3_run('ls').split('\n')
-  out = ''
+
+  # images string
+  images = ''
+
+  # for each image in the sorted list
   for line in sorted(ls):
+
+    # if image name matches the line append to the images string
     if re.search((cname + '-' + cname), line):
-      out += line + '\n'
-  return(out)
+      images += line + '\n'
+
+  # return images string
+  return(images)
 
 # s3 prune
-
 # fixme uses hard coded name
 if passed_verb == 'prune':
   print(s3_run('prune --name kopsrox'))
@@ -119,7 +137,7 @@ if passed_verb == 'snapshot':
 
 # print returned images
 if ( passed_verb == 'list' ):
-  print('etcd::list:')
+  print('etcd::list:',endpoint, bucket)
   print(list_images())
 
 # minio etcd snapshot restore
