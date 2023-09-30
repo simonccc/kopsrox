@@ -15,9 +15,9 @@ _this is required to patch the cloudimage to install __qemu-guest-agent___
 
 _installs the required pip packages vs using os packages_
 
-## API key
+## [API KEY]
 
-generate an API key via the command line eg: 
+Generate an API key via the command line eg: 
 
 `pvesh create /access/users/root@pam/token/kopsrox`
 
@@ -39,7 +39,7 @@ Please edit this file for your setup
 
 - __user__ = `root@pam` - user
 
-- __token_name__  ( default is kopsrox )
+- __token_name__ = `kopsrox` - see [API KEY]
 
 - __api_key__ = as generated above
 
@@ -74,11 +74,15 @@ the other nodes in the cluster use incrementing id's for example with 170:
 
 - __vm_ram__ = 
 
+- __cloudinituser__ = 
+
 ### [cluster]
 
 - __name__ = name of the cluster
 
 - __k3s_version__ = 
+
+-__masters__ = 
 
 ### [s3]
 
@@ -88,7 +92,12 @@ These values are optional see etcd section below
 
 - __region__ = 
 
-# getting started
+- __access-key__ = 
+
+# create a cluster
+Lets get started by creating a cluster
+
+
 ## create image
 To create a kopsrox template run:
 
@@ -96,11 +105,14 @@ To create a kopsrox template run:
 
 Edit your `kopsrox.ini` and set `masters = 1` in the `[cluster]` section
 ## create a cluster
+`./kopsrox.py cluster create`
 - create cluster 
 ## run kubectl
-- via qagent
+We can run kubectl via connecting to the master via qagent and running `k3s kubectl`
 ## add worker
+Edit [kopsrox.ini] 
 - add worker
+
 
 # commands
 ## image
@@ -118,26 +130,37 @@ delete the .img file manually if you want a fresh download
 ### info
 - displays cluster info
 ### kubectl
+- run kubectl 
 ### kubeconfig
+- export the kubeconfig
 ### destroy
+- destroys the cluster
 ## etcd
+- commands to manage s3 snapshots of etcd
 ### snapshot
 ### restore
 ### list
 ### prune
+- deletes old snapshots
 
 # etcd backups guide
 - stuff about tokens
+
 ## setup
 - s3 api
 
-### providers
+### providers tested
 - minio
 - cloudflare ( 20G free ) 
 - backblaze ( 10 / 75G free )
 
 ## snapshot
+- takes a snapshot
+- check it with ls
 ## restore
+- restoring a cluster
+- downsizing
+- stuff not working
 
 # FAQ
 __can I use debian as a base image vs ubuntu?__

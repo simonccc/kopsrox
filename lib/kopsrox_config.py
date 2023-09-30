@@ -37,7 +37,7 @@ def conf_check(section,value):
     # value is blank
     exit(0)
   except:
-    print('kopsrox::conf_check: ERROR found in [' + section + '] - value:' + value + ' in ' + conf)
+    print('kopsrox::conf_check: ERROR! check [' + section + '] \'' + value + ':\' in ' + conf)
     exit(0)
 
 # proxmox checks
