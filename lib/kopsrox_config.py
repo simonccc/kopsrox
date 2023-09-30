@@ -27,12 +27,17 @@ config = ConfigParser()
 # read ini files
 config.read(conf)
 
-# check value
+# check section and value exists
 def conf_check(section,value):
   try:
-    return(config.get(section, value))
+    # check value is not blank
+    if not (config.get(section, value) == ''):
+      # return value
+      return(config.get(section, value))
+    # value is blank
+    exit(0)
   except:
-    print('kopsrox::conf_check: ERROR: no value found for ' + section + ':' + value + ' in ' + conf)
+    print('kopsrox::conf_check: ERROR found in [' + section + '] - value:' + value + ' in ' + conf)
     exit(0)
 
 # proxmox checks
@@ -68,13 +73,6 @@ cname = conf_check('cluster', 'name')
 masters = int(conf_check('cluster','masters'))
 workers = int(conf_check('cluster','workers'))
 k3s_version = conf_check('cluster','k3s_version')
-
-# s3
-s3_endpoint = conf_check('s3','endpoint')
-s3_region = conf_check('s3','region')
-s3_key = conf_check('s3','access-key')
-s3_secret = conf_check('s3','access-secret')
-s3_bucket = conf_check('s3','bucket')
 
 # safe to import these now ( has to be this order ) 
 import kopsrox_proxmox as proxmox

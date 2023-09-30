@@ -35,9 +35,9 @@ Please edit this file for your setup
 
 ### [proxmox]
 
-- __endpoint__ ( usually localhost ) this is where we will connect to proxmox on port 8006
+- __endpoint__ = `localhost` this is where we will connect to proxmox on port 8006
 
-- __user__ ( usually root@pam )
+- __user__ = `root@pam` - user
 
 - __token_name__  ( default is kopsrox )
 
@@ -45,7 +45,7 @@ Please edit this file for your setup
 
 - __proxnode__ - the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
 
-- __proximgid__ - the proxmox id used for the kopsrox image/template eg: 170
+- __proximgid__ = the proxmox id used for the kopsrox image/template eg: 170
 
 the other nodes in the cluster use incrementing id's for example with 170:
 
@@ -62,64 +62,82 @@ the other nodes in the cluster use incrementing id's for example with 170:
 |8|178|worker 4|
 |9|179|worker 5|
 
-- __up_image_url__ = the url to the cloud image you want to use
+- __up_image_url__ = `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use
 
-- __proxbridge__ = the proxmox bridge to use for the cluster eg vmbr0
+- __proxbridge__ = `vmbr0` - the proxmox bridge to use for the cluster ( see [kopsrox] section )
 
 ### [kopsrox]
 
 - __vm_disk__ = size of the disk in kopsrox vms
 
-- __vm_cpu__ = 
+- __vm_cpu__ = number ogf vcpus for kopsrox vms
+
+- __vm_ram__ = 
 
 ### [cluster]
 
-- __name__ =
+- __name__ = name of the cluster
 
-### s3 section 
+- __k3s_version__ = 
+
+### [s3]
+
+These values are optional see etcd section below
 
 - __endpoint__ = 
 
+- __region__ = 
+
 # getting started
 ## create image
-- create image
-- set masters=1
+To create a kopsrox template run:
+
+`./kopsrox.py create image`
+
+Edit your `kopsrox.ini` and set `masters = 1` in the `[cluster]` section
 ## create a cluster
 - create cluster 
+## run kubectl
+- via qagent
 ## add worker
 - add worker
-## etcd operations
-- s3 guide
-- create
-- list
-- restore
 
 # commands
 ## image
 ### create
 - creates a kopsrox image template
 ### destroy
+- deletes the existing image template
+delete the .img file manually if you want a fresh download
 ## cluster
 - manage the kopsrox cluster
 ### create
 - creates and updates a cluster
 ### update
+- updates cluster state per config
+### info
+- displays cluster info
+### kubectl
+### kubeconfig
+### destroy
 ## etcd
 ### snapshot
 ### restore
-- operations eg snapshot / restore
-- nodes - delete a node
-- config - config operations
+### list
+### prune
 
 # etcd backups guide
+- stuff about tokens
 ## setup
+- s3 api
 
+### providers
 - minio
 - cloudflare ( 20G free ) 
 - backblaze ( 10 / 75G free )
 
-  ## snapshot
-  ## restore
+## snapshot
+## restore
 
 # FAQ
 __can I use debian as a base image vs ubuntu?__
