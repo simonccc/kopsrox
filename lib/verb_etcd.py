@@ -89,18 +89,22 @@ def list_images():
   return(out)
 
 # s3 prune
+
+# fixme uses hard coded name
 if passed_verb == 'prune':
   print(s3_run('prune --name kopsrox'))
   exit(0)
 
 # snapshot 
 if passed_verb == 'snapshot':
-  print('etcd::snapshot: starting')
+  print('etcd::snapshot: running')
 
   # define snapshot command
   snap_cmd = 'k3s etcd-snapshot save ' + s3_string + ' --name kopsrox'
-  print(snap_cmd)
+  #print(snap_cmd)
   snapout = proxmox.qaexec(masterid,snap_cmd)
+
+  # fixme check contents of snapout?
 
   # filter output
   snapout = snapout.split('\n')
