@@ -17,11 +17,15 @@ _installs the required pip packages vs using os packages_
 
 ## API key
 
-You can generate an API key via the command line eg: `pvesh create /access/users/root@pam/token/kopsrox`
+generate an API key via the command line eg: 
+
+`pvesh create /access/users/root@pam/token/kopsrox`
 
 Take a note of the token as we'll need this below
 
-Then to set the correct permissions om the token `pveum acl modify / --roles Administrator --user root@pam  --token kopsrox`
+Set the correct permissions om the token 
+
+`pveum acl modify / --roles Administrator --user root@pam  --token kopsrox`
 
 ## kopsrox.ini
 
@@ -37,7 +41,7 @@ Please edit this file for your setup
 
 - __token_name__  ( default is kopsrox )
 
-- __api_key__   ( as generated above ) 
+- __api_key__ = as generated above
 
 - __proxnode__ - the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
 
@@ -60,35 +64,55 @@ the other nodes in the cluster use incrementing id's for example with 170:
 
 - __up_image_url__ = the url to the cloud image you want to use
 
-- __proxbridge__ = the proxmox bridge to use for the cluster
+- __proxbridge__ = the proxmox bridge to use for the cluster eg vmbr0
 
-### kopsrox section 
+### [kopsrox]
 
 - __vm_disk__ = size of the disk in kopsrox vms
 
-### cluster section 
+- __vm_cpu__ = 
+
+### [cluster]
+
+- __name__ =
 
 ### s3 section 
 
-# getting started
+- __endpoint__ = 
 
+# getting started
+## create image
 - create image
 - set masters=1
+## create a cluster
 - create cluster 
+## add worker
+- add worker
+## etcd operations
+- s3 guide
+- create
+- list
+- restore
+
 # commands
 ## image
+### create
 - creates a kopsrox image template
+### destroy
 ## cluster
+- manage the kopsrox cluster
+### create
 - creates and updates a cluster
+### update
 ## etcd
+### snapshot
+### restore
 - operations eg snapshot / restore
 - nodes - delete a node
 - config - config operations
 
-# etcd
+# etcd backups guide
 ## setup
-
-To use the etcd snapshot and restore functions you need some s3 compatable storeage
 
 - minio
 - cloudflare ( 20G free ) 
