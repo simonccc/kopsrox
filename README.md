@@ -5,17 +5,17 @@
 - backup and restore your cluster easily via S3 snapshots
 - quick demo: https://asciinema.org/a/597074
 
-## Setup Prerequisites
+## setup prerequisites
 
 - `sudo apt install libguestfs-tools -y`
 
-_this is required to patch the cloudimage to install __qemu-guest-agent___
+_this is required to patch the cloudimage to installs qemu-guest-agent_
 
 - `pip3 install --break-system-packages --user -r requirements.txt`
 
 _installs the required pip packages vs using os packages_
 
-## Generate API Key
+## generate a API key
 
 Generate an API key via the command line eg: 
 
@@ -66,33 +66,35 @@ the other nodes in the cluster use incrementing id's for example with 170:
 
 - __proxbridge__ = `vmbr0` - the proxmox bridge to use for the cluster ( see [kopsrox] section )
 
-### [kopsrox]
+### kopsrox
 
 - __vm_disk__ = size of the disk in kopsrox vms
 
-- __vm_cpu__ = number ogf vcpus for kopsrox vms
+- __vm_cpu__ = number of vcpus for kopsrox vms
 
-- __vm_ram__ = 
+- __vm_ram__ = amount of ram eg 2g
 
 - __cloudinituser__ = 
 
 - __cloudinitpass__ = 
 
-### [cluster]
+- __cloudinitsshkey__ = 
+
+### cluster
 
 - __name__ = name of the cluster
 
-- __k3s_version__ = 
+- __k3s_version__ = `v1.24.6+k3s1` 
 
--__masters__ = 
+- __masters__ = `1` or `3` - number of masters
 
-- __workers__ = 
+- __workers__ = number of worker vms eg 1
 
-### [s3]
+### s3
 
-These values are optional see etcd section below
+These values are optional 
 
-- __endpoint__ = 
+- __endpoint__ = eg `s3.yourprovider.com`
 
 - __region__ = 
 
@@ -101,6 +103,7 @@ These values are optional see etcd section below
 - __access-secret__ = 
 
 # create a cluster
+
 Lets get started by creating a cluster
 
 
@@ -118,7 +121,6 @@ Edit your `kopsrox.ini` and set `masters = 1` in the `[cluster]` section
 
 This will create a single node cluster
 
-
 ## run kubectl
 We can run kubectl via connecting to the master via qagent and running `k3s kubectl`
 
@@ -126,8 +128,11 @@ We can run kubectl via connecting to the master via qagent and running `k3s kube
 
 ## add worker
 Edit [kopsrox.ini] 
-- add worker
+- add worker - set `workers = 1` in the `[cluster]` section then run
+
 `./kopsrox.py cluster update`
+
+
 `./kopsrox.py cluster info`
 
 
@@ -135,6 +140,8 @@ Edit [kopsrox.ini]
 ## image
 ### create
 - creates a kopsrox image template
+- downloads cloud image
+- patches it
 ### destroy
 - deletes the existing image template
 delete the .img file manually if you want a fresh download
@@ -146,6 +153,8 @@ delete the .img file manually if you want a fresh download
 - updates cluster state per config
 ### info
 - displays cluster info
+-- shows a list of vms, ids, hostnames and ips
+-- shows kubectl get nodes
 ### kubectl
 - run kubectl commands
 ### kubeconfig
@@ -157,13 +166,16 @@ delete the .img file manually if you want a fresh download
 ### snapshot
 - create a etcd snapshot in the configured S3 storage
 ### restore
+- restores cluster from etcd backup - requires a image name 
 ### list
 - lists snapshots taken in s3 storage
 ### prune
 - deletes old snapshots
 
 # etcd backups guide
-- stuff about tokens
+
+The first time a snapshot is taken a token is written into the kopsrox directory
+
 - `kopsrox.etcd.snapshot.token`
 
 ## setup
