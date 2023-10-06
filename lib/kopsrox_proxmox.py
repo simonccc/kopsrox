@@ -35,6 +35,9 @@ def qaexec(vmid,cmd):
   # get vmname
   vmname = common.vmname(vmid)
 
+  # get node
+  node = get_node(vmid)
+
   # qagent no yet running check
   qagent_running = 'false'
 
@@ -64,7 +67,6 @@ def qaexec(vmid,cmd):
 
       # sleep 1 second then try again
       time.sleep(1)
-
 
   # send command
   # could try redirecting stderr to out since we don't error on stderr
@@ -113,6 +115,7 @@ def qaexec(vmid,cmd):
 
     # redundant?
     return('error')
+    exit(0)
 
 # return kopsrox vms as a dict with node
 def list_kopsrox_vm():
@@ -134,9 +137,20 @@ def list_kopsrox_vm():
 
 # return the proxnode for a vmid
 def get_node(vmid):
+  vmname = common.vmname(vmid)
+
+  # check for vm id in proxmox cluster
   for vm in prox.cluster.resources.get(type = 'vm'):
+
+    # matching id found
     if (int(vm.get('vmid')) == int(vmid)):
+
+      # return node vm is running on
       return(vm.get('node'))
+
+  # error: node not found
+  print('proxmox::get_node: ERROR: ' + vmname + '/' + str(vmid) + ' not found.')
+  exit(0)
 
 # stop and destroy vm
 def destroy(vmid):
