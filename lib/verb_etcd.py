@@ -48,21 +48,29 @@ cname = config['cluster']['name']
 
 # s3 details
 endpoint = config['s3']['endpoint']
-region = config['s3']['region']
 access_key = config['s3']['access-key']
 access_secret = config['s3']['access-secret']
 bucket = config['s3']['bucket']
 
-# region checker
+# region optional
 region_string = ''
+region = config['s3']['region']
 if region:
-    region_string = '--etcd-s3-region ' + region
+  region_string = '--etcd-s3-region ' + region
 
 # generated string to use in s3 commands
 s3_string = ' --etcd-s3 ' + region_string + ' --etcd-s3-endpoint ' + endpoint + ' --etcd-s3-access-key ' + access_key + ' --etcd-s3-secret-key ' + access_secret + ' --etcd-s3-bucket ' + bucket + ' --etcd-s3-skip-ssl-verify '
 
 # get masterid
 masterid = common.get_master_id()
+
+# check master is running / exists
+try:
+  # fails if node can't be found
+  get_node(masterid)
+except:
+  print('etcd::check: ERROR: cluster not found')
+  exit(0)
 
 # run k3s s3 command passed
 def s3_run(cmd):
