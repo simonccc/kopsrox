@@ -3,7 +3,6 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import time, re, base64
 
-#from configparser import ConfigParser
 from proxmoxer import ProxmoxAPI
 
 import common_config as common
@@ -33,17 +32,39 @@ def prox_init():
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
 
+  # get vmname
+  vmname = common.vmname(vmid)
+
   # qagent no yet running check
-  # needs a loop counter and check adding...
   qagent_running = 'false'
+
+  # max wait time
+  qagent_count = int(0)
+
+  # while variable is false
   while ( qagent_running == 'false' ):
     try:
+
+      # qa ping the vm
       qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
+
+      # agent is running 
       qagent_running = 'true'
+
+    # agent not running 
     except:
-      #print('proxmox::qaexec: agent not started on', vmid)
-      #print('.', end='')
+
+      # increment counter
+      qagent_count += 1
+
+      # exit if longer than 30 seconds
+      if qagent_count == 30:
+        print('proxmox::qaexec: ERROR: agent not responding on ' + vmname + ': cmd: ', cmd)
+        exit(0)
+
+      # sleep 1 second then try again
       time.sleep(1)
+
 
   # send command
   # could try redirecting stderr to out since we don't error on stderr
