@@ -50,7 +50,7 @@ def qaexec(vmid,cmd):
     try:
 
       # qa ping the vm
-      qa_ping = prox.nodes(proxnode).qemu(vmid).agent.ping.post()
+      qa_ping = prox.nodes(node).qemu(vmid).agent.ping.post()
 
       # agent is running 
       qagent_running = 'true'
@@ -63,7 +63,7 @@ def qaexec(vmid,cmd):
 
       # exit if longer than 30 seconds
       if qagent_count == 30:
-        print('proxmox::qaexec: ERROR: agent not responding on ' + vmname + ': cmd: ', cmd)
+        print('proxmox::qaexec: ERROR: agent not responding on ' + vmname + ' [' + node + '] cmd:', cmd)
         exit(0)
 
       # sleep 1 second then try again
@@ -72,7 +72,7 @@ def qaexec(vmid,cmd):
   # send command
   # could try redirecting stderr to out since we don't error on stderr
   try: 
-    qa_exec = prox.nodes(proxnode).qemu(vmid).agent.exec.post(
+    qa_exec = prox.nodes(node).qemu(vmid).agent.exec.post(
             command = "sh -c \'" + cmd +"\'",
             )
   except:
@@ -87,7 +87,7 @@ def qaexec(vmid,cmd):
   pid_status = int(0)
   while ( int(pid_status) != int(1) ):
     try:
-      pid_check = prox.nodes(proxnode).qemu(vmid).agent('exec-status').get(pid = pid)
+      pid_check = prox.nodes(node).qemu(vmid).agent('exec-status').get(pid = pid)
     except:
       print('ERROR: qaexec problem with pid ' + str(pid) + ' cmd:', cmd)
       exit(0)
