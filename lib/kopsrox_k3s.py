@@ -10,6 +10,8 @@ k3s_version = config['cluster']['k3s_version']
 masters = int(config['cluster']['masters'])
 workers = int(config['cluster']['workers'])
 masterid = int(common.get_master_id())
+
+# cluster name
 cname = config['cluster']['name']
 
 # check for k3s status
@@ -19,22 +21,40 @@ def k3s_check(vmid):
     node_name = common.vmname(vmid)
 
     # test call
-    k = common.kubectl(masterid, ('get node ' + node_name))
+    k = common.kubectl(masterid, ('get node', node_name))
+
+    # if output 
     if ( re.search('NotReady', k) or re.search('NotFound', k)):
       print('k3s::k3s_check:', node_name, 'not ready')
-      return('fail')
+      return False
+
     # return true if Ready
     if ( re.search('Ready', k)) :
-      return('true')
+      return True
 
     # failsafe
     #print(k)
-    return('fail')
+    return False
 
 # wait for node
 def k3s_check_mon(vmid):
-  while ( k3s_check(vmid) != 'true' ):
-    time.sleep(10)
+
+  # check count
+  count = int(0)
+
+  # run k3s_check
+  while not k3s_check(vmid):
+
+    # counter + sleep
+    count += 1
+    time.sleep(1)
+
+    # timeout after 30 secs
+    if count == 30:
+      print('k3s::k3s_check_mon: ERROR: problem with', common.vmname(vmid))
+      exit(0)
+
+  return True
 
 # init 1st master
 def k3s_init_master(vmid):
@@ -42,11 +62,8 @@ def k3s_init_master(vmid):
     # get hostname
     vmname = common.vmname(vmid)
 
-    # check for existing k3s
-    status = k3s_check(vmid)
-
     # if master check fails
-    if ( status == 'fail'):
+    if not k3s_check(vmid):
       print('k3s::k3s_init_master: installing k3s on', vmname)
       cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
       cmd_out = proxmox.qaexec(vmid,cmd)
@@ -58,11 +75,8 @@ def k3s_init_master(vmid):
 # additional master
 def k3s_init_slave(vmid):
 
-    # check for existing k3s
-    status = k3s_check(vmid)
-
     # if master check fails
-    if ( status == 'fail'):
+    if not k3s_check(vmid):
       ip = common.vmip(masterid)
       token = common.get_token()
       vmname = common.vmname(vmid)
@@ -81,14 +95,11 @@ def k3s_init_slave(vmid):
 # init worker node
 def k3s_init_worker(vmid):
 
-  # check for existing k3s
-  status = k3s_check(vmid)
- 
   # map vmname
   vmname = common.vmname(vmid)
 
   # if check fails
-  if ( status == 'fail'):
+  if not k3s_check(vmid):
 
     ip = common.vmip(masterid)
     token = common.get_token()
@@ -133,10 +144,6 @@ def k3s_rm_cluster(restore = False):
     if vmname == ( cname + '-image' ):
       continue
 
-    # do not delete utility server
-    if vmname == ( cname + '-u1' ):
-      continue
-    
     # remove node from cluster and proxmox
     #print(vmname)
     if vmname ==  ( cname + '-m1' ):
@@ -156,14 +163,16 @@ def k3s_update_cluster():
    # do we need to run any more masters
    if ( masters > 1 ):
     print('k3s::k3s_update_cluster: checking masters ('+ str(masters) +')')
-    master_count = 1
-    while ( master_count <=  ( int(masters) - 1 )):
+
+    master_count = int(1)
+
+    while ( master_count <=  2 ):
 
       # so eg 601 + 1 = 602 = m2
-      slave_masterid = (int(masterid) + int(master_count))
+      slave_masterid = (int(masterid) + master_count)
       slave_hostname = common.vmname(slave_masterid)
 
-      print('cluster: checking', slave_hostname)
+      print('k3s::k3s_update_cluster: checking', slave_hostname)
 
       # existing server
       if (slave_masterid in vmids):
