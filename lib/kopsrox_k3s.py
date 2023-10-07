@@ -17,15 +17,11 @@ cname = config['cluster']['name']
 # check for k3s status
 def k3s_check(vmid):
 
-    # get masterid
-    node_name = common.vmname(vmid)
-
     # test call
-    k = common.kubectl(masterid, ('get node ' + node_name))
+    k = common.kubectl(masterid, ('get node ' + common.vmname(vmid)))
 
-    # if output 
+    # if not found or Ready
     if ( re.search('NotReady', k) or re.search('NotFound', k)):
-      print('k3s::k3s_check:', node_name, 'not ready')
       return False
 
     # return true if Ready
@@ -33,7 +29,6 @@ def k3s_check(vmid):
       return True
 
     # failsafe
-    #print(k)
     return False
 
 # wait for node

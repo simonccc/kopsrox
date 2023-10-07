@@ -27,11 +27,12 @@ def conf_check(section,value):
     # value is blank
     exit(0)
   except:
-    print('kopsrox::conf_check: ERROR! check [' + section + '] \'' + value + ':\' in ' + conf)
+    print('kopsrox::conf_check: ERROR! check [' + section + '] \'' + value + '\' in ' + conf)
     exit(0)
 
 # proxmox checks
 endpoint = conf_check('proxmox','endpoint')
+port = conf_check('proxmox','port')
 user = conf_check('proxmox','user')
 token_name = conf_check('proxmox','token_name')
 api_key = conf_check('proxmox','api_key')

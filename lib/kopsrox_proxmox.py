@@ -14,6 +14,7 @@ config = common.config
 # define api connection
 prox = ProxmoxAPI(
   config['proxmox']['endpoint'],
+  port=config['proxmox']['port'],
   user=config['proxmox']['user'],
   token_name=config['proxmox']['token_name'],
   token_value=config['proxmox']['api_key'],

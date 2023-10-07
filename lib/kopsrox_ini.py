@@ -15,8 +15,10 @@ def init_kopsrox_ini(conf = conf):
   config.add_section('proxmox')
 
   # endpoint
-  config.set('proxmox', '; domain name or IP to access proxmox this has to be port 8006 atm')
-  config.set('proxmox', 'endpoint', 'domain or ip')
+  config.set('proxmox', '; domain name or IP to access proxmox')
+  config.set('proxmox', 'endpoint', '127.0.0.1')
+  config.set('proxmox', '; port is usually 8006')
+  config.set('proxmox', 'port', '8006')
 
   # username
   config.set('proxmox', '; username in token')
@@ -49,6 +51,9 @@ def init_kopsrox_ini(conf = conf):
   # size for kopsrox nodes
   config.set('kopsrox', 'vm_disk', '20G')
   config.set('kopsrox', 'vm_cpu', '1')
+
+  # ram size
+  config.set('kopsrox', '; amount of ram in Gib ')
   config.set('kopsrox', 'vm_ram', '2')
 
   # cloudinit user key and password
