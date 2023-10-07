@@ -68,9 +68,8 @@ def k3s_init_master(vmid):
       cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
       cmd_out = proxmox.qaexec(vmid,cmd)
       k3s_check_mon(vmid)
-      return('true')
 
-    return(status)
+    return True
 
 # additional master
 def k3s_init_slave(vmid):
@@ -109,9 +108,8 @@ def k3s_init_worker(vmid):
     proxmox.qaexec(vmid,cmd)
     k3s_check_mon(vmid)
      
-  status = k3s_check(vmid)
   print('k3s::k3s_init_worker:',vmname, 'ok')
-  return(status)
+  return True
 
 # remove a node
 def k3s_rm(vmid):

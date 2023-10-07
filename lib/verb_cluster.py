@@ -30,6 +30,8 @@ proxnode = config['proxmox']['proxnode']
 proximgid = config['proxmox']['proximgid']
 workers = int(config['cluster']['workers'])
 masters = int(config['cluster']['masters'])
+
+# masterid
 masterid = common.get_master_id()
 
 # info
@@ -73,16 +75,12 @@ if ( passed_verb == 'create' ):
   if not (int(masterid) in vmids):
     proxmox.clone(masterid)
 
-  # install k3s 
-  install_master = k3s.k3s_init_master(masterid)
-
   # map hostname
   vmname = common.vmname(masterid)
 
   # if init worked ok
-  if not ( install_master == 'true'):
+  if not k3s.k3s_init_master(masterid):
     print('cluster::create: ERROR: master not installed')
-    print(install_master)
     exit(0)
 
   # export kubeconfig
