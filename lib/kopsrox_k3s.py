@@ -21,7 +21,7 @@ def k3s_check(vmid):
     node_name = common.vmname(vmid)
 
     # test call
-    k = common.kubectl(masterid, ('get node', node_name))
+    k = common.kubectl(masterid, ('get node ' + node_name))
 
     # if output 
     if ( re.search('NotReady', k) or re.search('NotFound', k)):

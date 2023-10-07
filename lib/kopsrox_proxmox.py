@@ -21,7 +21,8 @@ prox = ProxmoxAPI(
   timeout=5)
 
 # config
-proxnode = config['proxmox']['proxnode']
+proxnode = config['proxmox']['proxnode']  
+proxbridge = config['proxmox']['proxbridge']  
 proximgid = int(config['proxmox']['proximgid'])
 proxstor = config['proxmox']['proxstor']
 
@@ -205,6 +206,7 @@ def clone(vmid):
               hotplug = 0,
               cores = cores, 
               memory = memory,
+              net0 = ('model=virtio,bridge=' + proxbridge),
               ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/'+ netmask ))
   task_status(prox, str(configure), proxnode)
 

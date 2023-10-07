@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import common_config as common, sys, re, os
-import kopsrox_proxmox as proxmox
-import kopsrox_k3s as k3s
 
 # verb config
 verb = 'etcd'
@@ -19,9 +17,13 @@ except:
 
 # unsupported verb
 if not passed_verb in verbs:
-  print('ERROR:\''+ passed_verb + '\'- command not found')
+  print('ERROR: \''+ passed_verb + '\'- unknown command')
   print('kopsrox', verb, '', end='')
   common.verbs_help(verbs)
+
+
+import kopsrox_proxmox as proxmox
+import kopsrox_k3s as k3s
 
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
@@ -73,8 +75,9 @@ masterid = common.get_master_id()
 # check master is running / exists
 try:
   # fails if node can't be found
-  get_node(masterid)
+  proxmox.get_node(masterid)
 except:
+  proxmox.get_node(masterid)
   print('etcd::check: ERROR: cluster not found')
   exit(0)
 
