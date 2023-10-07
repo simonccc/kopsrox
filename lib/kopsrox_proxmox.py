@@ -143,7 +143,7 @@ def get_node(vmid):
   for vm in prox.cluster.resources.get(type = 'vm'):
 
     # matching id found
-    if vm.get('vmid') == vmid:
+    if vm.get('vmid') == int(vmid):
 
       # return node vm is running on
       return(vm.get('node'))
@@ -212,6 +212,7 @@ def clone(vmid):
 
   # power on
   poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
+  time.sleep(1)
   task_status(prox, str(poweron), proxnode)
 
 # proxmox task blocker

@@ -32,7 +32,7 @@ workers = int(config['cluster']['workers'])
 masters = int(config['cluster']['masters'])
 
 # masterid
-masterid = common.get_master_id()
+masterid = int(common.get_master_id())
 
 # info
 if passed_verb == 'info':
@@ -72,7 +72,7 @@ if ( passed_verb == 'create' ):
   vmids = proxmox.list_kopsrox_vm()
 
   # clone new master
-  if not (int(masterid) in vmids):
+  if not (masterid in vmids):
     proxmox.clone(masterid)
 
   # map hostname
