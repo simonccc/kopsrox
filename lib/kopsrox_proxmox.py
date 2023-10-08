@@ -31,6 +31,20 @@ proxstor = config['proxmox']['proxstor']
 def prox_init():
   return prox
 
+# return the image name
+def kopsrox_img(proxstor,proximgid):
+
+  # list contents
+  for i in prox.nodes(proxnode).storage(proxstor).content.get():
+
+    # if 123-disk-0 found in volid
+    if re.search((proximgid + '-disk-0'), i.get("volid")):
+      return(i.get("volid"))
+
+  # unable to find image name
+  print('proxmox::kopsrox_img: unable to map id to image', proxstore, proxstor)
+  return False
+
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
 

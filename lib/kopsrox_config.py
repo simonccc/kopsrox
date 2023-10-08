@@ -131,7 +131,7 @@ try:
   if not ((str(sys.argv[1]) == str('image')) and (str(sys.argv[2]) == str('create'))):
     exit(1)
 except:
-  kopsrox_img = common.kopsrox_img(proxstor,proximgid)
+  kopsrox_img = proxmox.kopsrox_img(proxstor,proximgid)
   images = prox.nodes(proxnode).storage(proxstor).content.get()
 
   # search the returned list of images

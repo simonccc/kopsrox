@@ -45,7 +45,7 @@ cname = config['cluster']['name']
 k3s_version = config['cluster']['k3s_version']
 
 # generate image name
-kopsrox_img = common.kopsrox_img(proxstor,proximgid)
+kopsrox_img = proxmox.kopsrox_img(proxstor,proximgid)
 
 # create image
 if (passed_verb == 'create'):

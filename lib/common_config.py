@@ -34,13 +34,6 @@ def verbs_help(verbs):
   for i in verbs:
     print(' * ',i)
 
-# generating the proxmox kopsrox image name
-def kopsrox_img(proxstor,proximgid):
-  images = proxmox.prox.nodes(proxnode).storage(proxstor).content.get()
-  for i in images:
-    if re.search((proximgid + '-disk-0'), i.get("volid")):
-      return(i.get("volid"))
-
 # return master id
 def get_master_id():
   return(int(proximgid) + 1)
