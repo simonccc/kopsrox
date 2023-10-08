@@ -22,6 +22,7 @@ config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
 # used items
 proximgid = int(config['proxmox']['proximgid'])
+proxnode = config['proxmox']['proxnode']
 
 # returns a dict of all config
 def read_kopsrox_ini():
@@ -35,7 +36,10 @@ def verbs_help(verbs):
 
 # generating the proxmox kopsrox image name
 def kopsrox_img(proxstor,proximgid):
-  return(proxstor + ':base-' + proximgid + '-disk-0')
+  images = proxmox.prox.nodes(proxnode).storage(proxstor).content.get()
+  for i in images:
+    if re.search((proximgid + '-disk-0'), i.get("volid")):
+      return(i.get("volid"))
 
 # return master id
 def get_master_id():

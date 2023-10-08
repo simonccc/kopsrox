@@ -94,11 +94,25 @@ if not re.search(proxnode, (str(nodes))):
 
   exit(0)
 
-# check configured storage on cluster
-storage = prox.nodes(proxnode).storage.get()
-if not (re.search(proxstor, (str(storage)))):
-  print(proxstor, 'storage not found - available storage:')
-  for i in storage:
+# get list of storage in the cluster
+storage_list = prox.nodes(proxnode).storage.get()
+
+# for each of the list 
+for storage in storage_list:
+
+  # if matched proxstor
+  if proxstor == storage.get("storage"):
+
+    # assign storage type
+    storage_type = storage.get("type")
+
+# if storage_type not found
+try:
+  if storage_type:
+    pass
+except:
+  print('kopsrox::config:', proxstor, 'storage not found - available storage:')
+  for i in storage_list:
     print(i.get("storage"))
   exit(0)
 
@@ -122,7 +136,7 @@ except:
 
   # search the returned list of images
   if not (re.search(kopsrox_img, str(images))):
-    print(kopsrox_img, 'not found on '+ proxnode + ':' + proxstor)
+    print('kopsrox::config:', kopsrox_img, 'not found on '+ proxnode + ':' + proxstor)
     print('run kopsrox image create')
     exit(0)
 
