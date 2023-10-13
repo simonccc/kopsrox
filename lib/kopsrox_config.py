@@ -3,19 +3,15 @@
 import os, re, sys
 import kopsrox_ini as ini
 
-# lookup config file name from ini
-conf = ini.conf
-
 # generate barebones kopsrox.ini if it doesn't exist
-if not os.path.isfile(conf):
+if not os.path.isfile(ini.conf):
   ini.init_kopsrox_ini()
   exit(0)
 
+# read ini file into config
 from configparser import ConfigParser
 config = ConfigParser()
-
-# read ini files
-config.read(conf)
+config.read(ini.conf)
 
 # check section and value exists
 def conf_check(section,value):
@@ -27,7 +23,7 @@ def conf_check(section,value):
     # value is blank
     exit(0)
   except:
-    print('kopsrox::conf_check: ERROR! check [' + section + '] \'' + value + '\' in ' + conf)
+    print('kopsrox::conf_check: ERROR! check [' + section + '] \'' + value + '\' in ' + ini.conf)
     exit(0)
 
 # proxmox checks
@@ -71,14 +67,14 @@ import common_config as common
 
 # master check - can only be 1 or 3
 if not ( (masters == 1) or (masters == 3)):
-  print ('ERROR: only 1 or 3 masters supported. You have:', masters)
+  print ('kopsrox::config: ERROR! only 1 or 3 masters supported. You have:', masters)
   exit(0)
 
 # check connection to proxmox
-prox = proxmox.prox_init()
+prox = proxmox.prox
 # if unable to get cluster status
 if not prox.cluster.status.get():
-  print('ERROR: unable to connect to proxmox - check proxmox.ini')
+  print('ERROR: unable to connect to proxmox')
   exit(0)
 
 # get list of nodes
@@ -103,22 +99,33 @@ for storage in storage_list:
   # if matched proxstor
   if proxstor == storage.get("storage"):
 
-    # assign storage type
-    storage_type = storage.get("type")
+    # is storage local or shared?
+    if storage.get("shared") == "0":
+      storage_type = 'local'
+    else: 
+      storage_type = 'shared'
 
-# if storage_type not found
+# if no storage_type we have no matched storage
 try:
   if storage_type:
     pass
 except:
   print('kopsrox::config:', proxstor, 'storage not found - available storage:')
-  for i in storage_list:
-    print(i.get("storage"))
+
+  # print available storage
+  for storage in storage_list:
+    print(storage.get("storage"))
   exit(0)
 
+# if storage is shared we can launch on other nodes
+# to be used later on
+#print(proxstor, storage_type)
+
 # check configured bridge on cluster
-bridge = prox.nodes(proxnode).network.get()
-if not (re.search(proxbridge, (str(bridge)))):
+bridge = str(prox.nodes(proxnode).network.get())
+
+# check configured bridge is in list
+if not re.search(proxbridge, bridge):
   print(proxbridge, 'bridge not found - available:')
   for i in bridge:
     if i.get("type") == 'bridge':

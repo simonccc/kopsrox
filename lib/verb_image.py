@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
+
+# general imports
 import common_config as common, sys, os, wget, re, time
 
-# required for ssh key encoding
+# used to convert timestamps
+from datetime import datetime
+
+# used to encode ssh key
 import urllib.parse
+
+# import values from kopsrox_config
+import kopsrox_config as kopsrox_config
 
 # proxmox connection
 import kopsrox_proxmox as proxmox
 prox = proxmox.prox_init()
 
+# handle image sub commands
 verb = 'image'
 verbs = common.verbs_image
 
@@ -27,7 +36,7 @@ if not passed_verb in verbs:
   print('kopsrox', verb, '', end='')
   common.verbs_help(verbs)
 
-# import config
+# import config values
 config = common.read_kopsrox_ini()
 proxnode = config['proxmox']['proxnode']
 proxstor = config['proxmox']['proxstor']
@@ -151,12 +160,24 @@ if (passed_verb == 'create'):
   proxmox.task_status(prox, str(set_template), proxnode)
 
 # list images on proxstor
+# this might be more useful if we allow different images in the future
+# cos at the moment will only print 1 image 
 if (passed_verb == 'info'):
-  images = prox.nodes(proxnode).storage(proxstor).content.get()
-  for i in images:
-    if i.get('volid') == (kopsrox_img):
-      print(i.get('volid'), i.get('ctime'))
-      print(i)
+
+  # get list of images
+  for image in prox.nodes(proxnode).storage(proxstor).content.get():
+
+    # if image matches our generated image name
+    if image.get('volid') == (kopsrox_img):
+
+      # created time
+      created = str(datetime.fromtimestamp(image.get('ctime')))
+
+      # size in G
+      size = str(int(image.get('size') / 1073741824)) + 'G'
+
+      # print image info
+      print(kopsrox_img + ' ('+ kopsrox_config.storage_type + ',' + image.get('format') + ')' + ' created: ' + created + ' size: ' + size)
 
 # destroy image
 if (passed_verb == 'destroy'):
