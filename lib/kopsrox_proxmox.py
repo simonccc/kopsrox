@@ -184,11 +184,11 @@ def destroy(vmid):
       delete = prox.nodes(proxnode).qemu(vmid).delete()
       task_status(prox, delete, proxnode)
 
-      print('proxmox::destroyed: ' + vmname + ' [' + proxnode + ']')
+      print('proxmox::destroy: ' + vmname + ' [' + proxnode + ']', 'done')
 
     except:
-      if (proximgid != vmid):
-        print('proxmox::destroy: unable to destroy', vmid)
+      if not int(proximgid) == int(vmid):
+        print('proxmox::destroy: ERROR: unable to destroy', vmid)
         exit(0)
 
 # clone
@@ -231,10 +231,19 @@ def clone(vmid):
   task_status(prox, str(poweron), proxnode)
 
 # proxmox task blocker
-def task_status(proxmox_api, task_id, node_name):
-  data = {"status": ""}
-  while (data["status"] != "stopped"):
-    data = proxmox_api.nodes(node_name).tasks(task_id).status.get()
+def task_status(prox, task_id, node):
+
+  # define default status
+  status = {"status": ""}
+
+  # until task stopped
+  while (status["status"] != "stopped"):
+    status = prox.nodes(node).tasks(task_id).status.get()
+
+  # if task not completed ok
+  if not status["exitstatus"] == "OK":
+    print('proxmox::task_status: ERROR: ' + status["exitstatus"])
+    exit(0)
 
 # get vm info
 def vm_info(vmid,node):
