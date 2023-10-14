@@ -40,6 +40,7 @@ def kopsrox_img(proxstor,proximgid):
     # map image_name
     image_name = image.get("volid")
 
+
     # if 123-disk-0 found in volid
     if re.search((proximgid + '-disk-0'), image_name):
       return(image_name)
@@ -258,12 +259,11 @@ def getfile(vmid, path):
   return(get_file['content'])
 
 # writes a file from localdir to path
+# used to write etcd token when restoring
 def writefile(vmid,file,path):
   name = common.vmname(vmid)
   print('proxmox:writefile: ' + name + ':' + path)
   myfile = open(file,"rb")
   file_bin = myfile.read()
-  write_file = prox.nodes(proxnode).qemu(vmid).agent('file-write').post(
-          file = path, 
-          content = file_bin)
+  write_file = prox.nodes(proxnode).qemu(vmid).agent('file-write').post(file = path,content = file_bin)
   return(write_file)
