@@ -46,8 +46,7 @@ def kopsrox_img(proxstor,proximgid):
       return(image_name)
 
   # unable to find image name
-  print('proxmox::kopsrox_img: unable to map id to image', proximgid, proxstor)
-  return False
+  return('no image')
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):

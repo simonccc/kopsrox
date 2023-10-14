@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 # general imports
-import common_config as common, sys, os, wget, re, time
+import common_config as common
+
+#
+import sys, os, wget, re, time
 
 # used to convert timestamps
 from datetime import datetime
@@ -14,7 +17,7 @@ import kopsrox_config as kopsrox_config
 
 # proxmox connection
 import kopsrox_proxmox as proxmox
-prox = proxmox.prox_init()
+prox = proxmox.prox
 
 # handle image sub commands
 verb = 'image'
@@ -109,9 +112,10 @@ if (passed_verb == 'create'):
   proxmox.task_status(prox, str(create), proxnode)
 
   # shell to import disk
-  import_disk_string = ('sudo qm set ' + proximgid + ' --ciupgrade 0 --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image+ ' >' + os.getcwd() + '/kopsrox_disk_import.log 2>&1') 
+  cwd = os.getcwd()
+  import_disk_string = ( 'sudo qm set', proximgid, '--ciupgrade 0 --virtio0', proxstor + ':0,import-from=' + cwd + '/' + up_image ) 
 
-  #print(import_disk_string)
+  print(import_disk_string)
 
   # run shell command to import
   try:
@@ -169,5 +173,5 @@ if (passed_verb == 'info'):
 
 # destroy image
 if (passed_verb == 'destroy'):
-  print('image::destroy: destroying image', kopsrox_img)
+  print('kopsrox:image::destroy:', kopsrox_img)
   proxmox.destroy(proximgid)

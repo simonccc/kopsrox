@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 
-import os, re, sys
+# prompt
+kname = 'kopsrox::config::'
+
+# to check for local kopsrox.ini
+import os
+
+# look for strings in responses
+import re
+
+import sys
+
+# ini values
 import kopsrox_ini as ini
 
 # generate barebones kopsrox.ini if it doesn't exist
@@ -23,7 +34,7 @@ def conf_check(section,value):
     # value is blank
     exit(0)
   except:
-    print('kopsrox::conf_check: ERROR! check [' + section + '] \'' + value + '\' in ' + ini.conf)
+    print(kname + 'conf_check: ERROR! check [' + section + '] \'' + value + '\' in ' + ini.conf)
     exit(0)
 
 # proxmox checks
@@ -63,16 +74,17 @@ k3s_version = conf_check('cluster','k3s_version')
 
 # safe to import these now ( has to be this order ) 
 import kopsrox_proxmox as proxmox
+prox = proxmox.prox
+
+# to be removed?
 import common_config as common
 
 # master check - can only be 1 or 3
 if not ( (masters == 1) or (masters == 3)):
-  print ('kopsrox::config: ERROR! only 1 or 3 masters supported. You have:', masters)
+  print (kname +' ERROR! only 1 or 3 masters supported. You have:', masters)
   exit(0)
 
-# check connection to proxmox
-prox = proxmox.prox
-# if unable to get cluster status
+# if unable to get cluster status from api
 if not prox.cluster.status.get():
   print('ERROR: unable to connect to proxmox')
   exit(0)
@@ -81,12 +93,12 @@ if not prox.cluster.status.get():
 nodes = prox.nodes.get()
 
 # if proxnode not in listed nodes
-if not re.search(proxnode, (str(nodes))):
+if not re.search(proxnode, str(nodes)):
   print(proxnode, 'kopsrox::config: ERROR!' + proxnode + ' not found - working nodes are:')
 
   # print list of discovered proxmox nodes
-  for i in nodes:
-    print(i.get("node"))
+  for node in nodes:
+    print(node.get("node"))
 
   exit(0)
 
@@ -136,9 +148,19 @@ if not re.search(proxbridge, bridge):
 try:
   # check for image create command line
   if not ((str(sys.argv[1]) == str('image')) and (str(sys.argv[2]) == str('create'))):
-    exit(1)
+
+    # skip to create
+    exit(0)
 except:
+
+  # look for existing image
   kopsrox_img = proxmox.kopsrox_img(proxstor,proximgid)
+
+  # if no image returned
+  if kopsrox_img == 'no image':
+    print(kname + ' ERROR: no image found - run kopsrox image create')
+    exit(0)
+
   images = prox.nodes(proxnode).storage(proxstor).content.get()
 
   # search the returned list of images
