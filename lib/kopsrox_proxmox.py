@@ -1,15 +1,15 @@
 # imports
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-import time, re, base64
+import time, re
 
 from proxmoxer import ProxmoxAPI
 
 import common_config as common
-import kopsrox_ini as ini
+import kopsrox_config as kopsrox_config
 
 # get proxmox config
-config = common.config
+config = kopsrox_config.config
 
 # define api connection
 prox = ProxmoxAPI(
@@ -22,7 +22,7 @@ prox = ProxmoxAPI(
   timeout=5)
 
 # config
-proxnode = config['proxmox']['proxnode']  
+proxnode = config['proxmox']['proxnode']
 proxbridge = config['proxmox']['proxbridge']  
 proximgid = int(config['proxmox']['proximgid'])
 proxstor = config['proxmox']['proxstor']
@@ -39,7 +39,6 @@ def kopsrox_img(proxstor,proximgid):
     
     # map image_name
     image_name = image.get("volid")
-
 
     # if 123-disk-0 found in volid
     if re.search((proximgid + '-disk-0'), image_name):
@@ -157,6 +156,10 @@ def list_kopsrox_vm():
 # return the proxnode for a vmid
 def get_node(vmid):
 
+  # if it exists proxnode is ok
+  if int(vmid) == int(proximgid):
+    return(proxnode)
+
   # check for vm id in proxmox cluster
   for vm in prox.cluster.resources.get(type = 'vm'):
 
@@ -172,9 +175,15 @@ def get_node(vmid):
 
 # stop and destroy vm
 def destroy(vmid):
+    proxnode = get_node(vmid)
+
+    # if destroying image
+    if ( int(vmid) == proximgid ):
+      delete = prox.nodes(proxnode).qemu(vmid).delete()
+      task_status(prox, delete, proxnode)
+      return
 
     # get node and vmname
-    proxnode = get_node(vmid)
     vmname = common.vmname(vmid)
 
     try:
@@ -230,7 +239,6 @@ def clone(vmid):
 
   # power on
   poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
-  time.sleep(1)
   task_status(prox, str(poweron), proxnode)
 
 # proxmox task blocker
@@ -246,7 +254,7 @@ def task_status(prox, task_id, node):
   # if task not completed ok
   if not status["exitstatus"] == "OK":
     print('proxmox::task_status: ERROR: ' + status["exitstatus"])
-    exit(0)
+    return False
 
 # get vm info
 def vm_info(vmid,node):

@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 
-import sys
+import os, sys
+
+# use lib dir
 sys.path[0:0] = ['lib/']
 
-# checks proxmox and kopsrox ini
+# check file exists
+if not os.path.isfile('kopsrox.ini'):
+  import kopsrox_ini as kopsrox_ini
+  kopsrox_ini.init_kopsrox_ini()
+  exit(0)
+
+# checks config
 import kopsrox_config as kopsrox_config
 
 # verbs

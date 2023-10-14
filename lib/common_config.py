@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-import sys, time, re
-
-# ini file support
-import kopsrox_ini as ini
 
 # used by eg kubectl
 import kopsrox_proxmox as proxmox
@@ -17,7 +13,7 @@ verbs_etcd = ['snapshot', 'restore', 'list', 'prune']
 
 # config dict
 kopsrox_config = ConfigParser()
-kopsrox_config.read(ini.conf)
+kopsrox_config.read('kopsrox.ini')
 config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
 # used items

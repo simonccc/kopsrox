@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-from configparser import ConfigParser
-
-# default ini file name
-conf='kopsrox.ini'
 
 # generate the default kopsrox.ini
-def init_kopsrox_ini(conf = conf):
+def init_kopsrox_ini():
+
+  # import config parser
+  from configparser import ConfigParser
 
   # get config
   config = ConfigParser(allow_no_value=True)
-  config.read(conf)
+  config.read('kopsrox.ini')
 
   # proxmox
   config.add_section('proxmox')
@@ -100,6 +99,4 @@ def init_kopsrox_ini(conf = conf):
   # file should not already exist...
   with open(conf, 'w') as configfile:
     config.write(configfile)
-
-  # finished?
-  exit(0)
+  return

@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 
+kname = 'kopsrox::image::'
+
 # general imports
 import common_config as common
+import kopsrox_config as kopsrox_config
 
 #
-import sys, os, wget, re, time
+import wget, re, time
+
+# to run os stuff
+import sys, os, subprocess
 
 # used to convert timestamps
 from datetime import datetime
 
 # used to encode ssh key
 import urllib.parse
-
-# import values from kopsrox_config
-import kopsrox_config as kopsrox_config
 
 # proxmox connection
 import kopsrox_proxmox as proxmox
@@ -28,7 +31,7 @@ try:
   if (sys.argv[2]):
     passed_verb = str(sys.argv[2])
 except:
-  print('ERROR: pass a command')
+  print(kname, 'ERROR: pass a command')
   print(verb, '', end='')
   common.verbs_help(verbs)
   exit(0)
@@ -55,37 +58,30 @@ if (passed_verb == 'create'):
 
   # download image with wget if not present
   if not os.path.isfile(up_image):
-    print('image::create: downloading:', up_image)
+    print(kname + 'downloading:', up_image)
     wget.download(kopsrox_config.up_image_url)
     print('')
-
-    # define image patch command
-    log = ' >> kopsrox_imgpatch.log 2>&1'
 
     # define virt-customize command
     virtc_cmd = 'sudo virt-customize -a ' + up_image
 
     # install qemu-guest-agent
-    qa_patch = virtc_cmd + ' --install qemu-guest-agent,nfs-common' + log
+    qa_patch = virtc_cmd + ' --install qemu-guest-agent,nfs-common' 
 
     # install k3s 
-    k3s_install  = virtc_cmd  + ' --run-command "curl -sfL https://get.k3s.io > /k3s.sh"' + log 
-    k3s_patch = virtc_cmd  + ' --run-command "cat /k3s.sh | INSTALL_K3S_SKIP_ENABLE=true INSTALL_K3S_VERSION="' + kopsrox_config.k3s_version + '" sh -"' + log 
+    k3s_install  = virtc_cmd  + ' --run-command "curl -sfL https://get.k3s.io > /k3s.sh"' 
+    k3s_patch = virtc_cmd  + ' --run-command "cat /k3s.sh | INSTALL_K3S_SKIP_ENABLE=true INSTALL_K3S_VERSION="' + kopsrox_config.k3s_version + '" sh -"' 
     # resize image with vm_disk size from config
-    resize_patch = 'sudo qemu-img resize ' + up_image + ' ' + kopsrox_config.vm_disk + log
+    resize_patch = 'sudo qemu-img resize ' + up_image + ' ' + kopsrox_config.vm_disk 
 
     # generate the final patch command
     patch_cmd = (qa_patch + ' && ' + k3s_install + ' && ' + k3s_patch + ' && ' + resize_patch)
 
-    #print(patch_cmd)
-
     # patch image 
-    try:
-      print('image::create: patching: ' + up_image)
-      imgpatch = os.system(patch_cmd)
-    except:
-      print('error patching image')
-      exit(0)
+    print(kname + 'create: patching: ' + up_image)
+    result = subprocess.run(
+      ['bash', "-c", patch_cmd], capture_output=True, text=True
+    )
 
   # destroy template if it exists
   try:
@@ -113,24 +109,20 @@ if (passed_verb == 'create'):
 
   # shell to import disk
   cwd = os.getcwd()
-  import_disk_string = ( 'sudo qm set', proximgid, '--ciupgrade 0 --virtio0', proxstor + ':0,import-from=' + cwd + '/' + up_image ) 
-
-  print(import_disk_string)
+  import_cmd = 'sudo qm set ' + proximgid  + ' --ciupgrade 0 --virtio0 ' + proxstor + ':0,import-from=' + cwd + '/' + up_image 
 
   # run shell command to import
-  try:
-    print('image::create: importing: ' + up_image)
-    qmimport = os.system(import_disk_string)
-  except:
-    print('image::create: ERROR importing disk to VM')
-    print(qmimport)
-    exit(0)
+  print(kname + 'importing: ' + up_image)
+  result = subprocess.run(
+    ['bash', "-c", import_cmd], capture_output=True, text=True
+  )
 
   # resize disk to suitable size
   disc = prox.nodes(proxnode).qemu(proximgid).resize.put(
         disk = 'virtio0',
         size = kopsrox_config.vm_disk,
         )
+  proxmox.task_status(prox, str(disc), proxnode)
 
   # url encode ssh key for cloudinit
   ssh_encode = urllib.parse.quote(kopsrox_config.cloudinitsshkey, safe='')

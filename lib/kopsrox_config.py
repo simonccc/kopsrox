@@ -3,26 +3,16 @@
 # prompt
 kname = 'kopsrox::config::'
 
-# to check for local kopsrox.ini
-import os
-
 # look for strings in responses
 import re
 
+# checks cmd line args - could be moved?
 import sys
-
-# ini values
-import kopsrox_ini as ini
-
-# generate barebones kopsrox.ini if it doesn't exist
-if not os.path.isfile(ini.conf):
-  ini.init_kopsrox_ini()
-  exit(0)
 
 # read ini file into config
 from configparser import ConfigParser
 config = ConfigParser()
-config.read(ini.conf)
+config.read('kopsrox.ini')
 
 # check section and value exists
 def conf_check(section,value):
@@ -72,12 +62,12 @@ masters = int(conf_check('cluster','masters'))
 workers = int(conf_check('cluster','workers'))
 k3s_version = conf_check('cluster','k3s_version')
 
+# dict of all config items
+config = ({s:dict(config.items(s)) for s in config.sections()})
+
 # safe to import these now ( has to be this order ) 
 import kopsrox_proxmox as proxmox
 prox = proxmox.prox
-
-# to be removed?
-import common_config as common
 
 # master check - can only be 1 or 3
 if not ( (masters == 1) or (masters == 3)):
