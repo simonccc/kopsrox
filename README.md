@@ -19,13 +19,13 @@ _installs the required pip packages vs using os packages_
 
 Generate an API key via the command line eg: 
 
-`pvesh create /access/users/root@pam/token/kopsrox`
+`sudo pvesh create /access/users/root@pam/token/kopsrox`
 
 Take a note of the token as we'll need this below
 
 Set the correct permissions om the token 
 
-`pveum acl modify / --roles Administrator --user root@pam  --token kopsrox`
+`sudo pveum acl modify / --roles Administrator --user root@pam  --token 'root@pam!kopsrox'`
 
 ## kopsrox.ini
 
