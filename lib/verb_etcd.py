@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import kopsrox_config as kopsrox_config
 import common_config as common, sys, re, os
 
 # verb config

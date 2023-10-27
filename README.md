@@ -9,7 +9,7 @@
 
 - `sudo apt install libguestfs-tools -y`
 
-_this is required to patch the cloudimage to installs qemu-guest-agent_
+_this is required to patch the cloudimage to install qemu-guest-agent_
 
 - `pip3 install --break-system-packages --user -r requirements.txt`
 
@@ -39,7 +39,7 @@ Please edit this file for your setup
 
 - __user__ = `root@pam` - user
 
-- __token_name__ = `kopsrox` - see [API KEY]
+- __token_name__ = `kopsrox` - see api key section above
 
 - __api_key__ = as generated above
 
@@ -64,7 +64,7 @@ the other nodes in the cluster use incrementing id's for example with 170:
 
 - __up_image_url__ = `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use
 
-- __proxbridge__ = `vmbr0` - the proxmox bridge to use for the cluster ( see [kopsrox] section )
+- __proxbridge__ = `vmbr0` - the proxmox bridge to use for koprox
 
 ### kopsrox
 
@@ -80,15 +80,17 @@ the other nodes in the cluster use incrementing id's for example with 170:
 
 - __cloudinitsshkey__ = 
 
+- __network__ = "network address of proxmox cluster
+
 ### cluster
 
-- __name__ = name of the cluster
+- __name__ = `kopsrox` name of the cluster
 
 - __k3s_version__ = `v1.24.6+k3s1` 
 
 - __masters__ = `1` or `3` - number of masters
 
-- __workers__ = number of worker vms eg 1
+- __workers__ = `0` number of worker vms eg 1
 
 ### s3
 
@@ -102,7 +104,7 @@ These values are optional
 
 - __access-secret__ = 
 
-# create a cluster
+# create  cluster
 
 Lets get started by creating a cluster
 
@@ -114,9 +116,12 @@ To create a kopsrox template run:
 
 This will download the img file patch it and create a template to create vms
 
-Edit your `kopsrox.ini` and set `masters = 1` in the `[cluster]` section
+* path to iso is in koprox.ini
+
 
 ## create a cluster
+Edit your `kopsrox.ini` and set `masters = 1` in the `[cluster]` section
+
 `./kopsrox.py cluster create`
 
 This will create a single node cluster

@@ -1,3 +1,4 @@
+import kopsrox_config as kopsrox_config
 import common_config as common, sys, os, re, time
 import kopsrox_proxmox as proxmox
 import kopsrox_k3s as k3s

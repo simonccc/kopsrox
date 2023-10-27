@@ -3,8 +3,8 @@
 kname = 'kopsrox::image::'
 
 # general imports
-import common_config as common
 import kopsrox_config as kopsrox_config
+import common_config as common
 
 #
 import wget, re, time
