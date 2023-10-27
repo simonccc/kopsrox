@@ -4,7 +4,6 @@ kname = 'kopsrox::image::'
 
 # general imports
 import kopsrox_config as kopsrox_config
-import common_config as common
 
 #
 import wget, re, time
@@ -22,26 +21,6 @@ import urllib.parse
 import kopsrox_proxmox as proxmox
 prox = proxmox.prox
 
-# handle image sub commands
-verb = 'image'
-verbs = common.verbs_image
-
-# check for arguments
-try:
-  if (sys.argv[2]):
-    passed_verb = str(sys.argv[2])
-except:
-  print(kname, 'ERROR: pass a command')
-  print(verb, '', end='')
-  common.verbs_help(verbs)
-  exit(0)
-
-# unsupported verb
-if not passed_verb in verbs:
-  print('ERROR:\''+ passed_verb + '\'- command not found')
-  print('kopsrox', verb, '', end='')
-  common.verbs_help(verbs)
-
 # map common config values
 proxnode = kopsrox_config.proxnode
 proxstor = kopsrox_config.proxstor
@@ -50,8 +29,10 @@ proximgid = kopsrox_config.proximgid
 # generate image name
 kopsrox_img = proxmox.kopsrox_img(proxstor,proximgid)
 
+cmd = sys.argv[2]
+
 # create image
-if (passed_verb == 'create'):
+if (cmd == 'create'):
 
   # get image name
   up_image = (kopsrox_config.up_image_url.split('/')[-1])
@@ -146,7 +127,7 @@ if (passed_verb == 'create'):
 # list images on proxstor
 # this might be more useful if we allow different images in the future
 # cos at the moment will only print 1 image 
-if (passed_verb == 'info'):
+if (cmd == 'info'):
 
   # get list of images
   for image in prox.nodes(proxnode).storage(proxstor).content.get():
@@ -164,6 +145,6 @@ if (passed_verb == 'info'):
       print(kopsrox_img + ' ('+ kopsrox_config.storage_type + ')' + ' created: ' + created + ' size: ' + size)
 
 # destroy image
-if (passed_verb == 'destroy'):
+if (cmd == 'destroy'):
   print('kopsrox:image::destroy:', kopsrox_img)
   proxmox.destroy(proximgid)
