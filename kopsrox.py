@@ -12,10 +12,10 @@ if not os.path.isfile('kopsrox.ini'):
   exit(0)
 
 # top level verbs
-verbs = ['image', 'cluster', 'etcd']
-verbs_image = ['info', 'create', 'destroy']
-verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
-verbs_etcd = ['snapshot', 'restore', 'list', 'prune']
+#verbs = ['image', 'cluster', 'etcd']
+#verbs_image = ['info', 'create', 'destroy']
+#verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
+#verbs_etcd = ['snapshot', 'restore', 'list', 'prune']
 
 cmds = {
     "image": {
@@ -39,49 +39,43 @@ cmds = {
     },
 }
 
-def verbs_help(verbs):
-  print('commands:', '\n')
+verbs = list(cmds)
+
+def verbs_help():
   for i in verbs:
     print(' * ',i)
 
 def cmds_help(verb):
   for i in list(cmds[verb]):
-    print(i)
+    print(' * ',i)
 
 try:
   if (sys.argv[1]):
-    passed_verb = str(sys.argv[1])
+    verb = str(sys.argv[1])
 except:
-  print('ERROR: no command passed')
-  print('kopsrox ', end='')
-  verbs_help(verbs)
+  verbs_help()
   exit(0)
 
-kname = 'koprox::'+passed_verb
+kname = 'koprox::'+verb
 
 # got a verb now commands
-if passed_verb in verbs:
+if verb in verbs:
 
   try:
     if (sys.argv[2]):
       cmd = str(sys.argv[2])
   except:
     print(kname, 'ERROR: pass a command')
-    cmds_help(passed_verb)
+    cmds_help(verb)
     exit(0)
 
   # unsupported verb
-  if not cmd in list(cmds[passed_verb]):
+  if not cmd in list(cmds[verb]):
     print(kname, 'ERROR:\''+ cmd + '\'- command not found')
-    cmds_help(passed_verb)
+    cmds_help(verb)
 
-  verb = __import__('verb_' + passed_verb)
+  exec_verb = __import__('verb_' + verb)
   exit(0)
 
 # if passed arg invalid
-print('ERROR: \'' + passed_verb + '\' command not found.')
-print('kopsrox ', end='')
-verbs_help(verbs)
-
-# checks config
-#import kopsrox_config as kopsrox_config
+verbs_help()

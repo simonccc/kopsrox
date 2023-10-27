@@ -144,18 +144,20 @@ Edit [kopsrox.ini]
 # commands
 ## image
 ### create
-- creates a kopsrox image template
+- creates a kopsrox image template with proxmox id xxx
 - downloads cloud image
-- patches it
+- patches it ( installs packages qagent? ) 
 ### destroy
 - deletes the existing image template
 delete the .img file manually if you want a fresh download
 ## cluster
-- manage the kopsrox cluster
+- commands relating to the kopsrox cluster
 ### create
-- creates and updates a cluster
+- creates and updates a cluster - use this to setup a fresh cluster
+- checks for existing master and then runs update
 ### update
 - updates cluster state per config
+- adds or deletes nodes
 ### info
 - displays cluster info
 -- shows a list of vms, ids, hostnames and ips
@@ -168,20 +170,23 @@ delete the .img file manually if you want a fresh download
 - destroys the cluster
 ## etcd
 - commands to manage s3 snapshots of etcd
+- see s3 backups guide
 ### snapshot
 - create a etcd snapshot in the configured S3 storage
 ### restore
-- restores cluster from etcd backup - requires a image name 
+- restores cluster from etcd backup - requires a image name which can be got with the list command
 ### list
 - lists snapshots taken in s3 storage
 ### prune
-- deletes old snapshots
+- deletes old snapshots by 7 days? ( tbc ) 
 
 # etcd backups guide
 
 The first time a snapshot is taken a token is written into the kopsrox directory
 
 - `kopsrox.etcd.snapshot.token`
+
+This is not overwritten
 
 ## setup
 Kopsrox uses the k3s built in commands to backup to s3 api compatible storage
