@@ -10,7 +10,7 @@ import kopsrox_proxmox as proxmox
 import re, time
 
 # config
-config = common.read_kopsrox_ini()
+config = kopsrox_config.config
 
 # vars
 k3s_version = config['cluster']['k3s_version']

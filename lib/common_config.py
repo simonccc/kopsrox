@@ -20,10 +20,6 @@ config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 proximgid = int(config['proxmox']['proximgid'])
 proxnode = config['proxmox']['proxnode']
 
-# returns a dict of all config
-def read_kopsrox_ini():
-  return(config)
-
 # print passed verbs
 def verbs_help(verbs):
   print('commands:', '\n')

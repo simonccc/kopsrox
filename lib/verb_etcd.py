@@ -47,7 +47,7 @@ def write_token():
     print("etcd::write-token: wrote kopsrox.etcd.snapshot.token")
 
 # check for number of nodes
-config = common.read_kopsrox_ini()
+config = kopsrox_config.config
 
 # count of master nodes ( 1 or 3 ) 
 masters = int(config['cluster']['masters'])

@@ -49,7 +49,7 @@ Please edit this file for your setup
 
 - __proxstor__ = `local-lvm`
 
-- __proximgid__ = the proxmox id used for the kopsrox image/template eg: 170
+- __proximgid__ = `600` - the proxmox id used for the kopsrox image/template 
 
 the other nodes in the cluster use incrementing id's for example with `proximgid` = 170:
 
@@ -66,7 +66,7 @@ the other nodes in the cluster use incrementing id's for example with `proximgid
 |8|178|worker 4|
 |9|179|worker 5|
 
-- __up_image_url__ = `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use
+- __up_image_url__ = `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use as the base image
 
 - __proxbridge__ = `vmbr0` - the bridge to use - must have internet access
 
@@ -170,7 +170,7 @@ displays the new cluster state
 - installs k3s 
 ### destroy
 - deletes the existing image template
-delete the .img file manually if you want a fresh download
+- delete the .img file manually if you want a fresh download
 ## cluster
 ### create
 - creates and updates a cluster - use this to setup a fresh cluster
@@ -232,9 +232,13 @@ check you're using the correct key
 `./kopsrox.py etcd restore $imagenname`
 
 `./kopsrox.py etcd restore kopsrox-kopsrox-m1-1696692280
+
 etcd::restore: downsizing cluster for restore
+
 etcd::restore: restoring kopsrox-kopsrox-m1-1696692280
+
 proxmox:writefile: kopsrox-m1:/var/tmp/kopsrox.etcd.snapshot.token
+
 etcd::restore: restoring please wait`
 
 - downsizes to 1 node
@@ -245,4 +249,8 @@ etcd::restore: restoring please wait`
 __can I use debian as a base image vs ubuntu?__
 
 _I had to switch from debian due to some problem with a discovered interface which was dhcp and caused some network problems_
+
+__k3s_mon 30 second timeouts?__
+
+_Check network settings - the vms can't connect to the internet
 
