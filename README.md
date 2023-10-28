@@ -130,24 +130,12 @@ These values are optional
 
 # get started
 ## create image
-To create a kopsrox template run:
 
 `./kopsrox.py create image`
 
-This will download the img file patch it and create a template to create vms
-
-downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
-
 ## create a cluster
-Edit `kopsrox.ini` and set `masters = 1` in the `[cluster]` section
 
 `./kopsrox.py cluster create`
-
-This will create a single node cluster
-
-## run kubectl
-
-`./kopsrox.py cluster kubectl get pods -A`
 
 ## add worker
 
@@ -155,22 +143,19 @@ Edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 
 `./kopsrox.py cluster update`
 
-the worker will be created and added to the cluster
+## check cluster info
 
 `./kopsrox.py cluster info`
-
-displays the new cluster state
 
 # commands
 ## image
 ### create
-- creates a kopsrox image template with proxmox id per `kopsrox.ini` section `[proxmox]` value `proximgid`
-- downloads cloud image
+- downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
 - patches it ( installs packages qagent + nfs client) 
 - installs k3s 
 ### destroy
 - deletes the existing image template
-- delete the .img file manually if you want a fresh download
+- delete the .img file manually if you want a fresh download of the upstream image
 ## cluster
 ### create
 - creates and updates a cluster - use this to setup a fresh cluster
