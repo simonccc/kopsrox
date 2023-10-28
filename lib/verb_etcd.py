@@ -8,29 +8,11 @@ import common_config as common
 
 # standard imports
 import sys, re, os
-
-# verb config
-verb = 'etcd'
-verbs = common.verbs_etcd
-
-# check for arguments
-try:
-  if (sys.argv[2]):
-    passed_verb = str(sys.argv[2])
-except:
-  print('ERROR: pass a command')
-  print(verb, '', end='')
-  common.verbs_help(verbs)
-  exit(0)
-
-# unsupported verb
-if not passed_verb in verbs:
-  print('ERROR: \''+ passed_verb + '\'- unknown command')
-  print('kopsrox', verb, '', end='')
-  common.verbs_help(verbs)
-
 import kopsrox_proxmox as proxmox
 import kopsrox_k3s as k3s
+
+# passed command
+cmd = sys.argv[2]
 
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
@@ -89,10 +71,10 @@ except:
   exit(0)
 
 # run k3s s3 command passed
-def s3_run(cmd):
+def s3_run(s3cmd):
 
   # run the command ( 2>&1 required )
-  k3s_run = 'k3s etcd-snapshot ' + cmd + s3_string + '2>&1'
+  k3s_run = 'k3s etcd-snapshot ' + s3cmd + s3_string + '2>&1'
   cmd_out = proxmox.qaexec(masterid, k3s_run)
 
   # look for fatal error in output
@@ -133,12 +115,12 @@ def list_images():
 
 # s3 prune
 # fixme uses hard coded name
-if passed_verb == 'prune':
+if cmd == 'prune':
   print(s3_run('prune --name kopsrox'))
   exit(0)
 
 # snapshot 
-if passed_verb == 'snapshot':
+if cmd == 'snapshot':
   print('etcd::snapshot: running')
 
   # define snapshot command
@@ -160,12 +142,12 @@ if passed_verb == 'snapshot':
     write_token()
 
 # print returned images
-if ( passed_verb == 'list' ):
+if cmd == 'list':
   print('etcd::list:',endpoint, bucket)
   print(list_images())
 
 # minio etcd snapshot restore
-if passed_verb == 'restore':
+if cmd == 'restore':
 
   # get list of images 
   images = list_images()

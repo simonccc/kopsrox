@@ -20,12 +20,6 @@ config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 proximgid = int(config['proxmox']['proximgid'])
 proxnode = config['proxmox']['proxnode']
 
-# print passed verbs
-def verbs_help(verbs):
-  print('commands:', '\n')
-  for i in verbs:
-    print(' * ',i)
-
 # get token and strip linebreak
 def get_token():
   f = open("kopsrox.k3stoken", "r")

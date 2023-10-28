@@ -47,7 +47,7 @@ Please edit this file for your setup
 
 - __proxnode__ = `proxmox` the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
 
-- __proxstor__ = `local-lvm`
+- __proxstor__ = `local-lvm` at the moment only storage local to the proxnode is supported
 
 - __proximgid__ = `600` - the proxmox id used for the kopsrox image/template 
 
@@ -205,10 +205,12 @@ The first time a snapshot is taken the cluster token is written into the kopsrox
 
 - `kopsrox.etcd.snapshot.token`
 
-This is not overwritten
+This is not overwriten
 
 ## setup
 kopsrox uses the k3s built in commands to backup to s3 api compatible storage via logging into the master via qagent 
+
+all of the etcd commands use a s3 'ls' command to check connectivity
 
 ### providers tested
 - minio ( selfhosted ) 
@@ -216,32 +218,22 @@ kopsrox uses the k3s built in commands to backup to s3 api compatible storage vi
 - backblaze ( 10G free )
 
 ## snapshot
-take a snapshot
 
 `./kopsrox.py etcd snapshot`
+- takes a snapshot using configured s3 settings
 
-`./kopsrox.py etcd list `
+`./kopsrox.py etcd list`
 
 ## restore
 
 `./kopsrox.py etcd list`
 
-lists snapshost
-check you're using the correct key
+- lists available snapshots to restore
+- check you're using the correct `kopsrox.etcd.snapshot.token` file
 
-`./kopsrox.py etcd restore $imagenname`
+`./kopsrox.py etcd restore $imagename`
 
-`./kopsrox.py etcd restore kopsrox-kopsrox-m1-1696692280
-
-etcd::restore: downsizing cluster for restore
-
-etcd::restore: restoring kopsrox-kopsrox-m1-1696692280
-
-proxmox:writefile: kopsrox-m1:/var/tmp/kopsrox.etcd.snapshot.token
-
-etcd::restore: restoring please wait`
-
-- downsizes to 1 node
+- downsizes cluster to 1 master node to do the restore
 - stuff not working
 -- leaves old nodes behind
 
@@ -252,5 +244,5 @@ _I had to switch from debian due to some problem with a discovered interface whi
 
 __k3s_mon 30 second timeouts?__
 
-_Check network settings - the vms can't connect to the internet
+_Check network settings - the vms can't connect to the internet_
 
