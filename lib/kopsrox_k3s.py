@@ -28,7 +28,7 @@ kname = 'kopsrox::k3s::'
 def k3s_check(vmid):
 
     # test call
-    k = common.kubectl(masterid, ('get node ' + common.vmname(vmid)))
+    k = kubectl('get node ' + common.vmname(vmid))
 
     # if not found or Ready
     if ( re.search('NotReady', k) or re.search('NotFound', k)):
@@ -56,7 +56,7 @@ def k3s_check_mon(vmid):
 
     # timeout after 30 secs
     if count == 30:
-      print('k3s::k3s_check_mon: ERROR: k3s_check timed out after 30s for ', common.vmname(vmid))
+      print(kname + 'k3s_check_mon: ERROR: k3s_check timed out after 30s for ', common.vmname(vmid))
       exit(0)
 
   return True
@@ -122,9 +122,9 @@ def k3s_rm(vmid):
   print('k3s::k3s_rm:', vmname)
 
   # kubectl commands to remove node
-  common.kubectl(masterid, ('cordon ' + vmname))
-  common.kubectl(masterid, ('drain --timeout=5s --ignore-daemonsets --force ' + vmname))
-  common.kubectl(masterid, ('delete node ' + vmname))
+  kubectl('cordon ' + vmname)
+  kubectl('drain --timeout=5s --ignore-daemonsets --force ' + vmname)
+  kubectl('delete node ' + vmname)
 
   # destroy vm
   proxmox.destroy(vmid)
@@ -231,7 +231,7 @@ def k3s_update_cluster():
        worker_name = common.vmname(int(vm))
        print('k3s::k3s_update_cluster: removing extra worker', worker_name)
        k3s_rm(vm)
-   print(common.kubectl(masterid, 'get nodes'))
+   print(kubectl('get nodes'))
 
 # kubeconfig
 def kubeconfig(masterid):
@@ -245,4 +245,10 @@ def kubeconfig(masterid):
     with open('kopsrox.kubeconfig', 'w') as kubeconfig_file:
       kubeconfig_file.write(kubeconfig)
     print(kname + 'kopsrox.kubeconfig written')
+
+# kubectl
+def kubectl(cmd):
+  k = str(('/usr/local/bin/k3s kubectl ' +cmd))
+  kcmd = proxmox.qaexec(masterid,k)
+  return(kcmd)
    

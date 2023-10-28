@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# used by eg kubectl
+# used by eg vmnames
 import kopsrox_proxmox as proxmox
 
 from configparser import ConfigParser
@@ -24,12 +24,6 @@ proxnode = config['proxmox']['proxnode']
 def get_token():
   f = open("kopsrox.k3stoken", "r")
   return(f.read().rstrip())
-
-# kubectl
-def kubectl(masterid,cmd):
-  k = str(('/usr/local/bin/k3s kubectl ' +cmd))
-  kcmd = proxmox.qaexec(masterid,k)
-  return(kcmd)
 
 # return a list of valid koprox vms
 def vmnames():

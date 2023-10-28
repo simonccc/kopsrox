@@ -183,7 +183,7 @@ if cmd == 'restore':
   # display some filtered restore contents
   restout = restore.split('\n')
   for line in restout:
-    if re.search('level=', line) and re.search('S3', line):
+    if re.search('level=', line) and not re.search('info', line):
       print(line)
 
   print('etcd::restore: starting k3s')
@@ -191,11 +191,11 @@ if cmd == 'restore':
   print('etcd::restore: started')
 
   # delete extra nodes in the restored cluster
-  nodes = common.kubectl(masterid, 'get nodes').split()
+  nodes = k3s.kubectl('get nodes').split()
   for node in nodes:
     if ( re.search((cname + '-i'), node) and (node != ( cname + '-m1'))):
       print('etcd::restore:: removing stale node', node)
-      common.kubectl(masterid,'delete node ' + node)
+      k3s.kubectl('delete node ' + node)
 
   # run k3s update?
   k3s.k3s_update_cluster()

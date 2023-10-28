@@ -49,7 +49,7 @@ if cmd == 'info':
     print(vmid, '-', vmname, "status:", vmstatus, 'ip:', ip + ' [' + node + ']')
 
   print(kname +'nodes')
-  print(common.kubectl(masterid, 'get nodes'))
+  print(k3s.kubectl('get nodes'))
 
 # update current cluster
 if ( cmd == 'update' ):
@@ -103,8 +103,8 @@ if cmd == 'kubectl':
   kcmd = kcmd.replace('cluster kubectl ','')
 
   # run command and show output
-  print('cluster::kubectl:', kcmd)
-  print(common.kubectl(masterid,kcmd))
+  print(kname + cmd, kcmd)
+  print(k3s.kubectl(kcmd))
 
 # export kubeconfig to file
 if cmd == 'kubeconfig':
