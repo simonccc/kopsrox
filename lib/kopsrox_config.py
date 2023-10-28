@@ -189,18 +189,20 @@ def vmip(vmid):
   return(ip)
 
 # return the vname for an id
+vmnames = {
+(proximgid): cname +'-image',
+(proximgid + 1 ): cname + '-m1',
+(proximgid + 2 ): cname + '-m2',
+(proximgid + 3 ): cname + '-m3',
+(proximgid + 4 ): cname + '-u1',
+(proximgid + 5 ): cname + '-w1',
+(proximgid + 6 ): cname + '-w2',
+(proximgid + 7 ): cname + '-w3',
+(proximgid + 8 ): cname + '-w4',
+(proximgid + 9 ): cname + '-w5',
+}
+
+# legacy function
 def vmname(vmid):
     vmid = int(vmid)
-    names = {
-            (proximgid): cname +'-image',
-            (proximgid + 1 ): cname + '-m1',
-            (proximgid + 2 ): cname + '-m2',
-            (proximgid + 3 ): cname + '-m3',
-            (proximgid + 4 ): cname + '-u1',
-            (proximgid + 5 ): cname + '-w1',
-            (proximgid + 6 ): cname + '-w2',
-            (proximgid + 7 ): cname + '-w3',
-            (proximgid + 8 ): cname + '-w4',
-            (proximgid + 9 ): cname + '-w5',
-            }
-    return(names[vmid])
+    return(vmnames[vmid])

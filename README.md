@@ -148,24 +148,29 @@ Edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 `./kopsrox.py cluster info`
 
 # commands
+
 ## image
 ### create
 - downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
 - patches it ( installs packages qagent + nfs client) 
+- imports the disk using qm
 - installs k3s 
 ### destroy
 - deletes the existing image template
 - delete the .img file manually if you want a fresh download of the upstream image
+### info
+- prints info about image file
+
 ## cluster
 ### create
 - creates and updates a cluster - use this to setup a fresh cluster
+- exports kubeconfig
 - checks for existing master and then runs update
 ### update
-- updates cluster state per config
-- adds or deletes nodes
+- adds or deletes workers/masters per `kopsrox.ini`
 ### info
 - displays cluster info
--- shows a list of vms, ids, hostnames and ips
+-- shows a list of ids, hostnames and ips the host they are running on
 -- shows kubectl get nodes
 ### kubectl
 - run kubectl commands
@@ -190,22 +195,20 @@ The first time a snapshot is taken the cluster token is written into the kopsrox
 
 - `kopsrox.etcd.snapshot.token`
 
-This is not overwriten
+This is not overwriten on further snapshots are taken
 
 ## setup
-kopsrox uses the k3s built in commands to backup to s3 api compatible storage via logging into the master via qagent 
+kopsrox uses the k3s built in commands to backup to s3 api compatible storage.
+
+This is done via logging into the master via qagent and running the k3s commands directly
 
 all of the etcd commands use a s3 'ls' command to check connectivity
 
-### providers tested
-- minio ( selfhosted ) 
-- cloudflare ( 20G free ) 
-- backblaze ( 10G free )
+tested providers include minio, cloudflare, backblaze etc
 
 ## snapshot
 
 `./kopsrox.py etcd snapshot`
-- takes a snapshot using configured s3 settings
 
 `./kopsrox.py etcd list`
 
@@ -213,8 +216,7 @@ all of the etcd commands use a s3 'ls' command to check connectivity
 
 `./kopsrox.py etcd list`
 
-- lists available snapshots to restore
-- check you're using the correct `kopsrox.etcd.snapshot.token` file
+- check you're using the correct `kopsrox.etcd.snapshot.token` file for the snapshot
 
 `./kopsrox.py etcd restore $imagename`
 

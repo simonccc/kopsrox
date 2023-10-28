@@ -13,13 +13,16 @@ import re, time
 config = kopsrox_config.config
 
 # vars
-k3s_version = config['cluster']['k3s_version']
+k3s_version = kopsrox_config.k3s_version
 masters = int(config['cluster']['masters'])
 workers = int(config['cluster']['workers'])
 masterid = int(kopsrox_config.get_master_id())
 
 # cluster name
 cname = config['cluster']['name']
+
+# vmnames 
+vmnames = kopsrox_config.vmnames
 
 # kname
 kname = 'kopsrox::k3s::'
@@ -28,7 +31,7 @@ kname = 'kopsrox::k3s::'
 def k3s_check(vmid):
 
     # test call
-    k = kubectl('get node ' + common.vmname(vmid))
+    k = kubectl('get node ' + vmnames[vmid])
 
     # if not found or Ready
     if ( re.search('NotReady', k) or re.search('NotFound', k)):
@@ -56,7 +59,7 @@ def k3s_check_mon(vmid):
 
     # timeout after 30 secs
     if count == 30:
-      print(kname + 'k3s_check_mon: ERROR: k3s_check timed out after 30s for ', common.vmname(vmid))
+      print(kname + 'k3s_check_mon: ERROR: k3s_check timed out after 30s for ', vmnames[vmid])
       exit(0)
 
   return True
@@ -65,7 +68,7 @@ def k3s_check_mon(vmid):
 def k3s_init_master(vmid):
 
     # get hostname
-    vmname = common.vmname(vmid)
+    vmname = vmnames[vmid]
 
     # if master check fails
     if not k3s_check(vmid):
@@ -83,7 +86,7 @@ def k3s_init_slave(vmid):
     if not k3s_check(vmid):
       ip = kopsrox_config.vmip(masterid)
       token = common.get_token()
-      vmname = common.vmname(vmid)
+      vmname = vmnames[vmid]
       print('k3s::k3s_init_slave: installing k3s on', vmname)
 
       # cmd
@@ -100,7 +103,7 @@ def k3s_init_slave(vmid):
 def k3s_init_worker(vmid):
 
   # map vmname
-  vmname = common.vmname(vmid)
+  vmname = vmnames[vmid]
 
   # if check fails
   if not k3s_check(vmid):
@@ -118,7 +121,7 @@ def k3s_init_worker(vmid):
 
 # remove a node
 def k3s_rm(vmid):
-  vmname = common.vmname(vmid)
+  vmname = vmnames[vmid]
   print('k3s::k3s_rm:', vmname)
 
   # kubectl commands to remove node
@@ -136,7 +139,7 @@ def k3s_rm_cluster(restore = False):
   for vmid in sorted(proxmox.list_kopsrox_vm(), reverse = True):
 
     # map hostname
-    vmname = common.vmname(vmid)
+    vmname = vmnames[vmid]
 
     # do not delete m1 if restore is true 
     if restore:
@@ -173,7 +176,7 @@ def k3s_update_cluster():
 
       # so eg 601 + 1 = 602 = m2
       slave_masterid = (int(masterid) + master_count)
-      slave_hostname = common.vmname(slave_masterid)
+      slave_hostname = vmnames[slave_masterid]
 
       print('k3s::k3s_update_cluster: checking', slave_hostname)
 
@@ -194,7 +197,7 @@ def k3s_update_cluster():
      for vm in vmids:
        # if vm is a master ??
        if ( (int(vm) == ((masterid + 1 ))) or (int(vm) == ((masterid + 2 )))):
-         master_name = common.vmname(int(vm))
+         master_name = vmnames[int(vm)]
          print('k3s::k3s_update_cluster: removing extra master-slave', master_name)
          k3s_rm(vm)
 
@@ -216,7 +219,7 @@ def k3s_update_cluster():
 
        # if existing vm with this id found
        if (int(workerid) in vmids):
-          worker_name = common.vmname(int(workerid))
+          worker_name = vmnames[(int(workerid))]
           print('k3s::k3s_update_cluster: found existing', worker_name)
        else:
          proxmox.clone(workerid)
@@ -228,7 +231,7 @@ def k3s_update_cluster():
    # remove extra workers
    for vm in vmids:
      if ( int(vm) > int(workerid)):
-       worker_name = common.vmname(int(vm))
+       worker_name = vmnames[(int(vm))]
        print('k3s::k3s_update_cluster: removing extra worker', worker_name)
        k3s_rm(vm)
    print(kubectl('get nodes'))

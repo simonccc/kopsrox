@@ -187,7 +187,9 @@ if cmd == 'restore':
   for line in restout:
     if re.search('level=', line) and not re.search('info', line) \
     and not re.search('json: no such file or directory', line) \
-    and not re.search('Cluster CA certificate is trusted by the host CA bundle', line):
+    and not re.search('Cluster CA certificate is trusted by the host CA bundle', line) \
+    and not re.search('bootstrap key already exists', line) \
+    :
       print(line)
 
   start = proxmox.qaexec(masterid, 'systemctl start k3s')
