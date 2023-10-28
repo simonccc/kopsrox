@@ -21,6 +21,9 @@ masterid = int(kopsrox_config.get_master_id())
 # cluster name
 cname = config['cluster']['name']
 
+# kname
+kname = 'kopsrox::k3s::'
+
 # check for k3s status
 def k3s_check(vmid):
 
@@ -78,7 +81,7 @@ def k3s_init_slave(vmid):
 
     # if master check fails
     if not k3s_check(vmid):
-      ip = common.vmip(masterid)
+      ip = kopsrox_config.vmip(masterid)
       token = common.get_token()
       vmname = common.vmname(vmid)
       print('k3s::k3s_init_slave: installing k3s on', vmname)
@@ -102,7 +105,7 @@ def k3s_init_worker(vmid):
   # if check fails
   if not k3s_check(vmid):
 
-    ip = common.vmip(masterid)
+    ip = kopsrox_config.vmip(masterid)
     token = common.get_token()
     cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
 
@@ -229,4 +232,17 @@ def k3s_update_cluster():
        print('k3s::k3s_update_cluster: removing extra worker', worker_name)
        k3s_rm(vm)
    print(common.kubectl(masterid, 'get nodes'))
+
+# kubeconfig
+def kubeconfig(masterid):
+    ip = kopsrox_config.vmip(masterid)
+    kubeconfig = proxmox.qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
+
+    # replace localhost with masters ip
+    kubeconfig = kubeconfig.replace('127.0.0.1', ip)
+
+    # write file out
+    with open('kopsrox.kubeconfig', 'w') as kubeconfig_file:
+      kubeconfig_file.write(kubeconfig)
+    print(kname + 'kopsrox.kubeconfig written')
    

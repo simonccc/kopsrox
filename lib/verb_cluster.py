@@ -76,7 +76,7 @@ if ( cmd == 'create' ):
     exit(0)
 
   # export kubeconfig
-  common.kubeconfig(masterid)
+  k3s.kubeconfig(masterid)
 
   # perform rest of cluster creation
   k3s.k3s_update_cluster()
@@ -108,7 +108,8 @@ if cmd == 'kubectl':
 
 # export kubeconfig to file
 if cmd == 'kubeconfig':
-  common.kubeconfig(masterid)
+  print(kname + cmd)
+  k3s.kubeconfig(masterid)
 
 # destroy the cluster
 if cmd == 'destroy':

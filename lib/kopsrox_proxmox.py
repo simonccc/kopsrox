@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # imports
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -5,7 +7,10 @@ import time, re
 
 from proxmoxer import ProxmoxAPI
 
+# to be removed
 import common_config as common
+
+# common config
 import kopsrox_config as kopsrox_config
 
 # get proxmox config
@@ -209,7 +214,7 @@ def clone(vmid):
   # map network info
   networkgw = config['kopsrox']['networkgw']
   netmask  = config['kopsrox']['netmask']
-  ip = common.vmip(vmid)
+  ip = kopsrox_config.vmip(vmid)
 
   # vm specs
   cores = config['kopsrox']['vm_cpu']

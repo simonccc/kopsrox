@@ -67,18 +67,6 @@ def vmname(vmid):
             }
     return(names[vmid])
 
-# kubeconfig
-def kubeconfig(masterid):
-    ip = vmip(masterid)
-    kubeconfig = proxmox.qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
-
-    # replace localhost with masters ip
-    kubeconfig = kubeconfig.replace('127.0.0.1', ip)
-
-    # write file out
-    with open('kopsrox.kubeconfig', 'w') as kubeconfig_file:
-      kubeconfig_file.write(kubeconfig)
-
 # node token
 def k3stoken(masterid):
     token = proxmox.qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
@@ -86,13 +74,3 @@ def k3stoken(masterid):
 
       # this function name seems weird
       k3s.write(token)
-
-# pass a vmid return the IP
-def vmip(vmid):
-  network = config['kopsrox']['network']
-  network_octs = network.split('.')
-  basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )
-
-  # generate the last ip
-  ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
-  return(ip)
