@@ -62,8 +62,12 @@ masters = int(conf_check('cluster','masters'))
 workers = int(conf_check('cluster','workers'))
 k3s_version = conf_check('cluster','k3s_version')
 
-# dict of all config items
+# dict of all config items - legacy support
 config = ({s:dict(config.items(s)) for s in config.sections()})
+
+# returns masterid ported from common config
+def get_master_id():
+  return(int(proximgid) + 1)
 
 # safe to import these now ( has to be this order ) 
 import kopsrox_proxmox as proxmox

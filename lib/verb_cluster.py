@@ -14,17 +14,14 @@ import kopsrox_k3s as k3s
 # passed command
 cmd = sys.argv[2]
 
-# import config
-config = common.read_kopsrox_ini()
-
 # variables from config
-proxnode = config['proxmox']['proxnode']
-proximgid = config['proxmox']['proximgid']
-workers = int(config['cluster']['workers'])
-masters = int(config['cluster']['masters'])
+proxnode = kopsrox_config.proxnode
+proximgid = kopsrox_config.proximgid
+workers = int(kopsrox_config.workers)
+masters = int(kopsrox_config.masters)
 
 # masterid
-masterid = int(common.get_master_id())
+masterid = int(kopsrox_config.get_master_id())
 
 # info
 if cmd == 'info':

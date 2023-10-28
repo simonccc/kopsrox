@@ -122,7 +122,7 @@ These values are optional
 
 - __region__ = `optional`
 
-- __access-key__ = 
+- __access-key__ = `393893894389`
 
 - __access-secret__ = 
 
@@ -206,23 +206,32 @@ The first time a snapshot is taken the cluster token is written into the kopsrox
 This is not overwritten
 
 ## setup
-Kopsrox uses the k3s built in commands to backup to s3 api compatible storage
+kopsrox uses the k3s built in commands to backup to s3 api compatible storage via logging into the master via qagent 
 
 ### providers tested
-- minio
+- minio ( selfhosted ) 
 - cloudflare ( 20G free ) 
 - backblaze ( 10G free )
 
 ## snapshot
-- takes a snapshot
+take a snapshot
+
 `./kopsrox.py etcd snapshot`
 
 `./kopsrox.py etcd list `
 
 ## restore
-- restoring a cluster
+
+`./kopsrox.py etcd list`
+
+lists snapshost
+check you're using the correct key
+
+`./kopsrox.py etcd restore $imagenname`
+
 - downsizes to 1 node
 - stuff not working
+-- leaves old nodes behind
 
 # FAQ
 __can I use debian as a base image vs ubuntu?__
