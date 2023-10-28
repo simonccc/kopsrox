@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
+
+# standard import
 import kopsrox_config as kopsrox_config
-import common_config as common, sys, re, os
+
+# to be removed
+import common_config as common 
+
+# standard imports
+import sys, re, os
 
 # verb config
 verb = 'etcd'
@@ -21,7 +28,6 @@ if not passed_verb in verbs:
   print('ERROR: \''+ passed_verb + '\'- unknown command')
   print('kopsrox', verb, '', end='')
   common.verbs_help(verbs)
-
 
 import kopsrox_proxmox as proxmox
 import kopsrox_k3s as k3s
@@ -71,7 +77,7 @@ s3_string = \
 ' --etcd-s3-skip-ssl-verify '
 
 # get masterid
-masterid = common.get_master_id()
+masterid = kopsrox_config.get_master_id()
 
 # check master is running / exists
 try:

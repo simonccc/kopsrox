@@ -15,7 +15,7 @@ _this is required to patch the cloudimage to install qemu-guest-agent_
 
 _installs the required pip packages vs using os packages_
 
-## generate a API key
+## Proxmox API key
 
 Generate an API key via the command line eg: 
 
@@ -33,23 +33,25 @@ Run `./kopsrox.py` and an example _kopsrox.ini_ will be generated
 
 Please edit this file for your setup
 
-### [proxmox]
+### proxmox
 
-- __endpoint__ = `localhost` proxmox API host
+- __endpoint__ = `127.0.0.1` proxmox API host / IP
 
-- __port__ = `8006` port to connect to proxmox API
+- __port__ = `8006` port to connect to proxmox API endpoint
 
 - __user__ = `root@pam` - user to connect as
 
 - __token_name__ = `kopsrox` - see api key section above
 
-- __api_key__ = `k33oi4o3i4o3i4o3ioi` - as generated above
+- __api_key__ = `xxxxxxxxxxxxx` - as generated above
 
-- __proxnode__ = the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
+- __proxnode__ = `proxmox` the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
+
+- __proxstor__ = `local-lvm`
 
 - __proximgid__ = the proxmox id used for the kopsrox image/template eg: 170
 
-the other nodes in the cluster use incrementing id's for example with 170:
+the other nodes in the cluster use incrementing id's for example with `proximgid` = 170:
 
 |id|proximgid|type|                      
 |--|--|--|
@@ -57,7 +59,7 @@ the other nodes in the cluster use incrementing id's for example with 170:
 |1|171|master 1|
 |2|172|master 2|
 |3|173|master 3|
-|4|174|spare|
+|4|--|spare|
 |5|175|worker 1|
 |6|176|worker 2|
 |7|177|worker 3|
@@ -84,7 +86,7 @@ the other nodes in the cluster use incrementing id's for example with 170:
 
 - __network__ = "network" address of proxmox cluster
 
-the nodes in the cluster use incrementing ip 's for example with 192.168.0.170:
+the nodes in the cluster use incrementing ip 's for example with 192.168.0.170 as the network address
 
 |id|proximgid|ip|type|
 |--|--|--|--|
@@ -112,7 +114,7 @@ the nodes in the cluster use incrementing ip 's for example with 192.168.0.170:
 
 - __masters__ = `1` number of master nodes - only other supported value is `3`
 
-- __workers__ = `0` number of worker vms eg 1
+- __workers__ = `0` number of worker vms eg `1` - values upto `5` are supported
 
 ### s3
 
@@ -134,7 +136,7 @@ To create a kopsrox template run:
 
 This will download the img file patch it and create a template to create vms
 
-* path to iso is in koprox.ini
+downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
 
 ## create a cluster
 Edit `kopsrox.ini` and set `masters = 1` in the `[cluster]` section
@@ -228,6 +230,12 @@ lists snapshost
 check you're using the correct key
 
 `./kopsrox.py etcd restore $imagenname`
+
+`./kopsrox.py etcd restore kopsrox-kopsrox-m1-1696692280
+etcd::restore: downsizing cluster for restore
+etcd::restore: restoring kopsrox-kopsrox-m1-1696692280
+proxmox:writefile: kopsrox-m1:/var/tmp/kopsrox.etcd.snapshot.token
+etcd::restore: restoring please wait`
 
 - downsizes to 1 node
 - stuff not working

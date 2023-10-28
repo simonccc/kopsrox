@@ -1,7 +1,11 @@
 #!/usr/bin/env python3 
 
 import kopsrox_config as kopsrox_config
+
+# to be removed
 import common_config as common
+
+# standard imports
 import kopsrox_proxmox as proxmox
 import re, time
 
@@ -12,7 +16,7 @@ config = common.read_kopsrox_ini()
 k3s_version = config['cluster']['k3s_version']
 masters = int(config['cluster']['masters'])
 workers = int(config['cluster']['workers'])
-masterid = int(common.get_master_id())
+masterid = int(kopsrox_config.get_master_id())
 
 # cluster name
 cname = config['cluster']['name']

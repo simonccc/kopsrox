@@ -30,10 +30,6 @@ def verbs_help(verbs):
   for i in verbs:
     print(' * ',i)
 
-# return master id
-def get_master_id():
-  return(int(proximgid) + 1)
-
 # get token and strip linebreak
 def get_token():
   f = open("kopsrox.k3stoken", "r")
