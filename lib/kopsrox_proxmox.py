@@ -46,7 +46,7 @@ def kopsrox_img(proxstor,proximgid):
     image_name = image.get("volid")
 
     # if 123-disk-0 found in volid
-    if re.search((proximgid + '-disk-0'), image_name):
+    if re.search((str(proximgid) + '-disk-0'), image_name):
       return(image_name)
 
   # unable to find image name

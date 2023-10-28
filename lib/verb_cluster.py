@@ -4,7 +4,7 @@
 import kopsrox_config as kopsrox_config
 
 # remove
-import common_config as common
+#import common_config as common
 
 # other imports
 import sys, os, re, time
@@ -68,11 +68,11 @@ if ( cmd == 'create' ):
     proxmox.clone(masterid)
 
   # map hostname
-  vmname = common.vmname(masterid)
+  vmname = kopsrox_config.vmname(masterid)
 
   # if init worked ok
   if not k3s.k3s_init_master(masterid):
-    print('cluster::create: ERROR: master not installed')
+    print(kname + cmd + ': ERROR: master not installed')
     exit(0)
 
   # export kubeconfig
@@ -82,7 +82,7 @@ if ( cmd == 'create' ):
   k3s.k3s_update_cluster()
 
   # done
-  print('cluster::create:'+ vmname + ' ok')
+  print(kname + cmd + ':' + vmname + ' ok')
 
 # kubectl
 if cmd == 'kubectl':

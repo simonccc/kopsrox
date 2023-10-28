@@ -37,7 +37,7 @@ api_key = conf_check('proxmox','api_key')
 # proxmox -> kopsrox config checks
 proxnode = conf_check('proxmox','proxnode')
 proxstor = conf_check('proxmox','proxstor')
-proximgid = conf_check('proxmox','proximgid')
+proximgid = int(conf_check('proxmox','proximgid'))
 up_image_url = conf_check('proxmox','up_image_url')
 proxbridge = conf_check('proxmox','proxbridge')
 
@@ -80,7 +80,7 @@ if not ( (masters == 1) or (masters == 3)):
 
 # if unable to get cluster status from api
 if not prox.cluster.status.get():
-  print('ERROR: unable to connect to proxmox')
+  print(kname + 'ERROR: unable to connect to proxmox')
   exit(0)
 
 # get list of nodes
@@ -187,3 +187,20 @@ def vmip(vmid):
   # generate the last ip
   ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
   return(ip)
+
+# return the vname for an id
+def vmname(vmid):
+    vmid = int(vmid)
+    names = {
+            (proximgid): cname +'-image',
+            (proximgid + 1 ): cname + '-m1',
+            (proximgid + 2 ): cname + '-m2',
+            (proximgid + 3 ): cname + '-m3',
+            (proximgid + 4 ): cname + '-u1',
+            (proximgid + 5 ): cname + '-w1',
+            (proximgid + 6 ): cname + '-w2',
+            (proximgid + 7 ): cname + '-w3',
+            (proximgid + 8 ): cname + '-w4',
+            (proximgid + 9 ): cname + '-w5',
+            }
+    return(names[vmid])

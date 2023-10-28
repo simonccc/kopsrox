@@ -14,6 +14,8 @@ import kopsrox_k3s as k3s
 # passed command
 cmd = sys.argv[2]
 
+kname = 'kopsrox::etcd::' + cmd + '::'
+
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
 def write_token():
@@ -183,12 +185,13 @@ if cmd == 'restore':
   # display some filtered restore contents
   restout = restore.split('\n')
   for line in restout:
-    if re.search('level=', line) and not re.search('info', line):
+    if re.search('level=', line) and not re.search('info', line) \
+    and not re.search('json: no such file or directory', line) \
+    and not re.search('Cluster CA certificate is trusted by the host CA bundle', line):
       print(line)
 
-  print('etcd::restore: starting k3s')
   start = proxmox.qaexec(masterid, 'systemctl start k3s')
-  print('etcd::restore: started')
+  print(kname + ' done')
 
   # delete extra nodes in the restored cluster
   nodes = k3s.kubectl('get nodes').split()
