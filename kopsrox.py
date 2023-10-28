@@ -11,12 +11,7 @@ if not os.path.isfile('kopsrox.ini'):
   kopsrox_ini.init_kopsrox_ini()
   exit(0)
 
-# top level verbs
-#verbs = ['image', 'cluster', 'etcd']
-#verbs_image = ['info', 'create', 'destroy']
-#verbs_cluster = ['info', 'create', 'update', 'destroy', 'kubectl', 'kubeconfig']
-#verbs_etcd = ['snapshot', 'restore', 'list', 'prune']
-
+# kopsrox verbs and commands
 cmds = {
     "image": {
         "info" : '',
@@ -39,22 +34,27 @@ cmds = {
     },
 }
 
+# create list of verbs
 verbs = list(cmds)
 
+# print list of verbs
 def verbs_help():
   for i in verbs:
     print(' * ',i)
 
+# print verbs cmds
 def cmds_help(verb):
   for i in list(cmds[verb]):
     print(' * ',i)
 
+# handle verb
 try:
   if (sys.argv[1]):
     verb = str(sys.argv[1])
 except:
   verbs_help()
   exit(0)
+
 
 kname = 'koprox::'+verb
 

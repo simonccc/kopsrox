@@ -1,27 +1,18 @@
+#!/usr/bin/env python3
+
+# common include file
 import kopsrox_config as kopsrox_config
-import common_config as common, sys, os, re, time
+
+# remove
+import common_config as common
+
+# other imports
+import sys, os, re, time
 import kopsrox_proxmox as proxmox
 import kopsrox_k3s as k3s
 
-verb = 'cluster'
-verbs = common.verbs_cluster
-
-# check for arguments
-try:
-  if (sys.argv[2]):
-    passed_verb = str(sys.argv[2])
-except:
-  print('ERROR: pass a command')
-  print('kopsrox', verb, '', end='')
-  common.verbs_help(verbs)
-  exit(0)
-
-# unsupported verb
-if not passed_verb in verbs:
-  print('ERROR: \''+ passed_verb + '\'- command not found')
-  print('kopsrox', verb, '', end='')
-  common.verbs_help(verbs)
-  exit(0)
+# passed command
+cmd = sys.argv[2]
 
 # import config
 config = common.read_kopsrox_ini()
@@ -36,7 +27,7 @@ masters = int(config['cluster']['masters'])
 masterid = int(common.get_master_id())
 
 # info
-if passed_verb == 'info':
+if cmd == 'info':
   print('cluster::info:')
 
   # map dict of ids and node
@@ -61,12 +52,12 @@ if passed_verb == 'info':
   print(common.kubectl(masterid, 'get nodes'))
 
 # update current cluster
-if ( passed_verb == 'update' ):
+if ( cmd == 'update' ):
   print('cluster::update: running')
   k3s.k3s_update_cluster()
 
 # create new cluster
-if ( passed_verb == 'create' ):
+if ( cmd == 'create' ):
   print('cluster::create: running')
 
   # get list of runnning vms
@@ -94,29 +85,31 @@ if ( passed_verb == 'create' ):
   print('cluster::create:'+ vmname + ' ok')
 
 # kubectl
-if passed_verb == 'kubectl':
+if cmd == 'kubectl':
 
   # convert command line into string
-  cmd= '';  
+  kcmd= '';  
+
+  # convert command line into string
   for arg in sys.argv[1:]:          
     if ' ' in arg:
       # Put the quotes back in
-      cmd+='"{}" '.format(arg) ;  
+      kcmd+='"{}" '.format(arg) ;  
     else:
       # Assume no space => no quotes
-      cmd+="{} ".format(arg) ;   
+      kcmd+="{} ".format(arg) ;   
 
   # remove first 2 commands
-  cmd = cmd.replace('cluster kubectl ','')
+  kcmd = kcmd.replace('cluster kubectl ','')
 
   # run command and show output
-  print('cluster::kubectl:', cmd)
-  print(common.kubectl(masterid,cmd))
+  print('cluster::kubectl:', kcmd)
+  print(common.kubectl(masterid,kcmd))
 
 # export kubeconfig to file
-if passed_verb == 'kubeconfig':
+if cmd == 'kubeconfig':
   common.kubeconfig(masterid)
 
 # destroy the cluster
-if passed_verb == 'destroy':
+if cmd == 'destroy':
   k3s.k3s_rm_cluster()

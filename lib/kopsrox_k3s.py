@@ -1,11 +1,14 @@
 #!/usr/bin/env python3 
 
+import kopsrox_config as kopsrox_config
 import common_config as common
 import kopsrox_proxmox as proxmox
 import re, time
 
 # config
 config = common.read_kopsrox_ini()
+
+# vars
 k3s_version = config['cluster']['k3s_version']
 masters = int(config['cluster']['masters'])
 workers = int(config['cluster']['workers'])
@@ -46,7 +49,7 @@ def k3s_check_mon(vmid):
 
     # timeout after 30 secs
     if count == 30:
-      print('k3s::k3s_check_mon: ERROR: problem with', common.vmname(vmid))
+      print('k3s::k3s_check_mon: ERROR: k3s_check timed out after 30s for ', common.vmname(vmid))
       exit(0)
 
   return True

@@ -35,13 +35,15 @@ Please edit this file for your setup
 
 ### [proxmox]
 
-- __endpoint__ = `localhost` this is where we will connect to proxmox on port 8006
+- __endpoint__ = `localhost` proxmox API host
 
-- __user__ = `root@pam` - user
+- __port__ = `8006` port to connect to proxmox API
+
+- __user__ = `root@pam` - user to connect as
 
 - __token_name__ = `kopsrox` - see api key section above
 
-- __api_key__ = as generated above
+- __api_key__ = `k33oi4o3i4o3i4o3ioi` - as generated above
 
 - __proxnode__ = the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
 
@@ -64,23 +66,43 @@ the other nodes in the cluster use incrementing id's for example with 170:
 
 - __up_image_url__ = `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use
 
-- __proxbridge__ = `vmbr0` - the proxmox bridge to use for koprox
+- __proxbridge__ = `vmbr0` - the bridge to use - must have internet access
 
 ### kopsrox
 
-- __vm_disk__ = size of the disk in kopsrox vms
+- __vm_disk__ = size of the disk for each node in Gigs
 
-- __vm_cpu__ = number of vcpus for kopsrox vms
+- __vm_cpu__ = number of vcpus for each vm
 
-- __vm_ram__ = amount of ram eg 2g
+- __vm_ram__ = amount of ram in G
 
-- __cloudinituser__ = 
+- __cloudinituser__ = a user account for access to the vm 
 
-- __cloudinitpass__ = 
+- __cloudinitpass__ = password for the user
 
 - __cloudinitsshkey__ = 
 
-- __network__ = "network address of proxmox cluster
+- __network__ = "network" address of proxmox cluster
+
+the nodes in the cluster use incrementing ip 's for example with 192.168.0.170:
+
+|id|proximgid|ip|type|
+|--|--|--|--|
+|0|170|-|image|
+|1|171|192.168.0.171|master 1|
+|2|172|192.168.0.172|master 2|
+|3|173|192.168.0.173|master 3|
+|4|174|-|spare|
+|5|175|192.168.0.175|worker 1|
+|6|176|192.168.0.176|worker 2|
+|7|177|192.168.0.177|worker 3|
+|8|178|192.168.0.178|worker 4|
+|9|179|192.168.0.179|worker 5|
+
+- __networkgw__ = 
+
+- __netmask__ = `24` cdir netmask for the network 
+
 
 ### cluster
 
@@ -88,7 +110,7 @@ the other nodes in the cluster use incrementing id's for example with 170:
 
 - __k3s_version__ = `v1.24.6+k3s1` 
 
-- __masters__ = `1` or `3` - number of masters
+- __masters__ = `1` number of master nodes - only other supported value is `3`
 
 - __workers__ = `0` number of worker vms eg 1
 
@@ -98,17 +120,13 @@ These values are optional
 
 - __endpoint__ = eg `s3.yourprovider.com`
 
-- __region__ = 
+- __region__ = `optional`
 
 - __access-key__ = 
 
 - __access-secret__ = 
 
-# create  cluster
-
-Lets get started by creating a cluster
-
-
+# get started
 ## create image
 To create a kopsrox template run:
 
@@ -118,40 +136,40 @@ This will download the img file patch it and create a template to create vms
 
 * path to iso is in koprox.ini
 
-
 ## create a cluster
-Edit your `kopsrox.ini` and set `masters = 1` in the `[cluster]` section
+Edit `kopsrox.ini` and set `masters = 1` in the `[cluster]` section
 
 `./kopsrox.py cluster create`
 
 This will create a single node cluster
 
 ## run kubectl
-We can run kubectl via connecting to the master via qagent and running `k3s kubectl`
 
 `./kopsrox.py cluster kubectl get pods -A`
 
 ## add worker
-Edit [kopsrox.ini] 
-- add worker - set `workers = 1` in the `[cluster]` section then run
+
+Edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 
 `./kopsrox.py cluster update`
 
+the worker will be created and added to the cluster
 
 `./kopsrox.py cluster info`
 
+displays the new cluster state
 
 # commands
 ## image
 ### create
 - creates a kopsrox image template with proxmox id xxx
 - downloads cloud image
-- patches it ( installs packages qagent? ) 
+- patches it ( installs packages qagent + nfs client) 
+- installs k3s 
 ### destroy
 - deletes the existing image template
 delete the .img file manually if you want a fresh download
 ## cluster
-- commands relating to the kopsrox cluster
 ### create
 - creates and updates a cluster - use this to setup a fresh cluster
 - checks for existing master and then runs update
@@ -165,24 +183,23 @@ delete the .img file manually if you want a fresh download
 ### kubectl
 - run kubectl commands
 ### kubeconfig
-- export the kubeconfig
+- export the kubeconfig to `kopsrox.kubeconfig` file and patches IP to be masters IP
 ### destroy
-- destroys the cluster
+- destroys the cluster ( NO WARNING! ) 
 ## etcd
-- commands to manage s3 snapshots of etcd
-- see s3 backups guide
 ### snapshot
 - create a etcd snapshot in the configured S3 storage
 ### restore
 - restores cluster from etcd backup - requires a image name which can be got with the list command
+- downsizes the cluster to 1 node 
 ### list
-- lists snapshots taken in s3 storage
+- lists snapshots taken in s3 storage based on cluster name
 ### prune
 - deletes old snapshots by 7 days? ( tbc ) 
 
 # etcd backups guide
 
-The first time a snapshot is taken a token is written into the kopsrox directory
+The first time a snapshot is taken the cluster token is written into the kopsrox directory
 
 - `kopsrox.etcd.snapshot.token`
 
@@ -199,10 +216,12 @@ Kopsrox uses the k3s built in commands to backup to s3 api compatible storage
 ## snapshot
 - takes a snapshot
 `./kopsrox.py etcd snapshot`
-- check it with ls
+
+`./kopsrox.py etcd list `
+
 ## restore
 - restoring a cluster
-- downsizing
+- downsizes to 1 node
 - stuff not working
 
 # FAQ
