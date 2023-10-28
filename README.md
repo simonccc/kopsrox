@@ -155,18 +155,18 @@ __create__
 - patches it ( installs packages qagent + nfs client) 
 - imports the disk using qm
 - installs k3s 
-### destroy
+__destroy__
 - deletes the existing image template
 - delete the .img file manually if you want a fresh download of the upstream image
-### info
+__info__
 - prints info about image file
 
 ## cluster
-### create
+__create__
 - creates and updates a cluster - use this to setup a fresh cluster
 - exports kubeconfig
 - checks for existing master and then runs update
-### update
+__update__
 - adds or deletes workers/masters per `kopsrox.ini`
 ### info
 - displays cluster info

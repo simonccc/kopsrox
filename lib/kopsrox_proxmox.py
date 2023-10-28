@@ -31,6 +31,7 @@ proxnode = config['proxmox']['proxnode']
 proxbridge = config['proxmox']['proxbridge']  
 proximgid = int(config['proxmox']['proximgid'])
 proxstor = config['proxmox']['proxstor']
+vmnames = kopsrox_config.vmnames
 
 # connect to proxmox
 def prox_init():
@@ -56,7 +57,7 @@ def kopsrox_img(proxstor,proximgid):
 def qaexec(vmid,cmd):
 
   # get vmname
-  vmname = common.vmname(vmid)
+  vmname = vmnames[vmid]
 
   # get node
   node = get_node(vmid)
@@ -175,7 +176,7 @@ def get_node(vmid):
       return(vm.get('node'))
 
   # error: node not found
-  print('proxmox::get_node: ERROR: '+common.vmname(vmid)+'/'+str(vmid)+' not found.')
+  print('proxmox::get_node: ERROR: '+vmnames[vmid]+'/'+str(vmid)+' not found.')
   exit(0)
 
 # stop and destroy vm
@@ -189,7 +190,7 @@ def destroy(vmid):
       return
 
     # get node and vmname
-    vmname = common.vmname(vmid)
+    vmname = vmnames[vmid]
 
     try:
 
@@ -222,7 +223,7 @@ def clone(vmid):
   memory = int(int(ram) * 1024)
 
   # hostname
-  hostname = common.vmname(int(vmid))
+  hostname = vmnames[int(vmid)]
 
   # clone
   print('proxmox::clone:', hostname)
@@ -273,7 +274,7 @@ def getfile(vmid, path):
 # writes a file from localdir to path
 # used to write etcd token when restoring
 def writefile(vmid,file,path):
-  name = common.vmname(vmid)
+  name = vmnames[vmid]
   print('proxmox:writefile: ' + name + ':' + path)
   myfile = open(file,"rb")
   file_bin = myfile.read()

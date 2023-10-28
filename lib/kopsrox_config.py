@@ -65,6 +65,20 @@ k3s_version = conf_check('cluster','k3s_version')
 # dict of all config items - legacy support
 config = ({s:dict(config.items(s)) for s in config.sections()})
 
+# define vmnames
+vmnames = {
+(proximgid): cname +'-image',
+(proximgid + 1 ): cname + '-m1',
+(proximgid + 2 ): cname + '-m2',
+(proximgid + 3 ): cname + '-m3',
+(proximgid + 4 ): cname + '-u1',
+(proximgid + 5 ): cname + '-w1',
+(proximgid + 6 ): cname + '-w2',
+(proximgid + 7 ): cname + '-w3',
+(proximgid + 8 ): cname + '-w4',
+(proximgid + 9 ): cname + '-w5',
+}
+
 # returns masterid ported from common config
 def get_master_id():
   return(int(proximgid) + 1)
@@ -187,20 +201,6 @@ def vmip(vmid):
   # generate the last ip
   ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
   return(ip)
-
-# return the vname for an id
-vmnames = {
-(proximgid): cname +'-image',
-(proximgid + 1 ): cname + '-m1',
-(proximgid + 2 ): cname + '-m2',
-(proximgid + 3 ): cname + '-m3',
-(proximgid + 4 ): cname + '-u1',
-(proximgid + 5 ): cname + '-w1',
-(proximgid + 6 ): cname + '-w2',
-(proximgid + 7 ): cname + '-w3',
-(proximgid + 8 ): cname + '-w4',
-(proximgid + 9 ): cname + '-w5',
-}
 
 # legacy function
 def vmname(vmid):

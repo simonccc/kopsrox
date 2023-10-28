@@ -43,24 +43,6 @@ def vmname2id(name):
       return(int(vmid))
     vmid = (int(vmid) + 1)
 
-# map id to hostname
-def vmname(vmid):
-    cname = config['cluster']['name']
-    vmid = int(vmid)
-    names = { 
-            (proximgid): cname +'-image',
-            (proximgid + 1 ): cname + '-m1',
-            (proximgid + 2 ): cname + '-m2', 
-            (proximgid + 3 ): cname + '-m3', 
-            (proximgid + 4 ): cname + '-u1', 
-            (proximgid + 5 ): cname + '-w1', 
-            (proximgid + 6 ): cname + '-w2', 
-            (proximgid + 7 ): cname + '-w3', 
-            (proximgid + 8 ): cname + '-w4', 
-            (proximgid + 9 ): cname + '-w5', 
-            }
-    return(names[vmid])
-
 # node token
 def k3stoken(masterid):
     token = proxmox.qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
