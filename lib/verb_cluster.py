@@ -3,9 +3,6 @@
 # common include file
 import kopsrox_config as kopsrox_config
 
-# remove
-#import common_config as common
-
 # other imports
 import sys, os, re, time
 import kopsrox_proxmox as proxmox
@@ -14,21 +11,22 @@ import kopsrox_k3s as k3s
 # passed command
 cmd = sys.argv[2]
 
+# define kname
+kname = 'kopsrox::cluster::' + cmd + ': '
+
 # variables from config
 proxnode = kopsrox_config.proxnode
 proximgid = kopsrox_config.proximgid
 workers = int(kopsrox_config.workers)
 masters = int(kopsrox_config.masters)
+vmnames = kopsrox_config.vmnames
 
 # masterid
 masterid = int(kopsrox_config.get_master_id())
 
-# define kname
-kname = 'kopsrox::cluster::'
-
 # info
 if cmd == 'info':
-  print(kname + cmd)
+  print(kname)
 
   # map dict of ids and node
   vms = proxmox.list_kopsrox_vm()
@@ -53,12 +51,12 @@ if cmd == 'info':
 
 # update current cluster
 if ( cmd == 'update' ):
-  print(kname + cmd)
+  print(kname)
   k3s.k3s_update_cluster()
 
 # create new cluster
 if ( cmd == 'create' ):
-  print(kname + cmd)
+  print(kname)
 
   # get list of runnning vms
   vmids = proxmox.list_kopsrox_vm()
@@ -68,11 +66,11 @@ if ( cmd == 'create' ):
     proxmox.clone(masterid)
 
   # map hostname
-  vmname = kopsrox_config.vmname(masterid)
+  vmname = vmnames[masterid]
 
   # if init worked ok
   if not k3s.k3s_init_master(masterid):
-    print(kname + cmd + ': ERROR: master not installed')
+    print(kname + 'ERROR: master not installed')
     exit(0)
 
   # export kubeconfig
@@ -82,7 +80,7 @@ if ( cmd == 'create' ):
   k3s.k3s_update_cluster()
 
   # done
-  print(kname + cmd + ':' + vmname + ' ok')
+  print(kname + vmname + ' ok')
 
 # kubectl
 if cmd == 'kubectl':
@@ -103,12 +101,12 @@ if cmd == 'kubectl':
   kcmd = kcmd.replace('cluster kubectl ','')
 
   # run command and show output
-  print(kname + cmd, kcmd)
+  print(kname + kcmd)
   print(k3s.kubectl(kcmd))
 
 # export kubeconfig to file
 if cmd == 'kubeconfig':
-  print(kname + cmd)
+  print(kname)
   k3s.kubeconfig(masterid)
 
 # destroy the cluster

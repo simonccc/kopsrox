@@ -128,29 +128,29 @@ These values are optional
 
 - __access-secret__ = 
 
-# get started
-## create image
+## get started
+### create image
 
 `./kopsrox.py create image`
 
-## create a cluster
+### create a cluster
 
 `./kopsrox.py cluster create`
 
-## add worker
+### add worker
 
 Edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 
 `./kopsrox.py cluster update`
 
-## check cluster info
+### check cluster info
 
 `./kopsrox.py cluster info`
 
-# commands
+## commands
 
-## image
-### create
+### image
+__create__
 - downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
 - patches it ( installs packages qagent + nfs client) 
 - imports the disk using qm
