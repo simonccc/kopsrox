@@ -2,6 +2,7 @@
 
 # standard import
 import kopsrox_config as kopsrox_config
+config = kopsrox_config.config
 
 # to be removed
 import common_config as common 
@@ -13,14 +14,16 @@ import kopsrox_k3s as k3s
 
 # passed command
 cmd = sys.argv[2]
-
 kname = 'kopsrox::etcd::' + cmd + '::'
+
+# no of master nodes 
+masters = int(kopsrox_config.masters)
 
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
 def write_token():
     # get the snapshot tokenfile
-    token = common.get_token()
+    token = k3s.get_token()
 
     # add a line break to the token
     token = token + '\n'
@@ -29,12 +32,6 @@ def write_token():
     with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
       snapshot_token.write(token)
     print("etcd::write-token: wrote kopsrox.etcd.snapshot.token")
-
-# check for number of nodes
-config = kopsrox_config.config
-
-# count of master nodes ( 1 or 3 ) 
-masters = int(config['cluster']['masters'])
 
 # cluster name
 cname = config['cluster']['name']

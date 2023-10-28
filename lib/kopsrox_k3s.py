@@ -31,7 +31,7 @@ kname = 'kopsrox::k3s::'
 def k3s_check(vmid):
 
     # test call
-    k = kubectl('get node ' + vmnames[vmid])
+    k = kubectl('get node ' + vmnames[int(vmid)])
 
     # if not found or Ready
     if ( re.search('NotReady', k) or re.search('NotFound', k)):
@@ -85,7 +85,7 @@ def k3s_init_slave(vmid):
     # if master check fails
     if not k3s_check(vmid):
       ip = kopsrox_config.vmip(masterid)
-      token = common.get_token()
+      token = k3s.get_token()
       vmname = vmnames[vmid]
       print('k3s::k3s_init_slave: installing k3s on', vmname)
 
@@ -103,13 +103,13 @@ def k3s_init_slave(vmid):
 def k3s_init_worker(vmid):
 
   # map vmname
-  vmname = vmnames[vmid]
+  vmname = vmnames[int(vmid)]
 
   # if check fails
   if not k3s_check(vmid):
 
     ip = kopsrox_config.vmip(masterid)
-    token = common.get_token()
+    token = get_token()
     cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
 
     print('k3s::k3s_init_worker: installing k3s on', vmid)
@@ -254,4 +254,9 @@ def kubectl(cmd):
   k = str(('/usr/local/bin/k3s kubectl ' +cmd))
   kcmd = proxmox.qaexec(masterid,k)
   return(kcmd)
+
+# get local token with line break removed
+def get_token():
+  f = open("kopsrox.k3stoken", "r")
+  return(f.read().rstrip())
    

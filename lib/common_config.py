@@ -20,11 +20,6 @@ config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 proximgid = int(config['proxmox']['proximgid'])
 proxnode = config['proxmox']['proxnode']
 
-# get token and strip linebreak
-def get_token():
-  f = open("kopsrox.k3stoken", "r")
-  return(f.read().rstrip())
-
 # return a list of valid koprox vms
 def vmnames():
   vmid = proximgid

@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
 
-kname = 'kopsrox::image::'
-
 # general imports
 import kopsrox_config as kopsrox_config
-
-#
 import wget, re, time
-
-# to run os stuff
 import sys, os, subprocess
 
 # used to convert timestamps
@@ -21,7 +15,7 @@ import urllib.parse
 import kopsrox_proxmox as proxmox
 prox = proxmox.prox
 
-# map common config values
+# map config values
 proxnode = kopsrox_config.proxnode
 proxstor = kopsrox_config.proxstor
 proximgid = kopsrox_config.proximgid
@@ -29,7 +23,9 @@ proximgid = kopsrox_config.proximgid
 # generate image name
 kopsrox_img = proxmox.kopsrox_img(proxstor,proximgid)
 
+# define command
 cmd = sys.argv[2]
+kname = 'kopsrox::image::'
 
 # create image
 if (cmd == 'create'):
@@ -52,6 +48,7 @@ if (cmd == 'create'):
     # install k3s 
     k3s_install  = virtc_cmd  + ' --run-command "curl -sfL https://get.k3s.io > /k3s.sh"' 
     k3s_patch = virtc_cmd  + ' --run-command "cat /k3s.sh | INSTALL_K3S_SKIP_ENABLE=true INSTALL_K3S_VERSION="' + kopsrox_config.k3s_version + '" sh -"' 
+
     # resize image with vm_disk size from config
     resize_patch = 'sudo qemu-img resize ' + up_image + ' ' + kopsrox_config.vm_disk 
 

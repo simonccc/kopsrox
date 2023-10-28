@@ -57,7 +57,7 @@ def kopsrox_img(proxstor,proximgid):
 def qaexec(vmid,cmd):
 
   # get vmname
-  vmname = vmnames[vmid]
+  vmname = vmnames[int(vmid)]
 
   # get node
   node = get_node(vmid)
