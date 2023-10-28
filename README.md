@@ -72,9 +72,9 @@ the other nodes in the cluster use incrementing id's for example with `proximgid
 
 ### kopsrox
 
-- __vm_disk__ = size of the disk for each node in Gigs
+- __vm_disk__ = `20G` - size of the disk for each node in Gigs
 
-- __vm_cpu__ = number of vcpus for each vm
+- __vm_cpu__ = `1` - number of vcpus for each vm
 
 - __vm_ram__ = amount of ram in G
 
@@ -101,7 +101,7 @@ the nodes in the cluster use incrementing ip 's for example with 192.168.0.170 a
 |8|178|192.168.0.178|worker 4|
 |9|179|192.168.0.179|worker 5|
 
-- __networkgw__ = 
+- __networkgw__ = `192.168.0.1` the default gateway for the network
 
 - __netmask__ = `24` cdir netmask for the network 
 
@@ -164,7 +164,7 @@ displays the new cluster state
 # commands
 ## image
 ### create
-- creates a kopsrox image template with proxmox id xxx
+- creates a kopsrox image template with proxmox id per `kopsrox.ini` section `[proxmox]` value `proximgid`
 - downloads cloud image
 - patches it ( installs packages qagent + nfs client) 
 - installs k3s 

@@ -168,6 +168,7 @@ if cmd == 'restore':
     exit(0)
 
   print('etcd::restore: downsizing cluster for restore')
+  # what does this mean?
   k3s.k3s_rm_cluster(restore = True)
 
   print('etcd::restore: restoring', snapshot)
@@ -179,8 +180,12 @@ if cmd == 'restore':
   print('etcd::restore: restoring please wait')
   restore = proxmox.qaexec(masterid, restore_cmd)
 
-  # needs to be filtered like snapshot
-  print(restore)
+  # display some filtered restore contents
+  restout = restore.split('\n')
+  for line in restout:
+    if re.search('level=', line) and re.search('S3', line):
+      print(line)
+
   print('etcd::restore: starting k3s')
   start = proxmox.qaexec(masterid, 'systemctl start k3s')
   print('etcd::restore: started')

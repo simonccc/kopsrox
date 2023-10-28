@@ -178,3 +178,12 @@ for vmid in vms:
     print('WARN: powering on', vmi.get('name'))
     poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
     proxmox.task_status(prox, str(poweron), proxnode)
+
+# return ip for vmid
+def vmip(vmid):
+  network_octs = network.split('.')
+  basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )
+
+  # generate the last ip
+  ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
+  return(ip)
