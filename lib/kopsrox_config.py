@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# imports
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+from proxmoxer import ProxmoxAPI
+
 # prompt
 kname = 'kopsrox::config::'
 
@@ -79,13 +84,23 @@ vmnames = {
 (proximgid + 9 ): cname + '-w5',
 }
 
+# proxmox api connection
+prox = ProxmoxAPI(
+  endpoint,
+  port=port,
+  user=user,
+  token_name=token_name,
+  token_value=api_key,
+  verify_ssl=False,
+  timeout=5)
+
 # returns masterid ported from common config
 def get_master_id():
   return(int(proximgid) + 1)
 
 # safe to import these now ( has to be this order ) 
 import kopsrox_proxmox as proxmox
-prox = proxmox.prox
+#prox = proxmox.prox
 
 # master check - can only be 1 or 3
 if not ( (masters == 1) or (masters == 3)):

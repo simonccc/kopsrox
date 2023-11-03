@@ -177,7 +177,7 @@ kopsrox uses the k3s built in commands to backup to s3 api compatible storage.
 
 tested providers include minio, cloudflare, backblaze etc
 
-__snapshot__
+### snapshot
 - create a etcd snapshot in the configured S3 storage
 
 The first time a snapshot is taken the cluster token is written into the kopsrox directory
@@ -194,7 +194,7 @@ Takes a backup of etcd
 
 Should show the new backup
 
-__restore__
+### restore
 
 Restores a cluster from an etcd snapshot
 
@@ -209,7 +209,7 @@ Show available snapshots
 - downsizes the cluster to 1 node 
 - some stuff not working atm
 
-__list__
+### list
 - lists snapshots taken in s3 storage based on cluster name
 
 __prune__
