@@ -161,15 +161,15 @@ def k3s_rm_cluster(restore = False):
 def k3s_update_cluster():
 
    # refresh the master token
-   k3stoken(masterid)
+   token = proxmox.qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
+   with open('kopsrox.k3stoken', 'w') as k3s:
+     k3s.write(token)
 
    # get list of running vms
    vmids = proxmox.list_kopsrox_vm()
 
    # do we need to run any more masters
    if ( masters > 1 ):
-    print('k3s::k3s_update_cluster: checking masters ('+ str(masters) +')')
-
     master_count = int(1)
 
     while ( master_count <=  2 ):
@@ -259,10 +259,3 @@ def kubectl(cmd):
 def get_token():
   f = open("kopsrox.k3stoken", "r")
   return(f.read().rstrip())
-
-# write token
-def k3stoken(masterid):
-  token = proxmox.qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
-  with open('kopsrox.k3stoken', 'w') as k3s:
-    k3s.write(token)
-   

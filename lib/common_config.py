@@ -37,11 +37,3 @@ def vmname2id(name):
     if ( name == vmname(int(vmid)) ):
       return(int(vmid))
     vmid = (int(vmid) + 1)
-
-# node token
-def k3stoken(masterid):
-    token = proxmox.qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
-    with open('kopsrox.k3stoken', 'w') as k3s:
-
-      # this function name seems weird
-      k3s.write(token)

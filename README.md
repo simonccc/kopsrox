@@ -45,13 +45,13 @@ Please edit this file for your setup
 
 - __api_key__ = `xxxxxxxxxxxxx` - as generated above
 
-- __proxnode__ = `proxmox` the proxmox node name where you're running kopsrox from - the image and all nodes are created on this host
+- __proxnode__ = `proxmox` the proxmox node - the image and all nodes are created on this host
 
-- __proxstor__ = `local-lvm` at the moment only storage local to the proxnode is supported
+- __proxstor__ = `local-lvm` shared storage also works
 
 - __proximgid__ = `600` - the proxmox id used for the kopsrox image/template 
 
-the other nodes in the cluster use incrementing id's for example with `proximgid` = 170:
+the other vms in the cluster use incrementing id's for example with `proximgid` = 170:
 
 |id|proximgid|type|                      
 |--|--|--|
@@ -101,10 +101,9 @@ the nodes in the cluster use incrementing ip 's for example with 192.168.0.170 a
 |8|178|192.168.0.178|worker 4|
 |9|179|192.168.0.179|worker 5|
 
-- __networkgw__ = `192.168.0.1` the default gateway for the network
+- __networkgw__ = `192.168.0.1` the default gateway for the network ( must provide internet access ) 
 
 - __netmask__ = `24` cdir netmask for the network 
-
 
 ### cluster
 
@@ -153,7 +152,7 @@ Edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 __create__
 - downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
 - patches it ( installs packages qagent + nfs client) 
-- imports the disk using qm
+- imports the disk using `sudo qm`
 - installs k3s 
 
 __destroy__
@@ -175,19 +174,33 @@ __update__
 __info__
 - shows a list of ids, hostnames and ips the host they are running on
 - shows kubectl get nodes
+
 ### kubectl
-- run kubectl commands
+- provides a quick and basic way to run kubectl commands for example:
+
+`./kopsrox.py cluster kubectl get events -A`
+
 ### kubeconfig
-- export the kubeconfig to `kopsrox.kubeconfig` file and patches IP to be masters IP
+- export the kubeconfig to a `kopsrox.kubeconfig` file which is patched to have the masters IP
+
 ### destroy
 - destroys the cluster ( NO WARNING! ) 
+
 ## etcd
+kopsrox uses the k3s built in commands to backup to s3 api compatible storage.
+tested providers include minio, cloudflare, backblaze etc
+
 __snapshot__
 - create a etcd snapshot in the configured S3 storage
-### restore
+
+__restore__
 - restores cluster from etcd backup - requires a image name which can be got with the list command
+
+`./kopsrox.py etcd restore $imagename`
+
 - downsizes the cluster to 1 node 
-### list
+
+__list__
 - lists snapshots taken in s3 storage based on cluster name
 
 __prune__
@@ -200,15 +213,6 @@ The first time a snapshot is taken the cluster token is written into the kopsrox
 - `kopsrox.etcd.snapshot.token`
 
 This is not overwriten on further snapshots are taken
-
-## setup
-kopsrox uses the k3s built in commands to backup to s3 api compatible storage.
-
-This is done via logging into the master via qagent and running the k3s commands directly
-
-all of the etcd commands use a s3 'ls' command to check connectivity
-
-tested providers include minio, cloudflare, backblaze etc
 
 ## snapshot
 
