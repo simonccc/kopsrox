@@ -100,7 +100,6 @@ def get_master_id():
 
 # safe to import these now ( has to be this order ) 
 import kopsrox_proxmox as proxmox
-#prox = proxmox.prox
 
 # master check - can only be 1 or 3
 if not ( (masters == 1) or (masters == 3)):

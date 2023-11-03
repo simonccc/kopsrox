@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 
 # imports
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import time, re
-
-from proxmoxer import ProxmoxAPI
 
 # common config
 import kopsrox_config as kopsrox_config
@@ -13,15 +9,8 @@ import kopsrox_config as kopsrox_config
 # get proxmox config
 config = kopsrox_config.config
 
-# define api connection
-prox = ProxmoxAPI(
-  config['proxmox']['endpoint'],
-  port=config['proxmox']['port'],
-  user=config['proxmox']['user'],
-  token_name=config['proxmox']['token_name'],
-  token_value=config['proxmox']['api_key'],
-  verify_ssl=False,
-  timeout=5)
+# get proxmox api connection
+prox = kopsrox_config.prox
 
 # config
 proxnode = config['proxmox']['proxnode']
@@ -29,10 +18,6 @@ proxbridge = config['proxmox']['proxbridge']
 proximgid = int(config['proxmox']['proximgid'])
 proxstor = config['proxmox']['proxstor']
 vmnames = kopsrox_config.vmnames
-
-# connect to proxmox
-def prox_init():
-  return prox
 
 # return the image name
 def kopsrox_img(proxstor,proximgid):
@@ -97,7 +82,7 @@ def qaexec(vmid,cmd):
             )
   except:
     print('proxmox::qaexec problem with cmd: ', cmd)
-    print(qa_exec )
+    print(qa_exec)
     exit(0)
 
   # get pid

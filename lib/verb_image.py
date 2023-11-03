@@ -13,7 +13,7 @@ import urllib.parse
 
 # proxmox connection
 import kopsrox_proxmox as proxmox
-prox = proxmox.prox
+prox = kopsrox_config.prox
 
 # map config values
 proxnode = kopsrox_config.proxnode
