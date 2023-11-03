@@ -94,12 +94,48 @@ prox = ProxmoxAPI(
   verify_ssl=False,
   timeout=5)
 
+# look up kopsrox_img
+def kopsrox_img(proxstor,proximgid):
+
+  # list contents
+  for image in prox.nodes(proxnode).storage(proxstor).content.get():
+
+    # map image_name
+    image_name = image.get("volid")
+
+    # if 123-disk-0 found in volid
+    if re.search((str(proximgid) + '-disk-0'), image_name):
+      return(image_name)
+
+  # unable to find image name
+  return('no image')
+
+def list_kopsrox_vm():
+
+  # init dict
+  vmids = {}
+
+  # foreach returned vm
+  for vm in prox.cluster.resources.get(type = 'vm'):
+    vmid = int(vm.get('vmid'))
+    node = vm.get('node')
+
+    # magic number ( end of the proxmox id range )
+    if ((vmid >= proximgid) and (vmid < (proximgid + 10))):
+      vmids[vmid] = node
+
+  # return sorted dict
+  return(dict(sorted(vmids.items())))
+
+def vm_info(vmid,node):
+  return(prox.nodes(node).qemu(vmid).status.current.get())
+
 # returns masterid ported from common config
 def get_master_id():
   return(int(proximgid) + 1)
 
 # safe to import these now ( has to be this order ) 
-import kopsrox_proxmox as proxmox
+#import kopsrox_proxmox as proxmox
 
 # master check - can only be 1 or 3
 if not ( (masters == 1) or (masters == 3)):
@@ -176,7 +212,7 @@ try:
 except:
 
   # look for existing image
-  kopsrox_img = proxmox.kopsrox_img(proxstor,proximgid)
+  kopsrox_img = kopsrox_img(proxstor,proximgid)
 
   # if no image returned
   if kopsrox_img == 'no image':
@@ -192,20 +228,20 @@ except:
     exit(0)
 
 # get dict of vms
-vms = proxmox.list_kopsrox_vm()
+vms = list_kopsrox_vm()
 for vmid in vms:
 
   # map node
   proxnode = vms[vmid]
 
   # vm not powered on check
-  vmi = proxmox.vm_info(vmid,proxnode)
+  vmi = vm_info(vmid,proxnode)
 
   # power on all nodes aside from image
   if (( vmi.get('status') == 'stopped') and ( int(vmid) != int(proximgid) )):
     print('WARN: powering on', vmi.get('name'))
     poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
-    proxmox.task_status(prox, str(poweron), proxnode)
+    exit(0)
 
 # return ip for vmid
 def vmip(vmid):
