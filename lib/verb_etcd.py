@@ -182,6 +182,14 @@ if cmd == 'restore':
   # display some filtered restore contents
   restout = restore.split('\n')
   for line in restout:
+
+    # if output contains fatal error
+    if re.search('level=fatal', line):
+      print(line)
+      print(kname, 'fatal error. exiting')
+      exit(0)
+
+    # filter these lines
     if re.search('level=', line) and not re.search('info', line) \
     and not re.search('json: no such file or directory', line) \
     and not re.search('Cluster CA certificate is trusted by the host CA bundle', line) \
@@ -199,5 +207,5 @@ if cmd == 'restore':
       print('etcd::restore:: removing stale node', node)
       k3s.kubectl('delete node ' + node)
 
-  # run k3s update?
+  # run k3s update
   k3s.k3s_update_cluster()

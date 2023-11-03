@@ -17,15 +17,13 @@ _installs the required pip packages vs using os packages_
 
 ## Proxmox API key
 
-Generate an API key via the command line eg: 
+Generate an API key and set the permissions:
 
 `sudo pvesh create /access/users/root@pam/token/kopsrox`
 
-Take a note of the token as we'll need this below
-
-Set the correct permissions om the token 
-
 `sudo pveum acl modify / --roles Administrator --user root@pam  --token 'root@pam!kopsrox'`
+
+Take a note of the token as we'll need this below
 
 ## kopsrox.ini
 
@@ -33,7 +31,23 @@ Run `./kopsrox.py` and an example _kopsrox.ini_ will be generated
 
 Please edit this file for your setup
 
-### proxmox
+Kopsrox uses a simple static id/ip assignments based on `proximgid` and `network` settings eg:
+
+|id|proximgid|ip|type|
+|--|--|--|--|
+|0|170|-|image|
+|1|171|192.168.0.171|master 1|
+|2|172|192.168.0.172|master 2|
+|3|173|192.168.0.173|master 3|
+|4|174|-|spare|
+|5|175|192.168.0.175|worker 1|
+|6|176|192.168.0.176|worker 2|
+|7|177|192.168.0.177|worker 3|
+|8|178|192.168.0.178|worker 4|
+|9|179|192.168.0.179|worker 5|
+
+
+### [proxmox]
 
 - __endpoint__ = `127.0.0.1` proxmox API host / IP
 
@@ -51,26 +65,11 @@ Please edit this file for your setup
 
 - __proximgid__ = `600` - the proxmox id used for the kopsrox image/template 
 
-the other vms in the cluster use incrementing id's for example with `proximgid` = 170:
-
-|id|proximgid|type|                      
-|--|--|--|
-|0|170|image|
-|1|171|master 1|
-|2|172|master 2|
-|3|173|master 3|
-|4|--|spare|
-|5|175|worker 1|
-|6|176|worker 2|
-|7|177|worker 3|
-|8|178|worker 4|
-|9|179|worker 5|
-
 - __up_image_url__ = `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use as the base image
 
 - __proxbridge__ = `vmbr0` - the bridge to use - must have internet access
 
-### kopsrox
+### [kopsrox]
 
 - __vm_disk__ = `20G` - size of the disk for each node in Gigs
 
@@ -86,26 +85,11 @@ the other vms in the cluster use incrementing id's for example with `proximgid` 
 
 - __network__ = "network" address of proxmox cluster
 
-the nodes in the cluster use incrementing ip 's for example with 192.168.0.170 as the network address
-
-|id|proximgid|ip|type|
-|--|--|--|--|
-|0|170|-|image|
-|1|171|192.168.0.171|master 1|
-|2|172|192.168.0.172|master 2|
-|3|173|192.168.0.173|master 3|
-|4|174|-|spare|
-|5|175|192.168.0.175|worker 1|
-|6|176|192.168.0.176|worker 2|
-|7|177|192.168.0.177|worker 3|
-|8|178|192.168.0.178|worker 4|
-|9|179|192.168.0.179|worker 5|
-
 - __networkgw__ = `192.168.0.1` the default gateway for the network ( must provide internet access ) 
 
 - __netmask__ = `24` cdir netmask for the network 
 
-### cluster
+### [cluster]
 
 - __name__ = `kopsrox` name of the cluster
 
@@ -115,7 +99,7 @@ the nodes in the cluster use incrementing ip 's for example with 192.168.0.170 a
 
 - __workers__ = `0` number of worker vms eg `1` - values upto `5` are supported
 
-### s3
+### [s3]
 
 These values are optional 
 
@@ -165,10 +149,11 @@ __info__
 ## cluster
 __create__
 - creates and updates a cluster - use this to setup a fresh cluster
-- exports kubeconfig
-- checks for existing master and then runs update
+- exports kubeconfig and node token
+- if a working master is found just runs `update`
 
 __update__
+- checks the state of the cluster vs what is configured in `kopsrox.ini`
 - adds or deletes workers/masters per `kopsrox.ini`
 
 __info__
@@ -187,11 +172,21 @@ __info__
 - destroys the cluster ( NO WARNING! ) 
 
 ## etcd
+
 kopsrox uses the k3s built in commands to backup to s3 api compatible storage.
+
 tested providers include minio, cloudflare, backblaze etc
 
 __snapshot__
 - create a etcd snapshot in the configured S3 storage
+
+The first time a snapshot is taken the cluster token is written into the kopsrox directory
+
+- `kopsrox.etcd.snapshot.token`
+
+This is not overwriten on further snapshots are taken
+
+`./kopsrox.py etcd snapshot`
 
 __restore__
 - restores cluster from etcd backup - requires a image name which can be got with the list command
@@ -208,15 +203,7 @@ __prune__
 
 # etcd backups guide
 
-The first time a snapshot is taken the cluster token is written into the kopsrox directory
-
-- `kopsrox.etcd.snapshot.token`
-
-This is not overwriten on further snapshots are taken
-
 ## snapshot
-
-`./kopsrox.py etcd snapshot`
 
 `./kopsrox.py etcd list`
 
