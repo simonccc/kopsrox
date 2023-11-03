@@ -1,9 +1,7 @@
 #!/usr/bin/env python3 
 
+# common import
 import kopsrox_config as kopsrox_config
-
-# to be removed
-import common_config as common
 
 # standard imports
 import kopsrox_proxmox as proxmox

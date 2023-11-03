@@ -188,36 +188,32 @@ This is not overwriten on further snapshots are taken
 
 `./kopsrox.py etcd snapshot`
 
+Takes a backup of etcd
+
+`./kopsrox.py etcd list`
+
+Should show the new backup
+
 __restore__
-- restores cluster from etcd backup - requires a image name which can be got with the list command
+
+Restores a cluster from an etcd snapshot
+
+`./kopsrox.py etcd list`
+
+Show available snapshots
 
 `./kopsrox.py etcd restore $imagename`
 
+- check you're using the correct `kopsrox.etcd.snapshot.token` file for the snapshot!
+
 - downsizes the cluster to 1 node 
+- some stuff not working atm
 
 __list__
 - lists snapshots taken in s3 storage based on cluster name
 
 __prune__
 - deletes old snapshots by 7 days? ( tbc ) 
-
-# etcd backups guide
-
-## snapshot
-
-`./kopsrox.py etcd list`
-
-## restore
-
-`./kopsrox.py etcd list`
-
-- check you're using the correct `kopsrox.etcd.snapshot.token` file for the snapshot
-
-`./kopsrox.py etcd restore $imagename`
-
-- downsizes cluster to 1 master node to do the restore
-- stuff not working
--- leaves old nodes behind
 
 # FAQ
 __can I use debian as a base image vs ubuntu?__
