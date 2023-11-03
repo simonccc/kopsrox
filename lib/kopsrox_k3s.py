@@ -161,7 +161,7 @@ def k3s_rm_cluster(restore = False):
 def k3s_update_cluster():
 
    # refresh the master token
-   common.k3stoken(masterid)
+   k3stoken(masterid)
 
    # get list of running vms
    vmids = proxmox.list_kopsrox_vm()
@@ -259,4 +259,10 @@ def kubectl(cmd):
 def get_token():
   f = open("kopsrox.k3stoken", "r")
   return(f.read().rstrip())
+
+# write token
+def k3stoken(masterid):
+  token = proxmox.qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
+  with open('kopsrox.k3stoken', 'w') as k3s:
+    k3s.write(token)
    

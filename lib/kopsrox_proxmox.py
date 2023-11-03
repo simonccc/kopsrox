@@ -7,9 +7,6 @@ import time, re
 
 from proxmoxer import ProxmoxAPI
 
-# to be removed
-import common_config as common
-
 # common config
 import kopsrox_config as kopsrox_config
 

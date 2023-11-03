@@ -87,7 +87,7 @@ if (cmd == 'create'):
 
   # shell to import disk
   cwd = os.getcwd()
-  import_cmd = 'sudo qm set ' + proximgid  + ' --ciupgrade 0 --virtio0 ' + proxstor + ':0,import-from=' + cwd + '/' + up_image 
+  import_cmd = 'sudo qm set ' + str(proximgid) + ' --ciupgrade 0 --virtio0 ' + proxstor + ':0,import-from=' + cwd + '/' + up_image 
 
   # run shell command to import
   print(kname + 'importing: ' + up_image)

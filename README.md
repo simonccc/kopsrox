@@ -155,9 +155,11 @@ __create__
 - patches it ( installs packages qagent + nfs client) 
 - imports the disk using qm
 - installs k3s 
+
 __destroy__
 - deletes the existing image template
 - delete the .img file manually if you want a fresh download of the upstream image
+
 __info__
 - prints info about image file
 
@@ -166,12 +168,13 @@ __create__
 - creates and updates a cluster - use this to setup a fresh cluster
 - exports kubeconfig
 - checks for existing master and then runs update
+
 __update__
 - adds or deletes workers/masters per `kopsrox.ini`
-### info
-- displays cluster info
--- shows a list of ids, hostnames and ips the host they are running on
--- shows kubectl get nodes
+
+__info__
+- shows a list of ids, hostnames and ips the host they are running on
+- shows kubectl get nodes
 ### kubectl
 - run kubectl commands
 ### kubeconfig
@@ -179,14 +182,15 @@ __update__
 ### destroy
 - destroys the cluster ( NO WARNING! ) 
 ## etcd
-### snapshot
+__snapshot__
 - create a etcd snapshot in the configured S3 storage
 ### restore
 - restores cluster from etcd backup - requires a image name which can be got with the list command
 - downsizes the cluster to 1 node 
 ### list
 - lists snapshots taken in s3 storage based on cluster name
-### prune
+
+__prune__
 - deletes old snapshots by 7 days? ( tbc ) 
 
 # etcd backups guide

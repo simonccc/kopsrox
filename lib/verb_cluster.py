@@ -19,10 +19,15 @@ proxnode = kopsrox_config.proxnode
 proximgid = kopsrox_config.proximgid
 workers = int(kopsrox_config.workers)
 masters = int(kopsrox_config.masters)
+cname = kopsrox_config.cname
 vmnames = kopsrox_config.vmnames
 
 # masterid
 masterid = int(kopsrox_config.get_master_id())
+
+
+# define kname
+kname = 'kopsrox::cluster::' + cmd + '::' + cname + ':'
 
 # info
 if cmd == 'info':

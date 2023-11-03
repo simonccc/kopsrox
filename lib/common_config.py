@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # used by eg vmnames
-import kopsrox_proxmox as proxmox
+#import kopsrox_proxmox as proxmox
 
 from configparser import ConfigParser
 
@@ -21,13 +21,13 @@ proximgid = int(config['proxmox']['proximgid'])
 proxnode = config['proxmox']['proxnode']
 
 # return a list of valid koprox vms
-def vmnames():
-  vmid = proximgid
-  vmnames = []
-  for vmid in proxmox.list_kopsrox_vm():
-    if ( vmid > proximgid ):
-      vmnames.append(vmname(vmid))
-  return(vmnames)
+#def vmnames():
+#  vmid = proximgid
+#  vmnames = []
+#  for vmid in proxmox.list_kopsrox_vm():
+#    if ( vmid > proximgid ):
+#      vmnames.append(vmname(vmid))
+#  return(vmnames)
 
 # look up vmid from name
 def vmname2id(name):
