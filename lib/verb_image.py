@@ -21,7 +21,7 @@ proxstor = kopsrox_config.proxstor
 proximgid = kopsrox_config.proximgid
 
 # generate image name
-kopsrox_img = proxmox.kopsrox_img(proxstor,proximgid)
+kopsrox_img = kopsrox_config.kopsrox_img(proxstor,proximgid)
 
 # define command
 cmd = sys.argv[2]
@@ -88,7 +88,6 @@ if (cmd == 'create'):
   # shell to import disk
   cwd = os.getcwd()
   import_cmd = 'sudo qm set ' + str(proximgid) + ' --ciupgrade 0 --virtio0 ' + proxstor + ':0,import-from=' + cwd + '/' + up_image 
-
   # run shell command to import
   print(kname + 'importing: ' + up_image)
   result = subprocess.run(

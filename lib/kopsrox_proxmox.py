@@ -13,27 +13,11 @@ config = kopsrox_config.config
 prox = kopsrox_config.prox
 
 # config
-proxnode = config['proxmox']['proxnode']
+proxnode = kopsrox_config.proxnode
 proxbridge = config['proxmox']['proxbridge']  
 proximgid = int(config['proxmox']['proximgid'])
 proxstor = config['proxmox']['proxstor']
 vmnames = kopsrox_config.vmnames
-
-# return the image name
-def kopsrox_img(proxstor,proximgid):
-
-  # list contents
-  for image in prox.nodes(proxnode).storage(proxstor).content.get():
-    
-    # map image_name
-    image_name = image.get("volid")
-
-    # if 123-disk-0 found in volid
-    if re.search((str(proximgid) + '-disk-0'), image_name):
-      return(image_name)
-
-  # unable to find image name
-  return('no image')
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
