@@ -34,7 +34,7 @@ if cmd == 'info':
   print(kname)
 
   # map dict of ids and node
-  vms = proxmox.list_kopsrox_vm()
+  vms = kopsrox_config.list_kopsrox_vm()
 
   # for kopsrox vms
   for vmid in vms:
@@ -64,7 +64,7 @@ if ( cmd == 'create' ):
   print(kname)
 
   # get list of runnning vms
-  vmids = proxmox.list_kopsrox_vm()
+  vmids = kopsrox_config.list_kopsrox_vm()
 
   # clone new master
   if not (masterid in vmids):

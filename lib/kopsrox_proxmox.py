@@ -107,24 +107,6 @@ def qaexec(vmid,cmd):
     return('error')
     exit(0)
 
-# return kopsrox vms as a dict with node
-def list_kopsrox_vm():
-
-  # init dict
-  vmids = {}
-
-  # foreach returned vm
-  for vm in prox.cluster.resources.get(type = 'vm'):
-    vmid = int(vm.get('vmid'))
-    node = vm.get('node')
-
-    # magic number ( end of the proxmox id range ) 
-    if ((vmid >= proximgid) and (vmid < (proximgid + 10))):
-      vmids[vmid] = node
-
-  # return sorted dict
-  return(dict(sorted(vmids.items())))
-
 # return the proxnode for a vmid
 def get_node(vmid):
 

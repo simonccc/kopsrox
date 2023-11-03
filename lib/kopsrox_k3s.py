@@ -134,7 +134,7 @@ def k3s_rm(vmid):
 def k3s_rm_cluster(restore = False):
 
   # list all kopsrox vm id's
-  for vmid in sorted(proxmox.list_kopsrox_vm(), reverse = True):
+  for vmid in sorted(kopsrox_config.list_kopsrox_vm(), reverse = True):
 
     # map hostname
     vmname = vmnames[vmid]
@@ -164,7 +164,7 @@ def k3s_update_cluster():
      k3s.write(token)
 
    # get list of running vms
-   vmids = proxmox.list_kopsrox_vm()
+   vmids = kopsrox_config.list_kopsrox_vm()
 
    # do we need to run any more masters
    if ( masters > 1 ):
