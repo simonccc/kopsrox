@@ -85,7 +85,7 @@ def k3s_init_slave(vmid):
     # if master check fails
     if not k3s_check(vmid):
       ip = kopsrox_config.vmip(masterid)
-      token = k3s.get_token()
+      token = get_token()
       vmname = vmnames[vmid]
       print('k3s::k3s_init_slave: installing k3s on', vmname)
 
