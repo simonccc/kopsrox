@@ -27,38 +27,16 @@ masterid = int(kopsrox_config.get_master_id())
 kname = 'kopsrox::cluster::' + cmd + '::' + cname + '::'
 print(kname)
 
-def cluster_info():
-  # map dict of ids and node
-  vms = kopsrox_config.list_kopsrox_vm()
-
-  # for kopsrox vms
-  for vmid in vms:
-
-    # get vm status
-    node = vms[vmid]
-    vm_info = kopsrox_config.vm_info(vmid,node)
-
-    # vars
-    vmname = vm_info.get('name')
-    vmstatus = vm_info.get('status')
-    ip = kopsrox_config.vmip(vmid)
-
-    # print
-    print(str(vmid) + ' ['+  vmstatus + '] ' + ip + '/' + netmask +' [' + node + '] ' + vmname)
-
-  print(kname +'k3s nodes')
-  print(k3s.kubectl('get nodes'))
-
 # info
 if cmd == 'info':
- cluster_info()
+ kopsrox_config.cluster_info()
 
 # update current cluster
-if ( cmd == 'update' ):
+if cmd == 'update':
   k3s.k3s_update_cluster()
 
 # create new cluster / master server
-if ( cmd == 'create' ):
+if cmd == 'create':
 
   # get list of runnning vms
   vmids = kopsrox_config.list_kopsrox_vm()
@@ -80,9 +58,6 @@ if ( cmd == 'create' ):
 
   # perform rest of cluster creation
   k3s.k3s_update_cluster()
-
-  # done
-  print(kname + vmname + ' ok')
 
 # kubectl
 if cmd == 'kubectl':

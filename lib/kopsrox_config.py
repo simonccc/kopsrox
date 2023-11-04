@@ -212,18 +212,18 @@ try:
 except:
 
   # look for existing image
-  kopsrox_img = kopsrox_img(proxstor,proximgid)
+  check_img = kopsrox_img(proxstor,proximgid)
 
   # if no image returned
-  if kopsrox_img == 'no image':
-    print(kname + ' ERROR: no image found - run kopsrox image create')
+  if check_img == 'no image':
+    print(kname + 'ERROR! no image found')
     exit(0)
 
   images = prox.nodes(proxnode).storage(proxstor).content.get()
 
   # search the returned list of images
-  if not (re.search(kopsrox_img, str(images))):
-    print('kopsrox::config:', kopsrox_img, 'not found on '+ proxnode + ':' + proxstor)
+  if not (re.search(check_img, str(images))):
+    print(kname, check_img, 'not found on '+ proxnode + ':' + proxstor)
     print('run kopsrox image create')
     exit(0)
 
@@ -256,3 +256,27 @@ def vmip(vmid):
 def vmname(vmid):
     vmid = int(vmid)
     return(vmnames[vmid])
+
+# cluster info
+def cluster_info():
+  # map dict of ids and node
+  vms = list_kopsrox_vm()
+
+  # for kopsrox vms
+  for vmid in vms:
+
+    # get vm status
+    node = vms[vmid]
+    v_info = vm_info(vmid,node)
+
+    # vars
+    vmname = v_info.get('name')
+    vmstatus = v_info.get('status')
+    ip = vmip(vmid)
+
+    # print
+    print(str(vmid) + ' ['+  vmstatus + '] ' + ip + '/' + netmask +' [' + node + '] ' + vmname)
+
+  print(kname +'k3s nodes')
+  import kopsrox_k3s as k3s
+  print(k3s.kubectl('get nodes'))

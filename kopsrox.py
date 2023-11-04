@@ -55,8 +55,8 @@ except:
   verbs_help()
   exit(0)
 
-
-kname = 'koprox::'+verb
+# define kname
+kname = 'kopsrox::'+verb+'::'
 
 # got a verb now commands
 if verb in verbs:
@@ -65,15 +65,17 @@ if verb in verbs:
     if (sys.argv[2]):
       cmd = str(sys.argv[2])
   except:
-    print(kname, 'ERROR: pass a command')
+    print(kname+'ERROR! pass a command')
     cmds_help(verb)
     exit(0)
 
   # unsupported verb
   if not cmd in list(cmds[verb]):
-    print(kname, 'ERROR:\''+ cmd + '\'- command not found')
+    print(kname+'ERROR! command \''+ cmd + '\' not found')
     cmds_help(verb)
+    exit(0)
 
+  # run passed verb
   exec_verb = __import__('verb_' + verb)
   exit(0)
 
