@@ -249,9 +249,10 @@ def kubeconfig(masterid):
 
 # kubectl
 def kubectl(cmd):
-  k = str(('/usr/local/bin/k3s kubectl ' +cmd))
-  kcmd = proxmox.qaexec(masterid,k)
-  return(kcmd)
+  k3s_cmd = str(('/usr/local/bin/k3s kubectl ' +cmd))
+  kcmd = proxmox.qaexec(masterid,k3s_cmd)
+  # strip line break
+  return(kcmd.rstrip())
 
 # get local token with line break removed
 def get_token():
