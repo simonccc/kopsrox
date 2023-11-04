@@ -210,10 +210,6 @@ def task_status(prox, task_id, node):
     print('proxmox::task_status: ERROR: ' + status["exitstatus"])
     return False
 
-# get vm info
-def vm_info(vmid,node):
-  return(prox.nodes(node).qemu(vmid).status.current.get())
-
 # get file
 def getfile(vmid, path):
   get_file = prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path)

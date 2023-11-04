@@ -41,7 +41,7 @@ if cmd == 'info':
 
     # get vm status
     node = vms[vmid]
-    vm_info = proxmox.vm_info(vmid,node)
+    vm_info = kopsrox_config.vm_info(vmid,node)
 
     # vars
     vmname = vm_info.get('name')
