@@ -6,7 +6,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from proxmoxer import ProxmoxAPI
 
 # prompt
-kname = 'kopsrox::config::'
+kname = '-::config::'
 
 # look for strings in responses
 import re
@@ -192,21 +192,20 @@ except:
 #print(proxstor, storage_type)
 
 # check configured bridge on cluster
-bridge = str(prox.nodes(proxnode).network.get())
+bridge = prox.nodes(proxnode).network.get()
 
 # check configured bridge is in list
-if not re.search(proxbridge, bridge):
-  print(proxbridge, 'bridge not found - available:')
-  for i in bridge:
-    if i.get("type") == 'bridge':
-      print(i.get("iface"))
+if not re.search(proxbridge, str(bridge)):
+  print(kname + 'ERROR! proxbridge \'' + proxbridge + '\' not found\n\nAvailable Bridges:')
+  for bridge in bridge:
+    if bridge.get("type") == 'bridge':
+      print(' * ' + bridge.get("iface"))
   exit(0)
 
 # skip image check if image create is passed
 try:
   # check for image create command line
   if not ((str(sys.argv[1]) == str('image')) and (str(sys.argv[2]) == str('create'))):
-
     # skip to create
     exit(0)
 except:
