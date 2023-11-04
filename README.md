@@ -179,8 +179,6 @@ tested providers include minio, cloudflare, backblaze etc
 
 ### snapshot
 
-- create a etcd snapshot in the configured S3 storage
-
 The first time a snapshot is taken the cluster token is written to `kopsrox.etcd.snapshot.token`
 
 This is not overwriten on further snapshots are taken
@@ -193,7 +191,7 @@ Takes a backup of etcd
 
 Should show the new backup
 
-### restore
+### restore
 
 Restores a cluster from an etcd snapshot
 
@@ -208,10 +206,11 @@ Show available snapshots
 - downsizes the cluster to 1 node 
 - some stuff not working atm
 
-### list
+### list
+
 - lists snapshots taken in s3 storage based on cluster name
 
-__prune__
+### prune
 - deletes old snapshots by 7 days? ( tbc ) 
 
 # FAQ

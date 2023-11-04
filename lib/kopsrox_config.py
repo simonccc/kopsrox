@@ -277,6 +277,5 @@ def cluster_info():
     # print
     print(str(vmid) + ' ['+  vmstatus + '] ' + ip + '/' + netmask +' [' + node + '] ' + vmname)
 
-  print(kname +'k3s nodes')
   import kopsrox_k3s as k3s
   print(k3s.kubectl('get nodes'))

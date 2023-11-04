@@ -11,10 +11,12 @@ import kopsrox_k3s as k3s
 
 # passed command
 cmd = sys.argv[2]
-kname = 'kopsrox::etcd::' + cmd + '::'
+kname = '-::etcd::' + cmd + '::'
 
 # no of master nodes 
 masters = int(kopsrox_config.masters)
+# cluster name
+cname = kopsrox_config.cname
 
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
@@ -28,10 +30,7 @@ def write_token():
     # write the token
     with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
       snapshot_token.write(token)
-    print("etcd::write-token: wrote kopsrox.etcd.snapshot.token")
-
-# cluster name
-cname = config['cluster']['name']
+    print(kname +'::write-token: wrote kopsrox.etcd.snapshot.token')
 
 # s3 details
 endpoint = config['s3']['endpoint']
@@ -103,7 +102,7 @@ def list_images():
   for line in sorted(ls):
 
     # if image name matches the line append to the images string
-    if re.search((cname + '-' + cname), line):
+    if re.search(('kopsrox-' + cname), line):
       images += line + '\n'
 
   # return images string
@@ -117,14 +116,12 @@ if cmd == 'prune':
 
 # snapshot 
 if cmd == 'snapshot':
-  print('etcd::snapshot: running')
+  print(kname, 'started')
 
   # define snapshot command
-  snap_cmd = 'k3s etcd-snapshot save ' + s3_string + ' --name kopsrox'
+  snap_cmd = 'k3s etcd-snapshot save ' + s3_string + ' --name kopsrox --etcd-snapshot-compress'
   #print(snap_cmd)
   snapout = proxmox.qaexec(masterid,snap_cmd)
-
-  # fixme check contents of snapout?
 
   # filter output
   snapout = snapout.split('\n')
@@ -139,7 +136,7 @@ if cmd == 'snapshot':
 
 # print returned images
 if cmd == 'list':
-  print('etcd::list:',endpoint, bucket)
+  print(kname,endpoint+'/'+bucket)
   print(list_images())
 
 # minio etcd snapshot restore

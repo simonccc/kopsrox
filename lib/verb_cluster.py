@@ -24,7 +24,7 @@ netmask = kopsrox_config.netmask
 masterid = int(kopsrox_config.get_master_id())
 
 # define kname
-kname = 'kopsrox::cluster::' + cmd + '::' + cname + '::'
+kname = '-::cluster::' + cmd + '::[' + cname + ']'
 print(kname)
 
 # info

@@ -232,7 +232,7 @@ def k3s_update_cluster():
        worker_name = vmnames[(int(vm))]
        print('k3s::k3s_update_cluster: removing extra worker', worker_name)
        k3s_rm(vm)
-   print(kubectl('get nodes'))
+   kopsrox_config.cluster_info()
 
 # kubeconfig
 def kubeconfig(masterid):
