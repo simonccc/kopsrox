@@ -15,6 +15,9 @@ kname = '-::etcd::' + cmd + '::'
 
 # no of master nodes 
 masters = int(kopsrox_config.masters)
+
+# no of worker nodes
+workers = int(kopsrox_config.workers)
 # cluster name
 cname = kopsrox_config.cname
 
@@ -109,14 +112,13 @@ def list_images():
   return(images)
 
 # s3 prune
-# fixme uses hard coded name
 if cmd == 'prune':
   print(s3_run('prune --name kopsrox'))
   exit(0)
 
 # snapshot 
 if cmd == 'snapshot':
-  print(kname, 'started')
+  print(kname+'starting')
 
   # define snapshot command
   snap_cmd = 'k3s etcd-snapshot save ' + s3_string + ' --name kopsrox --etcd-snapshot-compress'
@@ -126,9 +128,9 @@ if cmd == 'snapshot':
   # filter output
   snapout = snapout.split('\n')
   for line in snapout:
-    if re.search('S3', line):
+    if re.search('upload complete', line):
      print(line)
-  print('etcd::snapshot: done')
+  print(kname+'done')
 
   # check for existing token file
   if not os.path.isfile('kopsrox.etcd.snapshot.token'):
@@ -160,17 +162,18 @@ if cmd == 'restore':
     print(images)
     exit(0)
 
-  print('etcd::restore: downsizing cluster for restore')
-  # what does this mean?
-  k3s.k3s_rm_cluster(restore = True)
+  print(kname,'restoring', snapshot)
 
-  print('etcd::restore: restoring', snapshot)
-  write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token', '/var/tmp/kopsrox.etcd.snapshot.token')
+  # removes all nodes apart from image and master
+  if ( workers != 0 or masters == 3 ):
+    print(kname, 'downsizing cluster for restore')
+    k3s.k3s_rm_cluster(restore = True)
+
+  write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token', '/tmp/kopsrox.etcd.snapshot.token')
 
   # define restore command
-  restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/var/tmp/kopsrox.etcd.snapshot.token ' + s3_string
+  restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/tmp/kopsrox.etcd.snapshot.token ' + s3_string
 
-  print('etcd::restore: restoring please wait')
   restore = proxmox.qaexec(masterid, restore_cmd)
 
   # display some filtered restore contents
@@ -197,9 +200,10 @@ if cmd == 'restore':
   # delete extra nodes in the restored cluster
   nodes = k3s.kubectl('get nodes').split()
   for node in nodes:
-    if ( re.search((cname + '-i'), node) and (node != ( cname + '-m1'))):
-      print('etcd::restore:: removing stale node', node)
+    if ( re.search((cname + '-'), node) and (node != ( cname + '-m1'))):
+      print(kname, 'removing stale node', node)
       k3s.kubectl('delete node ' + node)
 
   # run k3s update
+  print(kname, 'running k3s_update_cluster()')
   k3s.k3s_update_cluster()

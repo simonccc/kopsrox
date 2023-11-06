@@ -83,6 +83,7 @@ def k3s_init_slave(vmid):
     # if master check fails
     if not k3s_check(vmid):
       ip = kopsrox_config.vmip(masterid)
+
       token = get_token()
       vmname = vmnames[vmid]
       print('k3s::k3s_init_slave: installing k3s on', vmname)
@@ -93,9 +94,9 @@ def k3s_init_slave(vmid):
 
       # wait for node to join cluster
       k3s_check_mon(vmid)
-      return('true')
+      return True
 
-    return(status)
+    return False
 
 # init worker node
 def k3s_init_worker(vmid):
@@ -176,7 +177,7 @@ def k3s_update_cluster():
       slave_masterid = (int(masterid) + master_count)
       slave_hostname = vmnames[slave_masterid]
 
-      print('k3s::k3s_update_cluster: checking', slave_hostname)
+      print(kname + 'k3s_update_cluster: checking', slave_hostname)
 
       # existing server
       if (slave_masterid in vmids):
@@ -185,7 +186,9 @@ def k3s_update_cluster():
         proxmox.clone(slave_masterid)
 
       # install k3s on slave and join it to master
-      install_slave = k3s_init_slave(slave_masterid)
+      if not k3s_init_slave(slave_masterid):
+        print(kname + 'ERROR! failed to install slave ' + slave_hostname)
+        exit(0)
 
       # next possible master ( m3 ) 
       master_count = master_count + 1
@@ -256,5 +259,7 @@ def kubectl(cmd):
 
 # get local token with line break removed
 def get_token():
-  f = open("kopsrox.k3stoken", "r")
-  return(f.read().rstrip())
+  k3stoken = open("kopsrox.k3stoken", "r")
+  token = k3stoken.read().rstrip()
+  k3stoken.close()
+  return(token)
