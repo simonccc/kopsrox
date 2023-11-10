@@ -141,7 +141,7 @@ if cmd == 'list':
   print(kname,endpoint+'/'+bucket)
   print(list_images())
 
-# minio etcd snapshot restore
+# restore
 if cmd == 'restore':
 
   # get list of images 
@@ -200,6 +200,8 @@ if cmd == 'restore':
   # delete extra nodes in the restored cluster
   nodes = k3s.kubectl('get nodes').split()
   for node in nodes:
+
+    # if matches cluster name and not master node
     if ( re.search((cname + '-'), node) and (node != ( cname + '-m1'))):
       print(kname, 'removing stale node', node)
       k3s.kubectl('delete node ' + node)

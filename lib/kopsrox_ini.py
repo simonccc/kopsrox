@@ -97,6 +97,7 @@ def init_kopsrox_ini():
 
   # write config
   # file should not already exist...
-  with open(conf, 'w') as configfile:
+  with open('kopsrox.ini', 'w') as configfile:
     config.write(configfile)
+  print('created kopsrox.ini please edit')
   return
