@@ -6,18 +6,35 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from proxmoxer import ProxmoxAPI
 
 # prompt
-kname = '-::config::'
+kname = 'config'
 
 # look for strings in responses
 import re
 
 # checks cmd line args - could be moved?
 import sys
+from termcolor import colored, cprint
 
 # read ini file into config
 from configparser import ConfigParser
 config = ConfigParser()
 config.read('kopsrox.ini')
+
+def kmsg_prompt():
+    cprint('kopsrox', "blue",attrs=["bold"], end='')
+    cprint('::', "cyan", end='' )
+
+# print output
+def kmsg_info(kname, msg):
+    kmsg_prompt()
+    print(msg)
+
+def kmsg_err(kname, msg):
+    kmsg_prompt()
+    print(kname, end='')
+    cprint('::', "cyan", end='' )
+    cprint('ERROR', "red",  end='', attrs=["bold"])
+    print('\n',msg)
 
 # check section and value exists
 def conf_check(section,value):
@@ -29,8 +46,9 @@ def conf_check(section,value):
     # value is blank
     exit(0)
   except:
-    print(kname + 'conf_check: ERROR! check [' + section + '] \'' + value + '\' in ' + ini.conf)
+    kmsg_err(kname, ('check [' + section + '] \'' + value + '\' in kopsrox.ini'))
     exit(0)
+
 
 # proxmox checks
 endpoint = conf_check('proxmox','endpoint')

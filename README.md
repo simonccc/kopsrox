@@ -7,9 +7,11 @@
 
 ## setup prerequisites
 
-- `sudo apt install libguestfs-tools -y`
+- password less sudo access on a proxmox VE host 
 
-_this is required to patch the cloudimage to install qemu-guest-agent_
+- `sudo apt install libguestfs-tools python3-termcolor -y`
+
+_to patch the cloudimage and colors_
 
 - `pip3 install --break-system-packages --user -r requirements.txt`
 
@@ -27,13 +29,23 @@ Take a note of the token as we'll need this below
 
 ## kopsrox.ini
 
-Run `./kopsrox.py` and an example _kopsrox.ini_ will be generated
+run `./kopsrox.py` and an example _kopsrox.ini_ will be generated - you will need to edit this for your setup
 
-Please edit this file for your setup
 
 Kopsrox uses a simple static id/ip assignments based on `proximgid` and `network` settings eg:
 
-|id|proximgid|ip|type|
+```
+[proxmox]
+...
+proximgid = 170
+...
+[kopsrox]
+...
+network = 170
+...
+```
+
+|id|vmid|ip|type|
 |--|--|--|--|
 |0|170|-|image|
 |1|171|192.168.0.171|master 1|
@@ -45,71 +57,6 @@ Kopsrox uses a simple static id/ip assignments based on `proximgid` and `network
 |7|177|192.168.0.177|worker 3|
 |8|178|192.168.0.178|worker 4|
 |9|179|192.168.0.179|worker 5|
-
-
-### [proxmox]
-
-- __endpoint__ = `127.0.0.1` proxmox API host / IP
-
-- __port__ = `8006` port to connect to proxmox API endpoint
-
-- __user__ = `root@pam` - user to connect as
-
-- __token_name__ = `kopsrox` - see api key section above
-
-- __api_key__ = `xxxxxxxxxxxxx` - as generated above
-
-- __proxnode__ = `proxmox` the proxmox node - the image and all nodes are created on this host
-
-- __proxstor__ = `local-lvm` shared storage also works
-
-- __proximgid__ = `600` - the proxmox id used for the kopsrox image/template 
-
-- __up_image_url__ = `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use as the base image
-
-- __proxbridge__ = `vmbr0` - the bridge to use - must have internet access
-
-### [kopsrox]
-
-- __vm_disk__ = `20G` - size of the disk for each node in Gigs
-
-- __vm_cpu__ = `1` - number of vcpus for each vm
-
-- __vm_ram__ = amount of ram in G
-
-- __cloudinituser__ = a user account for access to the vm 
-
-- __cloudinitpass__ = password for the user
-
-- __cloudinitsshkey__ = 
-
-- __network__ = "network" address of proxmox cluster
-
-- __networkgw__ = `192.168.0.1` the default gateway for the network ( must provide internet access ) 
-
-- __netmask__ = `24` cdir netmask for the network 
-
-### [cluster]
-
-- __name__ = `kopsrox` name of the cluster
-
-- __k3s_version__ = `v1.24.6+k3s1` 
-
-- __masters__ = `1` number of master nodes - only other supported value is `3`
-
-- __workers__ = `0` number of worker vms eg `1` - values upto `5` are supported
-
-### [s3]
-
-These values are optional 
-
-- __endpoint__ = eg `s3.yourprovider.com`
-
-- __region__ = `optional`
-
-- __access-key__ = `393893894389`
-
-- __access-secret__ = 
 
 ## get started
 ### create image

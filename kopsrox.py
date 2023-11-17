@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import os, sys
-
-# use lib dir
 sys.path[0:0] = ['lib/']
+
+from termcolor import cprint
 
 # check file exists
 if not os.path.isfile('kopsrox.ini'):
@@ -37,47 +37,50 @@ cmds = {
 # create list of verbs
 verbs = list(cmds)
 
+def kmsg(msg):
+  cprint('kopsrox', "blue",attrs=["bold"], end='')
+  cprint('::', "cyan", end='' )
+  print(msg)
+
 # print list of verbs
 def verbs_help():
+  kmsg('[verb] [command]')
+  print('verbs:')
   for i in verbs:
     print(' * ',i)
 
 # print verbs cmds
 def cmds_help(verb):
+  kmsg(verb+' [command]')
+  print('commands:')
   for i in list(cmds[verb]):
     print(' * ',i)
 
 # handle verb
 try:
+
+  # check for 1st argument
   if (sys.argv[1]):
+
+    # map 1st arg to verb
     verb = str(sys.argv[1])
+
+    # if verb not found in cmds dict
+    if not verb in verbs:
+      exit(0)
 except:
   verbs_help()
   exit(0)
 
-# define kname
-kname = 'kopsrox::'+verb+'::'
-
-# got a verb now commands
-if verb in verbs:
-
-  try:
-    if (sys.argv[2]):
-      cmd = str(sys.argv[2])
-  except:
-    print(kname+'ERROR! pass a command')
-    cmds_help(verb)
-    exit(0)
-
-  # unsupported verb
-  if not cmd in list(cmds[verb]):
-    print(kname+'ERROR! command \''+ cmd + '\' not found')
-    cmds_help(verb)
-    exit(0)
-
-  # run passed verb
-  exec_verb = __import__('verb_' + verb)
+# handle command
+try:
+  if (sys.argv[2]):
+    cmd = str(sys.argv[2])
+    if not cmd in list(cmds[verb]):
+      exit(0)
+except:
+  cmds_help(verb)
   exit(0)
 
-# if passed arg invalid
-verbs_help()
+# run passed verb
+exec_verb = __import__('verb_' + verb)
