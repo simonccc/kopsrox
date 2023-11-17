@@ -20,6 +20,7 @@ from configparser import ConfigParser
 config = ConfigParser()
 config.read('kopsrox.ini')
 
+# kopsrox prompt
 def kmsg_prompt():
     cprint('kopsrox', "blue",attrs=["bold"], end='')
     cprint('::', "cyan", end='' )
@@ -36,7 +37,7 @@ def kmsg_err(kname, msg):
     cprint('ERROR', "red",  end='', attrs=["bold"])
     print('\n',msg)
 
-# check section and value exists
+# check section and value exists in kopsrox.ini
 def conf_check(section,value):
   try:
     # check value is not blank
@@ -48,7 +49,6 @@ def conf_check(section,value):
   except:
     kmsg_err(kname, ('check [' + section + '] \'' + value + '\' in kopsrox.ini'))
     exit(0)
-
 
 # proxmox checks
 endpoint = conf_check('proxmox','endpoint')
@@ -103,16 +103,21 @@ vmnames = {
 }
 
 # proxmox api connection
-prox = ProxmoxAPI(
-  endpoint,
-  port=port,
-  user=user,
-  token_name=token_name,
-  token_value=api_key,
-  verify_ssl=False,
-  timeout=5)
+try: 
+  prox = ProxmoxAPI(
+    endpoint,
+    port=port,
+    user=user,
+    token_name=token_name,
+    token_value=api_key,
+    verify_ssl=False,
+    timeout=5)
+except:
+  kmsg_err(kname, 'unable to connect to proxmox')
+  exit(0)
 
 # look up kopsrox_img
+# why do we have to pass proxstor?
 def kopsrox_img(proxstor,proximgid):
 
   # list contents
@@ -128,36 +133,39 @@ def kopsrox_img(proxstor,proximgid):
   # unable to find image name
   return('no image')
 
+# return dict of kopsrox vms by node
 def list_kopsrox_vm():
 
   # init dict
   vmids = {}
 
-  # foreach returned vm
+  # get all vms running on proxmox
   for vm in prox.cluster.resources.get(type = 'vm'):
+
+    # map id
     vmid = int(vm.get('vmid'))
+
+    # map node 
     node = vm.get('node')
 
-    # magic number ( end of the proxmox id range )
+    # if vmid is in kopsrox config range ie between proximgid and proximgid + 10
     if ((vmid >= proximgid) and (vmid < (proximgid + 10))):
       vmids[vmid] = node
 
   # return sorted dict
   return(dict(sorted(vmids.items())))
 
+# returns vmstatus
 def vm_info(vmid,node):
   return(prox.nodes(node).qemu(vmid).status.current.get())
 
-# returns masterid ported from common config
+# returns masterid 
 def get_master_id():
   return(int(proximgid) + 1)
 
-# safe to import these now ( has to be this order ) 
-#import kopsrox_proxmox as proxmox
-
 # master check - can only be 1 or 3
-if not ( (masters == 1) or (masters == 3)):
-  print (kname +' ERROR! only 1 or 3 masters supported. You have:', masters)
+if not ((masters == 1) or (masters == 3)):
+  kmsg_err(kname, ('[cluster] - masters: only 1 or 3 masters supported. You have: '+str(masters)))
   exit(0)
 
 # if unable to get cluster status from api

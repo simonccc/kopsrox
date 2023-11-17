@@ -31,14 +31,12 @@ Take a note of the token as we'll need this below
 
 run `./kopsrox.py` and an example _kopsrox.ini_ will be generated - you will need to edit this for your setup
 
-
-Kopsrox uses a simple static id/ip assignments based on `proximgid` and `network` settings eg:
-
+Kopsrox uses a simple static id/ip assignments based on `proximgid` and `network` settings eg 
 
 ```
 [proxmox]
 ...
-proximgid = 170
+proximgid = 620
 ...
 [kopsrox]
 ...
@@ -48,19 +46,21 @@ network = 192.168.0.170
 
 |-|vmid|ip|type|
 |--|--|--|--|
-|0|170|-|image|
-|1|171|192.168.0.171|master 1|
-|2|172|192.168.0.172|master 2|
-|3|173|192.168.0.173|master 3|
-|4|174|-|spare|
-|5|175|192.168.0.175|worker 1|
-|6|176|192.168.0.176|worker 2|
-|7|177|192.168.0.177|worker 3|
-|8|178|192.168.0.178|worker 4|
-|9|179|192.168.0.179|worker 5|
+|0|620|-|image|
+|1|621|192.168.0.171|master 1|
+|2|622|192.168.0.172|master 2|
+|3|623|192.168.0.173|master 3|
+|4|624|-|spare|
+|5|625|192.168.0.175|worker 1|
+|6|626|192.168.0.176|worker 2|
+|7|627|192.168.0.177|worker 3|
+|8|628|192.168.0.178|worker 4|
+|9|629|192.168.0.179|worker 5|
+
+see [CONFIG.md](CONFIG.md)
 
 ## get started
-### create image
+### create an image
 
 `./kopsrox.py create image`
 
@@ -68,17 +68,17 @@ network = 192.168.0.170
 
 `./kopsrox.py cluster create`
 
-### add worker
+### add a worker
 
 Edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 
 `./kopsrox.py cluster update`
 
-### check cluster info
+### check the cluster info
 
 `./kopsrox.py cluster info`
 
-## commands
+## kopsrox usage 
 
 ### image
 __create__
@@ -95,16 +95,17 @@ __info__
 - prints info about image file
 
 ## cluster
-__create__
+
+### create
 - creates and updates a cluster - use this to setup a fresh cluster
 - exports kubeconfig and node token
 - if a working master is found just runs `update`
 
-__update__
+### update
 - checks the state of the cluster vs what is configured in `kopsrox.ini`
 - adds or deletes workers/masters per `kopsrox.ini`
 
-__info__
+### info
 - shows a list of ids, hostnames and ips the host they are running on
 - shows kubectl get nodes
 
@@ -129,7 +130,7 @@ tested providers include minio, cloudflare, backblaze etc
 
 The first time a snapshot is taken the cluster token is written to `kopsrox.etcd.snapshot.token`
 
-This is not overwriten on further snapshots are taken
+This is not overwriten when further snapshots are taken - even on a new cluster
 
 `./kopsrox.py etcd snapshot`
 
@@ -145,20 +146,20 @@ Restores a cluster from an etcd snapshot
 
 `./kopsrox.py etcd list`
 
-Show available snapshots
+show available snapshots
 
 `./kopsrox.py etcd restore $imagename`
 
 - check you're using the correct `kopsrox.etcd.snapshot.token` file for the snapshot!
 
 - downsizes the cluster to 1 node 
-- some stuff not working atm
 
 ### list
 
 - lists snapshots taken in s3 storage based on cluster name
 
-### prune
+### prune
+
 - deletes old snapshots by 7 days? ( tbc ) 
 
 # FAQ
