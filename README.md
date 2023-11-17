@@ -34,6 +34,7 @@ run `./kopsrox.py` and an example _kopsrox.ini_ will be generated - you will nee
 
 Kopsrox uses a simple static id/ip assignments based on `proximgid` and `network` settings eg:
 
+
 ```
 [proxmox]
 ...
@@ -41,11 +42,11 @@ proximgid = 170
 ...
 [kopsrox]
 ...
-network = 170
+network = 192.168.0.170
 ...
 ```
 
-|id|vmid|ip|type|
+|-|vmid|ip|type|
 |--|--|--|--|
 |0|170|-|image|
 |1|171|192.168.0.171|master 1|
