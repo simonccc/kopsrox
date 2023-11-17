@@ -30,6 +30,7 @@ def kmsg_info(kname, msg):
     kmsg_prompt()
     print(msg)
 
+# error msg
 def kmsg_err(kname, msg):
     kmsg_prompt()
     print(kname, end='')
@@ -116,9 +117,8 @@ except:
   kmsg_err(kname, 'unable to connect to proxmox')
   exit(0)
 
-# look up kopsrox_img
-# why do we have to pass proxstor?
-def kopsrox_img(proxstor,proximgid):
+# look up kopsrox_img name
+def kopsrox_img():
 
   # list contents
   for image in prox.nodes(proxnode).storage(proxstor).content.get():
@@ -145,12 +145,10 @@ def list_kopsrox_vm():
     # map id
     vmid = int(vm.get('vmid'))
 
-    # map node 
-    node = vm.get('node')
-
     # if vmid is in kopsrox config range ie between proximgid and proximgid + 10
+    # add vmid and node to dict
     if ((vmid >= proximgid) and (vmid < (proximgid + 10))):
-      vmids[vmid] = node
+      vmids[vmid] = vm.get('node')
 
   # return sorted dict
   return(dict(sorted(vmids.items())))
@@ -237,7 +235,7 @@ try:
 except:
 
   # look for existing image
-  check_img = kopsrox_img(proxstor,proximgid)
+  check_img = kopsrox_img()
 
   # if no image returned
   if check_img == 'no image':

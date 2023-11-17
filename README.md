@@ -78,9 +78,9 @@ Edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 
 `./kopsrox.py cluster info`
 
-## kopsrox usage 
+# usage 
 
-### image
+## image
 __create__
 - downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
 - patches it ( installs packages qagent + nfs client) 

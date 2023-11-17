@@ -21,7 +21,7 @@ proxstor = kopsrox_config.proxstor
 proximgid = kopsrox_config.proximgid
 
 # generate image name
-kopsrox_img = kopsrox_config.kopsrox_img(proxstor,proximgid)
+kopsrox_img = kopsrox_config.kopsrox_img()
 
 # define command
 cmd = sys.argv[2]
@@ -132,7 +132,7 @@ if (cmd == 'info'):
     if image.get('volid') == (kopsrox_img):
 
       # created time
-      created = str(datetime.fromtimestamp(image.get('ctime')))
+      created = str(datetime.fromtimestamp(int(image.get('ctime'))))
 
       # size in G
       size = str(int(image.get('size') / 1073741824)) + 'G'
