@@ -190,6 +190,12 @@ def clone(vmid):
               ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/'+ netmask ))
   task_status(prox, str(configure), proxnode)
 
+  disc = prox.nodes(proxnode).qemu(vmid).resize.put(
+        disk = 'virtio0',
+        size = kopsrox_config.vm_disk,
+        )
+  task_status(prox, str(disc), proxnode)
+
   # power on
   poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
   task_status(prox, str(poweron), proxnode)

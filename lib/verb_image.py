@@ -14,7 +14,8 @@ from datetime import datetime
 import urllib.parse
 
 # proxmox connection
-import kopsrox_proxmox as proxmox
+#import kopsrox_proxmox as proxmox
+from kopsrox_proxmox import task_status, destroy
 prox = kopsrox_config.prox
 
 # map config values
@@ -55,7 +56,7 @@ if (cmd == 'create'):
 
   # destroy template if it exists
   try:
-    proxmox.destroy(proximgid)
+    destroy(proximgid)
   except:
     next
 
@@ -75,7 +76,7 @@ if (cmd == 'create'):
           agent = ('enabled=true'),
           hotplug = 0,
           )
-  proxmox.task_status(prox, str(create), proxnode)
+  task_status(prox, str(create), proxnode)
 
   # shell to import disk
   cwd = os.getcwd()
@@ -86,13 +87,6 @@ if (cmd == 'create'):
     ['bash', "-c", import_cmd], capture_output=True, text=True
   )
 
-  # resize disk to suitable size
-  disc = prox.nodes(proxnode).qemu(proximgid).resize.put(
-        disk = 'virtio0',
-        size = kopsrox_config.vm_disk,
-        )
-  proxmox.task_status(prox, str(disc), proxnode)
-
   # url encode ssh key for cloudinit
   ssh_encode = urllib.parse.quote(kopsrox_config.cloudinitsshkey, safe='')
 
@@ -102,15 +96,15 @@ if (cmd == 'create'):
           cipassword = kopsrox_config.cloudinitpass,
           ipconfig0 = ( 'gw=' + kopsrox_config.networkgw + ',ip=' + kopsrox_config.network + '/' + kopsrox_config.netmask ), 
           sshkeys = ssh_encode )
-  proxmox.task_status(prox, str(cloudinit), proxnode)
+  task_status(prox, str(cloudinit), proxnode)
 
   # convert to template via create base disk
   set_basedisk = prox.nodes(proxnode).qemu(proximgid).template.post()
-  proxmox.task_status(prox, str(set_basedisk), proxnode)
+  task_status(prox, str(set_basedisk), proxnode)
 
   # set also in vmconfig
   set_template = prox.nodes(proxnode).qemu(proximgid).config.post(template = 1)
-  proxmox.task_status(prox, str(set_template), proxnode)
+  task_status(prox, str(set_template), proxnode)
 
 # list images on proxstor
 # this might be more useful if we allow different images in the future
@@ -135,4 +129,4 @@ if (cmd == 'info'):
 # destroy image
 if (cmd == 'destroy'):
   print('kopsrox:image::destroy:', kopsrox_img)
-  proxmox.destroy(proximgid)
+  destroy(proximgid)
