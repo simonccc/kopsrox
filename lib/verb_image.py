@@ -40,26 +40,16 @@ if (cmd == 'create'):
     wget.download(kopsrox_config.up_image_url)
     print('')
 
-    # define virt-customize command
-    virtc_cmd = 'sudo virt-customize -a ' + up_image
-
-    # install qemu-guest-agent
-    qa_patch = virtc_cmd + ' --install qemu-guest-agent,nfs-common' 
-
-    # install k3s 
-    k3s_install  = virtc_cmd  + ' --run-command "curl -sfL https://get.k3s.io > /k3s.sh"' 
-
-    # resize image with vm_disk size from config
-    resize_patch = 'sudo qemu-img resize ' + up_image + ' ' + kopsrox_config.vm_disk 
-
-    # generate the final patch command
-    patch_cmd = (qa_patch + ' && ' + k3s_install + ' && ' + resize_patch)
-
     # patch image 
     print(kname + 'create: patching: ' + up_image)
+    patch_cmd = 'sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent,nfs-common --run-command "curl -sfL https://get.k3s.io > /k3s.sh"'
+
     result = subprocess.run(
       ['bash', "-c", patch_cmd], capture_output=True, text=True
     )
+
+    # resize image with vm_disk size from config
+    #resize_patch = 'sudo qemu-img resize ' + up_image + ' ' + kopsrox_config.vm_disk 
 
   # destroy template if it exists
   try:
