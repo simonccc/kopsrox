@@ -6,8 +6,9 @@
 - quick demo: https://asciinema.org/a/597074
 
 Docs:
-[CONFIG.md](CONFIG.md)
-[FAQ.md](FAG.md)
+
+ - [CONFIG.md](CONFIG.md)
+ - [FAQ.md](FAQ.md)
 
 
 ## setup prerequisites
