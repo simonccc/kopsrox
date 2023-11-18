@@ -45,11 +45,10 @@ if cmd == 'create':
   if not (masterid in vmids):
     proxmox.clone(masterid)
 
-  # map hostname
-  vmname = vmnames[masterid]
-
   # if init worked ok
-  if not k3s.k3s_init_master(masterid):
+  try:
+    k3s.k3s_init_master(masterid)
+  except:
     print(kname + 'ERROR: master not installed')
     exit(0)
 

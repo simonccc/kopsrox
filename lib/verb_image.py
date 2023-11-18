@@ -25,7 +25,7 @@ kopsrox_img = kopsrox_config.kopsrox_img()
 
 # define command
 cmd = sys.argv[2]
-kname = 'kopsrox::image::'
+kname = 'image-'+cmd
 
 # create image
 if (cmd == 'create'):
@@ -35,6 +35,7 @@ if (cmd == 'create'):
 
   # download image with wget if not present
   if not os.path.isfile(up_image):
+
     print(kname + 'downloading:', up_image)
     wget.download(kopsrox_config.up_image_url)
     print('')
@@ -47,13 +48,12 @@ if (cmd == 'create'):
 
     # install k3s 
     k3s_install  = virtc_cmd  + ' --run-command "curl -sfL https://get.k3s.io > /k3s.sh"' 
-    k3s_patch = virtc_cmd  + ' --run-command "cat /k3s.sh | INSTALL_K3S_SKIP_ENABLE=true INSTALL_K3S_VERSION="' + kopsrox_config.k3s_version + '" sh -"' 
 
     # resize image with vm_disk size from config
     resize_patch = 'sudo qemu-img resize ' + up_image + ' ' + kopsrox_config.vm_disk 
 
     # generate the final patch command
-    patch_cmd = (qa_patch + ' && ' + k3s_install + ' && ' + k3s_patch + ' && ' + resize_patch)
+    patch_cmd = (qa_patch + ' && ' + k3s_install + ' && ' + resize_patch)
 
     # patch image 
     print(kname + 'create: patching: ' + up_image)

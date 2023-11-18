@@ -87,9 +87,8 @@ def qaexec(vmid,cmd):
   # debug
   # print(pid_check)
 
-  # check for error
+  # check for exitcode 127
   if ( int(pid_check['exitcode']) == 127 ):
-    print('exitcode 127', pid_check['err-data'])
     return(pid_check['err-data'])
 
   # check for err-data
