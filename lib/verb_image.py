@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-# general imports
 import kopsrox_config as kopsrox_config
+from kopsrox_config import kmsg_info
+
+# general imports
 import wget, re, time
 import sys, os, subprocess
 
@@ -36,12 +38,12 @@ if (cmd == 'create'):
   # download image with wget if not present
   if not os.path.isfile(up_image):
 
-    print(kname + 'downloading:', up_image)
+    kmsg_info(kname, ('downloading: ' + up_image))
     wget.download(kopsrox_config.up_image_url)
     print('')
 
     # patch image 
-    print(kname + 'create: patching: ' + up_image)
+    kmsg_info(kname, ('patching: ' + up_image))
     patch_cmd = 'sudo virt-customize -a ' + up_image + ' --install qemu-guest-agent,nfs-common --run-command "curl -sfL https://get.k3s.io > /k3s.sh"'
 
     result = subprocess.run(
@@ -79,7 +81,7 @@ if (cmd == 'create'):
   cwd = os.getcwd()
   import_cmd = 'sudo qm set ' + str(proximgid) + ' --ciupgrade 0 --virtio0 ' + proxstor + ':0,import-from=' + cwd + '/' + up_image 
   # run shell command to import
-  print(kname + 'importing: ' + up_image)
+  kmsg_info(kname, ('importing '+up_image))
   result = subprocess.run(
     ['bash', "-c", import_cmd], capture_output=True, text=True
   )

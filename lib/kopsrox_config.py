@@ -28,6 +28,8 @@ def kmsg_prompt():
 # print output
 def kmsg_info(kname, msg):
     kmsg_prompt()
+    cprint(kname, "green", end='')
+    cprint(':: ', "cyan", end='' )
     print(msg)
 
 # error msg
