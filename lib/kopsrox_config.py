@@ -107,6 +107,8 @@ vmnames = {
 
 # proxmox api connection
 try: 
+
+  # api connection
   prox = ProxmoxAPI(
     endpoint,
     port=port,
@@ -115,8 +117,11 @@ try:
     token_value=api_key,
     verify_ssl=False,
     timeout=5)
+
+  # check connection to cluster
+  prox.cluster.status.get()
 except:
-  kmsg_err(kname, 'unable to connect to proxmox')
+  kmsg_err(kname, 'API connection failed check [proxmox] settings in kopsrox.ini')
   exit(0)
 
 # look up kopsrox_img name
@@ -166,11 +171,6 @@ def get_master_id():
 # master check - can only be 1 or 3
 if not ((masters == 1) or (masters == 3)):
   kmsg_err(kname, ('[cluster] - masters: only 1 or 3 masters supported. You have: '+str(masters)))
-  exit(0)
-
-# if unable to get cluster status from api
-if not prox.cluster.status.get():
-  print(kname + 'ERROR: unable to connect to proxmox')
   exit(0)
 
 # get list of nodes
