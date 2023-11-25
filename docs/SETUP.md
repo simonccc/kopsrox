@@ -1,6 +1,6 @@
 ## setup prerequisites
 
-- password less sudo access on a proxmox VE host 
+- password less sudo access on a proxmox VE host  ( tested up to 8.1.3 ) 
 
 - `sudo apt install libguestfs-tools python3-termcolor -y`
 
@@ -49,5 +49,3 @@ network = 192.168.0.170
 |7|627|192.168.0.177|worker 3|
 |8|628|192.168.0.178|worker 4|
 |9|629|192.168.0.179|worker 5|
-
-see [CONFIG.md](CONFIG.md)
