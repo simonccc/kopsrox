@@ -44,8 +44,8 @@ def kmsg(msg):
 
 # print list of verbs
 def verbs_help():
-  kmsg('[verb] [command]')
-  print('verbs:')
+  kmsg('kopsrox [verb] [command]')
+  cprint('verbs:', "yellow", attrs=["bold"])
   for i in verbs:
     print(' * ',i)
 

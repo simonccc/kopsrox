@@ -25,20 +25,27 @@ def kmsg_prompt():
     cprint('kopsrox', "blue",attrs=["bold"], end='')
     cprint('::', "cyan", end='' )
 
-# print output
+# print normal output
 def kmsg_info(kname, msg):
     kmsg_prompt()
     cprint(kname, "green", end='')
     cprint(':: ', "cyan", end='' )
     print(msg)
 
-# error msg
+# print warning
+def kmsg_warn(kname, msg):
+    kmsg_prompt()
+    cprint(kname, "red", attrs=["bold"], end='')
+    cprint(':: ', "cyan")
+    print('-',msg)
+
+# print error msg
 def kmsg_err(kname, msg):
     kmsg_prompt()
-    print(kname, end='')
+    cprint(kname, "yellow", attrs=["bold"], end='')
     cprint('::', "cyan", end='' )
-    cprint('ERROR', "red",  end='', attrs=["bold"])
-    print('\n',msg)
+    cprint('ERROR', "red", attrs=["bold"])
+    print('-',msg)
 
 # check section and value exists in kopsrox.ini
 def conf_check(section,value):
@@ -145,7 +152,7 @@ def kopsrox_img():
       return(image_name)
 
   # unable to find image name
-  return('no image')
+  return False
 
 # return dict of kopsrox vms by node
 def list_kopsrox_vm():
@@ -237,22 +244,14 @@ try:
     # skip to create
     exit(0)
 except:
-
-  # look for existing image
-  check_img = kopsrox_img()
-
-  # if no image returned
-  if check_img == 'no image':
-    print(kname + 'ERROR! no image found')
-    exit(0)
-
-  images = prox.nodes(proxnode).storage(proxstor).content.get()
-
-  # search the returned list of images
-  if not (re.search(check_img, str(images))):
-    print(kname, check_img, 'not found on '+ proxnode + ':' + proxstor)
-    print('run kopsrox image create')
-    exit(0)
+  try:
+    # check for image
+    if not kopsrox_img():
+      exit()
+  except:
+    # no image found
+    kmsg_err('config-image-check', 'no image run \'kopsrox image create\'')
+    exit()
 
 # get dict of vms
 vms = list_kopsrox_vm()
