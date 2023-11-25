@@ -84,7 +84,14 @@ netmask = conf_check('kopsrox','netmask')
 
 # cluster level checks
 cname = conf_check('cluster', 'name')
+
+# master check
 masters = int(conf_check('cluster','masters'))
+if not ((masters == 1) or (masters == 3)):
+  kmsg_err(kname, ('[cluster] - masters: only 1 or 3 masters supported. You have: '+str(masters)))
+  exit(0)
+
+# workers
 workers = int(conf_check('cluster','workers'))
 k3s_version = conf_check('cluster','k3s_version')
 
@@ -167,11 +174,6 @@ def vm_info(vmid,node):
 # returns masterid 
 def get_master_id():
   return(int(proximgid) + 1)
-
-# master check - can only be 1 or 3
-if not ((masters == 1) or (masters == 3)):
-  kmsg_err(kname, ('[cluster] - masters: only 1 or 3 masters supported. You have: '+str(masters)))
-  exit(0)
 
 # get list of nodes
 nodes = prox.nodes.get()
@@ -302,5 +304,5 @@ def cluster_info():
     # print
     print(str(vmid) + ' ['+  vmstatus + '] ' + ip + '/' + netmask +' [' + node + '] ' + vmname)
 
-  import kopsrox_k3s as k3s
-  print(k3s.kubectl('get nodes'))
+  from kopsrox_k3s import kubectl
+  print(kubectl('get nodes'))
