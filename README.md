@@ -9,12 +9,13 @@
 Docs:
 
  - [SETUP.md](docs/SETUP.md)
- - [CONFIG.md](CONFIG.md)
+ - [CONFIG.md](docs/CONFIG.md)
  - [GETSTARTED.md](docs/GETSTARTED.md)
  - [USAGE.md](docs/USAGE.md)
  - [FAQ.md](docs/FAQ.md)
 
 In Progress:
 
+ - Documentation
  - code clean up 
- - standardising output
+ - standardising output ( colors ) 
