@@ -2,6 +2,7 @@
 
 # common import
 import kopsrox_config as kopsrox_config
+from kopsrox_config import masterid
 
 # standard imports
 import kopsrox_proxmox as proxmox
@@ -14,7 +15,6 @@ config = kopsrox_config.config
 k3s_version = kopsrox_config.k3s_version
 masters = int(config['cluster']['masters'])
 workers = int(config['cluster']['workers'])
-masterid = int(kopsrox_config.get_master_id())
 
 # cluster name
 cname = config['cluster']['name']

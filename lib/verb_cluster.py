@@ -2,6 +2,7 @@
 
 # common include file
 import kopsrox_config as kopsrox_config
+from kopsrox_config import masterid,cname
 from kopsrox_config import kmsg_info, kmsg_warn
 
 # other imports
@@ -11,9 +12,6 @@ import kopsrox_k3s as k3s
 
 # passed command
 cmd = sys.argv[2]
-
-# masterid
-masterid = int(kopsrox_config.get_master_id())
 
 # define kname
 kname = ('cluster-'+cmd)
@@ -78,4 +76,5 @@ if cmd == 'kubeconfig':
 
 # destroy the cluster
 if cmd == 'destroy':
+  kmsg_warn(kname, ('destroying '+cname))
   k3s.k3s_rm_cluster()

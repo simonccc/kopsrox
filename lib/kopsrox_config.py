@@ -105,6 +105,9 @@ k3s_version = conf_check('cluster','k3s_version')
 # dict of all config items - legacy support
 config = ({s:dict(config.items(s)) for s in config.sections()})
 
+# define masterid
+masterid = int((proximgid) + 1)
+
 # define vmnames
 vmnames = {
 (proximgid): cname +'-image',
@@ -177,10 +180,6 @@ def list_kopsrox_vm():
 # returns vmstatus
 def vm_info(vmid,node):
   return(prox.nodes(node).qemu(vmid).status.current.get())
-
-# returns masterid 
-def get_master_id():
-  return(int(proximgid) + 1)
 
 # get list of nodes
 nodes = prox.nodes.get()

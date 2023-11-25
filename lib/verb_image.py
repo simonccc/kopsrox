@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 
 import kopsrox_config as kopsrox_config
-from kopsrox_config import kmsg_info, kmsg_warn
+
+# functions
+from kopsrox_config import prox, kmsg_info, kmsg_warn
+
+# strings
+from kopsrox_config import proxnode, proxstor, proximgid, up_img_url
 
 # general imports
 import wget, re, time
@@ -14,14 +19,7 @@ from datetime import datetime
 import urllib.parse
 
 # proxmox connection
-#import kopsrox_proxmox as proxmox
 from kopsrox_proxmox import task_status, destroy
-prox = kopsrox_config.prox
-
-# map config values
-proxnode = kopsrox_config.proxnode
-proxstor = kopsrox_config.proxstor
-proximgid = kopsrox_config.proximgid
 
 # generate image name
 kopsrox_img = kopsrox_config.kopsrox_img()
@@ -34,13 +32,13 @@ kname = 'image-'+cmd
 if (cmd == 'create'):
 
   # get image name
-  up_image = (kopsrox_config.up_image_url.split('/')[-1])
+  up_image = (up_image_url.split('/')[-1])
 
   # download image with wget if not present
   if not os.path.isfile(up_image):
 
     kmsg_info(kname, ('downloading: ' + up_image))
-    wget.download(kopsrox_config.up_image_url)
+    wget.download(up_image_url)
     print('')
 
     # patch image 

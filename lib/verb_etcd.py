@@ -2,7 +2,7 @@
 
 # standard import
 import kopsrox_config as kopsrox_config
-config = kopsrox_config.config
+from kopsrox_config import config, masterid
 
 # standard imports
 import sys, re, os
@@ -55,9 +55,6 @@ s3_string = \
 ' --etcd-s3-secret-key ' + access_secret + \
 ' --etcd-s3-bucket ' + bucket + \
 ' --etcd-s3-skip-ssl-verify '
-
-# get masterid
-masterid = kopsrox_config.get_master_id()
 
 # check master is running / exists
 try:
