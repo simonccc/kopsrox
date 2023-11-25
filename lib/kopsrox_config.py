@@ -36,8 +36,8 @@ def kmsg_info(kname, msg):
 def kmsg_warn(kname, msg):
     kmsg_prompt()
     cprint(kname, "red", attrs=["bold"], end='')
-    cprint(':: ', "cyan")
-    print('-',msg)
+    cprint(':: ', "cyan", end='')
+    print(msg)
 
 # print error msg
 def kmsg_err(kname, msg):

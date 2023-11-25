@@ -3,7 +3,7 @@
 # common include file
 import kopsrox_config as kopsrox_config
 from kopsrox_config import masterid,cname
-from kopsrox_config import kmsg_info, kmsg_warn
+from kopsrox_config import kmsg_info, kmsg_warn, cluster_info
 
 # other imports
 import sys, os, re, time
@@ -15,11 +15,14 @@ cmd = sys.argv[2]
 
 # define kname
 kname = ('cluster-'+cmd)
-kmsg_info(kname, '')
+
+# destroy is warn
+if not cmd =='destroy':
+  kmsg_info(kname, '')
 
 # info
 if cmd == 'info':
- kopsrox_config.cluster_info()
+ cluster_info()
 
 # update current cluster
 if cmd == 'update':

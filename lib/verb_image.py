@@ -6,7 +6,7 @@ import kopsrox_config as kopsrox_config
 from kopsrox_config import prox, kmsg_info, kmsg_warn
 
 # strings
-from kopsrox_config import proxnode, proxstor, proximgid, up_img_url
+from kopsrox_config import proxnode, proxstor, proximgid, up_image_url
 
 # general imports
 import wget, re, time
