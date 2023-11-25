@@ -2,6 +2,7 @@
 
 # common include file
 import kopsrox_config as kopsrox_config
+from kopsrox_config import kmsg_info, kmsg_warn
 
 # other imports
 import sys, os, re, time
@@ -11,21 +12,12 @@ import kopsrox_k3s as k3s
 # passed command
 cmd = sys.argv[2]
 
-# variables from config
-proxnode = kopsrox_config.proxnode
-proximgid = kopsrox_config.proximgid
-workers = int(kopsrox_config.workers)
-masters = int(kopsrox_config.masters)
-cname = kopsrox_config.cname
-vmnames = kopsrox_config.vmnames
-netmask = kopsrox_config.netmask
-
 # masterid
 masterid = int(kopsrox_config.get_master_id())
 
 # define kname
-kname = '-::cluster::' + cmd + '::[' + cname + ']'
-print(kname)
+kname = ('cluster-'+cmd)
+kmsg_info(kname, '')
 
 # info
 if cmd == 'info':
