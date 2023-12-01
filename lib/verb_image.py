@@ -71,7 +71,7 @@ if (cmd == 'create'):
     agent = ('enabled=true'),
     hotplug = 0,
   )
-  task_status(prox, str(create), proxnode)
+  task_status(create)
 
   # shell to import disk
   import_cmd = 'sudo qm set ' + str(proximgid) + \
@@ -98,15 +98,15 @@ if (cmd == 'create'):
     ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/' + netmask ), 
     sshkeys = ssh_encode 
   )
-  task_status(prox, str(cloudinit), proxnode)
+  task_status(cloudinit)
 
   # convert to template via create base disk
   set_basedisk = prox.nodes(proxnode).qemu(proximgid).template.post()
-  task_status(prox, str(set_basedisk), proxnode)
+  task_status(set_basedisk)
 
   # set also in vmconfig
   set_template = prox.nodes(proxnode).qemu(proximgid).config.post(template = 1)
-  task_status(prox, str(set_template), proxnode)
+  task_status(set_template)
 
 # list images on proxstor
 # this might be more useful if we allow different images in the future

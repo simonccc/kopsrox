@@ -126,7 +126,7 @@ def destroy(vmid):
     # if destroying image
     if ( int(vmid) == proximgid ):
       delete = prox.nodes(proxnode).qemu(vmid).delete()
-      task_status(prox, delete, proxnode)
+      task_status(delete)
       return
 
     # get node and vmname
@@ -136,11 +136,11 @@ def destroy(vmid):
 
       # power off
       poweroff = prox.nodes(proxnode).qemu(vmid).status.stop.post()
-      task_status(prox, poweroff, proxnode)
+      task_status(poweroff)
 
       # delete
       delete = prox.nodes(proxnode).qemu(vmid).delete()
-      task_status(prox, delete, proxnode)
+      task_status(delete)
 
       print('proxmox::destroy: ' + vmname + ' [' + proxnode + ']', 'done')
 
@@ -165,7 +165,7 @@ def clone(vmid):
   # clone
   kmsg_info('prox-clone', (str(vmid)+' ['+ proxnode + '] ' + hostname + ' '+ ip + '/' + netmask))
   clone = prox.nodes(proxnode).qemu(proximgid).clone.post(newid = vmid)
-  task_status(prox, clone)
+  task_status(clone)
 
   # configure
   configure = prox.nodes(proxnode).qemu(vmid).config.post(
@@ -177,21 +177,21 @@ def clone(vmid):
     net0 = ('model=virtio,bridge=' + proxbridge),
     ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/'+ netmask )
   )
-  task_status(prox, str(configure))
+  task_status(str(configure))
 
   # resize disk
   disc = prox.nodes(proxnode).qemu(vmid).resize.put(
     disk = 'virtio0',
     size = vm_disk,
   )
-  task_status(prox, str(disc))
+  task_status(str(disc))
 
   # power on
   poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
-  task_status(prox, str(poweron), proxnode)
+  task_status(str(poweron))
 
 # proxmox task blocker
-def task_status(prox, task_id, node=proxnode):
+def task_status(task_id, node=proxnode):
 
   # define default status
   status = {"status": ""}
@@ -202,7 +202,7 @@ def task_status(prox, task_id, node=proxnode):
 
   # if task not completed ok
   if not status["exitstatus"] == "OK":
-    print('proxmox::task_status: ERROR: ' + status["exitstatus"])
+    kmsg_err('prox-task-status', status["exitstatus"])
     return False
 
 # get file
