@@ -16,12 +16,9 @@ cmd = sys.argv[2]
 # define kname
 kname = ('cluster-'+cmd)
 
-# destroy is warn
-if not cmd =='destroy':
-  kmsg_info(kname, '')
-
 # info
 if cmd == 'info':
+ kmsg_info(kname, '')
  cluster_info()
 
 # update current cluster
@@ -30,6 +27,7 @@ if cmd == 'update':
 
 # create new cluster / master server
 if cmd == 'create':
+  kmsg_info(kname, ('creating '+ cname))
 
   # get list of runnning vms
   vmids = kopsrox_config.list_kopsrox_vm()

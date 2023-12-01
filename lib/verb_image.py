@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-#import kopsrox_config as kopsrox_config
-
 # functions
 from kopsrox_config import prox, kmsg_info, kmsg_warn,kopsrox_img
-
 kopsrox_img = kopsrox_img()
 
 # variables
@@ -21,9 +18,6 @@ import urllib.parse
 
 # proxmox functions
 from kopsrox_proxmox import task_status, destroy
-
-# generate image name
-#kopsrox_img = kopsrox_config.kopsrox_img()
 
 # define command
 cmd = sys.argv[2]

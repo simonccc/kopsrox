@@ -6,18 +6,11 @@ import time, re
 # common config
 import kopsrox_config as kopsrox_config
 
-# get proxmox config
-config = kopsrox_config.config
+# functions 
+from kopsrox_config import prox, vmip, kmsg_info
 
-# get proxmox api connection
-prox = kopsrox_config.prox
-
-# config
-proxnode = kopsrox_config.proxnode
-proxbridge = config['proxmox']['proxbridge']  
-proximgid = int(config['proxmox']['proximgid'])
-proxstor = config['proxmox']['proxstor']
-vmnames = kopsrox_config.vmnames
+# vars
+from kopsrox_config import config, proxnode, proxbridge, proximgid, proxstor, vmnames, vm_cpu, vm_ram, networkgw, vm_disk,netmask
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
@@ -161,47 +154,44 @@ def clone(vmid):
 
   # map network info
   networkgw = config['kopsrox']['networkgw']
-  netmask  = config['kopsrox']['netmask']
-  ip = kopsrox_config.vmip(vmid)
+  ip = vmip(vmid)
 
-  # vm specs
-  cores = config['kopsrox']['vm_cpu']
-  ram = config['kopsrox']['vm_ram'] 
-  memory = int(int(ram) * 1024)
+  # vm ram convert
+  memory = int(int(vm_ram) * 1024)
 
   # hostname
   hostname = vmnames[int(vmid)]
 
   # clone
-  print('proxmox::clone:', hostname)
-  clone = prox.nodes(proxnode).qemu(proximgid).clone.post(
-          newid = vmid,
-          )
-  task_status(prox, clone, proxnode)
+  kmsg_info('prox-clone', (str(vmid)+' ['+ proxnode + '] ' + hostname + ' - '+ ip + '/' + netmask))
+  clone = prox.nodes(proxnode).qemu(proximgid).clone.post(newid = vmid)
+  task_status(prox, clone)
 
   # configure
   configure = prox.nodes(proxnode).qemu(vmid).config.post(
-              name = hostname,
-              onboot = 1,
-              hotplug = 0,
-              cores = cores, 
-              memory = memory,
-              net0 = ('model=virtio,bridge=' + proxbridge),
-              ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/'+ netmask ))
-  task_status(prox, str(configure), proxnode)
+    name = hostname,
+    onboot = 1,
+    hotplug = 0,
+    cores = vm_cpu,
+    memory = memory,
+    net0 = ('model=virtio,bridge=' + proxbridge),
+    ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/'+ netmask )
+  )
+  task_status(prox, str(configure))
 
+  # resize disk
   disc = prox.nodes(proxnode).qemu(vmid).resize.put(
-        disk = 'virtio0',
-        size = kopsrox_config.vm_disk,
-        )
-  task_status(prox, str(disc), proxnode)
+    disk = 'virtio0',
+    size = vm_disk,
+  )
+  task_status(prox, str(disc))
 
   # power on
   poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
   task_status(prox, str(poweron), proxnode)
 
 # proxmox task blocker
-def task_status(prox, task_id, node):
+def task_status(prox, task_id, node=proxnode):
 
   # define default status
   status = {"status": ""}
