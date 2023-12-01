@@ -2,25 +2,11 @@
 
 # common import
 import kopsrox_config as kopsrox_config
-from kopsrox_config import masterid
+from kopsrox_config import masterid, config, k3s_version, masters, workers, cname, vmnames, kmsg_info, kmsg_err
 
 # standard imports
 import kopsrox_proxmox as proxmox
 import re, time
-
-# config
-config = kopsrox_config.config
-
-# vars
-k3s_version = kopsrox_config.k3s_version
-masters = int(config['cluster']['masters'])
-workers = int(config['cluster']['workers'])
-
-# cluster name
-cname = config['cluster']['name']
-
-# vmnames 
-vmnames = kopsrox_config.vmnames
 
 # kname
 kname = 'kopsrox::k3s::'
@@ -29,14 +15,14 @@ kname = 'kopsrox::k3s::'
 def k3s_check(vmid):
 
     # test call
-    k = kubectl('get node ' + vmnames[int(vmid)])
+    get_node = kubectl('get node ' + vmnames[int(vmid)])
 
     # if not found or Ready
-    if ( re.search('NotReady', k) or re.search('NotFound', k)):
+    if ( re.search('NotReady', get_node) or re.search('NotFound', get_node)):
       return False
 
     # return true if Ready
-    if ( re.search('Ready', k)) :
+    if ( re.search('Ready', get_node)) :
       return True
 
     # failsafe
@@ -57,7 +43,7 @@ def k3s_check_mon(vmid):
 
     # timeout after 30 secs
     if count == 30:
-      print(kname + 'k3s_check_mon: ERROR: k3s_check timed out after 30s for ', vmnames[vmid])
+      kmsg_err('k3s-check-mon', ('timed out after 30s for '+ vmnames[vmid]))
       exit(0)
 
   return True
@@ -65,15 +51,17 @@ def k3s_check_mon(vmid):
 # init 1st master
 def k3s_init_master(vmid):
 
-    # get hostname
-    vmname = vmnames[vmid]
-
     # if master check fails
     if not k3s_check(vmid):
-      print('k3s::k3s_init_master: installing k3s on', vmname)
+      kmsg_info('k3s-init-master', ('installing k3s on ' +  vmnames[vmid]))
       cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
       cmd_out = proxmox.qaexec(vmid,cmd)
-      k3s_check_mon(vmid)
+
+      try:
+        k3s_check_mon(vmid)
+      except:
+        kmsg_err('k3s_init_master', 'failed to install k3s on master')
+        exit(0)
 
     return True
 

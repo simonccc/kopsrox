@@ -163,7 +163,7 @@ def clone(vmid):
   hostname = vmnames[int(vmid)]
 
   # clone
-  kmsg_info('prox-clone', (str(vmid)+' ['+ proxnode + '] ' + hostname + ' - '+ ip + '/' + netmask))
+  kmsg_info('prox-clone', (str(vmid)+' ['+ proxnode + '] ' + hostname + ' '+ ip + '/' + netmask))
   clone = prox.nodes(proxnode).qemu(proximgid).clone.post(newid = vmid)
   task_status(prox, clone)
 
