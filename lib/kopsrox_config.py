@@ -213,7 +213,7 @@ try:
   if storage_type:
     pass
 except:
-  kmsg_err('config-check', ('proxstor listed in kopsrox.init not found. (' + proxstor + ')'))
+  kmsg_err('config-check', ('proxstor listed in kopsrox.ini not found. (' + proxstor + ')'))
 
   # print available storage
   print('- valid proxstor:')
@@ -221,20 +221,16 @@ except:
     print(' * ' + storage.get("storage"))
   exit()
 
-# if storage is shared we can launch on other nodes
-# to be used later on
-#print(proxstor, storage_type)
-
 # check configured bridge on cluster
-bridge = prox.nodes(proxnode).network.get()
+bridges = [bridge.get('iface', None) for bridge in prox.nodes(proxnode).network.get(type = 'bridge')]
 
 # check configured bridge is in list
-if not re.search(proxbridge, str(bridge)):
-  print(kname + 'ERROR! proxbridge \'' + proxbridge + '\' not found\n\nAvailable Bridges:')
-  for bridge in bridge:
-    if bridge.get("type") == 'bridge':
-      print(' * ' + bridge.get("iface"))
-  exit(0)
+if proxbridge not in bridges:
+  kmsg_err('config-check', ('proxbridge listed in kopsrox.ini not found. (' + proxbridge + ')'))
+  print('- valid bridges:')
+  for bridge in bridges:
+    print(' * ' + bridge)
+  exit()
 
 # skip image check if image create is passed
 try:
