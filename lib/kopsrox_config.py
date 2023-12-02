@@ -186,13 +186,12 @@ nodes = prox.nodes.get()
 
 # if proxnode not in listed nodes
 if not re.search(proxnode, str(nodes)):
-  print(proxnode, 'kopsrox::config: ERROR!' + proxnode + ' not found - working nodes are:')
-
+  kmsg_err('config-check', ('proxnode listed in kopsrox.ini not found. ('+ proxnode + ')'))
   # print list of discovered proxmox nodes
+  print('- valid proxnodes:')
   for node in nodes:
-    print(node.get("node"))
-
-  exit(0)
+    print(' * ' + str(node['node']))
+  exit()
 
 # get list of storage in the cluster
 storage_list = prox.nodes(proxnode).storage.get()
