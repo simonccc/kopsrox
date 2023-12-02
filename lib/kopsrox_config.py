@@ -22,7 +22,7 @@ config.read('kopsrox.ini')
 
 # kopsrox prompt
 def kmsg_prompt():
-    cprint('kopsrox', "blue",attrs=["bold"], end='')
+    cprint(('kopsrox-'+cname), "blue",attrs=["bold"], end='')
     cprint('::', "cyan", end='' )
 
 # print normal output
@@ -178,8 +178,36 @@ def list_kopsrox_vm():
   return(dict(sorted(vmids.items())))
 
 # returns vmstatus
-def vm_info(vmid,node):
+# why does it need node?
+def vm_info(vmid,node=proxnode):
   return(prox.nodes(node).qemu(vmid).status.current.get())
+
+# print vminfo
+def kmsg_vm_info(vmid):
+   info = vm_info(vmid)
+   node = vms[vmid]
+   vmstatus = info.get('status')
+   ip = vmip(vmid)
+
+   # uptime
+   uptimes = info.get('uptime')
+   uptimed = int(uptimes / 86400)
+   uptimeh = int(((uptimes - (uptimed * 86400)) / 60 ) / 60)
+   uptimem = int((uptimes - (uptimed * 86400)) / 60 ) - int(uptimeh * 60)
+
+   # cpu 
+   vmcpu = round(info.get('cpu'),2)
+
+   # ram
+   vmram = 0
+   if info.get('freemem'):
+     vmram = round((info.get('freemem') / 1024 / 1024 / 1024), 2)
+
+   kmsg_info(vmnames[vmid], (str(vmid) + ' [' + node + '-' + vmstatus +'] '+  \
+   ip +'/'+ netmask + \
+   ' ' + str(uptimed) + 'd ' + str(uptimeh) + 'h ' + str(uptimem) +'m '+  \
+   str(vmcpu)+ 'c ' + str(vmram) + '/' + vm_ram + 'G') 
+   )
 
 # get list of proxnodes
 nodes = [node.get('node', None) for node in prox.nodes.get()]
@@ -275,22 +303,10 @@ def vmip(vmid):
 
 # cluster info
 def cluster_info():
-  # map dict of ids and node
-  vms = list_kopsrox_vm()
 
   # for kopsrox vms
   for vmid in vms:
+    kmsg_vm_info(vmid)
 
-    # get vm status
-    node = vms[vmid]
-    v_info = vm_info(vmid,node)
-
-    # vars
-    vmname = v_info.get('name')
-    vmstatus = v_info.get('status')
-    ip = vmip(vmid)
-
-    # print
-    print(str(vmid) + ' ['+  vmstatus + '] ' + ip + '/' + netmask +' [' + node + '] ' + vmname)
   from kopsrox_k3s import kubectl
-  print(kubectl('get nodes'))
+  kmsg_info('k3s-get-nodes', ('\n'+kubectl('get nodes')))
