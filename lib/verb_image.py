@@ -62,20 +62,21 @@ if (cmd == 'create'):
     memory = '1024',
     net0 = ('model=virtio,bridge=' + proxbridge),
     boot = 'c',
-    bootdisk = 'virtio0',
-    name = ( cname + '-image'),
+    name = ( cname + '-i0'),
     ostype = 'l26',
     ide2 = (proxstor + ':cloudinit'),
     tags = cname,
     serial0 = 'socket',
-    agent = ('enabled=true'),
+    agent = ('enabled=true,fstrim_cloned_disks=1'),
     hotplug = 0,
+    ciupgrade = 0,
+    description = cname,
   )
   task_status(create)
 
   # shell to import disk
   import_cmd = 'sudo qm set ' + str(proximgid) + \
-  ' --ciupgrade 0 --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image 
+  ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image 
 
   # run shell command to import
   kmsg_info(kname, ('importing '+ up_image + ' to '+ proxstor))

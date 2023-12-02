@@ -7,7 +7,7 @@ import time, re
 import kopsrox_config as kopsrox_config
 
 # functions 
-from kopsrox_config import prox, vmip, kmsg_info
+from kopsrox_config import prox, vmip, kmsg_info, kmsg_err
 
 # vars
 from kopsrox_config import config, proxnode, proxbridge, proximgid, proxstor, vmnames, vm_cpu, vm_ram, networkgw, vm_disk,netmask
@@ -202,8 +202,23 @@ def task_status(task_id, node=proxnode):
 
   # if task not completed ok
   if not status["exitstatus"] == "OK":
-    kmsg_err('prox-task-status', status["exitstatus"])
-    return False
+    kmsg_err('prox-task-status', ('task exited with non OK status (' + status["exitstatus"] + ')\n' + task_log(task_id)))
+    exit(0)
+
+# returns the task log
+def task_log(task_id, node=proxnode):
+
+  # define empty log line
+  logline = ''
+
+  # for each value in list
+  for log in prox.nodes(node).tasks(task_id).log.get():
+
+    # append log to logline
+    logline += log['t'] + '\n'
+
+  # return string
+  return(logline)
 
 # get file
 def getfile(vmid, path):

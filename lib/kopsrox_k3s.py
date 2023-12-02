@@ -134,7 +134,7 @@ def k3s_rm_cluster(restore = False):
         continue
 
     # do not delete image
-    if vmname == ( cname + '-image' ):
+    if vmname == ( cname + '-i0' ):
       continue
 
     # remove node from cluster and proxmox

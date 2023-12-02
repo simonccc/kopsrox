@@ -110,7 +110,7 @@ masterid = int((proximgid) + 1)
 
 # define vmnames
 vmnames = {
-(proximgid): cname +'-image',
+(proximgid): cname +'-i0',
 (proximgid + 1 ): cname + '-m1',
 (proximgid + 2 ): cname + '-m2',
 (proximgid + 3 ): cname + '-m3',
@@ -184,30 +184,12 @@ def vm_info(vmid,node=proxnode):
 
 # print vminfo
 def kmsg_vm_info(vmid):
+   vms = list_kopsrox_vm()
    info = vm_info(vmid)
    node = vms[vmid]
    vmstatus = info.get('status')
-   ip = vmip(vmid)
-
-   # uptime
-   uptimes = info.get('uptime')
-   uptimed = int(uptimes / 86400)
-   uptimeh = int(((uptimes - (uptimed * 86400)) / 60 ) / 60)
-   uptimem = int((uptimes - (uptimed * 86400)) / 60 ) - int(uptimeh * 60)
-
-   # cpu 
-   vmcpu = round(info.get('cpu'),2)
-
-   # ram
-   vmram = 0
-   if info.get('freemem'):
-     vmram = round((info.get('freemem') / 1024 / 1024 / 1024), 2)
-
-   kmsg_info(vmnames[vmid], (str(vmid) + ' [' + node + '-' + vmstatus +'] '+  \
-   ip +'/'+ netmask + \
-   ' ' + str(uptimed) + 'd ' + str(uptimeh) + 'h ' + str(uptimem) +'m '+  \
-   str(vmcpu)+ 'c ' + str(vmram) + '/' + vm_ram + 'G') 
-   )
+   ip = vmip(vmid) + '/' + netmask
+   kmsg_info(vmnames[vmid], (str(vmid) + ' [' + node + '-' + vmstatus +'] '+ ip ))
 
 # get list of proxnodes
 nodes = [node.get('node', None) for node in prox.nodes.get()]
@@ -305,7 +287,7 @@ def vmip(vmid):
 def cluster_info():
 
   # for kopsrox vms
-  for vmid in vms:
+  for vmid in list_kopsrox_vm():
     kmsg_vm_info(vmid)
 
   from kopsrox_k3s import kubectl
