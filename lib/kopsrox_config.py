@@ -181,16 +181,16 @@ def list_kopsrox_vm():
 def vm_info(vmid,node):
   return(prox.nodes(node).qemu(vmid).status.current.get())
 
-# get list of nodes
-nodes = prox.nodes.get()
+# get list of proxnodes
+nodes = [node.get('node', None) for node in prox.nodes.get()]
 
-# if proxnode not in listed nodes
-if not re.search(proxnode, str(nodes)):
+# if proxnode not in list of nodes
+if proxnode not in nodes:
   kmsg_err('config-check', ('proxnode listed in kopsrox.ini not found. ('+ proxnode + ')'))
   # print list of discovered proxmox nodes
   print('- valid proxnodes:')
   for node in nodes:
-    print(' * ' + str(node['node']))
+    print(' * ' + node)
   exit()
 
 # get list of storage in the cluster
@@ -203,7 +203,7 @@ for storage in storage_list:
   if proxstor == storage.get("storage"):
 
     # is storage local or shared?
-    if storage.get("shared") == "0":
+    if storage.get("shared") == 0:
       storage_type = 'local'
     else: 
       storage_type = 'shared'
@@ -213,12 +213,13 @@ try:
   if storage_type:
     pass
 except:
-  print('kopsrox::config:', proxstor, 'storage not found - available storage:')
+  kmsg_err('config-check', ('proxstor listed in kopsrox.init not found. (' + proxstor + ')'))
 
   # print available storage
+  print('- valid proxstor:')
   for storage in storage_list:
-    print(storage.get("storage"))
-  exit(0)
+    print(' * ' + storage.get("storage"))
+  exit()
 
 # if storage is shared we can launch on other nodes
 # to be used later on
