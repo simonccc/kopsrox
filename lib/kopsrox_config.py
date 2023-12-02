@@ -273,11 +273,6 @@ def vmip(vmid):
   ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
   return(ip)
 
-# legacy function
-def vmname(vmid):
-    vmid = int(vmid)
-    return(vmnames[vmid])
-
 # cluster info
 def cluster_info():
   # map dict of ids and node
@@ -297,6 +292,5 @@ def cluster_info():
 
     # print
     print(str(vmid) + ' ['+  vmstatus + '] ' + ip + '/' + netmask +' [' + node + '] ' + vmname)
-
   from kopsrox_k3s import kubectl
   print(kubectl('get nodes'))
