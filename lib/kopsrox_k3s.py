@@ -2,7 +2,7 @@
 
 # common import
 import kopsrox_config as kopsrox_config
-from kopsrox_config import masterid, config, k3s_version, masters, workers, cname, vmnames, kmsg_info, kmsg_err
+from kopsrox_config import masterid, config, k3s_version, masters, workers, cname, vmnames, kmsg_info, kmsg_err, vmip
 
 # standard imports
 import kopsrox_proxmox as proxmox
@@ -227,16 +227,14 @@ def k3s_update_cluster():
 
 # kubeconfig
 def kubeconfig(masterid):
-    ip = kopsrox_config.vmip(masterid)
     kubeconfig = proxmox.qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
 
     # replace localhost with masters ip
-    kubeconfig = kubeconfig.replace('127.0.0.1', ip)
+    kubeconfig = kubeconfig.replace('127.0.0.1', vmip(masterid))
 
     # write file out
     with open('kopsrox.kubeconfig', 'w') as kubeconfig_file:
       kubeconfig_file.write(kubeconfig)
-    print(kname + 'kopsrox.kubeconfig written')
 
 # kubectl
 def kubectl(cmd):

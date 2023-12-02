@@ -7,7 +7,7 @@ import time, re
 import kopsrox_config as kopsrox_config
 
 # functions 
-from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info
+from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys
 
 # vars
 from kopsrox_config import config, proxnode, proxbridge, proximgid, proxstor, vmnames, vm_cpu, vm_ram, networkgw, vm_disk,netmask, networkgw
@@ -39,6 +39,8 @@ def qaexec(vmid,cmd):
 
     # agent not running 
     except:
+     # if qagent_count == 3:
+     #   kmsg_sys('prox-qaexec', 'waiting for ping')
 
       # increment counter
       qagent_count += 1
@@ -121,39 +123,32 @@ def get_node(vmid):
 
 # stop and destroy vm
 def destroy(vmid):
-    proxnode = get_node(vmid)
 
     # if destroying image
     if ( int(vmid) == proximgid ):
-      delete = prox.nodes(proxnode).qemu(vmid).delete()
-      task_status(delete)
+      task_status(prox.nodes(proxnode).qemu(proximgid).delete())
       return
 
     # get node and vmname
     vmname = vmnames[vmid]
+    proxnode = get_node(vmid)
 
+    # power off and delete
     try:
-
-      # power off
-      poweroff = prox.nodes(proxnode).qemu(vmid).status.stop.post()
-      task_status(poweroff)
-
-      # delete
-      delete = prox.nodes(proxnode).qemu(vmid).delete()
-      task_status(delete)
-
-      print('proxmox::destroy: ' + vmname + ' [' + proxnode + ']', 'done')
-
+      task_status(prox.nodes(proxnode).qemu(vmid).status.stop.post())
+      task_status(prox.nodes(proxnode).qemu(vmid).delete())
+      kmsg_info('prox-destroy', vmname)
     except:
+      # is this image check still required?
       if not int(proximgid) == int(vmid):
-        print('proxmox::destroy: ERROR: unable to destroy', vmid)
-        exit(0)
+        kmsg_err('prox-destroy', ('unable to destroy ', vmid))
+        exit()
 
 # clone
 def clone(vmid):
 
   # map network info
-  ip = vmip(vmid)
+  ip = vmip(vmid) + '/' + netmask
 
   # vm ram convert
   memory = int(int(vm_ram) * 1024)
@@ -162,20 +157,19 @@ def clone(vmid):
   hostname = vmnames[int(vmid)]
 
   # clone
-  kmsg_info('prox-clone', (' ['+ hostname + ']'))
+  kmsg_info('prox-clone', hostname)
   task_status(prox.nodes(proxnode).qemu(proximgid).clone.post(newid = vmid))
 
   # configure
-  configure = prox.nodes(proxnode).qemu(vmid).config.post(
+  task_status(prox.nodes(proxnode).qemu(vmid).config.post(
     name = hostname,
     onboot = 1,
-    hotplug = 0,
+#    hotplug = 0,
     cores = vm_cpu,
     memory = memory,
-    net0 = ('model=virtio,bridge=' + proxbridge),
-    ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip + '/'+ netmask )
-  )
-  task_status(str(configure))
+#    net0 = ('model=virtio,bridge=' + proxbridge),
+    ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip )
+  ))
 
   # resize disk
   disc = prox.nodes(proxnode).qemu(vmid).resize.put(
@@ -185,8 +179,7 @@ def clone(vmid):
   task_status(str(disc))
 
   # power on
-  poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
-  task_status(str(poweron))
+  task_status(prox.nodes(proxnode).qemu(vmid).status.start.post())
   kmsg_vm_info(vmid)
 
 # proxmox task blocker

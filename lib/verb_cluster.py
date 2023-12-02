@@ -3,11 +3,12 @@
 # common include file
 import kopsrox_config as kopsrox_config
 from kopsrox_config import masterid,cname
-from kopsrox_config import kmsg_info, kmsg_warn, cluster_info, kmsg_sys
+from kopsrox_config import kmsg_info, kmsg_warn, cluster_info, kmsg_sys, list_kopsrox_vm
+
+from kopsrox_proxmox import clone
 
 # other imports
 import sys, os, re, time
-import kopsrox_proxmox as proxmox
 import kopsrox_k3s as k3s
 
 # passed command
@@ -18,7 +19,6 @@ kname = ('cluster-'+cmd)
 
 # info
 if cmd == 'info':
- kmsg_info(kname, '')
  cluster_info()
 
 # update current cluster
@@ -27,21 +27,22 @@ if cmd == 'update':
 
 # create new cluster / master server
 if cmd == 'create':
-  kmsg_sys(kname,'creating cluster')
 
   # get list of runnning vms
-  vmids = kopsrox_config.list_kopsrox_vm()
+  vmids = list_kopsrox_vm()
 
   # clone new master
   if not (masterid in vmids):
-    proxmox.clone(masterid)
+    kmsg_sys(kname,('creating [' + cname + ']'))
+    clone(masterid)
 
   # if init worked ok
   try:
-    k3s.k3s_init_master(masterid)
+    init = k3s.k3s_init_master(masterid)
   except:
-    print(kname + 'ERROR: master not installed')
-    exit(0)
+    kmsg_err(kname, 'problem installing master')
+    print(init)
+    exit()
 
   # export kubeconfig
   k3s.kubeconfig(masterid)
@@ -77,5 +78,5 @@ if cmd == 'kubeconfig':
 
 # destroy the cluster
 if cmd == 'destroy':
-  kmsg_warn(kname, 'destroying cluster')
+  kmsg_warn(kname, ('destroying ['+ cname + ']'))
   k3s.k3s_rm_cluster()

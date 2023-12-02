@@ -192,11 +192,8 @@ def vm_info(vmid,node=proxnode):
 # print vminfo
 def kmsg_vm_info(vmid):
    vms = list_kopsrox_vm()
-   info = vm_info(vmid)
-   node = vms[vmid]
-   vmstatus = info.get('status')
-   ip = vmip(vmid) + '/' + netmask
-   kmsg_info(vmnames[vmid], (str(vmid) + ' [' + node + '-' + vmstatus +'] '+ ip ))
+   vmstatus = str(vmid) + ' [' + vms[vmid] + '] ' + vmip(vmid) + '/' + netmask
+   kmsg_info(vmnames[vmid], vmstatus)
 
 # get list of proxnodes
 nodes = [node.get('node', None) for node in prox.nodes.get()]
@@ -292,6 +289,7 @@ def vmip(vmid):
 
 # cluster info
 def cluster_info():
+  kmsg_sys('cluster-info','')
 
   # for kopsrox vms
   for vmid in list_kopsrox_vm():
