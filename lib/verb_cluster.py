@@ -3,7 +3,7 @@
 # common include file
 import kopsrox_config as kopsrox_config
 from kopsrox_config import masterid,cname
-from kopsrox_config import kmsg_info, kmsg_warn, cluster_info
+from kopsrox_config import kmsg_info, kmsg_warn, cluster_info, kmsg_sys
 
 # other imports
 import sys, os, re, time
@@ -27,7 +27,7 @@ if cmd == 'update':
 
 # create new cluster / master server
 if cmd == 'create':
-  kmsg_info(kname, ('creating '+ cname))
+  kmsg_sys(kname,'creating cluster')
 
   # get list of runnning vms
   vmids = kopsrox_config.list_kopsrox_vm()
@@ -77,5 +77,5 @@ if cmd == 'kubeconfig':
 
 # destroy the cluster
 if cmd == 'destroy':
-  kmsg_warn(kname, ('destroying '+cname))
+  kmsg_warn(kname, 'destroying cluster')
   k3s.k3s_rm_cluster()

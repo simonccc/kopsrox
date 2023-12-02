@@ -7,10 +7,10 @@ import time, re
 import kopsrox_config as kopsrox_config
 
 # functions 
-from kopsrox_config import prox, vmip, kmsg_info, kmsg_err
+from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info
 
 # vars
-from kopsrox_config import config, proxnode, proxbridge, proximgid, proxstor, vmnames, vm_cpu, vm_ram, networkgw, vm_disk,netmask
+from kopsrox_config import config, proxnode, proxbridge, proximgid, proxstor, vmnames, vm_cpu, vm_ram, networkgw, vm_disk,netmask, networkgw
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
@@ -153,7 +153,6 @@ def destroy(vmid):
 def clone(vmid):
 
   # map network info
-  networkgw = config['kopsrox']['networkgw']
   ip = vmip(vmid)
 
   # vm ram convert
@@ -163,9 +162,8 @@ def clone(vmid):
   hostname = vmnames[int(vmid)]
 
   # clone
-  kmsg_info('prox-clone', (str(vmid)+' ['+ proxnode + '] ' + hostname + ' '+ ip + '/' + netmask))
-  clone = prox.nodes(proxnode).qemu(proximgid).clone.post(newid = vmid)
-  task_status(clone)
+  kmsg_info('prox-clone', (' ['+ hostname + ']'))
+  task_status(prox.nodes(proxnode).qemu(proximgid).clone.post(newid = vmid))
 
   # configure
   configure = prox.nodes(proxnode).qemu(vmid).config.post(
@@ -189,6 +187,7 @@ def clone(vmid):
   # power on
   poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
   task_status(str(poweron))
+  kmsg_vm_info(vmid)
 
 # proxmox task blocker
 def task_status(task_id, node=proxnode):
