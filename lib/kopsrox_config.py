@@ -190,10 +190,10 @@ def vm_info(vmid,node=proxnode):
   return(prox.nodes(node).qemu(vmid).status.current.get())
 
 # print vminfo
-def kmsg_vm_info(vmid):
+def kmsg_vm_info(vmid, prefix=''):
    vms = list_kopsrox_vm()
    vmstatus = str(vmid) + ' [' + vms[vmid] + '] ' + vmip(vmid) + '/' + netmask
-   kmsg_info(vmnames[vmid], vmstatus)
+   kmsg_info((prefix+vmnames[vmid]), vmstatus)
 
 # get list of proxnodes
 nodes = [node.get('node', None) for node in prox.nodes.get()]

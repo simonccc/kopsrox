@@ -39,8 +39,8 @@ def qaexec(vmid,cmd):
 
     # agent not running 
     except:
-     # if qagent_count == 3:
-     #   kmsg_sys('prox-qaexec', 'waiting for ping')
+      if qagent_count == 2:
+        kmsg_info('prox-qaexec', 'waiting for agent')
 
       # increment counter
       qagent_count += 1
@@ -157,30 +157,26 @@ def clone(vmid):
   hostname = vmnames[int(vmid)]
 
   # clone
-  kmsg_info('prox-clone', hostname)
   task_status(prox.nodes(proxnode).qemu(proximgid).clone.post(newid = vmid))
 
   # configure
   task_status(prox.nodes(proxnode).qemu(vmid).config.post(
     name = hostname,
     onboot = 1,
-#    hotplug = 0,
     cores = vm_cpu,
     memory = memory,
-#    net0 = ('model=virtio,bridge=' + proxbridge),
     ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip )
   ))
 
   # resize disk
-  disc = prox.nodes(proxnode).qemu(vmid).resize.put(
+  task_status(prox.nodes(proxnode).qemu(vmid).resize.put(
     disk = 'virtio0',
     size = vm_disk,
-  )
-  task_status(str(disc))
+  ))
 
   # power on
   task_status(prox.nodes(proxnode).qemu(vmid).status.start.post())
-  kmsg_vm_info(vmid)
+  kmsg_vm_info(vmid, 'clone-')
 
 # proxmox task blocker
 def task_status(task_id, node=proxnode):

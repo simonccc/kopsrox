@@ -3,7 +3,7 @@
 # common include file
 import kopsrox_config as kopsrox_config
 from kopsrox_config import masterid,cname
-from kopsrox_config import kmsg_info, kmsg_warn, cluster_info, kmsg_sys, list_kopsrox_vm
+from kopsrox_config import kmsg_info, kmsg_warn, cluster_info, kmsg_sys, list_kopsrox_vm, kmsg_err
 
 from kopsrox_proxmox import clone
 
@@ -33,7 +33,7 @@ if cmd == 'create':
 
   # clone new master
   if not (masterid in vmids):
-    kmsg_sys(kname,('creating [' + cname + ']'))
+    kmsg_sys(kname,'starting')
     clone(masterid)
 
   # if init worked ok
@@ -78,5 +78,5 @@ if cmd == 'kubeconfig':
 
 # destroy the cluster
 if cmd == 'destroy':
-  kmsg_warn(kname, ('destroying ['+ cname + ']'))
+  kmsg_warn(kname, 'starting')
   k3s.k3s_rm_cluster()
