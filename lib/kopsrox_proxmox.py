@@ -7,7 +7,7 @@ import time, re
 import kopsrox_config as kopsrox_config
 
 # functions 
-from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys
+from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys, list_kopsrox_vm
 
 # vars
 from kopsrox_config import config, proxnode, proxbridge, proximgid, proxstor, vmnames, vm_cpu, vm_ram, networkgw, vm_disk,netmask, networkgw
@@ -39,8 +39,8 @@ def qaexec(vmid,cmd):
 
     # agent not running 
     except:
-      if qagent_count == 2:
-        kmsg_info('prox-qaexec', 'waiting for agent')
+      if qagent_count == 3:
+        kmsg_info('prox-qaexec', ('waiting for agent on', vmname))
 
       # increment counter
       qagent_count += 1
@@ -137,7 +137,7 @@ def destroy(vmid):
     try:
       task_status(prox.nodes(proxnode).qemu(vmid).status.stop.post())
       task_status(prox.nodes(proxnode).qemu(vmid).delete())
-      kmsg_info('prox-destroy', vmname)
+      kmsg_sys('prox-destroy', vmname)
     except:
       # is this image check still required?
       if not int(proximgid) == int(vmid):
@@ -146,6 +146,7 @@ def destroy(vmid):
 
 # clone
 def clone(vmid):
+  vmid = int(vmid)
 
   # map network info
   ip = vmip(vmid) + '/' + netmask
@@ -154,7 +155,8 @@ def clone(vmid):
   memory = int(int(vm_ram) * 1024)
 
   # hostname
-  hostname = vmnames[int(vmid)]
+  hostname = vmnames[vmid]
+  kmsg_sys('prox-clone', hostname)
 
   # clone
   task_status(prox.nodes(proxnode).qemu(proximgid).clone.post(newid = vmid))
@@ -174,9 +176,8 @@ def clone(vmid):
     size = vm_disk,
   ))
 
-  # power on
+  # power on 
   task_status(prox.nodes(proxnode).qemu(vmid).status.start.post())
-  kmsg_vm_info(vmid, 'clone-')
 
 # proxmox task blocker
 def task_status(task_id, node=proxnode):

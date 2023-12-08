@@ -195,7 +195,7 @@ def k3s_update_cluster():
 
    # create new worker nodes per config
    if ( workers > 0 ):
-     print('k3s::k3s_update_cluster: checking workers ('+ str(workers) +')')
+     kmsg_info('k3s-update-cluster', 'checking workers')
 
      # first id in the loop
      worker_count = 1
@@ -211,7 +211,7 @@ def k3s_update_cluster():
           worker_name = vmnames[(int(workerid))]
           print('k3s::k3s_update_cluster: found existing', worker_name)
        else:
-         proxmox.clone(workerid)
+         proxmox.clone(int(workerid))
 
        worker_count = worker_count + 1
        # checks worker has k3s installed first

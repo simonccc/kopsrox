@@ -16,6 +16,8 @@ cmd = sys.argv[2]
 
 # define kname
 kname = ('cluster-'+cmd)
+if not cmd == 'info':
+  kmsg_sys(kname,'')
 
 # info
 if cmd == 'info':
@@ -33,7 +35,6 @@ if cmd == 'create':
 
   # clone new master
   if not (masterid in vmids):
-    kmsg_sys(kname,'starting')
     clone(masterid)
 
   # if init worked ok
@@ -78,5 +79,5 @@ if cmd == 'kubeconfig':
 
 # destroy the cluster
 if cmd == 'destroy':
-  kmsg_warn(kname, 'starting')
+  kmsg_warn(kname, 'destroying cluster!')
   k3s.k3s_rm_cluster()

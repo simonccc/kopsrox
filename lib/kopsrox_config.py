@@ -192,8 +192,13 @@ def vm_info(vmid,node=proxnode):
 # print vminfo
 def kmsg_vm_info(vmid, prefix=''):
    vms = list_kopsrox_vm()
-   vmstatus = str(vmid) + ' [' + vms[vmid] + '] ' + vmip(vmid) + '/' + netmask
-   kmsg_info((prefix+vmnames[vmid]), vmstatus)
+   vmid = int(vmid)
+   try:
+     vmstatus = str(vmid) + ' [' + vms[vmid] + '] ' + vmip(vmid) + '/' + netmask
+     kmsg_info((prefix+vmnames[vmid]), vmstatus)
+   except:
+     kmsg_err('kmsg-vm-info', (vmid, 'id not found', vms))
+     exit()
 
 # get list of proxnodes
 nodes = [node.get('node', None) for node in prox.nodes.get()]
@@ -293,7 +298,8 @@ def cluster_info():
 
   # for kopsrox vms
   for vmid in list_kopsrox_vm():
-    kmsg_vm_info(vmid)
+    if not proximgid == vmid:
+      kmsg_vm_info(vmid)
 
   from kopsrox_k3s import kubectl
   kmsg_info('k3s-get-nodes', ('\n'+kubectl('get nodes')))
