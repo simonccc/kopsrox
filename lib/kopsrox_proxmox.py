@@ -134,7 +134,7 @@ def destroy(vmid):
     try:
       task_status(prox.nodes(proxnode).qemu(vmid).status.stop.post())
       task_status(prox.nodes(proxnode).qemu(vmid).delete())
-      kmsg_warn('prox-destroy', vmname)
+      kmsg_info('prox-destroy', vmname)
     except:
       # is this image check still required?
       if not int(proximgid) == int(vmid):
@@ -176,7 +176,6 @@ def clone(vmid):
   # power on and run uptime
   task_status(prox.nodes(proxnode).qemu(vmid).status.start.post())
   qaexec(vmid, 'uptime')
-  kmsg_info(hostname, 'ready')
 
 # proxmox task blocker
 def task_status(task_id, node=proxnode):

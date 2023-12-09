@@ -2,10 +2,11 @@
 
 # common import
 import kopsrox_config as kopsrox_config
-from kopsrox_config import masterid, config, k3s_version, masters, workers, cname, vmnames, kmsg_info, kmsg_err, vmip
+from kopsrox_config import masterid, config, k3s_version, masters, workers, cname, vmnames, kmsg_info, kmsg_err, vmip, cluster_info, list_kopsrox_vm, kmsg_sys, kmsg_warn
 
 # standard imports
 import kopsrox_proxmox as proxmox
+from kopsrox_proxmox import qaexec, destroy
 import re, time
 
 # kname
@@ -55,14 +56,14 @@ def k3s_init_master(vmid):
     if not k3s_check(vmid):
       kmsg_info('k3s-init-master', vmnames[vmid])
       cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
-      cmd_out = proxmox.qaexec(vmid,cmd)
+      cmd_out = qaexec(vmid,cmd)
 
       try:
-
         # loops until k3s is up
         k3s_check_mon(vmid)
       except:
         kmsg_err('k3s_init_master', 'failed to install k3s on master')
+        print(cmd_out)
         exit(0)
 
     # export kubeconfig
@@ -84,7 +85,7 @@ def k3s_init_slave(vmid):
 
       # cmd
       cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
-      cmdout = proxmox.qaexec(vmid,cmd)
+      cmdout = qaexec(vmid,cmd)
 
       # wait for node to join cluster
       k3s_check_mon(vmid)
@@ -94,9 +95,10 @@ def k3s_init_slave(vmid):
 
 # init worker node
 def k3s_init_worker(vmid):
+  vmid = int(vmid)
 
   # map vmname
-  vmname = vmnames[int(vmid)]
+  vmname = vmnames[vmid]
 
   # if check fails
   if not k3s_check(vmid):
@@ -104,18 +106,15 @@ def k3s_init_worker(vmid):
     ip = vmip(masterid)
     token = get_token()
     cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
-
-    print('k3s::k3s_init_worker: installing k3s on', vmid)
-    proxmox.qaexec(vmid,cmd)
+    kmsg_info('k3s-init-worker', vmnames[vmid])
+    qaexec(vmid,cmd)
     k3s_check_mon(vmid)
-     
-  print('k3s::k3s_init_worker:',vmname, 'ok')
   return True
 
 # remove a node
 def k3s_rm(vmid):
   vmname = vmnames[vmid]
-  print('k3s::k3s_rm:', vmname)
+  kmsg_info('k3s-remove-node', vmname)
 
   # kubectl commands to remove node
   kubectl('cordon ' + vmname)
@@ -123,13 +122,13 @@ def k3s_rm(vmid):
   kubectl('delete node ' + vmname)
 
   # destroy vm
-  proxmox.destroy(vmid)
+  destroy(vmid)
 
 # remove cluster - leave master if restore = true
 def k3s_rm_cluster(restore = False):
 
   # list all kopsrox vm id's
-  for vmid in sorted(kopsrox_config.list_kopsrox_vm(), reverse = True):
+  for vmid in sorted(list_kopsrox_vm(), reverse = True):
 
     # map hostname
     vmname = vmnames[vmid]
@@ -146,7 +145,7 @@ def k3s_rm_cluster(restore = False):
     # remove node from cluster and proxmox
     #print(vmname)
     if vmname ==  ( cname + '-m1' ):
-      proxmox.destroy(vmid)
+      destroy(vmid)
     else:
       k3s_rm(vmid)
 
@@ -154,12 +153,12 @@ def k3s_rm_cluster(restore = False):
 def k3s_update_cluster():
 
    # refresh the master token
-   token = proxmox.qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
+   token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
    with open('kopsrox.k3stoken', 'w') as k3s:
      k3s.write(token)
 
    # get list of running vms
-   vmids = kopsrox_config.list_kopsrox_vm()
+   vmids = list_kopsrox_vm()
 
    # do we need to run any more masters
    if ( masters > 1 ):
@@ -201,7 +200,6 @@ def k3s_update_cluster():
 
    # create new worker nodes per config
    if ( workers > 0 ):
-     kmsg_info('k3s-update-cluster', 'checking workers')
 
      # first id in the loop
      worker_count = 1
@@ -210,12 +208,13 @@ def k3s_update_cluster():
      while ( worker_count <= workers ):
 
        # calculate workerid
+       # why a str?
        workerid = str(masterid + 3 + worker_count)
 
        # if existing vm with this id found
        if (int(workerid) in vmids):
           worker_name = vmnames[(int(workerid))]
-          print('k3s::k3s_update_cluster: found existing', worker_name)
+          kmsg_info('k3s-check-workers', worker_name)
        else:
          proxmox.clone(int(workerid))
 
@@ -226,14 +225,16 @@ def k3s_update_cluster():
    # remove extra workers
    for vm in vmids:
      if ( int(vm) > int(workerid)):
-       worker_name = vmnames[(int(vm))]
-       print('k3s::k3s_update_cluster: removing extra worker', worker_name)
+       worker_name = vmnames[vm]
+       kmsg_info('k3s-extra-worker', worker_name)
        k3s_rm(vm)
-   kopsrox_config.cluster_info()
+
+   # display cluster info
+   cluster_info()
 
 # kubeconfig
 def kubeconfig(masterid):
-    kubeconfig = proxmox.qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
+    kubeconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
 
     # replace localhost with masters ip
     kubeconfig = kubeconfig.replace('127.0.0.1', vmip(masterid))
@@ -245,7 +246,7 @@ def kubeconfig(masterid):
 # kubectl
 def kubectl(cmd):
   k3s_cmd = str(('/usr/local/bin/k3s kubectl ' +cmd))
-  kcmd = proxmox.qaexec(masterid,k3s_cmd)
+  kcmd = qaexec(masterid,k3s_cmd)
   # strip line break
   return(kcmd.rstrip())
 
