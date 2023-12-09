@@ -173,8 +173,10 @@ def clone(vmid):
     size = vm_disk,
   ))
 
-  # power on 
+  # power on and run uptime
   task_status(prox.nodes(proxnode).qemu(vmid).status.start.post())
+  qaexec(vmid, 'uptime')
+  kmsg_info(hostname, 'ready')
 
 # proxmox task blocker
 def task_status(task_id, node=proxnode):

@@ -53,16 +53,22 @@ def k3s_init_master(vmid):
 
     # if master check fails
     if not k3s_check(vmid):
-      kmsg_info('k3s-init-master', ('installing k3s on ' +  vmnames[vmid]))
+      kmsg_info('k3s-init-master', vmnames[vmid])
       cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
       cmd_out = proxmox.qaexec(vmid,cmd)
 
       try:
+
+        # loops until k3s is up
         k3s_check_mon(vmid)
       except:
         kmsg_err('k3s_init_master', 'failed to install k3s on master')
         exit(0)
 
+    # export kubeconfig
+    kubeconfig(vmid)
+
+    # return
     return True
 
 # additional master

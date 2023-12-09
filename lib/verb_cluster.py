@@ -8,9 +8,7 @@ from kopsrox_config import masterid,cname
 from kopsrox_config import kmsg_info, kmsg_warn, cluster_info, kmsg_sys, list_kopsrox_vm, kmsg_err
 
 from kopsrox_proxmox import clone
-from kopsrox_k3s import k3s_update_cluster
-# review
-import kopsrox_k3s as k3s
+from kopsrox_k3s import k3s_update_cluster, kubeconfig, kubectl, k3s_init_master, k3s_rm_cluster
 
 # other imports
 import sys, re
@@ -42,14 +40,14 @@ if cmd == 'create':
 
   # check master status
   try:
-    init = k3s.k3s_init_master(masterid)
-    k3s.kubeconfig(masterid)
+    init = k3s_init_master(masterid)
   except:
     kmsg_err(kname, 'problem installing master')
     print(init)
     exit()
 
   # perform rest of cluster creation
+  kmsg_info(('cluster-'+cname),'ready')
   k3s_update_cluster()
 
 # kubectl
@@ -74,13 +72,12 @@ if cmd == 'kubectl':
 
   # run command and show output
   print(kname + kcmd)
-  print(k3s.kubectl(kcmd))
+  print(kubectl(kcmd))
 
 # export kubeconfig to file
 if cmd == 'kubeconfig':
-  k3s.kubeconfig(masterid)
+  kubeconfig(masterid)
 
 # destroy the cluster
 if cmd == 'destroy':
-  kmsg_warn(kname, 'destroying cluster!')
-  k3s.k3s_rm_cluster()
+  k3s_rm_cluster()
