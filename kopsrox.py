@@ -67,20 +67,24 @@ try:
 
     # if verb not found in cmds dict
     if not verb in verbs:
-      exit(0)
+      exit()
 except:
   verbs_help()
-  exit(0)
+  exit()
 
 # handle command
 try:
   if (sys.argv[2]):
+
+    # map 2nd arg to cmd
     cmd = str(sys.argv[2])
+
+    # if cmd not in list of commands
     if not cmd in list(cmds[verb]):
-      exit(0)
+      exit()
 except:
   cmds_help(verb)
-  exit(0)
+  exit()
 
 # run passed verb
 exec_verb = __import__('verb_' + verb)

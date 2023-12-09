@@ -267,21 +267,23 @@ except:
     kmsg_err('config-image-check', 'no image run \'kopsrox image create\'')
     exit()
 
-# get dict of vms
+# vm not powered on check
 vms = list_kopsrox_vm()
 for vmid in vms:
 
-  # map node
-  proxnode = vms[vmid]
+  # skip image
+  if vmid != proximgid:
 
-  # vm not powered on check
-  vmi = vm_info(vmid,proxnode)
+    # map node
+    pnode = vms[vmid]
 
-  # power on all nodes aside from image
-  if (( vmi.get('status') == 'stopped') and ( int(vmid) != int(proximgid) )):
-    print('WARN: powering on', vmi.get('name'))
-    poweron = prox.nodes(proxnode).qemu(vmid).status.start.post()
-    exit(0)
+    # get vminfo
+    vmi = vm_info(vmid,pnode)
+
+    # start stopped nodes
+    if vmi['status'] == 'stopped':
+      kmsg_warn('power-on', vmi['name'])
+      prox.nodes(pnode).qemu(vmid).status.start.post()
 
 # return ip for vmid
 def vmip(vmid):
