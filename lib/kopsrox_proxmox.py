@@ -7,7 +7,7 @@ import time, re
 import kopsrox_config as kopsrox_config
 
 # functions 
-from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys, list_kopsrox_vm
+from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys, kmsg_warn
 
 # vars
 from kopsrox_config import config, proxnode, proxbridge, proximgid, proxstor, vmnames, vm_cpu, vm_ram, networkgw, vm_disk,netmask, networkgw
@@ -39,15 +39,12 @@ def qaexec(vmid,cmd):
 
     # agent not running 
     except:
-      if qagent_count == 3:
-        kmsg_info('prox-qaexec', ('waiting for agent on', vmname))
-
       # increment counter
       qagent_count += 1
 
       # exit if longer than 30 seconds
       if qagent_count == 30:
-        print('proxmox::qaexec: ERROR: agent not responding on ' + vmname + ' [' + node + '] cmd:', cmd)
+        kmsg_err('prox-qaexec', ('agent not responding on ' + vmname + ' [' + node + '] cmd: ' + cmd))
         exit(0)
 
       # sleep 1 second then try again
@@ -137,7 +134,7 @@ def destroy(vmid):
     try:
       task_status(prox.nodes(proxnode).qemu(vmid).status.stop.post())
       task_status(prox.nodes(proxnode).qemu(vmid).delete())
-      kmsg_sys('prox-destroy', vmname)
+      kmsg_warn('prox-destroy', vmname)
     except:
       # is this image check still required?
       if not int(proximgid) == int(vmid):
@@ -156,7 +153,7 @@ def clone(vmid):
 
   # hostname
   hostname = vmnames[vmid]
-  kmsg_sys('prox-clone', hostname)
+  kmsg_info('prox-clone', hostname)
 
   # clone
   task_status(prox.nodes(proxnode).qemu(proximgid).clone.post(newid = vmid))
