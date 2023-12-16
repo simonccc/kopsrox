@@ -121,14 +121,14 @@ def get_node(vmid):
 # stop and destroy vm
 def destroy(vmid):
 
+    # get node and vmname
+    vmname = vmnames[vmid]
+    proxnode = get_node(vmid)
+
     # if destroying image
     if ( int(vmid) == proximgid ):
       task_status(prox.nodes(proxnode).qemu(proximgid).delete())
       return
-
-    # get node and vmname
-    vmname = vmnames[vmid]
-    proxnode = get_node(vmid)
 
     # power off and delete
     try:

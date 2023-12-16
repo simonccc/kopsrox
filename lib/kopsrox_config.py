@@ -42,7 +42,8 @@ def kmsg_warn(kname, msg):
 # system lvl
 def kmsg_sys(kname, msg):
     kmsg_prompt()
-    cprint(kname, "yellow", attrs=["bold"], end='')
+    #cprint(kname, "yellow", attrs=["bold"], end='')
+    cprint(kname, "yellow", end='')
     cprint(':: ', "cyan", end='')
     print(msg)
 
