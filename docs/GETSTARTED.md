@@ -16,3 +16,9 @@ Edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 ## check the cluster info
 
 `./kopsrox.py cluster info`
+
+## create etcd snapshot 
+
+Configure 'kopsrox.ini' with suitable s3 details for your provider
+
+`./kopsrox.py etcd snapshot`

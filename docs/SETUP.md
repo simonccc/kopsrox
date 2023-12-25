@@ -1,18 +1,18 @@
-## setup prerequisites
+## Requirements
 
 - password less sudo access on a proxmox VE host  ( tested up to 8.1.3 ) 
+- network with internet access configured in proxmox
+- a range of 10 free Proxmox 'vmids' eg 600 to 610
+- a range of 10 IP's on your network for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
+
+## Install Packages
 
 - `sudo apt install libguestfs-tools python3-termcolor -y`
-
-_to patch the cloudimage and colors_
-
 - `pip3 install --break-system-packages --user -r requirements.txt`
 
 _installs the required pip packages vs using os packages_
 
-## Proxmox API key
-
-Generate an API key and set the permissions:
+## Generate Proxmox API key
 
 `sudo pvesh create /access/users/root@pam/token/kopsrox`
 
@@ -20,7 +20,7 @@ Generate an API key and set the permissions:
 
 Take a note of the token as we'll need this below
 
-## kopsrox.ini
+## Create kopsrox.ini
 
 run `./kopsrox.py` and an example _kopsrox.ini_ will be generated - you will need to edit this for your setup
 

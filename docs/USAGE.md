@@ -1,11 +1,10 @@
 # usage 
 
 ## image
-__create__
+### create
 - downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
-- patches it ( installs packages qagent + nfs client) 
-- imports the disk using `sudo qm`
-- installs k3s 
+- installs packages qagent + nfs client into the image
+- imports the disk into proxmox using `sudo qm`
 
 __destroy__
 - deletes the existing image template
@@ -41,11 +40,6 @@ __info__
 - destroys the cluster ( NO WARNING! ) 
 
 ## etcd
-
-kopsrox uses the k3s built in commands to backup to s3 api compatible storage.
-
-tested providers include minio, cloudflare, backblaze etc
-
 ### snapshot
 
 The first time a snapshot is taken the cluster token is written to `kopsrox.etcd.snapshot.token`
