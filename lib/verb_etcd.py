@@ -98,9 +98,10 @@ def list_images():
   # for each image in the sorted list
   for line in sorted(ls):
 
-    # if image name matches the line append to the images string
-    if re.search(('kopsrox-' + cname), line):
-      images += line + '\n'
+    # if image name matches the s3 line append to the images string
+    if re.search(('s3://' + bucket + '/kopsrox-' + cname), line):
+      images_out = line.split()
+      images += images_out[0] + "\t" + images_out[2] + "\t" +  images_out[3] + '\n'
 
   # return images string
   return(images)
@@ -130,8 +131,8 @@ if cmd == 'snapshot':
 
 # print returned images
 if cmd == 'list':
-  print(kname,endpoint+'/'+bucket)
-  print(list_images())
+  kmsg_info('etcd-snapshots-list', (endpoint + '/' + bucket + '\n' + list_images()))
+  exit
 
 # restore
 if cmd == 'restore':
