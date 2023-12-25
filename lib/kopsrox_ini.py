@@ -10,10 +10,10 @@ def init_kopsrox_ini():
   config = ConfigParser(allow_no_value=True)
   config.read('kopsrox.ini')
 
-  # proxmox
+  # proxmox section
   config.add_section('proxmox')
 
-  # endpoint
+  # proxmox api endpoint
   config.set('proxmox', '; domain name or IP to access proxmox')
   config.set('proxmox', 'endpoint', '127.0.0.1')
   config.set('proxmox', '; port is usually 8006')
@@ -44,11 +44,13 @@ def init_kopsrox_ini():
   # network bridge
   config.set('proxmox', 'proxbridge', 'vmbr0')
 
-  # kopsrox
+  # kopsrox section
   config.add_section('kopsrox')
 
   # size for kopsrox nodes
   config.set('kopsrox', 'vm_disk', '20G')
+
+  # number of cpu cores
   config.set('kopsrox', 'vm_cpu', '1')
 
   # ram size
@@ -56,6 +58,7 @@ def init_kopsrox_ini():
   config.set('kopsrox', 'vm_ram', '2')
 
   # cloudinit user key and password
+  config.set('kopsrox', '; username for created cloudinit user')
   config.set('kopsrox', 'cloudinituser', 'user')
 
   # cloud init user password
@@ -75,22 +78,33 @@ def init_kopsrox_ini():
   # default gateway
   config.set('kopsrox', 'networkgw', '192.168.0.1')
 
-  # cluster level
+  # cluster section
   config.add_section('cluster')
+
+  # cluster friendly name
+  config.set('cluster', '; name for the kopsrox cluster')
   config.set('cluster', 'name', 'mycluster')
+
+  # number of masters
+  config.set('cluster', '; number of masters nodes 1 or 3')
   config.set('cluster', 'masters', '1')
+
+  # number of workers
+  config.set('cluster', '; number of workers nodes 1 to 5')
   config.set('cluster', 'workers', '0')
 
   # k3s version
   config.set('cluster', '; k3s version')
-  config.set('cluster', 'k3s_version', 'v1.27.4+k3s1')
+  config.set('cluster', 'k3s_version', 'v1.27.8+k3s2')
 
   # s3 etcd snapshot config
   config.add_section('s3')
+  config.set('s3', '; follow your providers details')
+
+  # s3 endpoint
   config.set('s3', 'endpoint', 'kopsrox')
   config.set('s3', '; optional')
   config.set('s3', 'region', '')
-  config.set('s3', '; follow your providers details')
   config.set('s3', 'access-key', 'e3898d39d39id93')
   config.set('s3', 'access-secret', 'ioewioeiowe')
   config.set('s3', 'bucket', 'koprox')
