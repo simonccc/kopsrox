@@ -42,8 +42,7 @@ def kmsg_warn(kname, msg):
 # system lvl
 def kmsg_sys(kname, msg):
     kmsg_prompt()
-    #cprint(kname, "yellow", attrs=["bold"], end='')
-    cprint(kname, "yellow", end='')
+    cprint(kname, "yellow", attrs=["bold"], end='')
     cprint(':: ', "cyan", end='')
     print(msg)
 
@@ -51,9 +50,10 @@ def kmsg_sys(kname, msg):
 def kmsg_err(kname, msg):
     kmsg_prompt()
     cprint(kname, "yellow", attrs=["bold"], end='')
-    cprint('::', "cyan", end='' )
+    cprint(':: ', "cyan", end='' )
     cprint('ERROR', "red", attrs=["bold"])
-    print('-',msg)
+    if not msg == '':
+      print('-',msg)
 
 # check section and value exists in kopsrox.ini
 def conf_check(section,value):

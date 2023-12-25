@@ -2,7 +2,7 @@
 
 # standard import
 import kopsrox_config as kopsrox_config
-from kopsrox_config import config, masterid
+from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn
 
 # standard imports
 import sys, re, os
@@ -14,12 +14,10 @@ cmd = sys.argv[2]
 kname = '-::etcd::' + cmd + '::'
 
 # no of master nodes 
-masters = int(kopsrox_config.masters)
+masters = int(masters)
 
 # no of worker nodes
-workers = int(kopsrox_config.workers)
-# cluster name
-cname = kopsrox_config.cname
+workers = int(workers)
 
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
@@ -70,12 +68,12 @@ def s3_run(s3cmd):
 
   # run the command ( 2>&1 required )
   k3s_run = 'k3s etcd-snapshot ' + s3cmd + s3_string + '2>&1'
-  cmd_out = proxmox.qaexec(masterid, k3s_run)
+  cmd_out = proxmox.qaexec(masterid, k3s_run).rstrip()
 
   # look for fatal error in output
   if re.search('level=fatal', cmd_out):
-    print('etcd::s3_run: problem with s3 config')
-    print(cmd_out)
+    kmsg_err('etcd-s3_run', '')
+    kmsg_sys('etcd-s3_run-out', ('\n' + cmd_out))
     exit(0)
 
   # the response from qaexec for eg timeout
