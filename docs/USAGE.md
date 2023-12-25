@@ -1,9 +1,9 @@
 # usage 
 
-[image](#image)
-  [create](#image-create)
-  [destroy](#image-destroy)
-[cluster](#cluster)
+- [image](#image)
+  - [create](#image-create)
+  - [destroy](#image-destroy)
+- [cluster](#cluster)
 
 ## image <a name=image>
 ### create <a name=image-create>
