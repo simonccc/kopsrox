@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 # standard import
-import kopsrox_config as kopsrox_config
 from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn
 
 # standard imports
@@ -113,7 +112,6 @@ if cmd == 'prune':
 
 # snapshot 
 if cmd == 'snapshot':
-  print(kname+'starting')
 
   # define snapshot command
   snap_cmd = 'k3s etcd-snapshot save ' + s3_string + ' --name kopsrox --etcd-snapshot-compress'
@@ -124,8 +122,7 @@ if cmd == 'snapshot':
   snapout = snapout.split('\n')
   for line in snapout:
     if re.search('upload complete', line):
-     print(line)
-  print(kname+'done')
+      kmsg_info('etcd-snapshot-out', line)
 
   # check for existing token file
   if not os.path.isfile('kopsrox.etcd.snapshot.token'):
