@@ -1,20 +1,24 @@
 # usage 
 
-## image
-### create
+[image](#image)
+  [create](#image-create)
+  [destroy](#image-destroy)
+[cluster](#cluster)
+
+## image <a name=image>
+### create <a name=image-create>
 - downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
 - installs packages qagent + nfs client into the image
 - imports the disk into proxmox using `sudo qm`
 
-__destroy__
+### destroy <a name=image-destroy>
 - deletes the existing image template
 - delete the .img file manually if you want a fresh download of the upstream image
 
-__info__
+### info
 - prints info about image file
 
-## cluster
-
+## cluster <a name=cluster>
 ### create
 - creates and updates a cluster - use this to setup a fresh cluster
 - exports kubeconfig and node token
@@ -69,9 +73,7 @@ show available snapshots
 - downsizes the cluster to 1 node 
 
 ### list
-
 - lists snapshots taken in s3 storage based on cluster name
 
 ### prune
-
 - deletes old snapshots by 7 days? ( tbc ) 
