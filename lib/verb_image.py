@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import prox, kmsg_info, kmsg_warn,kopsrox_img
+from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img
 kopsrox_img = kopsrox_img()
 
 # variables
@@ -55,8 +55,11 @@ if (cmd == 'create'):
   except:
     next
 
+  # encode ssh key
+  ssh_encode = urllib.parse.quote(cloudinitsshkey, safe='')
+
   # create new server
-  create = prox.nodes(proxnode).qemu.post(
+  task_status(prox.nodes(proxnode).qemu.post(
     vmid = proximgid,
     scsihw = 'virtio-scsi-pci',
     memory = '1024',
@@ -70,9 +73,12 @@ if (cmd == 'create'):
     agent = ('enabled=true,fstrim_cloned_disks=1'),
     hotplug = 0,
     ciupgrade = 0,
-    description = (cname + '-' + up_image),
-  )
-  task_status(create)
+    description = up_image,
+    ciuser = cloudinituser, 
+    cipassword = cloudinitpass,
+    sshkeys = ssh_encode,
+    ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/' + netmask ), 
+  ))
 
   # shell to import disk
   import_cmd = 'sudo qm set ' + str(proximgid) + \
@@ -89,18 +95,6 @@ if (cmd == 'create'):
     kmsg_err(kname, result)
     exit()
 
-  # url encode ssh key for cloudinit
-  ssh_encode = urllib.parse.quote(cloudinitsshkey, safe='')
-
-  # cloud init user setup
-  cloudinit = prox.nodes(proxnode).qemu(proximgid).config.post(
-    ciuser = cloudinituser, 
-    cipassword = cloudinitpass,
-    ipconfig0 = ( 'gw=' + networkgw + ',ip=' + network + '/' + netmask ), 
-    sshkeys = ssh_encode 
-  )
-  task_status(cloudinit)
-
   # convert to template via create base disk
   set_basedisk = prox.nodes(proxnode).qemu(proximgid).template.post()
   task_status(set_basedisk)
@@ -108,11 +102,6 @@ if (cmd == 'create'):
   # set also in vmconfig
   set_template = prox.nodes(proxnode).qemu(proximgid).config.post(template = 1)
   task_status(set_template)
-
-  # set image name as note on volume
-  # not supported on thin images
-  #set_note = prox.nodes(proxnode).storage(proxstor).content(kopsrox_img).put(notes = 'foo')
-  #task_status(set_note)
 
 # list images on proxstor
 # this might be more useful if we allow different images in the future
@@ -125,7 +114,8 @@ if (cmd == 'info'):
     # if image matches our generated image name
     if image.get('volid') == (kopsrox_img):
 
-      print(image)
+      # get vm info
+      notes = prox.nodes(proxnode).qemu(image['vmid']).config.get()
 
       # created time
       created = str(datetime.fromtimestamp(int(image.get('ctime'))))
@@ -134,7 +124,7 @@ if (cmd == 'info'):
       size = str(int(image.get('size') / 1073741824)) + 'G'
 
       # print image info
-      image_info = (kopsrox_img + ' ('+ storage_type + ')' + ' created: ' + created + ' size: ' + size)
+      image_info = ('\n' + notes['description'] + '\n' + kopsrox_img + ' ('+ storage_type + ')' + '\ncreated: ' + created + ' size: ' + size )
       kmsg_info('image-info', image_info)
 
 # destroy image
