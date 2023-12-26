@@ -1,10 +1,23 @@
-### [proxmox]
+# Config
+- [proxmox](#proxmox)
+- [kopsrox](#kopsrox)
+- [cluster](#cluster)
+- [s3](#s3)
 
-- __endpoint__ = `127.0.0.1` proxmox API host / IP
 
-- __port__ = `8006` port to connect to proxmox API endpoint
+## proxmox <a name=proxmox>
 
-- __user__ = `root@pam` - user to connect as
+### endpoint
+
+`127.0.0.1` proxmox API host / IP
+
+### port
+
+`8006` port to connect to proxmox API endpoint
+
+### user
+
+`root@pam` - user to connect as
 
 - __token_name__ = `kopsrox` - see api key section above
 
@@ -20,13 +33,19 @@
 
 - __proxbridge__ = `vmbr0` - the bridge to use - must have internet access
 
-### [kopsrox]
+## kopsrox
 
-- __vm_disk__ = `20G` - size of the disk for each node in Gigs
+### vm_disk
 
-- __vm_cpu__ = `1` - number of vcpus for each vm
+`20G` - size of the disk for each node in Gigs
 
-- __vm_ram__ = amount of ram in G
+### vm_cpu
+
+`1` - number of vcpus for each vm
+
+### vm_ram
+
+amount of ram in G
 
 - __cloudinituser__ = a user account for access to the vm 
 
@@ -40,21 +59,26 @@
 
 - __netmask__ = `24` cdir netmask for the network 
 
-### [cluster]
+## cluster <a name=cluster>
+### name
 
-- __name__ = `kopsrox` name of the cluster
+`kopsrox` name of the cluster
 
-- __k3s_version__ = `v1.24.6+k3s1` 
+### k3s_version
+
+`v1.24.6+k3s1` 
 
 - __masters__ = `1` number of master nodes - only other supported value is `3`
 
 - __workers__ = `0` number of worker vms eg `1` - values upto `5` are supported
 
-### [s3]
+## s3 <a name=s3>
 
 These values are optional 
 
-- __endpoint__ = eg `s3.yourprovider.com`
+### endpoint 
+
+eg `s3.yourprovider.com`
 
 - __region__ = `optional`
 

@@ -81,7 +81,7 @@ def k3s_init_slave(vmid):
 
       token = get_token()
       vmname = vmnames[vmid]
-      print('k3s::k3s_init_slave: installing k3s on', vmname)
+      kmsg_info('k3s-init-slave', vmname)
 
       # cmd
       cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
@@ -169,8 +169,7 @@ def k3s_update_cluster():
       # so eg 601 + 1 = 602 = m2
       slave_masterid = (int(masterid) + master_count)
       slave_hostname = vmnames[slave_masterid]
-
-      print(kname + 'k3s_update_cluster: checking', slave_hostname)
+      kmsg_info('k3s-cluster-check', slave_hostname)
 
       # existing server
       if (slave_masterid in vmids):
@@ -189,10 +188,13 @@ def k3s_update_cluster():
    # check for extra masters
    if ( masters == 1 ):
      for vm in vmids:
-       # if vm is a master ??
-       if ( (int(vm) == ((masterid + 1 ))) or (int(vm) == ((masterid + 2 )))):
-         master_name = vmnames[int(vm)]
-         print('k3s::k3s_update_cluster: removing extra master-slave', master_name)
+       # is this required?
+       vm = int(vm)
+
+       # if vm is in the range of masterids
+       if ( vm == (masterid + 1 ) or vm == (masterid + 2 )):
+
+         # remove the vm
          k3s_rm(vm)
 
    # define default workerid

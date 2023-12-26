@@ -47,7 +47,6 @@ if cmd == 'create':
     exit()
 
   # perform rest of cluster creation
-  kmsg_info(('cluster-'+cname),'ready')
   k3s_update_cluster()
 
 # kubectl

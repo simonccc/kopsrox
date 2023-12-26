@@ -18,4 +18,5 @@ kc() {
 #
 
 # add a worker and delete it
-kc workers 0 ; $KCU ; kc workers 3 ; $KCU ; kc workers 0 ; $KCU
+#kc workers 0 ; $KCU ; kc workers 3 ; $KCU ; kc workers 0 ; $KCU
+kc masters 3 ; $KCU ; kc masters 1  ; $KCU

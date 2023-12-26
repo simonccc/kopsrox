@@ -3,7 +3,9 @@
 - [image](#image)
   - [create](#image-create)
   - [destroy](#image-destroy)
+  - [info](#image-info)
 - [cluster](#cluster)
+- [etcd](#etcd)
 
 ## image <a name=image>
 ### create <a name=image-create>
@@ -15,8 +17,8 @@
 - deletes the existing image template
 - delete the .img file manually if you want a fresh download of the upstream image
 
-### info
-- prints info about image file
+### info <a name=image-info>
+- prints info about image file eg storage, id, creation time
 
 ## cluster <a name=cluster>
 ### create
@@ -43,7 +45,7 @@
 ### destroy
 - destroys the cluster ( NO WARNING! ) 
 
-## etcd
+## etcd <a name=etcd>
 ### snapshot
 
 The first time a snapshot is taken the cluster token is written to `kopsrox.etcd.snapshot.token`
