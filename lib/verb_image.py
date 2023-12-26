@@ -70,7 +70,7 @@ if (cmd == 'create'):
     agent = ('enabled=true,fstrim_cloned_disks=1'),
     hotplug = 0,
     ciupgrade = 0,
-    description = cname,
+    description = (cname + '-' + up_image),
   )
   task_status(create)
 
@@ -109,6 +109,11 @@ if (cmd == 'create'):
   set_template = prox.nodes(proxnode).qemu(proximgid).config.post(template = 1)
   task_status(set_template)
 
+  # set image name as note on volume
+  # not supported on thin images
+  #set_note = prox.nodes(proxnode).storage(proxstor).content(kopsrox_img).put(notes = 'foo')
+  #task_status(set_note)
+
 # list images on proxstor
 # this might be more useful if we allow different images in the future
 # cos at the moment will only print 1 image 
@@ -119,6 +124,8 @@ if (cmd == 'info'):
 
     # if image matches our generated image name
     if image.get('volid') == (kopsrox_img):
+
+      print(image)
 
       # created time
       created = str(datetime.fromtimestamp(int(image.get('ctime'))))
