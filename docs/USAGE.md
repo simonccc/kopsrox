@@ -7,8 +7,10 @@
 - [cluster](#cluster)
   - [create](#cluster-create)
   - [update](#cluster-update)
+  - [info](#cluster-info)
 - [etcd](#etcd)
   - [snapshot](#snapshot)
+  - [restore](#restore)
 
 ## image <a name=image>
 ### create <a name=image-create>
@@ -33,7 +35,7 @@
 - checks the state of the cluster vs what is configured in `kopsrox.ini`
 - adds or deletes workers/masters per `kopsrox.ini`
 
-### info
+### info <a name=cluster-info>
 - shows a list of ids, hostnames and ips the host they are running on
 - shows kubectl get nodes
 
@@ -63,7 +65,7 @@ Takes a backup of etcd
 
 Should show the new backup
 
-### restore
+### restore <a name=restore>
 
 Restores a cluster from an etcd snapshot
 

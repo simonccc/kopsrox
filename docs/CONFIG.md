@@ -1,11 +1,16 @@
 # Config
 - [proxmox](#proxmox)
   - [endpoint](#endpoint)
+  - [port](#port)
+  - [user](#user)
 - [kopsrox](#kopsrox)
+  - [vm_disk](#vm_disk)
+  - [vm_cpu](#vm_cpu)
 - [cluster](#cluster)
+  - [name](#cname)
+  - [k3s_version](#k3s_version)
 - [s3](#s3)
   - [endpoint](#s3endpoint)
-
 
 ## proxmox <a name=proxmox>
 
@@ -13,11 +18,11 @@
 
 `127.0.0.1` proxmox API host / IP
 
-### port
+### port <a name=port>
 
 `8006` port to connect to proxmox API endpoint
 
-### user
+### user <a name=user>
 
 `root@pam` - user to connect as
 
@@ -25,7 +30,9 @@
 
 `kopsrox` - see api key section above
 
-- __api_key__ = `xxxxxxxxxxxxx` - as generated above
+### api_key 
+
+`xxxxxxxxxxxxx` - as generated above
 
 - __proxnode__ = `proxmox` the proxmox node - the image and all nodes are created on this host
 
@@ -39,11 +46,11 @@
 
 ## kopsrox
 
-### vm_disk
+### vm_disk <a name=vm_disk>
 
 `20G` - size of the disk for each node in Gigs
 
-### vm_cpu
+### vm_cpu <a name=vm_cpu>
 
 `1` - number of vcpus for each vm
 
@@ -55,9 +62,14 @@ amount of ram in G
 
 a user account for access to the vm 
 
-- __cloudinitpass__ = password for the user
+### cloudinitpass
 
-- __cloudinitsshkey__ = 
+password for the user
+
+### cloudinitsshkey
+
+`sshkey.pub`
+
 
 - __network__ = "network" address of proxmox cluster
 
@@ -66,11 +78,11 @@ a user account for access to the vm
 - __netmask__ = `24` cdir netmask for the network 
 
 ## cluster <a name=cluster>
-### name
+### name <a name=cname>
 
 `kopsrox` name of the cluster
 
-### k3s_version
+### k3s_version <a name=k3s_version>
 
 `v1.24.6+k3s1` 
 
@@ -78,7 +90,9 @@ a user account for access to the vm
 
 `1` number of master nodes - only other supported value is `3`
 
-- __workers__ = `0` number of worker vms eg `1` - values upto `5` are supported
+### workers <a name=workers>
+
+`0` number of worker vms eg `1` - values upto `5` are supported
 
 ## s3 <a name=s3>
 
@@ -92,6 +106,8 @@ eg `s3.yourprovider.com`
 
 `optional`
 
-- __access-key__ = `393893894389`
+### access-key
+
+`393893894389`
 
 - __access-secret__ = 
