@@ -165,7 +165,7 @@ def clone(vmid):
     cores = vm_cpu,
     memory = memory,
     ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip ),
-    description = ( vmid + ':' + hostname + ':' + ip ) 
+    description = ( str(vmid) + ':' + hostname + ':' + ip ) 
   ))
 
   # resize disk
