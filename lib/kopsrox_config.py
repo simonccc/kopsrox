@@ -288,11 +288,15 @@ for vmid in vms:
 
 # return ip for vmid
 def vmip(vmid):
-  network_octs = network.split('.')
-  basenetwork = ( network_octs[0] + '.' + network_octs[1] + '.' + network_octs[2] + '.' )
+
+  vmid = int(vmid)
+  octs = network.split('.')
+  base = ( octs[0] + '.' + octs[1] + '.' + octs[2] + '.' )
 
   # generate the last ip
-  ip = basenetwork + str(int(network_octs[-1]) + ( int(vmid) - int(proximgid)))
+  # last number of network + ( vmid - proximgid ) 
+  # eg 160 + ( 601 - 600 )  = 161 
+  ip = base + str(int(octs[-1]) + ( vmid - proximgid))
   return(ip)
 
 # cluster info
