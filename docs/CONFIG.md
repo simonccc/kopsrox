@@ -1,5 +1,6 @@
 # Config
 - [proxmox](#proxmox)
+  - [endpoint](#endpoint)
 - [kopsrox](#kopsrox)
 - [cluster](#cluster)
 - [s3](#s3)
@@ -7,7 +8,7 @@
 
 ## proxmox <a name=proxmox>
 
-### endpoint
+### endpoint <a name=endpoint>
 
 `127.0.0.1` proxmox API host / IP
 
@@ -19,7 +20,9 @@
 
 `root@pam` - user to connect as
 
-- __token_name__ = `kopsrox` - see api key section above
+### token_name 
+
+`kopsrox` - see api key section above
 
 - __api_key__ = `xxxxxxxxxxxxx` - as generated above
 
@@ -47,7 +50,9 @@
 
 amount of ram in G
 
-- __cloudinituser__ = a user account for access to the vm 
+### cloudinituser
+
+a user account for access to the vm 
 
 - __cloudinitpass__ = password for the user
 
@@ -68,7 +73,9 @@ amount of ram in G
 
 `v1.24.6+k3s1` 
 
-- __masters__ = `1` number of master nodes - only other supported value is `3`
+### masters
+
+`1` number of master nodes - only other supported value is `3`
 
 - __workers__ = `0` number of worker vms eg `1` - values upto `5` are supported
 
@@ -80,7 +87,9 @@ These values are optional
 
 eg `s3.yourprovider.com`
 
-- __region__ = `optional`
+### region
+
+`optional`
 
 - __access-key__ = `393893894389`
 

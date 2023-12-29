@@ -1,3 +1,5 @@
+# building a binary
+
 pip3 install --user --break-system-packages Nuitka
 sudo apt install ccache patchelf
 

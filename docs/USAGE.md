@@ -5,7 +5,9 @@
   - [destroy](#image-destroy)
   - [info](#image-info)
 - [cluster](#cluster)
+  - [create](#cluster-create)
 - [etcd](#etcd)
+  - [snapshot](#snapshot)
 
 ## image <a name=image>
 ### create <a name=image-create>
@@ -21,7 +23,7 @@
 - prints info about image file eg storage, id, creation time
 
 ## cluster <a name=cluster>
-### create
+### create <a name=cluster-create>
 - creates and updates a cluster - use this to setup a fresh cluster
 - exports kubeconfig and node token
 - if a working master is found just runs `update`
@@ -46,7 +48,7 @@
 - destroys the cluster ( NO WARNING! ) 
 
 ## etcd <a name=etcd>
-### snapshot
+### snapshot <a name=snapshot>
 
 The first time a snapshot is taken the cluster token is written to `kopsrox.etcd.snapshot.token`
 
