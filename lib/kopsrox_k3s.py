@@ -63,14 +63,11 @@ def k3s_init_master(vmid):
         k3s_check_mon(vmid)
       except:
         kmsg_err('k3s_init_master', 'failed to install k3s on master')
-        print(cmd_out)
-        exit(0)
+        exit()
 
     # export kubeconfig
     kubeconfig(vmid)
 
-    # return
-    return True
 
 # additional master
 def k3s_init_slave(vmid):

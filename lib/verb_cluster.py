@@ -38,13 +38,8 @@ if cmd == 'create':
   if not masterid in list_kopsrox_vm():
     clone(masterid)
 
-  # check master status
-  try:
-    init = k3s_init_master(masterid)
-  except:
-    kmsg_err(kname, 'problem installing master')
-    print(init)
-    exit()
+  # install k3s on master
+  k3s_init_master(masterid)
 
   # perform rest of cluster creation
   k3s_update_cluster()
