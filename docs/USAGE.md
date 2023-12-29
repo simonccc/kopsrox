@@ -6,6 +6,7 @@
   - [info](#image-info)
 - [cluster](#cluster)
   - [create](#cluster-create)
+  - [update](#cluster-update)
 - [etcd](#etcd)
   - [snapshot](#snapshot)
 
@@ -28,7 +29,7 @@
 - exports kubeconfig and node token
 - if a working master is found just runs `update`
 
-### update
+### update <a name=cluster-update>
 - checks the state of the cluster vs what is configured in `kopsrox.ini`
 - adds or deletes workers/masters per `kopsrox.ini`
 

@@ -4,6 +4,7 @@
 - [kopsrox](#kopsrox)
 - [cluster](#cluster)
 - [s3](#s3)
+  - [endpoint](#s3endpoint)
 
 
 ## proxmox <a name=proxmox>
@@ -83,7 +84,7 @@ a user account for access to the vm
 
 These values are optional 
 
-### endpoint 
+### endpoint <a name=s3endpoint>
 
 eg `s3.yourprovider.com`
 
