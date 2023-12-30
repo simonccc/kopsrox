@@ -76,12 +76,10 @@ def qaexec(vmid,cmd):
     # will equal 1 when process is done
     pid_status = pid_check['exited']
 
-  # debug
-  # print(pid_check)
-
   # check for exitcode 127
-  if ( int(pid_check['exitcode']) == 127 ):
-    return(pid_check['err-data'])
+  if int(pid_check['exitcode']) == 127:
+    kmsg_err(('prox-qaexec-'+vmname), pid_check)
+    exit()
 
   # check for err-data
   try:
@@ -93,10 +91,6 @@ def qaexec(vmid,cmd):
         return(pid_check['out-data'])
     except:
       return('no output')
-
-    # redundant?
-    return('error')
-    exit(0)
 
 # return the proxnode for a vmid
 def get_node(vmid):

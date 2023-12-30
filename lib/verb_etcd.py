@@ -69,6 +69,8 @@ def s3_run(s3cmd):
   k3s_run = 'k3s etcd-snapshot ' + s3cmd + s3_string + '2>&1'
   cmd_out = proxmox.qaexec(masterid, k3s_run).rstrip()
 
+  print(cmd_out)
+
   # look for fatal error in output
   if re.search('level=fatal', cmd_out):
     kmsg_err('etcd-s3_run', '')

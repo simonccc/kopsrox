@@ -14,6 +14,12 @@ kname = 'kopsrox::k3s::'
 
 # check for k3s status
 def k3s_check(vmid):
+    
+    # check k3s installed
+    k3sbincheck = qaexec(vmid, 'if [ ! -e /usr/local/bin/k3s ] ; then echo nok3sbin; fi').strip()
+
+    if k3sbincheck == 'nok3sbin':
+      exit()
 
     # test call
     get_node = kubectl('get node ' + vmnames[int(vmid)])
@@ -51,9 +57,11 @@ def k3s_check_mon(vmid):
 
 # init 1st master
 def k3s_init_master(vmid):
-
+    
     # if master check fails
-    if not k3s_check(vmid):
+    try:
+      k3s_check(vmid)
+    except:
       kmsg_info('k3s-init-master', vmnames[vmid])
       cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
       cmd_out = qaexec(vmid,cmd)
