@@ -5,6 +5,8 @@
   - [user](#user)
   - [token_name](#token_name)
   - [api_key](#api_key)
+  - [proxnode](#proxnode)
+  - [proxstor](#proxstor)
 - [kopsrox](#kopsrox)
   - [vm_disk](#vm_disk)
   - [vm_cpu](#vm_cpu)
@@ -18,6 +20,7 @@
 - [s3](#s3)
   - [endpoint](#s3endpoint)
   - [region](#region)
+  - [access-key](#access-key)
 
 ## proxmox <a name=proxmox>
 
@@ -41,15 +44,17 @@
 
 See [SETUP.md](#SETUP.MD)
 
-### proxnode
+### proxnode <a name=proxnode>
 
 `proxmox` the proxmox node - the image and all nodes are created on this host
 
-### proxstor
+### proxstor <a name=proxstor>
 
 `local-lvm` shared storage also works
 
-- __proximgid__ = `600` - the proxmox id used for the kopsrox image/template 
+### proximgid
+
+`600` - the proxmox id used for the kopsrox image/template 
 
 - __up_image_url__ = `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use as the base image
 
@@ -67,7 +72,7 @@ See [SETUP.md](#SETUP.MD)
 
 ### vm_ram <a name=vm_ram>
 
-amount of ram in G
+`2` - amount of ram in G
 
 ### cloudinituser <a name=cloudinituser>
 
@@ -85,11 +90,16 @@ password for the user
 
 "network" address of proxmox cluster
 
-- __networkgw__ = `192.168.0.1` the default gateway for the network ( must provide internet access ) 
+### networkgw
+
+`192.168.0.1` the default gateway for the network ( must provide internet access ) 
 
 - __netmask__ = `24` cdir netmask for the network 
 
 ## cluster <a name=cluster>
+
+config relating to the cluster
+
 ### name <a name=cname>
 
 `kopsrox` name of the cluster
@@ -118,10 +128,14 @@ eg `s3.yourprovider.com`
 
 `optional`
 
-### access-key
+### access-key <a name=access-key>
 
 `393893894389`
 
 ### access-secret
 
 `ioewioeiowe`  - the access secret for your s3 provider
+
+### bucket <a name=bucket>
+
+`kopsrox` - bucket name
