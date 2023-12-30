@@ -12,6 +12,7 @@
   - [vm_cpu](#vm_cpu)
   - [vm_ram](#vm_ram)
   - [cloudinituser](#cloudinituser)
+  - [cloudinitpass](#cloudinitpass)
 - [cluster](#cluster)
   - [name](#cname)
   - [k3s_version](#k3s_version)
@@ -21,8 +22,12 @@
   - [endpoint](#s3endpoint)
   - [region](#region)
   - [access-key](#access-key)
+  - [access-secret](#access-secret)
+  - [bucket](#bucket)
 
 ## proxmox <a name=proxmox>
+
+config related to proxmox setup 
 
 ### endpoint <a name=endpoint>
 
@@ -52,13 +57,17 @@ See [SETUP.md](#SETUP.MD)
 
 `local-lvm` shared storage also works
 
-### proximgid
+### proximgid
 
 `600` - the proxmox id used for the kopsrox image/template 
 
-- __up_image_url__ = `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use as the base image
+### up_image_url
 
-- __proxbridge__ = `vmbr0` - the bridge to use - must have internet access
+`https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use as the base image
+
+### proxbridge
+
+`vmbr0` - the bridge to use - must have internet access via the `networkgw` defined below
 
 ## kopsrox
 
@@ -78,7 +87,7 @@ See [SETUP.md](#SETUP.MD)
 
 a user account for access to the vm 
 
-### cloudinitpass
+### cloudinitpass <a name=cloudinitpass>
 
 password for the user
 
@@ -94,7 +103,9 @@ password for the user
 
 `192.168.0.1` the default gateway for the network ( must provide internet access ) 
 
-- __netmask__ = `24` cdir netmask for the network 
+### netmask
+
+ `24` cdir netmask for the network 
 
 ## cluster <a name=cluster>
 
@@ -132,7 +143,7 @@ eg `s3.yourprovider.com`
 
 `393893894389`
 
-### access-secret
+### access-secret <a name=access-secret>
 
 `ioewioeiowe`  - the access secret for your s3 provider
 

@@ -10,6 +10,7 @@
   - [info](#cluster-info)
   - [kubectl](#kubectl)
   - [kubeconfig](#kubeconfig)
+  - [destroy](#cluster-destroy)
 - [etcd](#etcd)
   - [snapshot](#snapshot)
   - [list](#list)
@@ -20,8 +21,9 @@
 ### create <a name=image-create>
 - downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
 - installs packages qagent + nfs client into the image
-- imports the disk into proxmox using `sudo qm`
+- imports the disk into the `proxstore` proxmox storage using `sudo qm`
 - creates cloudinit drive with user and networking setup
+- converts the vm into a template
 
 ### destroy <a name=image-destroy>
 - deletes the existing image template
@@ -43,18 +45,20 @@
 
 ### info <a name=cluster-info>
 - shows a list of ids, hostnames and ips the host they are running on
-- shows kubectl get nodes
+- shows `kubectl get nodes`
 
 ### kubectl <a name=kubectl>
-- provides a quick and basic way to run kubectl commands for example:
+- provides a quick and basic way to run some kubectl commands for example:
 
 `./kopsrox.py cluster kubectl get events -A`
 
 ### kubeconfig <a name=kubeconfig>
-- export the kubeconfig to a `kopsrox.kubeconfig` file which is patched to have the masters IP
+- export the cluster kubeconfig to a `kopsrox.kubeconfig` file 
+- file is patched to have correct master IP vs 127.0.0.1
 
-### destroy
-- destroys the cluster ( NO WARNING! ) 
+### destroy <a name=cluster-destroy>
+- :warning: destroys the cluster ( NO WARNING! ) 
+- deletes workers then masters in safe order
 
 ## etcd <a name=etcd>
 ### snapshot <a name=snapshot>
