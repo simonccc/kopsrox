@@ -9,16 +9,19 @@
   - [update](#cluster-update)
   - [info](#cluster-info)
   - [kubectl](#kubectl)
+  - [kubeconfig](#kubeconfig)
 - [etcd](#etcd)
   - [snapshot](#snapshot)
   - [list](#list)
   - [restore](#restore)
+  - [prune](#prune)
 
 ## image <a name=image>
 ### create <a name=image-create>
 - downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
 - installs packages qagent + nfs client into the image
 - imports the disk into proxmox using `sudo qm`
+- creates cloudinit drive with user and networking setup
 
 ### destroy <a name=image-destroy>
 - deletes the existing image template
@@ -30,6 +33,7 @@
 ## cluster <a name=cluster>
 ### create <a name=cluster-create>
 - creates and updates a cluster - use this to setup a fresh cluster
+- clones the image to `kopsrox-m1` master server and configures it via cloudinit
 - exports kubeconfig and node token
 - if a working master is found just runs `update`
 
@@ -46,7 +50,7 @@
 
 `./kopsrox.py cluster kubectl get events -A`
 
-### kubeconfig
+### kubeconfig <a name=kubeconfig>
 - export the kubeconfig to a `kopsrox.kubeconfig` file which is patched to have the masters IP
 
 ### destroy
@@ -85,6 +89,6 @@ usage:
 
 - downsizes the cluster to 1 node then resizes back to the scale set in kopsrox.ini
 
-### prune
+### prune <a name=prune>
 
 - deletes old snapshots by 7 days? ( tbc ) 

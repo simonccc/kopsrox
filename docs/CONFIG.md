@@ -4,10 +4,12 @@
   - [port](#port)
   - [user](#user)
   - [token_name](#token_name)
+  - [api_key](#api_key)
 - [kopsrox](#kopsrox)
   - [vm_disk](#vm_disk)
   - [vm_cpu](#vm_cpu)
   - [vm_ram](#vm_ram)
+  - [cloudinituser](#cloudinituser)
 - [cluster](#cluster)
   - [name](#cname)
   - [k3s_version](#k3s_version)
@@ -35,15 +37,17 @@
 
 `kopsrox` - see api key section above
 
-### api_key 
+### api_key <a name=api_key>
 
-`xxxxxxxxxxxxx` - as generated above
+See [SETUP.md](#SETUP.MD)
 
 ### proxnode
 
 `proxmox` the proxmox node - the image and all nodes are created on this host
 
-- __proxstor__ = `local-lvm` shared storage also works
+### proxstor
+
+`local-lvm` shared storage also works
 
 - __proximgid__ = `600` - the proxmox id used for the kopsrox image/template 
 
@@ -65,7 +69,7 @@
 
 amount of ram in G
 
-### cloudinituser
+### cloudinituser <a name=cloudinituser>
 
 a user account for access to the vm 
 
@@ -105,7 +109,6 @@ password for the user
 ## s3 <a name=s3>
 
 Config for s3 etcd operations. If you're not using this you can leave these blank.
-
 
 ### endpoint <a name=s3endpoint>
 
