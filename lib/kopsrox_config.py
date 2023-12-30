@@ -56,16 +56,25 @@ def kmsg_err(kname, msg):
 
 # check section and value exists in kopsrox.ini
 def conf_check(section,value):
+
+  # check option exists
+  try:
+    if not config.has_option(section,value):
+      exit()
+  except:
+    kmsg_err(kname, ('check [' + section + '] \'' + value + '\' in kopsrox.ini'))
+    exit()
+
   try:
     # check value is not blank
     if not (config.get(section, value) == ''):
       # return value
       return(config.get(section, value))
     # value is blank
-    exit(0)
+    exit()
   except:
     kmsg_err(kname, ('check [' + section + '] \'' + value + '\' in kopsrox.ini'))
-    exit(0)
+    exit()
 
 # proxmox checks
 endpoint = conf_check('proxmox','endpoint')
