@@ -107,7 +107,7 @@ netmask = conf_check('kopsrox','netmask')
 
 # variables for network and its IP for vmip function
 octs = network.split('.')
-network_base = ( octs[0] + '.' + octs[1] + '.' + octs[2] + '.' )
+network_base = octs[0] + '.' + octs[1] + '.' + octs[2] + '.'
 network_ip = int(octs[-1])
 
 # cluster level checks
@@ -115,7 +115,7 @@ cname = conf_check('cluster', 'name')
 
 # master check
 masters = int(conf_check('cluster','masters'))
-if not ((masters == 1) or (masters == 3)):
+if not (masters == 1 or masters == 3):
   kmsg_err(kname, ('[cluster] - masters: only 1 or 3 masters supported. You have: '+str(masters)))
   exit(0)
 
@@ -179,9 +179,10 @@ try:
 
   # check connection to cluster
   prox.cluster.status.get()
+
 except:
-  kmsg_err(kname, 'API connection failed check [proxmox] settings in kopsrox.ini')
-  exit(0)
+  kmsg_err(kname, ('API connection to ' + endpoint + ':' + port + ' failed check [proxmox] settings in kopsrox.ini'))
+  exit()
 
 # look up kopsrox_img name
 def kopsrox_img():
