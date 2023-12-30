@@ -7,6 +7,7 @@
   - [api_key](#api_key)
   - [proxnode](#proxnode)
   - [proxstor](#proxstor)
+  - [proximgid](#proximgid)
 - [kopsrox](#kopsrox)
   - [vm_disk](#vm_disk)
   - [vm_cpu](#vm_cpu)
@@ -57,7 +58,7 @@ See [SETUP.md](#SETUP.MD)
 
 `local-lvm` shared storage also works
 
-### proximgid
+### proximgid <a name=proximgid>
 
 `600` - the proxmox id used for the kopsrox image/template 
 
@@ -65,7 +66,7 @@ See [SETUP.md](#SETUP.MD)
 
 `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use as the base image
 
-### proxbridge
+### proxbridge
 
 `vmbr0` - the bridge to use - must have internet access via the `networkgw` defined below
 

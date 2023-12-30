@@ -25,19 +25,19 @@
 - creates cloudinit drive with user and networking setup
 - converts the vm into a template
 
-### destroy <a name=image-destroy> :warning:
-- deletes the existing image template
-- delete the .img file manually if you want a fresh download of the upstream image
+### destroy <a name=image-destroy> 
+- :warning: deletes the existing image template
+- delete the .img file manually  ( eg `mantic-minimal-cloudimg-amd64.img` if you want a fresh download/repatch of the upstream image
 
-### info <a name=image-info> :mag_right:
-- prints info about image file eg storage, id, creation time
+### info <a name=image-info> 
+- prints info about image/template vm eg storage, id, creation time and source cloud image file
 
 ## cluster <a name=cluster>
 ### create <a name=cluster-create>
 - creates and updates a cluster - use this to setup a fresh cluster
 - clones the image to `kopsrox-m1` master server and configures it via cloudinit
 - exports kubeconfig and node token
-- if a working master is found just runs `update`
+- if an existing working master is found just runs the same steps as `kopsrox cluster update`
 
 ### update <a name=cluster-update>
 - checks the state of the cluster vs what is configured in `kopsrox.ini`
@@ -89,9 +89,9 @@ usage:
 
 `./kopsrox.py etcd restore $imagename`
 
-- check you're using the correct `kopsrox.etcd.snapshot.token` file for the snapshot!
+- :white_check_mark: check you're using the correct `kopsrox.etcd.snapshot.token` file for the snapshot!
 
-- downsizes the cluster to 1 node then resizes back to the scale set in kopsrox.ini
+- downsizes the cluster to 1 node then resizes back to the scale set in `kopsrox.ini`
 
 ### prune <a name=prune>
 
