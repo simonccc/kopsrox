@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
 # standard import
-from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn
+from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, endpoint
 
 # standard imports
 import sys, re, os
+
+# review
 import kopsrox_proxmox as proxmox
 import kopsrox_k3s as k3s
 
@@ -12,6 +14,7 @@ import kopsrox_k3s as k3s
 cmd = sys.argv[2]
 kname = '-::etcd::' + cmd + '::'
 
+# shouldn't these already be ints?
 # no of master nodes 
 masters = int(masters)
 
@@ -33,7 +36,6 @@ def write_token():
     print(kname +'::write-token: wrote kopsrox.etcd.snapshot.token')
 
 # s3 details
-endpoint = config['s3']['endpoint']
 access_key = config['s3']['access-key']
 access_secret = config['s3']['access-secret']
 bucket = config['s3']['bucket']
@@ -67,9 +69,9 @@ def s3_run(s3cmd):
 
   # run the command ( 2>&1 required )
   k3s_run = 'k3s etcd-snapshot ' + s3cmd + s3_string + '2>&1'
-  cmd_out = proxmox.qaexec(masterid, k3s_run).rstrip()
+  cmd_out = proxmox.qaexec(masterid, k3s_run)
 
-  print(cmd_out)
+  #print(cmd_out)
 
   # look for fatal error in output
   if re.search('level=fatal', cmd_out):

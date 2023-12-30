@@ -16,7 +16,7 @@ kname = 'kopsrox::k3s::'
 def k3s_check(vmid):
     
     # check k3s installed
-    k3sbincheck = qaexec(vmid, 'if [ ! -e /usr/local/bin/k3s ] ; then echo nok3sbin; fi').strip()
+    k3sbincheck = qaexec(vmid, 'if [ ! -e /usr/local/bin/k3s ] ; then echo nok3sbin; fi')
 
     if k3sbincheck == 'nok3sbin':
       exit()
@@ -29,7 +29,7 @@ def k3s_check(vmid):
       return False
 
     # return true if Ready
-    if ( re.search('Ready', get_node)) :
+    if re.search('Ready', get_node):
       return True
 
     # failsafe

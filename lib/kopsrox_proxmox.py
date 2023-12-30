@@ -4,7 +4,7 @@
 import time, re
 
 # common config
-import kopsrox_config as kopsrox_config
+#import kopsrox_config as kopsrox_config
 
 # functions 
 from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys, kmsg_warn
@@ -83,12 +83,15 @@ def qaexec(vmid,cmd):
 
   # check for err-data
   try:
+    # if err-data exists
     if (pid_check['err-data']):
       return(pid_check['err-data'])
   except:
     try:
+      # this is where data gets returned for an OK command
       if (pid_check['out-data']):
-        return(pid_check['out-data'])
+        # return it minus any line break
+        return(pid_check['out-data'].strip())
     except:
       return('no output')
 
