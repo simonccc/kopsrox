@@ -25,11 +25,11 @@
 - creates cloudinit drive with user and networking setup
 - converts the vm into a template
 
-### destroy <a name=image-destroy>
+### destroy <a name=image-destroy> :warning:
 - deletes the existing image template
 - delete the .img file manually if you want a fresh download of the upstream image
 
-### info <a name=image-info>
+### info <a name=image-info> :mag_right:
 - prints info about image file eg storage, id, creation time
 
 ## cluster <a name=cluster>
