@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # standard import
-from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, endpoint
+from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
 
 # standard imports
 import sys, re, os
@@ -13,13 +13,6 @@ import kopsrox_k3s as k3s
 # passed command
 cmd = sys.argv[2]
 kname = '-::etcd::' + cmd + '::'
-
-# shouldn't these already be ints?
-# no of master nodes 
-masters = int(masters)
-
-# no of worker nodes
-workers = int(workers)
 
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
@@ -34,26 +27,6 @@ def write_token():
     with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
       snapshot_token.write(token)
     print(kname +'::write-token: wrote kopsrox.etcd.snapshot.token')
-
-# s3 details
-access_key = config['s3']['access-key']
-access_secret = config['s3']['access-secret']
-bucket = config['s3']['bucket']
-
-# region optional
-region_string = ''
-region = config['s3']['region']
-if region:
-  region_string = '--etcd-s3-region ' + region
-
-# generated string to use in s3 commands
-s3_string = \
-' --etcd-s3 ' + region_string + \
-' --etcd-s3-endpoint ' + endpoint + \
-' --etcd-s3-access-key ' + access_key + \
-' --etcd-s3-secret-key ' + access_secret + \
-' --etcd-s3-bucket ' + bucket + \
-' --etcd-s3-skip-ssl-verify '
 
 # check master is running / exists
 try:
@@ -135,7 +108,7 @@ if cmd == 'snapshot':
 
 # print returned images
 if cmd == 'list':
-  kmsg_info('etcd-snapshots-list', (endpoint + '/' + bucket + '\n' + list_images()))
+  kmsg_info('etcd-snapshots-list', (s3endpoint + '/' + bucket + '\n' + list_images()))
   exit
 
 # restore

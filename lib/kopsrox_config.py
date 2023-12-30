@@ -126,8 +126,29 @@ k3s_version = conf_check('cluster','k3s_version')
 # dict of all config items - legacy support
 config = ({s:dict(config.items(s)) for s in config.sections()})
 
+# s3 stuff
+s3endpoint = config['s3']['endpoint']
+access_key = config['s3']['access-key']
+access_secret = config['s3']['access-secret']
+bucket = config['s3']['bucket']
+
+# region optional
+region_string = ''
+region = config['s3']['region']
+if region:
+  region_string = '--etcd-s3-region ' + region
+
+# generated string to use in s3 commands
+s3_string = \
+' --etcd-s3 ' + region_string + \
+' --etcd-s3-endpoint ' + s3endpoint + \
+' --etcd-s3-access-key ' + access_key + \
+' --etcd-s3-secret-key ' + access_secret + \
+' --etcd-s3-bucket ' + bucket + \
+' --etcd-s3-skip-ssl-verify '
+
 # define masterid
-masterid = int((proximgid) + 1)
+masterid = proximgid + 1
 
 # define vmnames
 vmnames = {
