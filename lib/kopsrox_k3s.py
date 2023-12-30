@@ -10,12 +10,10 @@ from kopsrox_config import masterid, config, k3s_version, masters, workers, cnam
 import kopsrox_proxmox as proxmox
 
 # standard imports
-from kopsrox_proxmox import qaexec, destroy, internet_check
+from kopsrox_proxmox import qaexec, destroy, internet_check, clone
 
 # standard imports
 import re, time
-
-# kname
 kname = 'kopsrox::k3s::'
 
 # check for k3s status
@@ -89,39 +87,29 @@ def k3s_init_master(vmid):
 
 # additional master
 def k3s_init_slave(vmid):
+  try:
+    k3s_check(vmid)
+  except:
+    kmsg_info('k3s-init-slave', vmnames[vmid])
+    ip = vmip(masterid)
+    token = get_token()
 
-    # if master check fails
-    if not k3s_check(vmid):
-      ip = vmip(masterid)
+    cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
+    qaexec(vmid,cmd)
 
-      token = get_token()
-      vmname = vmnames[vmid]
-      kmsg_info('k3s-init-slave', vmname)
-
-      # cmd
-      cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
-      cmdout = qaexec(vmid,cmd)
-
-      # wait for node to join cluster
-      k3s_check_mon(vmid)
-      return True
-
-    return False
+    # wait for node to join cluster
+    k3s_check_mon(vmid)
+  return True
 
 # init worker node
 def k3s_init_worker(vmid):
-  vmid = int(vmid)
-
-  # map vmname
-  vmname = vmnames[vmid]
-
-  # if check fails
-  if not k3s_check(vmid):
-
+  try:
+    k3s_check(vmid)
+  except:
+    kmsg_info('k3s-init-worker', vmnames[vmid])
     ip = vmip(masterid)
     token = get_token()
     cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
-    kmsg_info('k3s-init-worker', vmnames[vmid])
     qaexec(vmid,cmd)
     k3s_check_mon(vmid)
   return True
@@ -182,20 +170,18 @@ def k3s_update_cluster():
     while ( master_count <=  2 ):
 
       # so eg 601 + 1 = 602 = m2
-      slave_masterid = (int(masterid) + master_count)
+      slave_masterid = int(masterid) + master_count
       slave_hostname = vmnames[slave_masterid]
       kmsg_info('k3s-cluster-check', slave_hostname)
 
       # existing server
-      if (slave_masterid in vmids):
-          print('k3s::k3s_update_cluster: existing vm for', slave_hostname)
-      else:
-        proxmox.clone(slave_masterid)
+      if slave_masterid not in vmids:
+        clone(slave_masterid)
 
       # install k3s on slave and join it to master
       if not k3s_init_slave(slave_masterid):
-        print(kname + 'ERROR! failed to install slave ' + slave_hostname)
-        exit(0)
+        kmsg_err('k3s-init-slave', ('failed to install slave ' + slave_hostname))
+        exit()
 
       # next possible master ( m3 ) 
       master_count = master_count + 1
@@ -207,33 +193,31 @@ def k3s_update_cluster():
        vm = int(vm)
 
        # if vm is in the range of masterids
-       if ( vm == (masterid + 1 ) or vm == (masterid + 2 )):
-
+       if vm == (masterid + 1 ) or vm == (masterid + 2 ):
          # remove the vm
          k3s_rm(vm)
 
    # define default workerid
-   workerid = str(int(masterid) + 3)
+   workerid = masterid + 3
 
    # create new worker nodes per config
    if ( workers > 0 ):
 
      # first id in the loop
-     worker_count = 1
+     worker_count = int(1)
 
      # cycle through possible workers
      while ( worker_count <= workers ):
 
        # calculate workerid
-       # why a str?
-       workerid = str(masterid + 3 + worker_count)
+       workerid = masterid + 3 + worker_count
 
        # if existing vm with this id found
-       if (int(workerid) in vmids):
-          worker_name = vmnames[(int(workerid))]
+       if (workerid in vmids):
+          worker_name = vmnames[workerid]
           kmsg_info('k3s-check-workers', worker_name)
        else:
-         proxmox.clone(int(workerid))
+         clone(workerid)
 
        worker_count = worker_count + 1
        # checks worker has k3s installed first
