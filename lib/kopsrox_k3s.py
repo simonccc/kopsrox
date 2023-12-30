@@ -197,7 +197,7 @@ def k3s_update_cluster():
          # remove the vm
          k3s_rm(vm)
 
-   # define default workerid
+   # define default workerid ( -1 ) 
    workerid = masterid + 3
 
    # create new worker nodes per config
@@ -208,26 +208,22 @@ def k3s_update_cluster():
 
      # cycle through possible workers
      while ( worker_count <= workers ):
-
        # calculate workerid
        workerid = masterid + 3 + worker_count
+       kmsg_info('k3s-workers-check', vmnames[workerid])
 
        # if existing vm with this id found
-       if (workerid in vmids):
-          worker_name = vmnames[workerid]
-          kmsg_info('k3s-check-workers', worker_name)
-       else:
+       if workerid not in vmids:
          clone(workerid)
 
-       worker_count = worker_count + 1
        # checks worker has k3s installed first
-       install_worker = k3s_init_worker(workerid) 
+       k3s_init_worker(workerid) 
+       worker_count = worker_count + 1
 
    # remove extra workers
    for vm in vmids:
-     if ( int(vm) > int(workerid)):
-       worker_name = vmnames[vm]
-       kmsg_info('k3s-extra-worker', worker_name)
+     if vm > workerid:
+       kmsg_info('k3s-extra-worker', vmnames[vm])
        k3s_rm(vm)
 
    # display cluster info
