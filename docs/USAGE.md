@@ -8,8 +8,10 @@
   - [create](#cluster-create)
   - [update](#cluster-update)
   - [info](#cluster-info)
+  - [kubectl](#kubectl)
 - [etcd](#etcd)
   - [snapshot](#snapshot)
+  - [list](#list)
   - [restore](#restore)
 
 ## image <a name=image>
@@ -39,7 +41,7 @@
 - shows a list of ids, hostnames and ips the host they are running on
 - shows kubectl get nodes
 
-### kubectl
+### kubectl <a name=kubectl>
 - provides a quick and basic way to run kubectl commands for example:
 
 `./kopsrox.py cluster kubectl get events -A`
@@ -65,22 +67,24 @@ Takes a backup of etcd
 
 Should show the new backup
 
-### restore <a name=restore>
-
-Restores a cluster from an etcd snapshot
+### list <a name=s3-list>
 
 `./kopsrox.py etcd list`
 
-show available snapshots
+- lists snapshots taken in s3 storage based on cluster name
+
+### restore <a name=restore>
+
+restores a cluster from a snapshot
+
+usage:
 
 `./kopsrox.py etcd restore $imagename`
 
 - check you're using the correct `kopsrox.etcd.snapshot.token` file for the snapshot!
 
-- downsizes the cluster to 1 node 
-
-### list
-- lists snapshots taken in s3 storage based on cluster name
+- downsizes the cluster to 1 node then resizes back to the scale set in kopsrox.ini
 
 ### prune
+
 - deletes old snapshots by 7 days? ( tbc ) 

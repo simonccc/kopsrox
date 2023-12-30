@@ -1,22 +1,27 @@
-# Config
+# kopsrox.ini 
 - [proxmox](#proxmox)
   - [endpoint](#endpoint)
   - [port](#port)
   - [user](#user)
+  - [token_name](#token_name)
 - [kopsrox](#kopsrox)
   - [vm_disk](#vm_disk)
   - [vm_cpu](#vm_cpu)
+  - [vm_ram](#vm_ram)
 - [cluster](#cluster)
   - [name](#cname)
   - [k3s_version](#k3s_version)
+  - [masters](#masters)
+  - [workers](#workers)
 - [s3](#s3)
   - [endpoint](#s3endpoint)
+  - [region](#region)
 
 ## proxmox <a name=proxmox>
 
 ### endpoint <a name=endpoint>
 
-`127.0.0.1` proxmox API host / IP
+`127.0.0.1` the proxmox API hostnamei/dns or IP address 
 
 ### port <a name=port>
 
@@ -26,7 +31,7 @@
 
 `root@pam` - user to connect as
 
-### token_name 
+### token_name <a name=token_name>
 
 `kopsrox` - see api key section above
 
@@ -34,7 +39,9 @@
 
 `xxxxxxxxxxxxx` - as generated above
 
-- __proxnode__ = `proxmox` the proxmox node - the image and all nodes are created on this host
+### proxnode
+
+`proxmox` the proxmox node - the image and all nodes are created on this host
 
 - __proxstor__ = `local-lvm` shared storage also works
 
@@ -54,7 +61,7 @@
 
 `1` - number of vcpus for each vm
 
-### vm_ram
+### vm_ram <a name=vm_ram>
 
 amount of ram in G
 
@@ -70,8 +77,9 @@ password for the user
 
 `sshkey.pub`
 
+### network
 
-- __network__ = "network" address of proxmox cluster
+"network" address of proxmox cluster
 
 - __networkgw__ = `192.168.0.1` the default gateway for the network ( must provide internet access ) 
 
@@ -86,7 +94,7 @@ password for the user
 
 `v1.24.6+k3s1` 
 
-### masters
+### masters <a name=masters>
 
 `1` number of master nodes - only other supported value is `3`
 
@@ -96,13 +104,14 @@ password for the user
 
 ## s3 <a name=s3>
 
-These values are optional 
+Config for s3 etcd operations. If you're not using this you can leave these blank.
+
 
 ### endpoint <a name=s3endpoint>
 
 eg `s3.yourprovider.com`
 
-### region
+### region <a name=region>
 
 `optional`
 
@@ -110,4 +119,6 @@ eg `s3.yourprovider.com`
 
 `393893894389`
 
-- __access-secret__ = 
+### access-secret
+
+`ioewioeiowe`  - the access secret for your s3 provider
