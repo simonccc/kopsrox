@@ -3,14 +3,11 @@
 # imports
 import time, re
 
-# common config
-#import kopsrox_config as kopsrox_config
-
 # functions 
 from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys, kmsg_warn
 
 # vars
-from kopsrox_config import config, proxnode, proxbridge, proximgid, proxstor, vmnames, vm_cpu, vm_ram, networkgw, vm_disk,netmask, networkgw
+from kopsrox_config import config,proxnode,proxbridge,proximgid,proxstor,vmnames,vm_cpu,vm_ram,networkgw,vm_disk,netmask,networkgw
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):

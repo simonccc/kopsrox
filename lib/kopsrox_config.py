@@ -97,6 +97,11 @@ network = conf_check('kopsrox','network')
 networkgw = conf_check('kopsrox','networkgw')
 netmask = conf_check('kopsrox','netmask')
 
+# variables for network and its IP for vmip function
+octs = network.split('.')
+network_base = ( octs[0] + '.' + octs[1] + '.' + octs[2] + '.' )
+network_ip = int(octs[-1])
+
 # cluster level checks
 cname = conf_check('cluster', 'name')
 
@@ -288,15 +293,10 @@ for vmid in vms:
 
 # return ip for vmid
 def vmip(vmid):
-
   vmid = int(vmid)
-  octs = network.split('.')
-  base = ( octs[0] + '.' + octs[1] + '.' + octs[2] + '.' )
-
-  # generate the last ip
   # last number of network + ( vmid - proximgid ) 
   # eg 160 + ( 601 - 600 )  = 161 
-  ip = base + str(int(octs[-1]) + ( vmid - proximgid))
+  ip = network_base + str(network_ip + ( vmid - proximgid))
   return(ip)
 
 # cluster info
