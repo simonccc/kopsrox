@@ -1,12 +1,18 @@
 #!/usr/bin/env python3 
 
-# common import
+# review
 import kopsrox_config as kopsrox_config
+
+# imports
 from kopsrox_config import masterid, config, k3s_version, masters, workers, cname, vmnames, kmsg_info, kmsg_err, vmip, cluster_info, list_kopsrox_vm, kmsg_sys, kmsg_warn
 
-# standard imports
+# review
 import kopsrox_proxmox as proxmox
-from kopsrox_proxmox import qaexec, destroy
+
+# standard imports
+from kopsrox_proxmox import qaexec, destroy, internet_check
+
+# standard imports
 import re, time
 
 # kname
@@ -63,6 +69,11 @@ def k3s_init_master(vmid):
       k3s_check(vmid)
     except:
       kmsg_info('k3s-init-master', vmnames[vmid])
+
+      # check vm has internet 
+      internet_check(vmid)
+
+      # install command
       cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" sh -s - server --cluster-init'
       cmd_out = qaexec(vmid,cmd)
 
@@ -75,7 +86,6 @@ def k3s_init_master(vmid):
 
     # export kubeconfig
     kubeconfig(vmid)
-
 
 # additional master
 def k3s_init_slave(vmid):

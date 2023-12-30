@@ -7,7 +7,7 @@ import kopsrox_config as kopsrox_config
 from kopsrox_config import masterid,cname
 from kopsrox_config import kmsg_info, kmsg_warn, cluster_info, kmsg_sys, list_kopsrox_vm, kmsg_err
 
-from kopsrox_proxmox import clone
+from kopsrox_proxmox import clone, internet_check
 from kopsrox_k3s import k3s_update_cluster, kubeconfig, kubectl, k3s_init_master, k3s_rm_cluster
 
 # other imports
@@ -29,6 +29,7 @@ if cmd == 'info':
 
 # update current cluster
 if cmd == 'update':
+  internet_check(masterid)
   k3s_update_cluster()
 
 # create new cluster / master server

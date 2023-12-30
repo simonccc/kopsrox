@@ -49,11 +49,10 @@ def kmsg_sys(kname, msg):
 # print error msg
 def kmsg_err(kname, msg):
     kmsg_prompt()
-    cprint(kname, "yellow", attrs=["bold"], end='')
+    cprint(kname, "red", attrs=["bold"], end='')
     cprint(':: ', "cyan", end='' )
-    cprint('ERROR', "red", attrs=["bold"])
     if not msg == '':
-      print('-',msg)
+      print(msg)
 
 # check section and value exists in kopsrox.ini
 def conf_check(section,value):

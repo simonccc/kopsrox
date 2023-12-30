@@ -168,9 +168,14 @@ def clone(vmid):
     size = vm_disk,
   ))
 
-  # power on and run uptime
+  # power on
   task_status(prox.nodes(proxnode).qemu(vmid).status.start.post())
+
+  # run uptime / wait for qagent to start
   qaexec(vmid, 'uptime')
+
+  # check internet connection
+  internet_check(vmid)
 
 # proxmox task blocker
 def task_status(task_id, node=proxnode):
@@ -206,6 +211,15 @@ def task_log(task_id, node=proxnode):
 def getfile(vmid, path):
   get_file = prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path)
   return(get_file['content'])
+
+# internet checker
+def internet_check(vmid):
+  vmname = vmnames[vmid]
+  internet_cmd = 'curl -s --connect-timeout 1 www.google.com > /dev/null && echo ok || echo error'
+  internet_check = qaexec(vmid, internet_cmd)
+  if internet_check == 'error':
+    kmsg_err('network-failure', (vmname + ' no internet access'))
+    exit()
 
 # writes a file from localdir to path
 # used to write etcd token when restoring
