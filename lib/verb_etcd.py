@@ -17,16 +17,16 @@ kname = '-::etcd::' + cmd + '::'
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
 def write_token():
-    # get the snapshot tokenfile
-    token = k3s.get_token()
+  # get the snapshot tokenfile
+  token = k3s.get_token()
 
-    # add a line break to the token
-    token = token + '\n'
+  # add a line break to the token
+  token = token + '\n'
 
-    # write the token
-    with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
-      snapshot_token.write(token)
-    print(kname +'::write-token: wrote kopsrox.etcd.snapshot.token')
+  # write the token
+  with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
+    snapshot_token.write(token)
+  print(kname +'::write-token: wrote kopsrox.etcd.snapshot.token')
 
 # check master is running / exists
 try:
