@@ -13,6 +13,8 @@ import re
 
 # checks cmd line args - could be moved?
 import sys
+
+# colors
 from termcolor import colored, cprint
 
 # read ini file into config
@@ -22,37 +24,37 @@ config.read('kopsrox.ini')
 
 # kopsrox prompt
 def kmsg_prompt():
-    cprint(('kopsrox-'+cname), "blue",attrs=["bold"], end='')
-    cprint('::', "cyan", end='' )
+  cprint(cname, "blue",attrs=["bold"], end='')
+  cprint(':', "cyan", end='' )
 
 # print normal output
 def kmsg_info(kname, msg):
-    kmsg_prompt()
-    cprint(kname, "green", end='')
-    cprint(':: ', "cyan", end='' )
-    print(msg)
+  kmsg_prompt()
+  cprint(kname, "green", end='')
+  cprint(': ', "cyan", end='' )
+  print(msg)
 
 # print warning
 def kmsg_warn(kname, msg):
-    kmsg_prompt()
-    cprint(kname, "red", attrs=["bold"], end='')
-    cprint(':: ', "cyan", end='')
-    print(msg)
+  kmsg_prompt()
+  cprint(kname, "red", attrs=["bold"], end='')
+  cprint(': ', "cyan", end='')
+  print(msg)
 
 # system lvl
 def kmsg_sys(kname, msg):
-    kmsg_prompt()
-    cprint(kname, "yellow", attrs=["bold"], end='')
-    cprint(':: ', "cyan", end='')
-    print(msg)
+  kmsg_prompt()
+  cprint(kname, "magenta",  attrs=["bold"], end='')
+  cprint(': ', "cyan", end='')
+  print(msg)
 
 # print error msg
 def kmsg_err(kname, msg):
-    kmsg_prompt()
-    cprint(kname, "red", attrs=["bold"], end='')
-    cprint(':: ', "cyan", end='' )
-    if not msg == '':
-      print(msg)
+  kmsg_prompt()
+  cprint(kname, "red", attrs=["bold"], end='')
+  cprint(': ', "cyan", end='' )
+  if not msg == '':
+    print(msg)
 
 # check section and value exists in kopsrox.ini
 def conf_check(section,value):
