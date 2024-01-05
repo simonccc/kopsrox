@@ -59,6 +59,13 @@ def k3s_check_mon(vmid):
 
 # create a master/slave/worker
 def k3s_init_node(vmid = masterid,nodetype = 'master'):
+  
+  # nodetype error check
+  if nodetype not in ['master', 'slave', 'worker']:
+    kmsg_err('k3s-init-node', (nodetype + 'invalid nodetye'))
+    exit()
+ 
+  # check status of node
   try:
     k3s_check(vmid)
   except:
@@ -69,7 +76,14 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
 
     # master
     if nodetype == 'master':
-      qaexec(vmid,k3s_install_master)
+      init_cmd = k3s_install_master
+
+    # worker
+    if nodetype == 'worker':
+      init_cmd = k3s_install_worker + ' K3S_TOKEN=\"' + get_token() + '\" sh -s'
+
+    # run command
+    qaexec(vmid,init_cmd)
 
     # wait until ready
     try:
@@ -78,33 +92,9 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
       kmsg_err(('k3s-' + nodetype +'-init'), vmnames[vmid])
       exit()
 
+    # export kubeconfig 
     if nodetype == 'master':
       kubeconfig(vmid)
-
-# init 1st master
-def k3s_init_master(vmid):
-    
-  # if master check fails
-  try:
-    k3s_check(vmid)
-  except:
-    kmsg_info('k3s-init-master', vmnames[vmid])
-
-    # check vm has internet 
-    internet_check(vmid)
-
-    # install command
-    qaexec(vmid,k3s_install_master)
-
-    try:
-      # loops until k3s is up
-      k3s_check_mon(vmid)
-    except:
-      kmsg_err(('k3s-init-' + vmid), ('failed to install k3s on '+ vmname))
-      exit()
-
-  # export kubeconfig
-  kubeconfig(vmid)
 
 # additional master
 def k3s_init_slave(vmid):
@@ -119,18 +109,6 @@ def k3s_init_slave(vmid):
     qaexec(vmid,cmd)
 
     # wait for node to join cluster
-    k3s_check_mon(vmid)
-  return True
-
-# init worker node
-def k3s_init_worker(vmid):
-  try:
-    k3s_check(vmid)
-  except:
-    kmsg_info('k3s-init-worker', vmnames[vmid])
-    token = get_token()
-    cmd = k3s_install_worker + ' K3S_TOKEN=\"' + token + '\" sh -s'
-    qaexec(vmid,cmd)
     k3s_check_mon(vmid)
   return True
 
@@ -218,7 +196,7 @@ def k3s_update_cluster():
        # remove the vm
        k3s_rm(vm)
 
-   # define default workerid ( -1 ) 
+ # define default workerid ( -1 ) 
  workerid = masterid + 3
 
  # create new worker nodes per config
@@ -238,7 +216,7 @@ def k3s_update_cluster():
        clone(workerid)
 
      # checks worker has k3s installed first
-     k3s_init_worker(workerid) 
+     k3s_init_node(workerid,'worker')
      worker_count = worker_count + 1
 
    # remove extra workers
