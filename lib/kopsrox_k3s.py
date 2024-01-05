@@ -12,6 +12,7 @@ import re, time
 # define k3s commands
 k3s_install_base = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" '
 k3s_install_master = k3s_install_base + 'sh -s - server --cluster-init'
+k3s_install_worker = k3s_install_base + 'K3S_URL=\"https://' + vmip(masterid) + ':6443\" '
 
 # check for k3s status
 def k3s_check(vmid):
@@ -127,9 +128,8 @@ def k3s_init_worker(vmid):
     k3s_check(vmid)
   except:
     kmsg_info('k3s-init-worker', vmnames[vmid])
-    ip = vmip(masterid)
     token = get_token()
-    cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_URL=\"https://' + ip + ':6443\" K3S_TOKEN=\"' + token + '\" sh -s'
+    cmd = k3s_install_worker + ' K3S_TOKEN=\"' + token + '\" sh -s'
     qaexec(vmid,cmd)
     k3s_check_mon(vmid)
   return True
