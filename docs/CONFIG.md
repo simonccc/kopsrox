@@ -9,6 +9,7 @@
   - [proxstor](#proxstor)
   - [proximgid](#proximgid)
   - [up_image_url](#up_image_url)
+  - [proxbridge](#proxbridge)
 - [kopsrox](#kopsrox)
   - [vm_disk](#vm_disk)
   - [vm_cpu](#vm_cpu)
@@ -16,6 +17,7 @@
   - [cloudinituser](#cloudinituser)
   - [cloudinitpass](#cloudinitpass)
   - [cloudinitsshkey](#cloudinitsshkey)
+  - [network](#network)
 - [cluster](#cluster)
   - [name](#cname)
   - [k3s_version](#k3s_version)
@@ -48,19 +50,19 @@ config related to proxmox setup
 
 `root@pam` - user to connect as
 
-See [SETUP.md](#SETUP.md)
+See [SETUP.md](SETUP.md)
 
 ### token_name <a name=token_name>
 
 `kopsrox` - see api key section above
 
-See [SETUP.md](#SETUP.md)
+See [SETUP.md](SETUP.md)
 
 ### api_key <a name=api_key>
 
 `icjecjeijciejceinceini` 
 
-See [SETUP.md](#SETUP.md)
+See [SETUP.md](SETUP.md)
 
 ### proxnode <a name=proxnode>
 
@@ -78,7 +80,7 @@ See [SETUP.md](#SETUP.md)
 
 `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use as the base image
 
-### proxbridge
+### proxbridge <a name=proxbridge>
 
 `vmbr0` - the bridge to use - must have internet access via the `networkgw` defined below
 
@@ -98,17 +100,19 @@ See [SETUP.md](#SETUP.md)
 
 ### cloudinituser <a name=cloudinituser>
 
-a user account for access to the vm 
+`admin` - a user account for access to the vm 
+
+you can use this user name / password to login on the vm if required
 
 ### cloudinitpass <a name=cloudinitpass>
 
-password for the user
+`password` - a password for the `cloudinituser` - you can use this user name / password to login on the vm if required
 
 ### cloudinitsshkey <a name=cloudinitsshkey>
 
 `sshkey.pub`
 
-### network
+### network <a name=network>
 
 "network" address of proxmox cluster
 
