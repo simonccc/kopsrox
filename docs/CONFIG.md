@@ -8,12 +8,14 @@
   - [proxnode](#proxnode)
   - [proxstor](#proxstor)
   - [proximgid](#proximgid)
+  - [up_image_url](#up_image_url)
 - [kopsrox](#kopsrox)
   - [vm_disk](#vm_disk)
   - [vm_cpu](#vm_cpu)
   - [vm_ram](#vm_ram)
   - [cloudinituser](#cloudinituser)
   - [cloudinitpass](#cloudinitpass)
+  - [cloudinitsshkey](#cloudinitsshkey)
 - [cluster](#cluster)
   - [name](#cname)
   - [k3s_version](#k3s_version)
@@ -34,25 +36,35 @@ config related to proxmox setup
 
 `127.0.0.1` the proxmox API hostnamei/dns or IP address 
 
+127.0.0.1 will work on any host running proxmox
+
 ### port <a name=port>
 
 `8006` port to connect to proxmox API endpoint
+
+8006 is the default 
 
 ### user <a name=user>
 
 `root@pam` - user to connect as
 
+See [SETUP.md](#SETUP.md)
+
 ### token_name <a name=token_name>
 
 `kopsrox` - see api key section above
 
+See [SETUP.md](#SETUP.md)
+
 ### api_key <a name=api_key>
 
-See [SETUP.md](#SETUP.MD)
+`icjecjeijciejceinceini` 
+
+See [SETUP.md](#SETUP.md)
 
 ### proxnode <a name=proxnode>
 
-`proxmox` the proxmox node - the image and all nodes are created on this host
+`proxmox` the proxmox node that kopsrox will work on - the image and all nodes are created on this host
 
 ### proxstor <a name=proxstor>
 
@@ -62,7 +74,7 @@ See [SETUP.md](#SETUP.MD)
 
 `600` - the proxmox id used for the kopsrox image/template 
 
-### up_image_url
+### up_image_url <a name=up_image_url>
 
 `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use as the base image
 
@@ -92,7 +104,7 @@ a user account for access to the vm
 
 password for the user
 
-### cloudinitsshkey
+### cloudinitsshkey <a name=cloudinitsshkey>
 
 `sshkey.pub`
 
@@ -108,6 +120,8 @@ password for the user
 
  `24` cdir netmask for the network 
 
+This is equal to '255.255.255.0' 
+
 ## cluster <a name=cluster>
 
 config relating to the cluster
@@ -116,9 +130,13 @@ config relating to the cluster
 
 `kopsrox` name of the cluster
 
+the name is displayed in the cli output
+
+nodes are named eg kopsrox-m1
+
 ### k3s_version <a name=k3s_version>
 
-`v1.24.6+k3s1` 
+`v1.24.6+k3s1` - the version of k3s installed
 
 ### masters <a name=masters>
 
@@ -126,11 +144,13 @@ config relating to the cluster
 
 ### workers <a name=workers>
 
-`0` number of worker vms eg `1` - values upto `5` are supported
+`0` number of worker nodes in the cluster - values upto `5` are supported
 
 ## s3 <a name=s3>
 
-Config for s3 etcd operations. If you're not using this you can leave these blank.
+config values for s3 etcd snapshot/restore operations. 
+
+If you're not using this you can leave these blank.
 
 ### endpoint <a name=s3endpoint>
 
