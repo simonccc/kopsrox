@@ -15,15 +15,15 @@ k3s_install_master = k3s_install_base + 'sh -s - server --cluster-init'
 
 # check for k3s status
 def k3s_check(vmid):
+
+  vmid = int(vmid)
     
   # check k3s installed
-  k3sbincheck = qaexec(vmid, 'if [ ! -e /usr/local/bin/k3s ] ; then echo nok3sbin; fi')
-
-  if k3sbincheck == 'nok3sbin':
+  if 'nok3sbin' == qaexec(vmid, 'if [ ! -e /usr/local/bin/k3s ] ; then echo nok3sbin; fi'):
     exit()
 
   # test call
-  get_node = kubectl('get node ' + vmnames[int(vmid)])
+  get_node = kubectl('get node ' + vmnames[vmid])
 
   # if not found or Ready
   if ( re.search('NotReady', get_node) or re.search('NotFound', get_node)):
@@ -55,6 +55,30 @@ def k3s_check_mon(vmid):
       exit(0)
 
   return True
+
+# create a master/slave/worker
+def k3s_init_node(vmid = masterid,nodetype = 'master'):
+  try:
+    k3s_check(vmid)
+  except:
+    kmsg_info(('k3s-' + nodetype +'-init'), vmnames[vmid])
+
+    # check vm has internet
+    internet_check(vmid)
+
+    # master
+    if nodetype == 'master':
+      qaexec(vmid,k3s_install_master)
+
+    # wait until ready
+    try:
+      k3s_check_mon(vmid)
+    except:
+      kmsg_err(('k3s-' + nodetype +'-init'), vmnames[vmid])
+      exit()
+
+    if nodetype == 'master':
+      kubeconfig(vmid)
 
 # init 1st master
 def k3s_init_master(vmid):
