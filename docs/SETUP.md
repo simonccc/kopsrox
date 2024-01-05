@@ -1,11 +1,11 @@
-## Requirements
+## Requirements :hammer_and_wrench:
 
 - password less sudo access on a proxmox VE host  ( tested up to 8.1.3 ) 
 - network with internet access configured in proxmox
 - a range of 10 free Proxmox 'vmids' eg 600 to 610
 - a range of 10 IP's on your network for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
 
-## Install Packages
+## Install Packages :bricks:
 
 - `sudo apt install libguestfs-tools python3-termcolor -y`
 - `pip3 install --break-system-packages --user -r requirements.txt`
