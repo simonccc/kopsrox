@@ -76,6 +76,32 @@ See [SETUP.md](SETUP.md)
 
 `600` - the proxmox id used for the kopsrox image/template 
 
+Kopsrox uses a simple static id/ip assignments based on `proximgid` and `network` settings eg
+
+```
+[proxmox]
+...
+proximgid = 620
+...
+[kopsrox]
+...
+network = 192.168.0.170
+...
+```
+
+|-|vmid|ip|type|
+|--|--|--|--|
+|0|620|-|image|
+|1|621|192.168.0.171|master 1|
+|2|622|192.168.0.172|master 2|
+|3|623|192.168.0.173|master 3|
+|4|624|-|spare|
+|5|625|192.168.0.175|worker 1|
+|6|626|192.168.0.176|worker 2|
+|7|627|192.168.0.177|worker 3|
+|8|628|192.168.0.178|worker 4|
+|9|629|192.168.0.179|worker 5|
+
 ### up_image_url <a name=up_image_url>
 
 `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` - url to the cloud image you want to use as the base image
@@ -115,6 +141,32 @@ you can use this user name / password to login on the vm if required
 ### network <a name=network>
 
 "network" address of proxmox cluster
+
+Kopsrox uses a simple static id/ip assignments based on `proximgid` and `network` settings eg
+
+```
+[proxmox]
+...
+proximgid = 620
+...
+[kopsrox]
+...
+network = 192.168.0.170
+...
+```
+
+|-|vmid|ip|type|
+|--|--|--|--|
+|0|620|-|image|
+|1|621|192.168.0.171|master 1|
+|2|622|192.168.0.172|master 2|
+|3|623|192.168.0.173|master 3|
+|4|624|-|spare|
+|5|625|192.168.0.175|worker 1|
+|6|626|192.168.0.176|worker 2|
+|7|627|192.168.0.177|worker 3|
+|8|628|192.168.0.178|worker 4|
+|9|629|192.168.0.179|worker 5|
 
 ### networkgw
 
