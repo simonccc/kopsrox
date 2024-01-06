@@ -14,10 +14,6 @@ cmd = sys.argv[2]
 # define kname
 kname = ('cluster-'+cmd)
 
-# cluster info is a function that prints its own header
-if not cmd == 'info':
-  kmsg_sys(kname,'')
-
 # info
 if cmd == 'info':
  cluster_info()
@@ -29,6 +25,7 @@ if cmd == 'update':
 
 # create new cluster / master server
 if cmd == 'create':
+  kmsg_sys(kname,'')
 
   # if masterid not found running 
   if not masterid in list_kopsrox_vm():

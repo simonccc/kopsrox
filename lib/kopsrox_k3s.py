@@ -77,10 +77,16 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
     # master
     if nodetype == 'master':
       init_cmd = k3s_install_master
+    else:
+      k3s_token_cmd = ' K3S_TOKEN=\"' + get_token() + '\"'
+
+    # slave
+    if nodetype == 'slave':
+      init_cmd = k3s_install_base  + k3s_token_cmd + ' sh -s - server --server ' + 'https://' + vmip(masterid) + ':6443'
 
     # worker
     if nodetype == 'worker':
-      init_cmd = k3s_install_worker + ' K3S_TOKEN=\"' + get_token() + '\" sh -s'
+      init_cmd = k3s_install_worker + k3s_token_cmd + ' sh -s'
 
     # run command
     qaexec(vmid,init_cmd)
@@ -95,22 +101,6 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
     # export kubeconfig 
     if nodetype == 'master':
       kubeconfig(vmid)
-
-# additional master
-def k3s_init_slave(vmid):
-  try:
-    k3s_check(vmid)
-  except:
-    kmsg_info('k3s-init-slave', vmnames[vmid])
-    ip = vmip(masterid)
-    token = get_token()
-
-    cmd = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" K3S_TOKEN=\"' + token + '\" sh -s - server --server ' + 'https://' + ip + ':6443'
-    qaexec(vmid,cmd)
-
-    # wait for node to join cluster
-    k3s_check_mon(vmid)
-  return True
 
 # remove a node
 def k3s_rm(vmid):
@@ -153,6 +143,7 @@ def k3s_rm_cluster(restore = False):
 
 # builds or removes other nodes from the cluster as required per config
 def k3s_update_cluster():
+ kmsg_sys('k3s-update-cluster', (cname + ' ' +  str(masters) + 'M ' +  str(workers) + 'W'))
 
  # refresh the master token
  token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
@@ -171,16 +162,14 @@ def k3s_update_cluster():
     # so eg 601 + 1 = 602 = m2
     slave_masterid = int(masterid) + master_count
     slave_hostname = vmnames[slave_masterid]
-    kmsg_info('k3s-cluster-check', slave_hostname)
+    kmsg_info('k3s-slave-check', slave_hostname)
 
     # existing server
     if slave_masterid not in vmids:
       clone(slave_masterid)
 
-    # install k3s on slave and join it to master
-    if not k3s_init_slave(slave_masterid):
-      kmsg_err('k3s-init-slave', ('failed to install slave ' + slave_hostname))
-      exit()
+    # install k3s on slave and join master
+    k3s_init_node(slave_masterid,'slave')
 
     # next possible master ( m3 ) 
     master_count = master_count + 1
@@ -209,7 +198,7 @@ def k3s_update_cluster():
    while ( worker_count <= workers ):
      # calculate workerid
      workerid = masterid + 3 + worker_count
-     kmsg_info('k3s-workers-check', vmnames[workerid])
+     kmsg_info('k3s-worker-check', vmnames[workerid])
 
      # if existing vm with this id found
      if workerid not in vmids:
@@ -219,7 +208,7 @@ def k3s_update_cluster():
      k3s_init_node(workerid,'worker')
      worker_count = worker_count + 1
 
-   # remove extra workers
+ # remove extra workers
  for vm in vmids:
    if vm > workerid:
      kmsg_info('k3s-extra-worker', vmnames[vm])
