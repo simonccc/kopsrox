@@ -143,7 +143,7 @@ def k3s_rm_cluster(restore = False):
 
 # builds or removes other nodes from the cluster as required per config
 def k3s_update_cluster():
- kmsg_sys('k3s-update-cluster', (cname + ' ' +  str(masters) + 'M ' +  str(workers) + 'W'))
+ kmsg_sys('k3s-update-cluster', ('checking: ' +  str(masters) + ' masters ' +  str(workers) + ' workers '))
 
  # refresh the master token
  token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')

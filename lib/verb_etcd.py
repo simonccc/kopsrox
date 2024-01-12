@@ -7,12 +7,12 @@ from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info,
 import sys, re, os
 
 # review
-import kopsrox_proxmox as proxmox
+from kopsrox_proxmox import get_node, qaexec, writefile
 import kopsrox_k3s as k3s
 
 # passed command
 cmd = sys.argv[2]
-kname = '-::etcd::' + cmd + '::'
+kname = 'etcd-' + cmd
 
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
@@ -31,9 +31,9 @@ def write_token():
 # check master is running / exists
 try:
   # fails if node can't be found
-  proxmox.get_node(masterid)
+  get_node(masterid)
 except:
-  proxmox.get_node(masterid)
+  get_node(masterid)
   print('etcd::check: ERROR: cluster not found')
   exit(0)
 
@@ -42,7 +42,7 @@ def s3_run(s3cmd):
 
   # run the command ( 2>&1 required )
   k3s_run = 'k3s etcd-snapshot ' + s3cmd + s3_string + '2>&1'
-  cmd_out = proxmox.qaexec(masterid, k3s_run)
+  cmd_out = qaexec(masterid, k3s_run)
 
   #print(cmd_out)
 
@@ -94,7 +94,7 @@ if cmd == 'snapshot':
   # define snapshot command
   snap_cmd = 'k3s etcd-snapshot save ' + s3_string + ' --name kopsrox --etcd-snapshot-compress'
   #print(snap_cmd)
-  snapout = proxmox.qaexec(masterid,snap_cmd)
+  snapout = qaexec(masterid,snap_cmd)
 
   # filter output
   snapout = snapout.split('\n')
@@ -139,12 +139,12 @@ if cmd == 'restore':
     print(kname, 'downsizing cluster for restore')
     k3s.k3s_rm_cluster(restore = True)
 
-  write_token = proxmox.writefile(masterid, 'kopsrox.etcd.snapshot.token', '/tmp/kopsrox.etcd.snapshot.token')
+  write_token = writefile(masterid, 'kopsrox.etcd.snapshot.token', '/tmp/kopsrox.etcd.snapshot.token')
 
   # define restore command
   restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/tmp/kopsrox.etcd.snapshot.token ' + s3_string
 
-  restore = proxmox.qaexec(masterid, restore_cmd)
+  restore = qaexec(masterid, restore_cmd)
 
   # display some filtered restore contents
   restout = restore.split('\n')
@@ -164,7 +164,7 @@ if cmd == 'restore':
     :
       print(line)
 
-  start = proxmox.qaexec(masterid, 'systemctl start k3s')
+  start = qaexec(masterid, 'systemctl start k3s')
   print(kname + ' done')
 
   # delete extra nodes in the restored cluster
