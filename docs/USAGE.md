@@ -95,4 +95,4 @@ usage:
 
 ### prune <a name=prune>
 
-- deletes old snapshots by 7 days? ( tbc ) 
+- deletes old snapshots per the retention policy set on the bucket

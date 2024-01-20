@@ -1,4 +1,11 @@
 # get started
+
+## setup kopsrox.ini
+
+`./kopsrox.py`
+
+follow the guide in [CONFIG.md](CONFIG.md)
+
 ## create an image
 
 `./kopsrox.py create image`

@@ -18,7 +18,7 @@ _installs the required pip packages vs using os packages_
 
 `sudo pveum acl modify / --roles Administrator --user root@pam  --token 'root@pam!kopsrox'`
 
-Take a note of the token as we'll need this below
+Take a note of the token as you will need this for `kopsrox.ini` or check out [CONFIG.md](CONFIG.md)
 
 ## Create kopsrox.ini
 
