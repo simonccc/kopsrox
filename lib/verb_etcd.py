@@ -85,7 +85,7 @@ def list_images():
 
 # s3 prune
 if cmd == 'prune':
-  print(s3_run('prune --name kopsrox'))
+  kmsg_sys('etcd-prune', (s3endpoint + '/' + bucket + '\n'+s3_run('prune --name kopsrox')))
   exit(0)
 
 # snapshot 
