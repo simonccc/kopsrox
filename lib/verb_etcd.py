@@ -13,15 +13,6 @@ kname = 'etcd-' + cmd
 # token filename
 token_fname = cname + '.etcd.token'
 
-# if restore check early for snapshot argument
-if cmd == 'restore':
-  try:
-    if sys.argv[3]:
-      restore_snapshot = sys.argv[3]
-  except:
-    kmsg_err('etcd-restore', 'pass a snapshot name to restore')
-    exit(0)
-
 # check master is running / exists
 # fails if node can't be found
 try:
@@ -52,9 +43,6 @@ def s3_run(s3cmd):
   # return command outpit
   return(cmd_out)
 
-# test connection to s3 by running ls 
-s3_run('ls')
-
 # list images in s3 storage
 def list_images():
 
@@ -74,6 +62,9 @@ def list_images():
 
   # return images string
   return(images)
+
+# test connection to s3 by getting images
+images = list_images()
 
 # s3 prune
 if cmd == 'prune':
@@ -100,12 +91,11 @@ if cmd == 'snapshot':
 
 # print returned images
 if cmd == 'list':
-  kmsg_info('etcd-snapshots-list', (s3endpoint + '/' + bucket + '\n' + list_images()))
+  kmsg_info('etcd-snapshots-list', (s3endpoint + '/' + bucket + '\n' +images))
   exit
 
 # restore
 if cmd == 'restore':
-  images = list_images()
 
   # check passed snapshot name exists
   if not re.search(restore_snapshot,images):

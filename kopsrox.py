@@ -23,12 +23,12 @@ cmds = {
         "create" : '',
         "update" : '',
         "destroy" : '',
-        "kubectl" : '',
+        "kubectl" : 'cmd',
         "kubeconfig" : '',
     },
     "etcd": {
         "snapshot" : '',
-        "restore" : '',
+        "restore" : 'snapshot',
         "list" : '',
         "prune" : '',
     },
@@ -74,17 +74,28 @@ except:
 
 # handle command
 try:
+
+  # 2nd arg
   if (sys.argv[2]):
 
     # map 2nd arg to cmd
-    cmd = str(sys.argv[2])
+    cmd = sys.argv[2]
 
     # if cmd not in list of commands
     if not cmd in list(cmds[verb]):
       exit()
+
 except:
   cmds_help(verb)
   exit()
+
+# handle args
+try:
+  if cmds[verb][cmd] and sys.argv[3]:
+    pass
+except:
+  kmsg('kopsrox ' + verb + ' ' + cmd + ' [' + cmds[verb][cmd] + ']')
+  exit(0)
 
 # run passed verb
 exec_verb = __import__('verb_' + verb)

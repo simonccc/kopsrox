@@ -12,7 +12,7 @@ import sys, re
 cmd = sys.argv[2]
 
 # define kname
-kname = ('cluster-'+cmd)
+kname = 'cluster-'+cmd
 
 # info
 if cmd == 'info':
@@ -32,7 +32,6 @@ if cmd == 'create':
     clone(masterid)
 
   # install k3s on master
-  #k3s_init_master(masterid)
   k3s_init_node()
 
   # perform rest of cluster creation
@@ -59,7 +58,7 @@ if cmd == 'kubectl':
   kcmd = kcmd.replace('cluster kubectl ','')
 
   # run command and show output
-  print(kname + kcmd)
+  kmsg_sys('kubectl', kcmd)
   print(kubectl(kcmd))
 
 # export kubeconfig to file
