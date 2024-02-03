@@ -1,24 +1,28 @@
 #!/usr/bin/env python3
 
-# standard import
-from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
-
-# standard imports
+# standard imports
 import sys, re, os
-
-# review
+from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
 from kopsrox_proxmox import get_node, qaexec, writefile
-import kopsrox_k3s as k3s
+from kopsrox_k3s import get_token, k3s_rm_cluster, kubectl, k3s_update_cluster
 
 # passed command
 cmd = sys.argv[2]
 kname = 'etcd-' + cmd
 
+# check master is running / exists
+# fails if node can't be found
+try:
+  get_node(masterid)
+except:
+  kmsg_err('etcd-check', 'cluster does not exist')
+  exit(0)
+
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
 def write_token():
   # get the snapshot tokenfile
-  token = k3s.get_token()
+  token = get_token()
 
   # add a line break to the token
   token = token + '\n'
@@ -27,15 +31,6 @@ def write_token():
   with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
     snapshot_token.write(token)
   print(kname +'::write-token: wrote kopsrox.etcd.snapshot.token')
-
-# check master is running / exists
-try:
-  # fails if node can't be found
-  get_node(masterid)
-except:
-  get_node(masterid)
-  print('etcd::check: ERROR: cluster not found')
-  exit(0)
 
 # run k3s s3 command passed
 def s3_run(s3cmd):
@@ -137,7 +132,7 @@ if cmd == 'restore':
   # removes all nodes apart from image and master
   if ( workers != 0 or masters == 3 ):
     print(kname, 'downsizing cluster for restore')
-    k3s.k3s_rm_cluster(restore = True)
+    k3s_rm_cluster(restore = True)
 
   write_token = writefile(masterid, 'kopsrox.etcd.snapshot.token', '/tmp/kopsrox.etcd.snapshot.token')
 
@@ -168,14 +163,14 @@ if cmd == 'restore':
   print(kname + ' done')
 
   # delete extra nodes in the restored cluster
-  nodes = k3s.kubectl('get nodes').split()
+  nodes = kubectl('get nodes').split()
   for node in nodes:
 
     # if matches cluster name and not master node
     if ( re.search((cname + '-'), node) and (node != ( cname + '-m1'))):
       print(kname, 'removing stale node', node)
-      k3s.kubectl('delete node ' + node)
+      kubectl('delete node ' + node)
 
   # run k3s update
   print(kname, 'running k3s_update_cluster()')
-  k3s.k3s_update_cluster()
+  k3s_update_cluster()

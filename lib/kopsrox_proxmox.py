@@ -25,7 +25,7 @@ def qaexec(vmid,cmd):
   qagent_count = int(0)
 
   # while variable is false
-  while ( qagent_running == 'false' ):
+  while qagent_running == 'false':
     try:
 
       # qa ping the vm
@@ -96,7 +96,7 @@ def qaexec(vmid,cmd):
 def get_node(vmid):
 
   # if it exists proxnode is ok
-  if int(vmid) == int(proximgid):
+  if int(vmid) == proximgid:
     return(proxnode)
 
   # check for vm id in proxmox cluster
@@ -109,7 +109,7 @@ def get_node(vmid):
       return(vm.get('node'))
 
   # error: node not found
-  print('proxmox::get_node: ERROR: '+vmnames[vmid]+'/'+str(vmid)+' not found.')
+  kmsg_info('prox_get_node', (vmnames[vmid]+'/'+str(vmid)+' not found'))
   exit(0)
 
 # stop and destroy vm
@@ -120,7 +120,7 @@ def destroy(vmid):
     proxnode = get_node(vmid)
 
     # if destroying image
-    if ( int(vmid) == proximgid ):
+    if int(vmid) == proximgid:
       task_status(prox.nodes(proxnode).qemu(proximgid).delete())
       return
 
@@ -131,7 +131,7 @@ def destroy(vmid):
       kmsg_info('prox-destroy', vmname)
     except:
       # is this image check still required?
-      if not int(proximgid) == int(vmid):
+      if not proximgid == int(vmid):
         kmsg_err('prox-destroy', ('unable to destroy ', vmid))
         exit()
 
