@@ -96,6 +96,7 @@ if cmd == 'list':
 
 # restore
 if cmd == 'restore':
+  restore_snapshot = sys.argv[3]
 
   # check passed snapshot name exists
   if not re.search(restore_snapshot,images):
