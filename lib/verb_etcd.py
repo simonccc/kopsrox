@@ -10,6 +10,9 @@ from kopsrox_k3s import get_token, k3s_rm_cluster, kubectl, k3s_update_cluster
 cmd = sys.argv[2]
 kname = 'etcd-' + cmd
 
+# token filename
+token_fname = cname + '.etcd.token'
+
 # check master is running / exists
 # fails if node can't be found
 try:
@@ -20,6 +23,7 @@ except:
 
 # should check for an existing token?
 # writes a etcd snapshot token from the current running clusters token
+# adds a linebreak
 def write_token():
   # get the snapshot tokenfile
   token = get_token()
@@ -28,9 +32,9 @@ def write_token():
   token = token + '\n'
 
   # write the token
-  with open('kopsrox.etcd.snapshot.token', 'w') as snapshot_token:
-    snapshot_token.write(token)
-  print(kname +'::write-token: wrote kopsrox.etcd.snapshot.token')
+  with open(token_fname, 'w') as token_file:
+    token_file.write(token)
+  kmsg_sys('etcd-write-token', ('wrote ' + token_fname))
 
 # run k3s s3 command passed
 def s3_run(s3cmd):
@@ -49,7 +53,7 @@ def s3_run(s3cmd):
 
   # the response from qaexec for eg timeout
   if ( cmd_out == 'no output'):
-    print('etcd::s3_run: problem with s3 ( no output ) ')
+    kmsg_err('etcd-s3_run', 'no output error')
     exit(0)
 
   # return command outpit
@@ -98,7 +102,7 @@ if cmd == 'snapshot':
       kmsg_info('etcd-snapshot-out', line)
 
   # check for existing token file
-  if not os.path.isfile('kopsrox.etcd.snapshot.token'):
+  if not os.path.isfile(token_fname):
     write_token()
 
 # print returned images
@@ -117,24 +121,25 @@ if cmd == 'restore':
     if (sys.argv[3]):
       snapshot = str(sys.argv[3])
   except:
-    print('etcd::restore: error pass a snapshot name eg:')
+    kmsg_err('etcd-restore', 'pass a snapshot name eg:')
     print(images)
     exit(0)
 
   # check passed snapshot name exists
-  if not (re.search(str(snapshot),str(images))):
+  if not (re.search(snapshot,str(images))):
     print('etcd::restore: no snapshot found:', snapshot)
     print(images)
     exit(0)
 
-  print(kname,'restoring', snapshot)
+  kmsg_sys(kname,('restoring ' + snapshot))
 
   # removes all nodes apart from image and master
   if ( workers != 0 or masters == 3 ):
     print(kname, 'downsizing cluster for restore')
     k3s_rm_cluster(restore = True)
 
-  write_token = writefile(masterid, 'kopsrox.etcd.snapshot.token', '/tmp/kopsrox.etcd.snapshot.token')
+  # do we need to check this output?
+  write_token = writefile(masterid,token_fname, '/tmp/kopsrox.etcd.snapshot.token')
 
   # define restore command
   restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/tmp/kopsrox.etcd.snapshot.token ' + s3_string
@@ -159,8 +164,8 @@ if cmd == 'restore':
     :
       print(line)
 
-  start = qaexec(masterid, 'systemctl start k3s')
-  print(kname + ' done')
+  print(qaexec(masterid, 'systemctl start k3s'))
+  kmsg_info(kname, ' done')
 
   # delete extra nodes in the restored cluster
   nodes = kubectl('get nodes').split()
