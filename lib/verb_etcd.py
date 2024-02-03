@@ -34,17 +34,10 @@ def s3_run(s3cmd):
   k3s_run = 'k3s etcd-snapshot ' + s3cmd + s3_string + '2>&1'
   cmd_out = qaexec(masterid, k3s_run)
 
-  #print(cmd_out)
-
   # look for fatal error in output
   if re.search('level=fatal', cmd_out):
     kmsg_err('etcd-s3_run', '')
     kmsg_sys('etcd-s3_run-out', ('\n' + cmd_out))
-    exit(0)
-
-  # the response from qaexec for eg timeout
-  if ( cmd_out == 'no output'):
-    kmsg_err('etcd-s3_run', 'no output error')
     exit(0)
 
   # return command outpit
