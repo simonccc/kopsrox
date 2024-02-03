@@ -21,9 +21,7 @@ except:
   kmsg_err('etcd-check', 'cluster does not exist')
   exit(0)
 
-# should check for an existing token?
-# writes a etcd snapshot token from the current running clusters token
-# adds a linebreak
+# check why we need to add linebreak here
 def write_token():
   with open(token_fname, 'w') as token_file:
     token_file.write(get_token() + '\n')
@@ -155,10 +153,10 @@ if cmd == 'restore':
     and not re.search('Cluster CA certificate is trusted by the host CA bundle', line) \
     and not re.search('bootstrap key already exists', line) \
     :
-      print(line)
+      kmsg_info('etcd-restore-out', line)
 
-  print(qaexec(masterid, 'systemctl start k3s'))
-  kmsg_info(kname, ' done')
+  qaexec(masterid, 'systemctl start k3s')
+  kmsg_info(kname, 'done')
 
   # delete extra nodes in the restored cluster
   nodes = kubectl('get nodes').split()
@@ -170,5 +168,4 @@ if cmd == 'restore':
       kubectl('delete node ' + node)
 
   # run k3s update
-  print(kname, 'running k3s_update_cluster()')
   k3s_update_cluster()
