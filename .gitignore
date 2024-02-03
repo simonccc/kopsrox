@@ -3,6 +3,7 @@ lib/__pycache__/
 *.ini
 *.swp
 *.img
+*.etcd.token
 kopsrox.k3stoken
 kopsrox.kubeconfig
 kopsrox_disk_import.log

@@ -63,9 +63,9 @@
 ## etcd <a name=etcd>
 ### snapshot <a name=snapshot>
 
-The first time a snapshot is taken the cluster token is written to `kopsrox.etcd.snapshot.token`
+The first time a snapshot is taken the cluster token is written to `clustername.etcd.token`
 
-This is not overwriten when further snapshots are taken - even on a new cluster
+This is not overwriten when further snapshots are taken - even on a new cluster with the same name
 
 `./kopsrox.py etcd snapshot`
 

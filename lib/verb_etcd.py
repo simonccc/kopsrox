@@ -25,16 +25,9 @@ except:
 # writes a etcd snapshot token from the current running clusters token
 # adds a linebreak
 def write_token():
-  # get the snapshot tokenfile
-  token = get_token()
-
-  # add a line break to the token
-  token = token + '\n'
-
-  # write the token
   with open(token_fname, 'w') as token_file:
-    token_file.write(token)
-  kmsg_sys('etcd-write-token', ('wrote ' + token_fname))
+    token_file.write(get_token() + '\n')
+  kmsg_sys('etcd-write-token', ('created: ' + token_fname))
 
 # run k3s s3 command passed
 def s3_run(s3cmd):
@@ -90,6 +83,10 @@ if cmd == 'prune':
 # snapshot 
 if cmd == 'snapshot':
 
+  # check for existing token file
+  if not os.path.isfile(token_fname):
+    write_token()
+
   # define snapshot command
   snap_cmd = 'k3s etcd-snapshot save ' + s3_string + ' --name kopsrox --etcd-snapshot-compress'
   #print(snap_cmd)
@@ -100,10 +97,6 @@ if cmd == 'snapshot':
   for line in snapout:
     if re.search('upload complete', line):
       kmsg_info('etcd-snapshot-out', line)
-
-  # check for existing token file
-  if not os.path.isfile(token_fname):
-    write_token()
 
 # print returned images
 if cmd == 'list':
