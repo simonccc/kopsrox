@@ -13,6 +13,15 @@ kname = 'etcd-' + cmd
 # token filename
 token_fname = cname + '.etcd.token'
 
+# if restore check early for snapshot argument
+if cmd == 'restore':
+  try:
+    if sys.argv[3]:
+      restore_snapshot = sys.argv[3]
+  except:
+    kmsg_err('etcd-restore', 'pass a snapshot name to restore')
+    exit(0)
+
 # check master is running / exists
 # fails if node can't be found
 try:
@@ -96,26 +105,15 @@ if cmd == 'list':
 
 # restore
 if cmd == 'restore':
-
-  # get list of images 
   images = list_images()
 
-  # look for passed snapshot
-  try:
-    if (sys.argv[3]):
-      snapshot = str(sys.argv[3])
-  except:
-    kmsg_err('etcd-restore', 'pass a snapshot name eg:')
-    print(images)
-    exit(0)
-
   # check passed snapshot name exists
-  if not (re.search(snapshot,str(images))):
-    print('etcd::restore: no snapshot found:', snapshot)
+  if not re.search(restore_snapshot,images):
+    kmsg_err('etcd-restore', (restore_snapshot + ' not found.'))
     print(images)
     exit(0)
 
-  kmsg_sys(kname,('restoring ' + snapshot))
+  kmsg_sys(kname,('restoring ' + restore_snapshot))
 
   # removes all nodes apart from image and master
   if ( workers != 0 or masters == 3 ):
@@ -126,7 +124,7 @@ if cmd == 'restore':
   write_token = writefile(masterid,token_fname, '/tmp/kopsrox.etcd.snapshot.token')
 
   # define restore command
-  restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' --token-file=/tmp/kopsrox.etcd.snapshot.token ' + s3_string
+  restore_cmd = 'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path=' + restore_snapshot +' --token-file=/tmp/kopsrox.etcd.snapshot.token ' + s3_string
 
   restore = qaexec(masterid, restore_cmd)
 
