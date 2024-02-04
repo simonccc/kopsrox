@@ -225,8 +225,10 @@ def internet_check(vmid):
 # used to write etcd token when restoring
 def writefile(vmid,file,path):
   name = vmnames[vmid]
-  kmsg_info('prox-writefile', (name + ':' + path))
+  #kmsg_info('prox-writefile', (name + ':' + path))
   myfile = open(file,"rb")
   file_bin = myfile.read()
   write_file = prox.nodes(proxnode).qemu(vmid).agent('file-write').post(file = path,content = file_bin)
+
+  # is this required?
   return(write_file)

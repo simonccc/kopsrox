@@ -93,7 +93,6 @@ if cmd == 'snapshot':
 # print returned images
 if cmd == 'list':
   kmsg_info('etcd-snapshots-list', (s3endpoint + '/' + bucket + '\n' +images))
-  exit
 
 # restore
 if cmd == 'restore':
@@ -103,18 +102,16 @@ if cmd == 'restore':
 
   # check passed snapshot name exists
   if not re.search(snapshot,images):
-    kmsg_err('etcd-restore', (snapshot + ' not found.'))
+    kmsg_err(kname, (snapshot + ' not found.'))
     print(images)
     exit(0)
 
-  kmsg_sys(kname,('restoring ' + snapshot))
-
   # removes all nodes apart from image and master
-  if ( workers != 0 or masters == 3 ):
-    print(kname, 'downsizing cluster for restore')
+  if  ( workers >= 1 or masters == 3 ):
     k3s_rm_cluster(restore = True)
 
   # do we need to check this output?
+  kmsg_sys(kname,('restoring ' + snapshot))
   write_token = writefile(masterid,token_fname, token_rname)
 
   # define restore command
@@ -122,11 +119,11 @@ if cmd == 'restore':
 systemctl stop k3s && \
 rm -rf /var/lib/rancher/k3s/server/db/ && \
 k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' \
---token-file=' + token_rname + ' ' + s3_string
-
-  restore = qaexec(masterid, restore_cmd)
+--token-file=' + token_rname + ' ' + s3_string +' && \
+systemctl start k3s'
 
   # display some filtered restore contents
+  restore = qaexec(masterid, restore_cmd)
   restout = restore.split('\n')
   for line in restout:
 
@@ -140,12 +137,9 @@ k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' \
     if re.search('level=', line) and not re.search('info', line) \
     and not re.search('json: no such file or directory', line) \
     and not re.search('Cluster CA certificate is trusted by the host CA bundle', line) \
-    and not re.search('bootstrap key already exists', line) \
+    and not re.search('Bootstrap key already exists', line) \
     :
       kmsg_info('etcd-restore-out', line)
-
-  qaexec(masterid, 'systemctl start k3s')
-  kmsg_info(kname, 'done')
 
   # delete extra nodes in the restored cluster
   nodes = kubectl('get nodes').split()
