@@ -184,6 +184,7 @@ try:
 
 except:
   kmsg_err(kname, ('API connection to ' + endpoint + ':' + port + ' failed check [proxmox] settings in kopsrox.ini'))
+  kmsg_sys(kname, prox.cluster.status.get())
   exit()
 
 # look up kopsrox_img name
