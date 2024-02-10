@@ -5,7 +5,7 @@
 - custom image created with cloudinit networking and ssh / user access :busts_in_silhouette:
 - run kubectl commands or export the kubeconfig via the build in commands :nerd_face:  
 - etcd S3 snapshot/restore commands - minio, r2 etc supported :floppy_disk:
-- in development but should be reasonably stable - check the branches and binary releases :horse_racing:
+- in development but should be reasonably stable - check the branches for stable versions:horse_racing:
 - old demo: https://asciinema.org/a/597074
 
 # docs :book:
