@@ -147,7 +147,9 @@ systemctl start k3s'
 
     # if matches cluster name and not master node
     if ( re.search((cname + '-'), node) and (node != ( cname + '-m1'))):
-      print(kname, 'removing stale node', node)
+      kmsg_sys(kname, ('removing stale node '+ node))
+
+      # need to check this..
       kubectl('delete node ' + node)
 
   # run k3s update
