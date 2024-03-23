@@ -177,13 +177,13 @@ try:
     token_name=token_name,
     token_value=api_key,
     verify_ssl=False,
-    timeout=5)
+    timeout=3)
 
   # check connection to cluster
   prox.cluster.status.get()
 
 except:
-  kmsg_err(kname, ('API connection to ' + endpoint + ':' + port + ' failed check [proxmox] settings in kopsrox.ini'))
+  kmsg_err(kname, ('API connection to ' + endpoint + ':' + port + ' failed check [proxmox] settings'))
   kmsg_sys(kname, prox.cluster.status.get())
   exit()
 
@@ -217,7 +217,7 @@ def list_kopsrox_vm():
 
     # if vmid is in kopsrox config range ie between proximgid and proximgid + 10
     # add vmid and node to dict
-    if ((vmid >= proximgid) and (vmid < (proximgid + 10))):
+    if (vmid >= proximgid) and (vmid < (proximgid + 10)):
       vmids[vmid] = vm.get('node')
 
   # return sorted dict
@@ -244,11 +244,10 @@ nodes = [node.get('node', None) for node in prox.nodes.get()]
 
 # if proxnode not in list of nodes
 if proxnode not in nodes:
-  kmsg_err('config-check', ('proxnode listed in kopsrox.ini not found. ('+ proxnode + ')'))
-  # print list of discovered proxmox nodes
-  print('- valid proxnodes:')
+  kmsg_err('config-check', ('proxnode not found. ('+ proxnode + ')'))
+  print('valid nodes:')
   for node in nodes:
-    print(' * ' + node)
+    print(' - ' + node)
   exit()
 
 # get list of storage in the cluster
@@ -271,31 +270,39 @@ try:
   if storage_type:
     pass
 except:
-  kmsg_err('config-check', ('proxstor listed in kopsrox.ini not found. (' + proxstor + ')'))
-
-  # print available storage
-  print('- valid proxstor:')
+  kmsg_err('config-check', ('proxstor not found. (' + proxstor + ')'))
+  print('valid storage:')
   for storage in storage_list:
-    print(' * ' + storage.get("storage"))
+    print(' - ' + storage.get("storage"))
   exit()
 
-# check configured bridge on cluster
-bridges = [bridge.get('iface', None) for bridge in prox.nodes(proxnode).network.get(type = 'bridge')]
+# check configured bridge exist or is a sdn vnet
+# configured proxbridge does not contain sdn/
+if not re.search('sdn/', proxbridge):
+  bridges = [bridge.get('iface', None) for bridge in prox.nodes(proxnode).network.get(type = 'bridge')]
+else:
+  # map zone and get vnets
+  sdn_params = proxbridge.split('/')
+  zone = sdn_params[1]
+  bridges = [bridge.get('vnet', None) for bridge in prox.nodes(proxnode).sdn.zones(zone).content.get()]
+
+  # map proxbridge var to passed vnet
+  proxbridge = sdn_params[2]
 
 # check configured bridge is in list
 if proxbridge not in bridges:
-  kmsg_err('config-check', ('proxbridge listed in kopsrox.ini not found. (' + proxbridge + ')'))
-  print('- valid bridges:')
+  kmsg_err('config-check', ('proxbridge not found. (' + proxbridge + ')'))
+  print('valid bridges:')
   for bridge in bridges:
-    print(' * ' + bridge)
+    print(' - ' + bridge)
   exit()
 
 # skip image check if image create is passed
 try:
   # check for image create command line
-  if not ((str(sys.argv[1]) == str('image')) and (str(sys.argv[2]) == str('create'))):
+  if not (str(sys.argv[1]) == str('image')) and (str(sys.argv[2]) == str('create')):
     # skip to create
-    exit(0)
+    exit()
 except:
   try:
     # check for image
