@@ -48,15 +48,15 @@ config related to proxmox setup
 
 ### user <a name=user>
 
-`root@pam` - user to connect as
+user to connect to proxmox API as 
+
+default is `root@pam`
 
 See [SETUP.md](SETUP.md)
 
 ### token_name <a name=token_name>
 
-`kopsrox` - see api key section above
-
-See [SETUP.md](SETUP.md)
+`kopsrox` -  See [SETUP.md](SETUP.md)
 
 ### api_key <a name=api_key>
 
@@ -74,9 +74,11 @@ See [SETUP.md](SETUP.md)
 
 ### proximgid <a name=proximgid>
 
-`600` - the proxmox id used for the kopsrox image/template 
+`600` - the proxmox id used for the kopsrox image/template and the basis of the cluster
 
-Kopsrox uses a simple static id/ip assignments based on `proximgid` and `network` settings eg
+kopsrox uses a simple static id/ip assignment scheme based on the `[proxmox] - proximgid` and `[kopsrox] - network` settings 
+
+For example:
 
 ```
 [proxmox]
@@ -99,7 +101,7 @@ network = 192.168.0.170
 |8|628|192.168.0.178|worker 4|
 |9|629|192.168.0.179|worker 5|
 
-See also [network](#network) 
+See also `[kopsrox]` [network](#network) setting 
 
 ### up_image_url <a name=up_image_url>
 
