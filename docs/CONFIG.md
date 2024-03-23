@@ -99,7 +99,7 @@ network = 192.168.0.170
 |8|628|192.168.0.178|worker 4|
 |9|629|192.168.0.179|worker 5|
 
-See also [network](network) 
+See also [network](#network) 
 
 ### up_image_url <a name=up_image_url>
 
@@ -143,7 +143,7 @@ you can use this user name / password to login on the vm if required
 
 `network = 192.168.0.170`
 
-See [proximgid](proximgid)
+See [proximgid](#proximgid)
 
 ### networkgw
 
