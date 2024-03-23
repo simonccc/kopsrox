@@ -4,6 +4,7 @@
 - network with internet access configured in proxmox
 - a range of 10 free Proxmox 'vmids' eg 600 to 610
 - a range of 10 IP's on your network for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
+- clone the repo and follow the steps below 
 
 ## Install Packages :bricks:
 
