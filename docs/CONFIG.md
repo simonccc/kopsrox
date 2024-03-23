@@ -108,7 +108,9 @@ See also `[kopsrox]` [network](#network) setting
 
 ### proxbridge <a name=proxbridge>
 
-`vmbr0` - the bridge to use - must have internet access via the `networkgw` defined below
+`vmbr0` - the bridge to use - must have internet access via the [networkgw](#networkgw) defined below
+
+a proxmox sdn can be used by specifying the zone and vnet like this: `sdn/zone/vnet`
 
 ## kopsrox
 
