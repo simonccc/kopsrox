@@ -34,6 +34,8 @@
 
 config related to proxmox setup 
 
+see [SETUP.md](SETUP.md) for API access details
+
 ### endpoint <a name=endpoint>
 
 `127.0.0.1` the proxmox API hostnamei/dns or IP address 
@@ -52,17 +54,14 @@ user to connect to proxmox API as
 
 default is `root@pam`
 
-See [SETUP.md](SETUP.md)
 
 ### token_name <a name=token_name>
 
-`kopsrox` -  See [SETUP.md](SETUP.md)
+`kopsrox` 
 
 ### api_key <a name=api_key>
 
 `icjecjeijciejceinceini` 
-
-See [SETUP.md](SETUP.md)
 
 ### proxnode <a name=proxnode>
 
