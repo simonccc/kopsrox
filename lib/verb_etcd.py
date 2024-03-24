@@ -45,7 +45,7 @@ def s3_run(s3cmd):
   return(cmd_out)
 
 # list images in s3 storage
-def list_images():
+def list_snapshots():
 
   # run s3 ls and create a list per line
   ls = s3_run('ls').split('\n')
@@ -62,10 +62,10 @@ def list_images():
       images += images_out[0] + "\t" + images_out[2] + "\t" +  images_out[3] + '\n'
 
   # return images string
-  return(images)
+  return(images.strip())
 
-# test connection to s3 by getting images
-images = list_images()
+# test connection to s3 by getting list of snapshots
+snapshots = list_snapshots()
 
 # s3 prune
 if cmd == 'prune':
@@ -92,7 +92,9 @@ if cmd == 'snapshot':
 
 # print returned images
 if cmd == 'list':
-  kmsg_info('etcd-snapshots-list', (s3endpoint + '/' + bucket + '\n' +images))
+  if not snapshots:
+    snapshots = 'none found'
+  kmsg_info('etcd-snapshots-list', (s3endpoint + '/' + bucket + '\n' +snapshots))
 
 # restore
 if cmd == 'restore':
@@ -101,10 +103,10 @@ if cmd == 'restore':
   snapshot = sys.argv[3]
 
   # check passed snapshot name exists
-  if not re.search(snapshot,images):
+  if not re.search(snapshot,snapshots):
     kmsg_err(kname, (snapshot + ' not found.'))
-    print(images)
-    exit(0)
+    print(snapshots)
+    exit()
 
   # removes all nodes apart from image and master
   if  ( workers >= 1 or masters == 3 ):
@@ -112,7 +114,7 @@ if cmd == 'restore':
 
   # do we need to check this output?
   kmsg_sys(kname,('restoring ' + snapshot))
-  write_token = writefile(masterid,token_fname, token_rname)
+  write_token = writefile(masterid,token_fname,token_rname)
 
   # define restore command
   restore_cmd = ' \
