@@ -61,11 +61,13 @@ if (cmd == 'create'):
   # create new server
   task_status(prox.nodes(proxnode).qemu.post(
     vmid = proximgid,
+    cores = 1,
+    memory = 2048,
+    cpu = ('cputype=host'),
     scsihw = 'virtio-scsi-pci',
-    memory = '1024',
     net0 = ('model=virtio,bridge=' + proxbridge),
     boot = 'c',
-    name = ( cname + '-i0'),
+    name = (cname + '-i0'),
     ostype = 'l26',
     ide2 = (proxstor + ':cloudinit'),
     tags = cname,
