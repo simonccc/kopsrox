@@ -17,6 +17,6 @@
  - [FAQ.md](docs/FAQ.md)
 
 # in progress :boom:
- - Documentation
- - Some code clean up 
- - Mostly standardising output ( colors ) 
+ - Improving Docs
+ - Some code clean up ( lol I am no coder )  
+ - New features: Proxmox sdn ( done ) - qcow images
