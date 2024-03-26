@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img
+from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err
 kopsrox_img = kopsrox_img()
 
 # variables
@@ -43,10 +43,12 @@ if (cmd == 'create'):
 
     try: 
       result = subprocess.run(
-        ['bash', "-c", patch_cmd], capture_output=True, text=True
+        ['bash', "-c", patch_cmd], text=True, capture_output=True
       )
+      if (result.returncode == 1):
+        exit()
     except:
-      kmsg_err(kname, result)
+      kmsg_err((kname + '-error'), result)
       exit()
 
   # destroy template if it exists
@@ -93,8 +95,10 @@ if (cmd == 'create'):
     result = subprocess.run(
       ['bash', "-c", import_cmd], capture_output=True, text=True
     )
+    if (result.returncode == 1):
+      exit()
   except:
-    kmsg_err(kname, result)
+    kmsg_err((kname + '-error'), result)
     exit()
 
   # convert to template via create base disk
@@ -131,5 +135,8 @@ if (cmd == 'info'):
 
 # destroy image
 if (cmd == 'destroy'):
-  kmsg_warn('image-destroy', ('deleting '+ kopsrox_img))
-  destroy(proximgid)
+  if (kopsrox_img):
+    kmsg_warn('image-destroy', ('deleting '+ kopsrox_img))
+    destroy(proximgid)
+  else:
+    kmsg_warn('image-destroy', ('no image found'))
