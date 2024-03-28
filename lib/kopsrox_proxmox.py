@@ -215,7 +215,7 @@ def getfile(vmid, path):
 # internet checker
 def internet_check(vmid):
   vmname = vmnames[vmid]
-  internet_cmd = 'curl -s --connect-timeout 1 www.google.com > /dev/null && echo ok || echo error'
+  internet_cmd = 'curl -s --retry 5 --retry-all-errors --connect-timeout 1 www.google.com > /dev/null && echo ok || echo error'
   internet_check = qaexec(vmid, internet_cmd)
   if internet_check == 'error':
     kmsg_err('network-failure', (vmname + ' no internet access'))
