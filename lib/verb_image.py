@@ -24,7 +24,7 @@ cmd = sys.argv[2]
 kname = 'image-'+cmd
 
 # create image
-if (cmd == 'create'):
+if cmd == 'create':
 
   # get image name
   up_image = (up_image_url.split('/')[-1])
@@ -34,12 +34,12 @@ if (cmd == 'create'):
 
     kmsg_info(kname, ('downloading ' + up_image))
     wget.download(up_image_url)
-    print('')
+    print()
 
     # patch image 
     kmsg_info(kname, 'running virt-customize')
     patch_cmd = 'sudo virt-customize -a ' + up_image + \
-    ' --install qemu-guest-agent,nfs-common --run-command "curl -sfL https://get.k3s.io > /k3s.sh"'
+    ' --run-command "if [ -f /bin/yum ] ; then yum install -y qemu-guest-agent; else apt update ; apt install qemu-guest-agent -y ; fi && curl -sfL https://get.k3s.io > /k3s.sh"'
 
     try: 
       result = subprocess.run(
