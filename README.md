@@ -1,4 +1,4 @@
-<img src="docs/kopsrox.png" height=200 />
+<img src="docs/kopsrox.png" height=300 />
 
 - cli to automate creating and managing a k3s cluster on Proxmox VE using cloud images :nerd_face:
 - add more master/worker nodes using simple config file and cli commands :pray:
