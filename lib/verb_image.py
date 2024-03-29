@@ -106,10 +106,10 @@ fi'''
 
   # shell to import disk
   import_cmd = 'sudo qm set ' + str(proximgid) + \
-  ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image 
+  ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image + ' ; mv ' + up_image + ' ' + up_image + '.patched'
 
   # run shell command to import
-  kmsg_info(kname, ('importing '+ up_image + ' to '+ proxstor))
+  kmsg_info(kname, ('importing image to '+ proxstor + '/' + str(proximgid)))
 
   try:
     result = subprocess.run(
@@ -132,7 +132,7 @@ fi'''
 # list images on proxstor
 # this might be more useful if we allow different images in the future
 # cos at the moment will only print 1 image 
-if (cmd == 'info'):
+if cmd == 'info':
 
   # get list of images
   for image in prox.nodes(proxnode).storage(proxstor).content.get():
@@ -154,7 +154,7 @@ if (cmd == 'info'):
       kmsg_info('image-info', image_info)
 
 # destroy image
-if (cmd == 'destroy'):
+if cmd == 'destroy':
   if (kopsrox_img):
     kmsg_warn('image-destroy', ('deleting '+ kopsrox_img))
     destroy(proximgid)

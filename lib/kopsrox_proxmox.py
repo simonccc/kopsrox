@@ -128,7 +128,7 @@ def destroy(vmid):
     try:
       task_status(prox.nodes(proxnode).qemu(vmid).status.stop.post())
       task_status(prox.nodes(proxnode).qemu(vmid).delete())
-      kmsg_info('prox-destroy', vmname)
+      kmsg_warn('prox-destroy', vmname)
     except:
       # is this image check still required?
       if not proximgid == int(vmid):
