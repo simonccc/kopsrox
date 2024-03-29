@@ -8,7 +8,7 @@ kopsrox_img = kopsrox_img()
 from kopsrox_config import proxnode, proxstor, proximgid, up_image_url, proxbridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, networkgw, network, netmask, storage_type
 
 # general imports
-import wget,sys, os, subprocess
+import wget,sys,os,subprocess
 
 # used to convert timestamps
 from datetime import datetime
@@ -26,7 +26,7 @@ kname = 'image-'+cmd
 # create image
 if cmd == 'create':
 
-  # get image name
+  # get image name from url 
   up_image = (up_image_url.split('/')[-1])
 
   # download image with wget if not present
@@ -37,9 +37,29 @@ if cmd == 'create':
     print()
 
     # patch image 
-    kmsg_info(kname, 'running virt-customize')
-    patch_cmd = 'sudo virt-customize -a ' + up_image + \
-    ' --run-command "if [ ! -f /usr/bin/qemu-ga ] ; then if [ -f /bin/yum ] ; then yum install -y qemu-guest-agent; else apt update ; apt install qemu-guest-agent -y ; fi ; fi && curl -sfL https://get.k3s.io > /k3s.sh ; if [ -f /etc/selinux/config ] ; then sed -i \'s/enforcing/disabled/g\' /etc/selinux/config ; fi ; if [ -f /etc/sysconfig/qemu-ga ] ; then cp /dev/null /etc/sysconfig/qemu-gai ; fi"'
+    kmsg_info(kname, 'running virt-customize to install qemu-guest-agent')
+
+    # script to install qemu-guest-agent on multiple os's disable selinux on Rocky
+    install_qga = '''
+curl -sfL https://get.k3s.io > /k3s.sh 
+if [ ! -f /usr/bin/qemu-ga ] 
+then
+  if [ -f /bin/yum ]  
+  then 
+    yum install -y qemu-guest-agent
+  else
+    apt update && apt install qemu-guest-agent -y 
+  fi 
+fi  
+if [ -f /etc/selinux/config ] 
+then
+  sed -i s/enforcing/disabled/g /etc/selinux/config
+fi 
+if [ -f /etc/sysconfig/qemu-ga ]
+then
+  cp /dev/null /etc/sysconfig/qemu-ga 
+fi'''
+    patch_cmd = 'sudo virt-customize -a ' + up_image + ' --run-command "' + install_qga + '"'
 
     try: 
       result = subprocess.run(
