@@ -69,7 +69,7 @@ def conf_check(section,value):
     if not config.has_option(section,value):
       exit()
   except:
-    kmsg_err(kname, ('check [' + section + '] \'' + value + '\' in kopsrox.ini'))
+    kmsg_err((kname+'-error'),('check [' + section + ']/' + value + ' in kopsrox.ini'))
     exit()
 
   try:
@@ -84,6 +84,7 @@ def conf_check(section,value):
     exit()
 
 # proxmox checks
+cname = conf_check('cluster', 'name')
 endpoint = conf_check('proxmox','endpoint')
 port = conf_check('proxmox','port')
 user = conf_check('proxmox','user')
@@ -111,14 +112,12 @@ cloudinitsshkey = conf_check('kopsrox','cloudinitsshkey')
 network = conf_check('kopsrox','network')
 networkgw = conf_check('kopsrox','networkgw')
 netmask = conf_check('kopsrox','netmask')
+network_dns = conf_check('kopsrox', 'network_dns')
 
 # variables for network and its IP for vmip function
 octs = network.split('.')
 network_base = octs[0] + '.' + octs[1] + '.' + octs[2] + '.'
 network_ip = int(octs[-1])
-
-# cluster level checks
-cname = conf_check('cluster', 'name')
 
 # master check
 masters = int(conf_check('cluster','masters'))

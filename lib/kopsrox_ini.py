@@ -78,6 +78,9 @@ def init_kopsrox_ini():
   # default gateway
   config.set('kopsrox', 'networkgw', '192.168.0.1')
 
+  # dns server
+  config.set('kopsrox', 'network_dns', '192.168.0.1')
+
   # cluster section
   config.add_section('cluster')
 

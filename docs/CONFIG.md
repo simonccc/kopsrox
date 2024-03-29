@@ -18,6 +18,9 @@
   - [cloudinitpass](#cloudinitpass)
   - [cloudinitsshkey](#cloudinitsshkey)
   - [network](#network)
+  - [netmask](#netmask)
+  - [networkgw](#networkgw)
+  - [network_dns](#network_dns)
 - [cluster](#cluster)
   - [name](#cname)
   - [k3s_version](#k3s_version)
@@ -38,7 +41,7 @@ see [SETUP.md](SETUP.md) for API access details
 
 ### endpoint <a name=endpoint>
 
-`127.0.0.1` the proxmox API hostnamei/dns or IP address 
+`127.0.0.1` the proxmox server hostname/dns or IP address you will connect to 
 
 127.0.0.1 will work on any host running proxmox
 
@@ -53,7 +56,6 @@ see [SETUP.md](SETUP.md) for API access details
 user to connect to proxmox API as 
 
 default is `root@pam`
-
 
 ### token_name <a name=token_name>
 
@@ -117,7 +119,6 @@ Tested images so far:
 https://cdn.amazonlinux.com/os-images/2.0.20240306.2/kvm/amzn2-kvm-2.0.20240306.2-x86_64.xfs.gpt.qcow2
 https://mirrors.vinters.com/rocky/9/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2
 
-
 ### proxbridge <a name=proxbridge>
 
 `vmbr0` - the bridge to use - must have internet access via the [networkgw](#networkgw) defined below
@@ -150,7 +151,7 @@ you can use this user name / password to login on the vm if required
 
 ### cloudinitsshkey <a name=cloudinitsshkey>
 
-`sshkey.pub`
+`sshkey.pub` - your ssh public key
 
 ### network <a name=network>
 
@@ -169,6 +170,10 @@ See [proximgid](#proximgid)
  `24` cdir netmask for the network 
 
 This is equal to '255.255.255.0' 
+
+### network_dns
+
+`192.168.0.1` - the dns server used for the vms
 
 ## cluster <a name=cluster>
 
