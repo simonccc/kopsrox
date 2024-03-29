@@ -3,6 +3,8 @@
 # imports
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# proxmoxer api
 from proxmoxer import ProxmoxAPI
 
 # prompt
@@ -13,6 +15,9 @@ import re
 
 # checks cmd line args - could be moved?
 import sys
+
+# local os commands
+import subprocess
 
 # colors
 from termcolor import colored, cprint
@@ -336,12 +341,11 @@ def vmip(vmid):
   vmid = int(vmid)
   # last number of network + ( vmid - proximgid ) 
   # eg 160 + ( 601 - 600 )  = 161 
-  ip = network_base + str(network_ip + ( vmid - proximgid))
+  ip = network_base + str(network_ip + (vmid - proximgid))
   return(ip)
 
 # cluster info
 def cluster_info():
-  kmsg_sys('cluster-info','')
 
   # for kopsrox vms
   for vmid in list_kopsrox_vm():
@@ -350,3 +354,14 @@ def cluster_info():
 
   from kopsrox_k3s import kubectl
   kmsg_info('k3s-get-nodes', ('\n'+kubectl('get nodes')))
+
+# run local os process 
+def local_os_process(cmd):
+  try:
+    cmd_run = subprocess.run(['bash', "-c", cmd], text=True, capture_output=True)
+    if (cmd_run.returncode == 1):
+       exit()
+  except:
+    kmsg_err(('local_os_process-error'), cmd_run)
+    exit()
+  return(cmd_run)

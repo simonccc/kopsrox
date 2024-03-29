@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err
+from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, local_os_process
 kopsrox_img = kopsrox_img()
 
 # variables
@@ -60,16 +60,7 @@ then
   cp /dev/null /etc/sysconfig/qemu-ga 
 fi'''
     patch_cmd = 'sudo virt-customize -a ' + up_image + ' --run-command "' + install_qga + '"'
-
-    try: 
-      result = subprocess.run(
-        ['bash', "-c", patch_cmd], text=True, capture_output=True
-      )
-      if (result.returncode == 1):
-        exit()
-    except:
-      kmsg_err((kname + '-error'), result)
-      exit()
+    local_os_process(patch_cmd)
 
   # destroy template if it exists
   try:
@@ -110,16 +101,7 @@ fi'''
 
   # run shell command to import
   kmsg_info(kname, ('importing image to '+ proxstor + '/' + str(proximgid)))
-
-  try:
-    result = subprocess.run(
-      ['bash', "-c", import_cmd], capture_output=True, text=True
-    )
-    if (result.returncode == 1):
-      exit()
-  except:
-    kmsg_err((kname + '-error'), result)
-    exit()
+  local_os_process(import_cmd)
 
   # convert to template via create base disk
   set_basedisk = prox.nodes(proxnode).qemu(proximgid).template.post()
