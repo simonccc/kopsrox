@@ -8,7 +8,7 @@ kopsrox_img = kopsrox_img()
 from kopsrox_config import proxnode, proxstor, proximgid, up_image_url, proxbridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, networkgw, network, netmask, storage_type
 
 # general imports
-import wget,sys,os,subprocess
+import wget,sys,os
 
 # used to convert timestamps
 from datetime import datetime

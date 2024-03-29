@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import masterid,masters,workers,cname,kmsg_info,kmsg_warn,cluster_info,kmsg_sys,list_kopsrox_vm,kmsg_err,proximgid
+from kopsrox_config import masterid,cname,kmsg_info,kmsg_warn,cluster_info,kmsg_sys,list_kopsrox_vm,kmsg_err,proximgid
 from kopsrox_proxmox import clone,internet_check
 from kopsrox_k3s import k3s_update_cluster,kubeconfig,kubectl,k3s_rm_cluster,k3s_init_node
 
@@ -28,7 +28,7 @@ if cmd == 'create':
 
   # if masterid not found running 
   if not masterid in list_kopsrox_vm():
-    kmsg_sys(kname,('creating: ' + cname + ' proximgid: ' + str(proximgid)))
+    kmsg_sys(kname,('creating fresh cluster: ' + cname + '/' + str(proximgid)))
     clone(masterid)
 
   # install k3s on master
