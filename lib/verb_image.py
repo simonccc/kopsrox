@@ -39,12 +39,14 @@ if cmd == 'create':
     # patch image 
     kmsg_info(kname, 'running virt-customize')
     patch_cmd = 'sudo virt-customize -a ' + up_image + \
-    ' --run-command "if [ -f /bin/yum ] ; then yum install -y qemu-guest-agent; else apt update ; apt install qemu-guest-agent -y ; fi && curl -sfL https://get.k3s.io > /k3s.sh"'
+    ' --run-command "if [ ! -f /usr/bin/qemu-ga ] ; then if [ -f /bin/yum ] ; then yum install -y qemu-guest-agent; else apt update ; apt install qemu-guest-agent -y ; fi ; fi && curl -sfL https://get.k3s.io > /k3s.sh ; if [ -f /etc/selinux/config ] ; then sed -i \'s/enforcing/disabled/g\' /etc/selinux/config ; fi ; if [ -f /etc/sysconfig/qemu-ga ] ; then cp /dev/null /etc/sysconfig/qemu-gai ; fi"'
+    print(patch_cmd)
 
     try: 
       result = subprocess.run(
         ['bash', "-c", patch_cmd], text=True, capture_output=True
       )
+      print(result)
       if (result.returncode == 1):
         exit()
     except:
