@@ -100,7 +100,7 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
 
     # export kubeconfig 
     if nodetype == 'master':
-      kubeconfig(vmid)
+      kubeconfig()
 
 # remove a node
 def k3s_rm(vmid):
@@ -218,15 +218,14 @@ def k3s_update_cluster():
  cluster_info()
 
 # kubeconfig
-def kubeconfig(masterid):
-  kubeconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')
-
-  # replace localhost with masters ip
-  kubeconfig = kubeconfig.replace('127.0.0.1', vmip(masterid))
+def kubeconfig():
+  # replace with masters ip
+  kconfig = (qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')).replace('127.0.0.1', vmip(masterid))
 
   # write file out
-  with open('kopsrox.kubeconfig', 'w') as kubeconfig_file:
-    kubeconfig_file.write(kubeconfig)
+  with open((cname +'.kubeconfig'), 'w') as kfile:
+    kfile.write(kconfig)
+  kmsg_info('k3s-kubeconfig', ('saved ' + (cname +'.kubeconfig')))
 
 # kubectl
 def kubectl(cmd):

@@ -63,7 +63,7 @@ if cmd == 'kubectl':
 
 # export kubeconfig to file
 if cmd == 'kubeconfig':
-  kubeconfig(masterid)
+  kubeconfig()
 
 # destroy the cluster
 if cmd == 'destroy':

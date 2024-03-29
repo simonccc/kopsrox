@@ -53,7 +53,7 @@
 `./kopsrox.py cluster kubectl get events -A`
 
 ### kubeconfig <a name=kubeconfig>
-- export the cluster kubeconfig to a `kopsrox.kubeconfig` file 
+- export the cluster kubeconfig to a `$cname.kubeconfig` file - ie the name of the cluster set in `kopsrox.ini`
 - file is patched to have correct master IP vs 127.0.0.1
 
 ### destroy <a name=cluster-destroy>
