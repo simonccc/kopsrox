@@ -96,7 +96,7 @@ proxnode = conf_check('proxmox','proxnode')
 proxstor = conf_check('proxmox','proxstor')
 proximgid = int(conf_check('proxmox','proximgid'))
 up_image_url = conf_check('proxmox','up_image_url')
-proxbridge = conf_check('proxmox','proxbridge')
+network_bridge = conf_check('kopsrox','network_bridge')
 
 # kopsrox config checks
 vm_disk = conf_check('kopsrox','vm_disk')
@@ -281,21 +281,21 @@ except:
   exit()
 
 # check configured bridge exist or is a sdn vnet
-# configured proxbridge does not contain sdn/
-if not re.search('sdn/', proxbridge):
+# configured bridge does not contain sdn/
+if not re.search('sdn/', network_bridge):
   bridges = [bridge.get('iface', None) for bridge in prox.nodes(proxnode).network.get(type = 'bridge')]
 else:
   # map zone and get vnets
-  sdn_params = proxbridge.split('/')
+  sdn_params = network_bridge.split('/')
   zone = sdn_params[1]
   bridges = [bridge.get('vnet', None) for bridge in prox.nodes(proxnode).sdn.zones(zone).content.get()]
 
-  # map proxbridge var to passed vnet
-  proxbridge = sdn_params[2]
+  # map network_bridge var to passed vnet
+  network_bridge = sdn_params[2]
 
 # check configured bridge is in list
-if proxbridge not in bridges:
-  kmsg_err('config-check', ('proxbridge not found. (' + proxbridge + ')'))
+if network_bridge not in bridges:
+  kmsg_err('config-check', ('network_bridge not found. (' + network_bridge + ')'))
   print('valid bridges:')
   for bridge in bridges:
     print(' - ' + bridge)

@@ -41,9 +41,6 @@ def init_kopsrox_ini():
   # upstream image
   config.set('proxmox', 'up_image_url', 'https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img')
 
-  # network bridge
-  config.set('proxmox', 'proxbridge', 'vmbr0')
-
   # kopsrox section
   config.add_section('kopsrox')
 
@@ -68,7 +65,12 @@ def init_kopsrox_ini():
   # cloud init user ssh key
   config.set('kopsrox', 'cloudinitsshkey', 'ssh-rsa cioieocieo')
 
+  # network bridge
+  config.set('kopsrox', '; network bridge')
+  config.set('kopsrox', 'network_bridge', 'vmbr0')
+
   # kopsrox network baseip
+  config.set('kopsrox', '; start of ip range used for kopsrox')
   config.set('kopsrox', 'network', '192.168.0.160')
 
   # netmask / subnet
