@@ -404,3 +404,11 @@ def local_os_process(cmd):
     kmsg_err(('local_os_process-error'), cmd_run)
     exit()
   return(cmd_run)
+
+# print image info
+def image_info():
+  kmsg_sys('image-info', 'displaying image info')
+  kmsg_info('image-desc', cloud_image_desc)
+  kmsg_info('image-storage', (kopsrox_img() + ' ('+ storage_type + ')'))
+  kmsg_info('image-created', cloud_image_created)
+  kmsg_info('image-size', (str(cloud_image_size)+'G'))

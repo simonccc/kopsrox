@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, local_os_process, kmsg_sys
+from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, local_os_process, kmsg_sys, image_info
 kopsrox_img = kopsrox_img()
 
 # variables
-from kopsrox_config import proxnode, proxstor, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, networkgw, network, netmask, storage_type, network_dns, cloud_image_desc, cloud_image_size, cloud_image_created
+from kopsrox_config import proxnode, proxstor, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, networkgw, network, netmask, storage_type, network_dns
 
 # general imports
 import wget,sys,os
-
-# used to convert timestamps
-from datetime import datetime
 
 # used to encode ssh key
 import urllib.parse
@@ -114,16 +111,12 @@ fi'''
 
 # image info
 if cmd == 'info':
-  kmsg_sys('image-info', 'displaying image info')
-  kmsg_info('image-desc', cloud_image_desc)
-  kmsg_info('image-storage', (kopsrox_img + ' ('+ storage_type + ')'))
-  kmsg_info('image-created', cloud_image_created)
-  kmsg_info('image-size', (str(cloud_image_size)+'G'))
+  image_info()
 
 # destroy image
 if cmd == 'destroy':
   if (kopsrox_img):
-    kmsg_warn('image-destroy', ('deleting '+ kopsrox_img))
+    kmsg_warn('image-destroy', kopsrox_img)
     destroy(proximgid)
   else:
-    kmsg_warn('image-destroy', ('no image found'))
+    kmsg_info('image-destroy', 'no image found')
