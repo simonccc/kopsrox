@@ -5,8 +5,8 @@ Most values should be obvious and commented in the default kopsrox.ini but some 
 
 - [proxmox](#proxmox)
   - [proximgid](#proximgid)
-  - [up_image_url](#up_image_url)
 - [kopsrox](#kopsrox)
+  - [cloud_image_url](#cloud_image_url)
   - [vm_disk](#vm_disk)
   - [vm_cpu](#vm_cpu)
   - [vm_ram](#vm_ram)
@@ -34,6 +34,9 @@ Most values should be obvious and commented in the default kopsrox.ini but some 
 config related to proxmox api level setup 
 
 see [SETUP.md](SETUP.md) for API access details
+
+
+## kopsrox
 
 ### proximgid <a name=proximgid>
 
@@ -66,7 +69,7 @@ network = 192.168.0.170
 
 See also `[kopsrox]` [network](#network) setting 
 
-### up_image_url <a name=up_image_url>
+### cloud_image_url <a name=cloud_image_url>
 
 `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` 
 

@@ -69,7 +69,7 @@ def conf_check(section,value):
     if not config.has_option(section,value):
       exit()
   except:
-    kmsg_err((kname+'-error'),('check [' + section + ']/' + value + ' in kopsrox.ini'))
+    kmsg_err((kname+'-error'),('check [' + section + ']/' + value + ' missing'))
     exit()
 
   try:
@@ -88,7 +88,7 @@ def conf_check(section,value):
     # value is blank
     exit()
   except:
-    kmsg_err(kname, ('check [' + section + '] \'' + value + '\' in kopsrox.ini'))
+    kmsg_err(kname, ('check [' + section + '] \'' + value + '\' blank'))
     exit()
 
 # check config vars
@@ -101,14 +101,12 @@ port = conf_check('proxmox','port')
 user = conf_check('proxmox','user')
 token_name = conf_check('proxmox','token_name')
 api_key = conf_check('proxmox','api_key')
-
-# proxmox -> kopsrox config checks
 proxnode = conf_check('proxmox','proxnode')
 proxstor = conf_check('proxmox','proxstor')
 proximgid = int(conf_check('proxmox','proximgid'))
-up_image_url = conf_check('proxmox','up_image_url')
 
 # kopsrox config checks
+cloud_image_url = conf_check('kopsrox','cloud_image_url')
 vm_disk = int(conf_check('kopsrox','vm_disk'))
 vm_cpu = conf_check('kopsrox','vm_cpu')
 vm_ram = conf_check('kopsrox','vm_ram')
@@ -320,20 +318,18 @@ try:
     exit()
 except:
   try:
-    # check for image
+    # exit image does not exist
     if not kopsrox_img():
+      exit()
+
+    # check image size not bigger than configured disk
+    image_size = int(prox.nodes(proxnode).storage(proxstor).content(kopsrox_img()).get()['size'] / 1073741824)
+    if image_size > vm_disk:
+      kmsg_err('config-image-check', 'image size greater than configured vm_disk')
       exit()
   except:
     # no image found
     kmsg_err('config-image-check', 'no image run \'kopsrox image create\'')
-    exit()
-
-# get image size to check against configured disk size
-image_size = int(prox.nodes(proxnode).storage(proxstor).content(kopsrox_img()).get()['size'] / 1073741824)
-
-# if image is bigger than disk error
-if image_size > vm_disk: 
-    kmsg_err('config-image-check', 'image size greater than configured vm_disk')
     exit()
 
 # vm not powered on check

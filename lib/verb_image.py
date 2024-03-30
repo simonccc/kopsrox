@@ -5,7 +5,7 @@ from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, lo
 kopsrox_img = kopsrox_img()
 
 # variables
-from kopsrox_config import proxnode, proxstor, proximgid, up_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, networkgw, network, netmask, storage_type, network_dns
+from kopsrox_config import proxnode, proxstor, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, networkgw, network, netmask, storage_type, network_dns
 
 # general imports
 import wget,sys,os
@@ -27,13 +27,13 @@ kname = 'image-'+cmd
 if cmd == 'create':
 
   # get image name from url 
-  up_image = (up_image_url.split('/')[-1])
+  cloud_image = (cloud_image_url.split('/')[-1])
 
   # download image with wget if not present
-  if not os.path.isfile(up_image):
+  if not os.path.isfile(cloud_image):
 
-    kmsg_info(kname, ('downloading ' + up_image))
-    wget.download(up_image_url)
+    kmsg_info(kname, ('downloading ' + cloud_image))
+    wget.download(cloud_image_url)
     print()
 
     # patch image 
@@ -59,7 +59,7 @@ if [ -f /etc/sysconfig/qemu-ga ]
 then
   cp /dev/null /etc/sysconfig/qemu-ga 
 fi'''
-    patch_cmd = 'sudo virt-customize -a ' + up_image + ' --run-command "' + install_qga + '"'
+    patch_cmd = 'sudo virt-customize -a ' + cloud_image + ' --run-command "' + install_qga + '"'
     local_os_process(patch_cmd)
 
   # destroy template if it exists
@@ -88,7 +88,7 @@ fi'''
     agent = ('enabled=true,fstrim_cloned_disks=1'),
     hotplug = 0,
     ciupgrade = 0,
-    description = up_image,
+    description = cloud_image,
     ciuser = cloudinituser, 
     cipassword = cloudinitpass,
     sshkeys = ssh_encode,
@@ -98,7 +98,7 @@ fi'''
 
   # shell to import disk
   import_cmd = 'sudo qm set ' + str(proximgid) + \
-  ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + up_image + ' ; mv ' + up_image + ' ' + up_image + '.patched'
+  ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + cloud_image + ' ; mv ' + cloud_image + ' ' + cloud_image + '.patched'
 
   # run shell command to import
   kmsg_info(kname, ('importing image to '+ proxstor + '/' + str(proximgid)))

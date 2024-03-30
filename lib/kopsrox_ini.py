@@ -45,12 +45,12 @@ def init_kopsrox_ini():
   config.set('proxmox', '; the first or base id for the kopsrox vms - this id + 10 is the range used')
   config.set('proxmox', 'proximgid', '600')
 
-  # upstream image
-  config.set('proxmox', '; the upstream cloud image used to create the kopsrox template')
-  config.set('proxmox', 'up_image_url', 'https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img')
-
   # kopsrox section
   config.add_section('kopsrox')
+
+  # upstream image
+  config.set('kopsrox', '; the upstream cloud image used to create the kopsrox template')
+  config.set('kopsrox', 'cloud_image_url', 'https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img')
 
   # disk size for kopsrox vms
   config.set('kopsrox', '; size of kopsrox vm disk in Gib ')
