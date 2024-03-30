@@ -1,12 +1,9 @@
 # kopsrox.ini 
+
+Most values should be obvious and commented in the default kopsrox.ini but some more misc info below
+
+
 - [proxmox](#proxmox)
-  - [endpoint](#endpoint)
-  - [port](#port)
-  - [user](#user)
-  - [token_name](#token_name)
-  - [api_key](#api_key)
-  - [proxnode](#proxnode)
-  - [proxstor](#proxstor)
   - [proximgid](#proximgid)
   - [up_image_url](#up_image_url)
 - [kopsrox](#kopsrox)
@@ -34,43 +31,9 @@
 
 ## proxmox <a name=proxmox>
 
-config related to proxmox setup 
+config related to proxmox api level setup 
 
 see [SETUP.md](SETUP.md) for API access details
-
-### endpoint <a name=endpoint>
-
-`127.0.0.1` the proxmox server hostname/dns or IP address you will connect to 
-
-127.0.0.1 will work on any host running proxmox
-
-### port <a name=port>
-
-`8006` port to connect to proxmox API endpoint
-
-8006 is the default 
-
-### user <a name=user>
-
-user to connect to proxmox API as 
-
-default is `root@pam`
-
-### token_name <a name=token_name>
-
-`kopsrox` 
-
-### api_key <a name=api_key>
-
-`icjecjeijciejceinceini` 
-
-### proxnode <a name=proxnode>
-
-`proxmox` the proxmox node that kopsrox will work on - the image and all nodes are created on this host
-
-### proxstor <a name=proxstor>
-
-`local-lvm` shared storage also works
 
 ### proximgid <a name=proximgid>
 

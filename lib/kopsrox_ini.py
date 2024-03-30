@@ -16,29 +16,37 @@ def init_kopsrox_ini():
   # proxmox api endpoint
   config.set('proxmox', '; domain name or IP to access proxmox')
   config.set('proxmox', 'endpoint', '127.0.0.1')
+
+  # proxmox api port
   config.set('proxmox', '; port is usually 8006')
   config.set('proxmox', 'port', '8006')
 
   # username
-  config.set('proxmox', '; username in token')
+  config.set('proxmox', '; username to connect with / owner of the API token')
   config.set('proxmox', 'user', 'root@pam')
 
-  # token name
+  # api token name
+  config.set('proxmox', '; name of api token')
   config.set('proxmox', 'token_name', 'kopsrox')
 
   # api key
+  config.set('proxmox', '; text of api key')
   config.set('proxmox', 'api_key', 'xxxxxxxxxxxxx')
 
   # node to operate on
+  config.set('proxmox', '; the proxmox node that kopsrox will work on - the image and all nodes are created on this host')
   config.set('proxmox', 'proxnode', 'proxmox')
 
   # storage on node
+  config.set('proxmox', '; the proxmox storage to use for kopsrox - shared storage should work also')
   config.set('proxmox', 'proxstor', 'local-lvm')
 
   # local image id
+  config.set('proxmox', '; the first or base id for the kopsrox vms - this id + 10 is the range used')
   config.set('proxmox', 'proximgid', '600')
 
   # upstream image
+  config.set('proxmox', '; the upstream cloud image used to create the kopsrox template')
   config.set('proxmox', 'up_image_url', 'https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img')
 
   # kopsrox section
@@ -111,14 +119,22 @@ def init_kopsrox_ini():
   # s3 endpoint
   config.set('s3', 'endpoint', 'kopsrox')
   config.set('s3', '; optional')
+
+  # s3 region ( optional ) 
   config.set('s3', 'region', '')
+
+  # s3 access key
   config.set('s3', 'access-key', 'e3898d39d39id93')
+
+  # s3 access secret
   config.set('s3', 'access-secret', 'ioewioeiowe')
+
+  # s3 bucket
   config.set('s3', 'bucket', 'koprox')
 
   # write config
   # file should not already exist...
-  with open('kopsrox.ini', 'w') as configfile:
-    config.write(configfile)
-  print('created kopsrox.ini please edit')
+  with open('kopsrox.ini', 'w') as cfile:
+    config.write(cfile)
+  print('created kopsrox.ini please edit for your setup')
   return
