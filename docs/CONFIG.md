@@ -7,16 +7,6 @@ Most values should be obvious and commented in the default kopsrox.ini but some 
   - [proximgid](#proximgid)
 - [kopsrox](#kopsrox)
   - [cloud_image_url](#cloud_image_url)
-  - [vm_disk](#vm_disk)
-  - [vm_cpu](#vm_cpu)
-  - [vm_ram](#vm_ram)
-  - [cloudinituser](#cloudinituser)
-  - [cloudinitpass](#cloudinitpass)
-  - [cloudinitsshkey](#cloudinitsshkey)
-  - [network](#network)
-  - [netmask](#netmask)
-  - [networkgw](#networkgw)
-  - [network_dns](#network_dns)
 - [cluster](#cluster)
   - [name](#cname)
   - [k3s_version](#k3s_version)
@@ -34,9 +24,6 @@ Most values should be obvious and commented in the default kopsrox.ini but some 
 config related to proxmox api level setup 
 
 see [SETUP.md](SETUP.md) for API access details
-
-
-## kopsrox
 
 ### proximgid <a name=proximgid>
 
@@ -69,6 +56,8 @@ network = 192.168.0.170
 
 See also `[kopsrox]` [network](#network) setting 
 
+## kopsrox
+
 ### cloud_image_url <a name=cloud_image_url>
 
 `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` 
@@ -84,34 +73,6 @@ Tested images so far:
 https://cdn.amazonlinux.com/os-images/2.0.20240306.2/kvm/amzn2-kvm-2.0.20240306.2-x86_64.xfs.gpt.qcow2
 https://mirrors.vinters.com/rocky/9/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2
 
-## kopsrox
-
-### vm_disk <a name=vm_disk>
-
-`20G` - size of the disk for each node in Gigs
-
-### vm_cpu <a name=vm_cpu>
-
-`1` - number of vcpus for each vm
-
-### vm_ram <a name=vm_ram>
-
-`2` - amount of ram in G
-
-### cloudinituser <a name=cloudinituser>
-
-`admin` - a user account for access to the vm 
-
-you can use this user name / password to login on the vm if required
-
-### cloudinitpass <a name=cloudinitpass>
-
-`password` - a password for the `cloudinituser` - you can use this user name / password to login on the vm if required
-
-### cloudinitsshkey <a name=cloudinitsshkey>
-
-`sshkey.pub` - your ssh public key
-
 ### network <a name=network>
 
 "network" address of proxmox cluster
@@ -119,20 +80,6 @@ you can use this user name / password to login on the vm if required
 `network = 192.168.0.170`
 
 See [proximgid](#proximgid)
-
-### networkgw
-
-`192.168.0.1` the default gateway for the network ( must provide internet access ) 
-
-### netmask
-
- `24` cdir netmask for the network 
-
-This is equal to '255.255.255.0' 
-
-### network_dns
-
-`192.168.0.1` - the dns server used for the vms
 
 ## cluster <a name=cluster>
 

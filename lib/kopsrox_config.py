@@ -19,6 +19,9 @@ import sys
 # local os commands
 import subprocess
 
+# datetime stuff for generating image date\
+from datetime import datetime
+
 # colors
 from termcolor import colored, cprint
 
@@ -310,27 +313,49 @@ if network_bridge not in bridges:
     print(' - ' + bridge)
   exit()
 
+# dummy cloud_image_vars overwritten below
+cloud_image_size = 0
+cloud_image_desc = ''
+cloud_image_created = ''
+
 # skip image check if image create is passed
 try:
   # check for image create command line
-  if not (str(sys.argv[1]) == str('image')) and (str(sys.argv[2]) == str('create')):
-    # skip to create
-    exit()
-except:
-  try:
-    # exit image does not exist
-    if not kopsrox_img():
-      exit()
+  if sys.argv[1] == 'image' and sys.argv[2] == 'create':
+    pass
+  else:
+    exit(0)
 
-    # check image size not bigger than configured disk
-    image_size = int(prox.nodes(proxnode).storage(proxstor).content(kopsrox_img()).get()['size'] / 1073741824)
-    if image_size > vm_disk:
-      kmsg_err('config-image-check', 'image size greater than configured vm_disk')
-      exit()
+# image checks
+except:
+
+  # check image exists
+  try:
+    # exit if image does not exist
+    if not kopsrox_img():
+      exit(0)
   except:
     # no image found
     kmsg_err('config-image-check', 'no image run \'kopsrox image create\'')
-    exit()
+    exit(0)
+
+  # get image info
+  try:
+    cloud_image_data = prox.nodes(proxnode).storage(proxstor).content(kopsrox_img()).get()
+
+    # check image not too large for configured disk
+    cloud_image_size = int(cloud_image_data['size'] / 1073741824 )
+    if cloud_image_size > vm_disk:
+      exit(0)
+
+    # get image created and desc from template
+    template_data = prox.nodes(proxnode).qemu(proximgid).config.get()
+    cloud_image_created = str(datetime.fromtimestamp(int(template_data['meta'].split(',')[1].split('=')[1])))
+    cloud_image_desc = template_data['description']
+
+  except:
+    kmsg_err('config-image-check', 'image size greater than configured vm_disk')
+    exit(0)
 
 # vm not powered on check
 vms = list_kopsrox_vm()

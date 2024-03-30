@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, local_os_process
+from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, local_os_process, kmsg_sys
 kopsrox_img = kopsrox_img()
 
 # variables
-from kopsrox_config import proxnode, proxstor, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, networkgw, network, netmask, storage_type, network_dns
+from kopsrox_config import proxnode, proxstor, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, networkgw, network, netmask, storage_type, network_dns, cloud_image_desc, cloud_image_size, cloud_image_created
 
 # general imports
 import wget,sys,os
@@ -32,12 +32,12 @@ if cmd == 'create':
   # download image with wget if not present
   if not os.path.isfile(cloud_image):
 
-    kmsg_info(kname, ('downloading ' + cloud_image))
+    kmsg_info((kname+'-downloading'), cloud_image)
     wget.download(cloud_image_url)
     print()
 
     # patch image 
-    kmsg_info(kname, 'running virt-customize to install qemu-guest-agent')
+    kmsg_info((kname+'-virt-customize'), 'installing qemu-guest-agent')
 
     # script to install qemu-guest-agent on multiple os's disable selinux on Rocky
     install_qga = '''
@@ -101,7 +101,7 @@ fi'''
   ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + cloud_image + ' ; mv ' + cloud_image + ' ' + cloud_image + '.patched'
 
   # run shell command to import
-  kmsg_info(kname, ('importing image to '+ proxstor + '/' + str(proximgid)))
+  kmsg_info((kname+'-qm-import'), (proxstor + '/' + str(proximgid)))
   local_os_process(import_cmd)
 
   # convert to template via create base disk
@@ -112,29 +112,13 @@ fi'''
   set_template = prox.nodes(proxnode).qemu(proximgid).config.post(template = 1)
   task_status(set_template)
 
-# list images on proxstor
-# this might be more useful if we allow different images in the future
-# cos at the moment will only print 1 image 
+# image info
 if cmd == 'info':
-
-  # get list of images
-  for image in prox.nodes(proxnode).storage(proxstor).content.get():
-
-    # if image matches our generated image name
-    if image.get('volid') == (kopsrox_img):
-
-      # get vm info
-      notes = prox.nodes(proxnode).qemu(image['vmid']).config.get()
-
-      # created time
-      created = str(datetime.fromtimestamp(int(image.get('ctime'))))
-
-      # size in G
-      size = str(int(image.get('size') / 1073741824)) + 'G'
-
-      # print image info
-      image_info = ('\n' + notes['description'] + '\n' + kopsrox_img + ' ('+ storage_type + ')' + '\ncreated: ' + created + ' size: ' + size )
-      kmsg_info('image-info', image_info)
+  kmsg_sys('image-info', 'displaying image info')
+  kmsg_info('image-desc', cloud_image_desc)
+  kmsg_info('image-storage', (kopsrox_img + ' ('+ storage_type + ')'))
+  kmsg_info('image-created', cloud_image_created)
+  kmsg_info('image-size', (str(cloud_image_size)+'G'))
 
 # destroy image
 if cmd == 'destroy':

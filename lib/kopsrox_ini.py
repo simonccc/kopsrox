@@ -57,6 +57,7 @@ def init_kopsrox_ini():
   config.set('kopsrox', 'vm_disk', '20')
 
   # number of cpu cores
+  config.set('kopsrox', '; number of cpu cores ')
   config.set('kopsrox', 'vm_cpu', '1')
 
   # ram size
@@ -72,6 +73,7 @@ def init_kopsrox_ini():
   config.set('kopsrox', 'cloudinitpass', 'admin')
 
   # cloud init user ssh key
+  config.set('kopsrox', '; the ssh public key for the cloudinit user')
   config.set('kopsrox', 'cloudinitsshkey', 'ssh-rsa cioieocieo')
 
   # network bridge
@@ -88,9 +90,11 @@ def init_kopsrox_ini():
   config.set('kopsrox', 'netmask', '24')
 
   # default gateway
+  config.set('kopsrox', '; default gateway for the kopsrox network ( needs to provide internet access ) ')
   config.set('kopsrox', 'networkgw', '192.168.0.1')
 
   # dns server
+  config.set('kopsrox', '; dns server for network')
   config.set('kopsrox', 'network_dns', '192.168.0.1')
 
   # cluster section
