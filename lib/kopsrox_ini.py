@@ -44,8 +44,9 @@ def init_kopsrox_ini():
   # kopsrox section
   config.add_section('kopsrox')
 
-  # size for kopsrox nodes
-  config.set('kopsrox', 'vm_disk', '20G')
+  # disk size for kopsrox vms
+  config.set('kopsrox', '; size of kopsrox vm disk in Gib ')
+  config.set('kopsrox', 'vm_disk', '20')
 
   # number of cpu cores
   config.set('kopsrox', 'vm_cpu', '1')
@@ -66,7 +67,8 @@ def init_kopsrox_ini():
   config.set('kopsrox', 'cloudinitsshkey', 'ssh-rsa cioieocieo')
 
   # network bridge
-  config.set('kopsrox', '; network bridge')
+  config.set('kopsrox', '; network bridge to use with kopsrox')
+  config.set('kopsrox', '; a proxmox sdn can be used by specifying the zone and vnet like this: sdn/zone/vnet')
   config.set('kopsrox', 'network_bridge', 'vmbr0')
 
   # kopsrox network baseip

@@ -17,13 +17,14 @@ KIC="$KI create"
 kc() {
   sed -i /"$1 =/c\\$1 = $2" $CFG
 }
+
 # minimal cluster
-MC="kc masters 1; kc workers 0"
+MC="kc masters 1 ; kc workers 0"
 
 
 # recreate 1 node
-# sed to ensure 1 master 1 worker
 #./kopsrox.py cluster destroy && ./kopsrox.py cluster create
+$MC ; $KCD ; $KCC
 
 
 # add a worker and delete it
@@ -31,4 +32,4 @@ MC="kc masters 1; kc workers 0"
 #kc masters 3 ; $KCU ; kc masters 1  ; $KCU
 
 # image testing stuff
-$MC ; $KCD ; $KID ; $KIC ; $KCC
+#$MC ; $KCD ; $KID ; $KIC ; $KCC

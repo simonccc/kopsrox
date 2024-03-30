@@ -75,16 +75,27 @@ def conf_check(section,value):
   try:
     # check value is not blank
     if not (config.get(section, value) == ''):
-      # return value
+
+      # int checks
+      if value in ['vm_disk', 'proximgid', 'workers']:
+        try:
+          test_var = int(config.get(section, value))
+        except:
+          kmsg_err(kname, ('check [' + section + '] \'' + value + '\' should be numeric: ' + config.get(section, value)))
+          exit()
       return(config.get(section, value))
+
     # value is blank
     exit()
   except:
     kmsg_err(kname, ('check [' + section + '] \'' + value + '\' in kopsrox.ini'))
     exit()
 
-# proxmox checks
+# check config vars
+# cluster name as required for error messages
 cname = conf_check('cluster', 'name')
+
+# proxmox
 endpoint = conf_check('proxmox','endpoint')
 port = conf_check('proxmox','port')
 user = conf_check('proxmox','user')
@@ -96,10 +107,9 @@ proxnode = conf_check('proxmox','proxnode')
 proxstor = conf_check('proxmox','proxstor')
 proximgid = int(conf_check('proxmox','proximgid'))
 up_image_url = conf_check('proxmox','up_image_url')
-network_bridge = conf_check('kopsrox','network_bridge')
 
 # kopsrox config checks
-vm_disk = conf_check('kopsrox','vm_disk')
+vm_disk = int(conf_check('kopsrox','vm_disk'))
 vm_cpu = conf_check('kopsrox','vm_cpu')
 vm_ram = conf_check('kopsrox','vm_ram')
 
@@ -113,6 +123,7 @@ network = conf_check('kopsrox','network')
 networkgw = conf_check('kopsrox','networkgw')
 netmask = conf_check('kopsrox','netmask')
 network_dns = conf_check('kopsrox', 'network_dns')
+network_bridge = conf_check('kopsrox','network_bridge')
 
 # variables for network and its IP for vmip function
 octs = network.split('.')
@@ -318,11 +329,10 @@ except:
     exit()
 
 # get image size to check against configured disk size
-image_info = int(prox.nodes(proxnode).storage(proxstor).content(kopsrox_img()).get()['size'] / 1073741824)
-vm_disk_int = int((vm_disk).replace('G', ''))
+image_size = int(prox.nodes(proxnode).storage(proxstor).content(kopsrox_img()).get()['size'] / 1073741824)
 
 # if image is bigger than disk error
-if image_info > vm_disk_int: 
+if image_size > vm_disk: 
     kmsg_err('config-image-check', 'image size greater than configured vm_disk')
     exit()
 
