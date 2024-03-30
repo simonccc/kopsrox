@@ -24,7 +24,6 @@ MC="kc masters 1; kc workers 0"
 # recreate 1 node
 # sed to ensure 1 master 1 worker
 #./kopsrox.py cluster destroy && ./kopsrox.py cluster create
-#
 
 
 # add a worker and delete it

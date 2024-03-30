@@ -317,6 +317,15 @@ except:
     kmsg_err('config-image-check', 'no image run \'kopsrox image create\'')
     exit()
 
+# get image size to check against configured disk size
+image_info = int(prox.nodes(proxnode).storage(proxstor).content(kopsrox_img()).get()['size'] / 1073741824)
+vm_disk_int = int((vm_disk).replace('G', ''))
+
+# if image is bigger than disk error
+if image_info > vm_disk_int: 
+    kmsg_err('config-image-check', 'image size greater than configured vm_disk')
+    exit()
+
 # vm not powered on check
 vms = list_kopsrox_vm()
 for vmid in vms:
