@@ -24,17 +24,17 @@ kname = 'image-'+cmd
 if cmd == 'create':
 
   # get image name from url 
-  cloud_image = (cloud_image_url.split('/')[-1])
+  cloud_image = cloud_image_url.split('/')[-1]
 
   # download image with wget if not present
   if not os.path.isfile(cloud_image):
 
-    kmsg_info((kname+'-downloading'), cloud_image)
+    kmsg_info(f'{kname}-downloading', cloud_image)
     wget.download(cloud_image_url)
     print()
 
     # patch image 
-    kmsg_info((kname+'-virt-customize'), 'installing qemu-guest-agent')
+    kmsg_info(f'{kname}-virt-customize','installing qemu-guest-agent')
 
     # script to install qemu-guest-agent on multiple os's disable selinux on Rocky
     install_qga = '''
@@ -56,7 +56,7 @@ if [ -f /etc/sysconfig/qemu-ga ]
 then
   cp /dev/null /etc/sysconfig/qemu-ga 
 fi'''
-    patch_cmd = 'sudo virt-customize -a ' + cloud_image + ' --run-command "' + install_qga + '"'
+    patch_cmd = f'sudo virt-customize -a {cloud_image} --run-command "{install_qga}"'
     local_os_process(patch_cmd)
 
   # destroy template if it exists
@@ -75,11 +75,11 @@ fi'''
     memory = 2048,
     cpu = ('cputype=host'),
     scsihw = 'virtio-scsi-pci',
-    net0 = ('model=virtio,bridge=' + network_bridge),
+    net0 = (f'model=virtio,bridge={network_bridge}'),
     boot = 'c',
-    name = (cname + '-i0'),
+    name = (f'{cname}-i0'),
     ostype = 'l26',
-    ide2 = (storage + ':cloudinit'),
+    ide2 = (f'{storage}:cloudinit'),
     tags = cname,
     serial0 = 'socket',
     agent = ('enabled=true,fstrim_cloned_disks=1'),
@@ -90,24 +90,19 @@ fi'''
     cipassword = cloudinitpass,
     sshkeys = ssh_encode,
     nameserver = network_dns,
-    ipconfig0 = ( 'gw=' + network_gw + ',ip=' + network + '/' + network_mask ), 
+    ipconfig0 = (f'gw={network_gw},ip={network}/{network_mask}'), 
   ))
 
   # shell to import disk
-  import_cmd = 'sudo qm set ' + str(proximgid) + \
-  ' --virtio0 ' + storage + ':0,import-from=' + os.getcwd() + '/' + cloud_image + ' ; mv ' + cloud_image + ' ' + cloud_image + '.patched'
+  import_cmd = f'sudo qm set {proximgid} --virtio0 {storage}:0,import-from={os.getcwd()}/{cloud_image} ; mv {cloud_image} {cloud_image}.patched'
 
   # run shell command to import
-  kmsg_info((kname+'-qm-import'), (storage + '/' + str(proximgid)))
+  kmsg_info(f'{kname}-qm-import', f'{storage}/{proximgid}')
   local_os_process(import_cmd)
 
-  # convert to template via create base disk
-  set_basedisk = prox.nodes(node).qemu(proximgid).template.post()
-  task_status(set_basedisk)
-
-  # set also in vmconfig
-  set_template = prox.nodes(node).qemu(proximgid).config.post(template = 1)
-  task_status(set_template)
+  # convert to template via create base disk also vm config
+  task_status(prox.nodes(node).qemu(proximgid).template.post())
+  task_status(prox.nodes(node).qemu(proximgid).config.post(template = 1))
 
 # image info
 if cmd == 'info':
