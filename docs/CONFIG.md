@@ -38,7 +38,7 @@ cname = kopsrox
 |1|621|192.168.0.171|master 1|kopsrox-m1|
 |2|622|192.168.0.172|master 2|kopsrox-m2|
 |3|623|192.168.0.173|master 3|kopsrox-m3|
-|4|624|-|192.168.0.174|utility 1|kopsrox-u1|
+|4|624|192.168.0.174|utility 1|kopsrox-u1|
 |5|625|192.168.0.175|worker 1|kopsrox-w1|
 |6|626|192.168.0.176|worker 2|kopsrox-w2|
 |7|627|192.168.0.177|worker 3|kopsrox-w3|
