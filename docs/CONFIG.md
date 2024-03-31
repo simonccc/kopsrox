@@ -7,17 +7,7 @@ Most values should be obvious and commented in the default kopsrox.ini but some 
   - [proximgid](#proximgid)
 - [kopsrox](#kopsrox)
   - [cloud_image_url](#cloud_image_url)
-- [cluster](#cluster)
-  - [name](#cname)
-  - [k3s_version](#k3s_version)
-  - [masters](#masters)
-  - [workers](#workers)
-- [s3](#s3)
-  - [endpoint](#s3endpoint)
-  - [region](#region)
-  - [access-key](#access-key)
-  - [access-secret](#access-secret)
-  - [bucket](#bucket)
+  - [network](#network)
 
 ## proxmox <a name=proxmox>
 

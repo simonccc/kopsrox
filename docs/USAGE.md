@@ -11,6 +11,7 @@
   - [kubectl](#kubectl)
   - [kubeconfig](#kubeconfig)
   - [destroy](#cluster-destroy)
+  - [k3stoken](#k3stoken)
 - [etcd](#etcd)
   - [snapshot](#snapshot)
   - [list](#list)
@@ -19,16 +20,14 @@
 
 ## image <a name=image>
 ### create <a name=image-create>
-- downloads the image file defined in `koprox.ini` as `up_image_url` under the `[proxmox]` section
+- downloads the image file defined in `koprox.ini`
 - installs `qemu-guest-agent` into the image via `virt-customise`
 - imports the disk into the `proxstore` proxmox storage using `sudo qm`
 - creates cloudinit drive with user and networking setup
 - converts the vm into a template
-- patched cloudimage is backed up
   
 ### destroy <a name=image-destroy> 
 - :warning: deletes the existing image template
-- delete the .img file manually  ( eg `mantic-minimal-cloudimg-amd64.img` if you want a fresh download/repatch of the upstream image
 
 ### info <a name=image-info> 
 - prints info about image/template vm eg storage, id, creation time and source cloud image file
@@ -60,6 +59,9 @@
 ### destroy <a name=cluster-destroy>
 - :warning: destroys the cluster ( NO WARNING! ) 
 - deletes workers then masters in safe order
+
+### k3stoken <a name=k3stoken>
+- exports the clusters k3s token ( used to add nodes to cluster ) 
 
 ## etcd <a name=etcd>
 ### snapshot <a name=snapshot>
