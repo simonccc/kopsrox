@@ -13,26 +13,29 @@ if not os.path.isfile('kopsrox.ini'):
 
 # kopsrox verbs and commands
 cmds = {
-    "image": {
-        "info" : '',
-        "create" : '',
-        "destroy": '',
-    },
-    "cluster": {
-        "info" : '',
-        "create" : '',
-        "update" : '',
-        "destroy" : '',
-        "kubectl" : 'cmd',
-        "kubeconfig" : '',
-        "k3stoken" : '',
-    },
-    "etcd": {
-        "snapshot" : '',
-        "restore" : 'snapshot',
-        "list" : '',
-        "prune" : '',
-    },
+  "image": {
+    "info" : '',
+    "create" : '',
+    "destroy": '',
+  },
+  "cluster": {
+    "info" : '',
+    "create" : '',
+    "update" : '',
+    "destroy" : '',
+    "kubectl" : 'cmd',
+    "kubeconfig" : '',
+    "k3stoken" : '',
+  },
+  "etcd": {
+    "snapshot" : '',
+    "restore" : 'snapshot',
+    "list" : '',
+    "prune" : '',
+  },
+  "node": {
+    "destroy" : 'hostname',
+  },
 }
 
 # create list of verbs
@@ -64,7 +67,7 @@ try:
   if (sys.argv[1]):
 
     # map 1st arg to verb
-    verb = str(sys.argv[1])
+    verb = sys.argv[1]
 
     # if verb not found in cmds dict
     if not verb in verbs:
@@ -77,7 +80,7 @@ except:
 try:
 
   # 2nd arg
-  if (sys.argv[2]):
+  if sys.argv[2]:
 
     # map 2nd arg to cmd
     cmd = sys.argv[2]
