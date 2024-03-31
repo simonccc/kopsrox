@@ -5,7 +5,7 @@ from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, lo
 kopsrox_img = kopsrox_img()
 
 # variables
-from kopsrox_config import proxnode, proxstor, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network, netmask, storage_type, network_dns
+from kopsrox_config import proxnode, proxstor, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network, network_mask, storage_type, network_dns
 
 # general imports
 import wget,sys,os
@@ -90,7 +90,7 @@ fi'''
     cipassword = cloudinitpass,
     sshkeys = ssh_encode,
     nameserver = network_dns,
-    ipconfig0 = ( 'gw=' + network_gw + ',ip=' + network + '/' + netmask ), 
+    ipconfig0 = ( 'gw=' + network_gw + ',ip=' + network + '/' + network_mask ), 
   ))
 
   # shell to import disk

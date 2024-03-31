@@ -7,7 +7,7 @@ import time, re
 from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys, kmsg_warn
 
 # vars
-from kopsrox_config import config,proxnode,network_bridge,proximgid,proxstor,vmnames,vm_cpu,vm_ram,vm_disk,netmask,network_gw,network_dns
+from kopsrox_config import config,proxnode,network_bridge,proximgid,proxstor,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
@@ -137,10 +137,12 @@ def destroy(vmid):
 
 # clone
 def clone(vmid):
+
+  # check where this may called as a str
   vmid = int(vmid)
 
   # map network info
-  ip = vmip(vmid) + '/' + netmask
+  ip = vmip(vmid) + '/' + network_mask
 
   # vm ram convert
   memory = int(int(vm_ram) * 1024)

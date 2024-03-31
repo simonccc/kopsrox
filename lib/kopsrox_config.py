@@ -80,7 +80,7 @@ def conf_check(section,value):
     if not (config.get(section, value) == ''):
 
       # int checks
-      if value in ['vm_disk', 'proximgid', 'workers']:
+      if value in ['port', 'vm_disk', 'proximgid', 'workers']:
         try:
           test_var = int(config.get(section, value))
         except:
@@ -91,7 +91,7 @@ def conf_check(section,value):
     # value is blank
     exit()
   except:
-    kmsg_err(kname, ('check [' + section + '] \'' + value + '\' blank'))
+    kmsg_err(kname, ('check [' + section + '] \'' + value + '\' is required'))
     exit()
 
 # check config vars
@@ -100,7 +100,7 @@ cname = conf_check('cluster', 'name')
 
 # proxmox
 endpoint = conf_check('proxmox','endpoint')
-port = conf_check('proxmox','port')
+port = int(conf_check('proxmox','port'))
 user = conf_check('proxmox','user')
 token_name = conf_check('proxmox','token_name')
 api_key = conf_check('proxmox','api_key')
@@ -122,7 +122,7 @@ cloudinitsshkey = conf_check('kopsrox','cloudinitsshkey')
 # network
 network = conf_check('kopsrox','network')
 network_gw = conf_check('kopsrox','network_gw')
-netmask = conf_check('kopsrox','netmask')
+network_mask = conf_check('kopsrox','network_mask')
 network_dns = conf_check('kopsrox', 'network_dns')
 network_bridge = conf_check('kopsrox','network_bridge')
 
@@ -249,7 +249,7 @@ def kmsg_vm_info(vmid, prefix=''):
    vms = list_kopsrox_vm()
    vmid = int(vmid)
    try:
-     vmstatus = str(vmid) + ' [' + vms[vmid] + '] ' + vmip(vmid) + '/' + netmask
+     vmstatus = str(vmid) + ' [' + vms[vmid] + '] ' + vmip(vmid) + '/' + network_mask
      kmsg_info((prefix+vmnames[vmid]), vmstatus)
    except:
      kmsg_err('kmsg-vm-info', (vmid, 'id not found', vms))

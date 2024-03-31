@@ -87,7 +87,7 @@ def init_kopsrox_ini():
 
   # netmask / subnet
   config.set('kopsrox', '; /24 is 255.255.255.0')
-  config.set('kopsrox', 'netmask', '24')
+  config.set('kopsrox', 'network_mask', '24')
 
   # default gateway
   config.set('kopsrox', '; default gateway for the kopsrox network ( needs to provide internet access ) ')
