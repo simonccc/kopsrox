@@ -104,7 +104,7 @@ port = int(conf_check('proxmox','port'))
 user = conf_check('proxmox','user')
 token_name = conf_check('proxmox','token_name')
 api_key = conf_check('proxmox','api_key')
-proxnode = conf_check('proxmox','proxnode')
+node = conf_check('proxmox','node')
 proxstor = conf_check('proxmox','proxstor')
 proximgid = int(conf_check('proxmox','proximgid'))
 
@@ -207,7 +207,7 @@ except:
 def kopsrox_img():
 
   # list contents
-  for image in prox.nodes(proxnode).storage(proxstor).content.get():
+  for image in prox.nodes(node).storage(proxstor).content.get():
 
     # map image_name
     image_name = image.get("volid")
@@ -241,7 +241,7 @@ def list_kopsrox_vm():
 
 # returns vmstatus
 # why does it need node?
-def vm_info(vmid,node=proxnode):
+def vm_info(vmid,node=node):
   return(prox.nodes(node).qemu(vmid).status.current.get())
 
 # print vminfo
@@ -255,19 +255,19 @@ def kmsg_vm_info(vmid, prefix=''):
      kmsg_err('kmsg-vm-info', (vmid, 'id not found', vms))
      exit()
 
-# get list of proxnodes
+# get list of nodes
 nodes = [node.get('node', None) for node in prox.nodes.get()]
 
-# if proxnode not in list of nodes
-if proxnode not in nodes:
-  kmsg_err('config-check', ('proxnode not found. ('+ proxnode + ')'))
+# if node not in list of nodes
+if node not in nodes:
+  kmsg_err('config-check', ('node not found. ('+ node + ')'))
   print('valid nodes:')
   for node in nodes:
     print(' - ' + node)
   exit()
 
 # get list of storage in the cluster
-storage_list = prox.nodes(proxnode).storage.get()
+storage_list = prox.nodes(node).storage.get()
 
 # for each of the list 
 for storage in storage_list:
@@ -295,12 +295,12 @@ except:
 # check configured bridge exist or is a sdn vnet
 # configured bridge does not contain sdn/
 if not re.search('sdn/', network_bridge):
-  bridges = [bridge.get('iface', None) for bridge in prox.nodes(proxnode).network.get(type = 'bridge')]
+  bridges = [bridge.get('iface', None) for bridge in prox.nodes(node).network.get(type = 'bridge')]
 else:
   # map zone and get vnets
   sdn_params = network_bridge.split('/')
   zone = sdn_params[1]
-  bridges = [bridge.get('vnet', None) for bridge in prox.nodes(proxnode).sdn.zones(zone).content.get()]
+  bridges = [bridge.get('vnet', None) for bridge in prox.nodes(node).sdn.zones(zone).content.get()]
 
   # map network_bridge var to passed vnet
   network_bridge = sdn_params[2]
@@ -341,7 +341,7 @@ except:
 
   # get image info
   try:
-    cloud_image_data = prox.nodes(proxnode).storage(proxstor).content(kopsrox_img()).get()
+    cloud_image_data = prox.nodes(node).storage(proxstor).content(kopsrox_img()).get()
 
     # check image not too large for configured disk
     cloud_image_size = int(cloud_image_data['size'] / 1073741824 )
@@ -349,7 +349,7 @@ except:
       exit(0)
 
     # get image created and desc from template
-    template_data = prox.nodes(proxnode).qemu(proximgid).config.get()
+    template_data = prox.nodes(node).qemu(proximgid).config.get()
     cloud_image_created = str(datetime.fromtimestamp(int(template_data['meta'].split(',')[1].split('=')[1])))
     cloud_image_desc = template_data['description']
 

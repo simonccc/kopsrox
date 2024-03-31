@@ -7,7 +7,7 @@ import time, re
 from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys, kmsg_warn
 
 # vars
-from kopsrox_config import config,proxnode,network_bridge,proximgid,proxstor,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns
+from kopsrox_config import config,node,network_bridge,proximgid,proxstor,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
@@ -92,12 +92,12 @@ def qaexec(vmid,cmd):
     except:
       return('no output-' + cmd)
 
-# return the proxnode for a vmid
+# return the node for a vmid
 def get_node(vmid):
 
-  # if it exists proxnode is ok
+  # if it exists node is ok
   if int(vmid) == proximgid:
-    return(proxnode)
+    return(node)
 
   # check for vm id in proxmox cluster
   for vm in prox.cluster.resources.get(type = 'vm'):
@@ -117,17 +117,17 @@ def destroy(vmid):
 
     # get node and vmname
     vmname = vmnames[vmid]
-    proxnode = get_node(vmid)
+    node = get_node(vmid)
 
     # if destroying image
     if int(vmid) == proximgid:
-      task_status(prox.nodes(proxnode).qemu(proximgid).delete())
+      task_status(prox.nodes(node).qemu(proximgid).delete())
       return
 
     # power off and delete
     try:
-      task_status(prox.nodes(proxnode).qemu(vmid).status.stop.post())
-      task_status(prox.nodes(proxnode).qemu(vmid).delete())
+      task_status(prox.nodes(node).qemu(vmid).status.stop.post())
+      task_status(prox.nodes(node).qemu(vmid).delete())
       kmsg_warn('prox-destroy', vmname)
     except:
       # is this image check still required?
@@ -152,10 +152,10 @@ def clone(vmid):
   kmsg_info('prox-clone', (hostname + ' '+ ip))
 
   # clone
-  task_status(prox.nodes(proxnode).qemu(proximgid).clone.post(newid = vmid))
+  task_status(prox.nodes(node).qemu(proximgid).clone.post(newid = vmid))
 
   # configure
-  task_status(prox.nodes(proxnode).qemu(vmid).config.post(
+  task_status(prox.nodes(node).qemu(vmid).config.post(
     name = hostname,
     onboot = 1,
     cores = vm_cpu,
@@ -165,13 +165,13 @@ def clone(vmid):
   ))
 
   # resize disk
-  task_status(prox.nodes(proxnode).qemu(vmid).resize.put(
+  task_status(prox.nodes(node).qemu(vmid).resize.put(
     disk = 'virtio0',
     size = str(vm_disk) + 'G',
   ))
 
   # power on
-  task_status(prox.nodes(proxnode).qemu(vmid).status.start.post())
+  task_status(prox.nodes(node).qemu(vmid).status.start.post())
 
   # run uptime / wait for qagent to start
   qaexec(vmid, 'uptime')
@@ -180,7 +180,7 @@ def clone(vmid):
   internet_check(vmid)
 
 # proxmox task blocker
-def task_status(task_id, node=proxnode):
+def task_status(task_id, node=node):
 
   # define default status
   status = {"status": ""}
@@ -195,7 +195,7 @@ def task_status(task_id, node=proxnode):
     exit(0)
 
 # returns the task log
-def task_log(task_id, node=proxnode):
+def task_log(task_id, node=node):
 
   # define empty log line
   logline = ''
@@ -211,7 +211,7 @@ def task_log(task_id, node=proxnode):
 
 # get file
 def getfile(vmid, path):
-  get_file = prox.nodes(proxnode).qemu(vmid).agent('file-read').get(file = path)
+  get_file = prox.nodes(node).qemu(vmid).agent('file-read').get(file = path)
   return(get_file['content'])
 
 # internet checker
@@ -230,7 +230,7 @@ def writefile(vmid,file,path):
   #kmsg_info('prox-writefile', (name + ':' + path))
   myfile = open(file,"rb")
   file_bin = myfile.read()
-  write_file = prox.nodes(proxnode).qemu(vmid).agent('file-write').post(file = path,content = file_bin)
+  write_file = prox.nodes(node).qemu(vmid).agent('file-write').post(file = path,content = file_bin)
 
   # is this required?
   return(write_file)

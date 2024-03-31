@@ -35,7 +35,7 @@ def init_kopsrox_ini():
 
   # node to operate on
   config.set('proxmox', '; the proxmox node that kopsrox will work on - the image and all nodes are created on this host')
-  config.set('proxmox', 'proxnode', 'proxmox')
+  config.set('proxmox', 'node', 'proxmox')
 
   # storage on node
   config.set('proxmox', '; the proxmox storage to use for kopsrox - shared storage should work also')
@@ -43,7 +43,7 @@ def init_kopsrox_ini():
 
   # local image id
   config.set('proxmox', '; the first or base id for the kopsrox vms - this id + 10 is the range used')
-  config.set('proxmox', 'proximgid', '600')
+  config.set('proxmox', 'proximgid', '620')
 
   # kopsrox section
   config.add_section('kopsrox')

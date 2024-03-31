@@ -5,7 +5,7 @@ from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, lo
 kopsrox_img = kopsrox_img()
 
 # variables
-from kopsrox_config import proxnode, proxstor, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network, network_mask, storage_type, network_dns
+from kopsrox_config import node, proxstor, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network, network_mask, storage_type, network_dns
 
 # general imports
 import wget,sys,os
@@ -69,7 +69,7 @@ fi'''
   ssh_encode = urllib.parse.quote(cloudinitsshkey, safe='')
 
   # create new server
-  task_status(prox.nodes(proxnode).qemu.post(
+  task_status(prox.nodes(node).qemu.post(
     vmid = proximgid,
     cores = 1,
     memory = 2048,
@@ -102,11 +102,11 @@ fi'''
   local_os_process(import_cmd)
 
   # convert to template via create base disk
-  set_basedisk = prox.nodes(proxnode).qemu(proximgid).template.post()
+  set_basedisk = prox.nodes(node).qemu(proximgid).template.post()
   task_status(set_basedisk)
 
   # set also in vmconfig
-  set_template = prox.nodes(proxnode).qemu(proximgid).config.post(template = 1)
+  set_template = prox.nodes(node).qemu(proximgid).config.post(template = 1)
   task_status(set_template)
 
 # image info
