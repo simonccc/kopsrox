@@ -5,7 +5,7 @@ from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, lo
 kopsrox_img = kopsrox_img()
 
 # variables
-from kopsrox_config import node, proxstor, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network, network_mask, storage_type, network_dns
+from kopsrox_config import node, storage, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network, network_mask, storage_type, network_dns
 
 # general imports
 import wget,sys,os
@@ -79,7 +79,7 @@ fi'''
     boot = 'c',
     name = (cname + '-i0'),
     ostype = 'l26',
-    ide2 = (proxstor + ':cloudinit'),
+    ide2 = (storage + ':cloudinit'),
     tags = cname,
     serial0 = 'socket',
     agent = ('enabled=true,fstrim_cloned_disks=1'),
@@ -95,10 +95,10 @@ fi'''
 
   # shell to import disk
   import_cmd = 'sudo qm set ' + str(proximgid) + \
-  ' --virtio0 ' + proxstor + ':0,import-from=' + os.getcwd() + '/' + cloud_image + ' ; mv ' + cloud_image + ' ' + cloud_image + '.patched'
+  ' --virtio0 ' + storage + ':0,import-from=' + os.getcwd() + '/' + cloud_image + ' ; mv ' + cloud_image + ' ' + cloud_image + '.patched'
 
   # run shell command to import
-  kmsg_info((kname+'-qm-import'), (proxstor + '/' + str(proximgid)))
+  kmsg_info((kname+'-qm-import'), (storage + '/' + str(proximgid)))
   local_os_process(import_cmd)
 
   # convert to template via create base disk

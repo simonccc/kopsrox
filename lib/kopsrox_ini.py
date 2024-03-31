@@ -34,12 +34,12 @@ def init_kopsrox_ini():
   config.set('proxmox', 'api_key', 'xxxxxxxxxxxxx')
 
   # node to operate on
-  config.set('proxmox', '; the proxmox node that kopsrox will work on - the image and all nodes are created on this host')
+  config.set('proxmox', '; the proxmox node that you will run kopsrox on - the image and all nodes are created on this host')
   config.set('proxmox', 'node', 'proxmox')
 
   # storage on node
-  config.set('proxmox', '; the proxmox storage to use for kopsrox - shared storage should work also')
-  config.set('proxmox', 'proxstor', 'local-lvm')
+  config.set('proxmox', '; the proxmox storage to use for kopsrox - needs to be available on the proxmox host')
+  config.set('proxmox', 'storage', 'local-lvm')
 
   # local image id
   config.set('proxmox', '; the first or base id for the kopsrox vms - this id + 10 is the range used')

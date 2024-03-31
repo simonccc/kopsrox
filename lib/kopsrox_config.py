@@ -105,7 +105,7 @@ user = conf_check('proxmox','user')
 token_name = conf_check('proxmox','token_name')
 api_key = conf_check('proxmox','api_key')
 node = conf_check('proxmox','node')
-proxstor = conf_check('proxmox','proxstor')
+storage = conf_check('proxmox','storage')
 proximgid = int(conf_check('proxmox','proximgid'))
 
 # kopsrox config checks
@@ -207,7 +207,7 @@ except:
 def kopsrox_img():
 
   # list contents
-  for image in prox.nodes(node).storage(proxstor).content.get():
+  for image in prox.nodes(node).storage(storage).content.get():
 
     # map image_name
     image_name = image.get("volid")
@@ -270,13 +270,13 @@ if node not in nodes:
 storage_list = prox.nodes(node).storage.get()
 
 # for each of the list 
-for storage in storage_list:
+for local_storage in storage_list:
 
-  # if matched proxstor
-  if proxstor == storage.get("storage"):
+  # if matched storage
+  if storage == local_storage.get("storage"):
 
     # is storage local or shared?
-    if storage.get("shared") == 0:
+    if local_storage.get("shared") == 0:
       storage_type = 'local'
     else: 
       storage_type = 'shared'
@@ -286,7 +286,7 @@ try:
   if storage_type:
     pass
 except:
-  kmsg_err('config-check', ('proxstor not found. (' + proxstor + ')'))
+  kmsg_err('config-check', ('storage not found. (' + storage + ')'))
   print('valid storage:')
   for storage in storage_list:
     print(' - ' + storage.get("storage"))
@@ -341,7 +341,7 @@ except:
 
   # get image info
   try:
-    cloud_image_data = prox.nodes(node).storage(proxstor).content(kopsrox_img()).get()
+    cloud_image_data = prox.nodes(node).storage(storage).content(kopsrox_img()).get()
 
     # check image not too large for configured disk
     cloud_image_size = int(cloud_image_data['size'] / 1073741824 )
@@ -385,6 +385,7 @@ def vmip(vmid):
 
 # cluster info
 def cluster_info():
+  kmsg_sys('cluster-info', f'{cname} {cloud_image_desc}')
 
   # for kopsrox vms
   for vmid in list_kopsrox_vm():
