@@ -121,7 +121,7 @@ cloudinitsshkey = conf_check('kopsrox','cloudinitsshkey')
 
 # network
 network = conf_check('kopsrox','network')
-networkgw = conf_check('kopsrox','networkgw')
+network_gw = conf_check('kopsrox','network_gw')
 netmask = conf_check('kopsrox','netmask')
 network_dns = conf_check('kopsrox', 'network_dns')
 network_bridge = conf_check('kopsrox','network_bridge')

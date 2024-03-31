@@ -91,7 +91,7 @@ def init_kopsrox_ini():
 
   # default gateway
   config.set('kopsrox', '; default gateway for the kopsrox network ( needs to provide internet access ) ')
-  config.set('kopsrox', 'networkgw', '192.168.0.1')
+  config.set('kopsrox', 'network_gw', '192.168.0.1')
 
   # dns server
   config.set('kopsrox', '; dns server for network')
@@ -118,22 +118,26 @@ def init_kopsrox_ini():
 
   # s3 etcd snapshot config
   config.add_section('s3')
-  config.set('s3', '; follow your providers details')
 
   # s3 endpoint
+  config.set('s3', '; all s3 settings are optional')
+  config.set('s3', '; s3 endpoint')
   config.set('s3', 'endpoint', 'kopsrox')
-  config.set('s3', '; optional')
 
-  # s3 region ( optional ) 
+  # s3 region
+  config.set('s3', '; s3 region')
   config.set('s3', 'region', '')
 
   # s3 access key
+  config.set('s3', '; s3 access key')
   config.set('s3', 'access-key', 'e3898d39d39id93')
 
   # s3 access secret
+  config.set('s3', '; s3 access secret')
   config.set('s3', 'access-secret', 'ioewioeiowe')
 
   # s3 bucket
+  config.set('s3', '; s3 bucket')
   config.set('s3', 'bucket', 'koprox')
 
   # write config

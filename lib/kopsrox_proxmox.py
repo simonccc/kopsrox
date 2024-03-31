@@ -7,7 +7,7 @@ import time, re
 from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys, kmsg_warn
 
 # vars
-from kopsrox_config import config,proxnode,network_bridge,proximgid,proxstor,vmnames,vm_cpu,vm_ram,networkgw,vm_disk,netmask,networkgw
+from kopsrox_config import config,proxnode,network_bridge,proximgid,proxstor,vmnames,vm_cpu,vm_ram,vm_disk,netmask,network_gw,network_dns
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
@@ -21,7 +21,7 @@ def qaexec(vmid,cmd):
   # qagent no yet running check
   qagent_running = 'false'
 
-  # max wait time
+  # max wait time/
   qagent_count = int(0)
 
   # while variable is false
@@ -158,7 +158,7 @@ def clone(vmid):
     onboot = 1,
     cores = vm_cpu,
     memory = memory,
-    ipconfig0 = ( 'gw=' + networkgw + ',ip=' + ip ),
+    ipconfig0 = ( 'gw=' + network_gw + ',ip=' + ip ),
     description = ( str(vmid) + ':' + hostname + ':' + ip ) 
   ))
 
