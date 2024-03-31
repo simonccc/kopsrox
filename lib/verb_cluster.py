@@ -2,7 +2,7 @@
 
 # functions
 from kopsrox_config import masterid,cname,kmsg_info,kmsg_warn,cluster_info,kmsg_sys,list_kopsrox_vm,kmsg_err,proximgid
-from kopsrox_proxmox import clone,internet_check
+from kopsrox_proxmox import clone,internet_check,qaexec
 from kopsrox_k3s import k3s_update_cluster,kubeconfig,kubectl,k3s_rm_cluster,k3s_init_node
 
 # other imports
@@ -70,3 +70,10 @@ if cmd == 'kubeconfig':
 if cmd == 'destroy':
   kmsg_sys(kname, '!! destroying cluster !!')
   k3s_rm_cluster()
+
+# write k3s token to file
+if cmd == 'k3stoken':
+  kmsg_sys('export-k3s-token', (cname+'.k3stoken'))
+  token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
+  with open((cname+'.k3stoken'), 'w') as k3s_token_file:
+    k3s_token_file.write(token)

@@ -77,8 +77,10 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
     # master
     if nodetype == 'master':
       init_cmd = k3s_install_master
-    else:
-      k3s_token_cmd = ' K3S_TOKEN=\"' + get_token() + '\"'
+
+    # get k3s token
+    token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
+    k3s_token_cmd = ' K3S_TOKEN=\"' + token + '\"'
 
     # slave
     if nodetype == 'slave':
@@ -145,11 +147,6 @@ def k3s_rm_cluster(restore = False):
 def k3s_update_cluster():
  kmsg_sys('k3s-update-cluster', ('checking: ' +  str(masters) + ' masters ' +  str(workers) + ' workers '))
 
- # refresh the master token
- token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
- with open('kopsrox.k3stoken', 'w') as k3s:
-   k3s.write(token)
-
  # get list of running vms
  vmids = list_kopsrox_vm()
 
@@ -175,7 +172,7 @@ def k3s_update_cluster():
     master_count = master_count + 1
 
  # check for extra masters
- if ( masters == 1 ):
+ if masters == 1:
    for vm in vmids:
      # is this required?
      vm = int(vm)
@@ -189,7 +186,7 @@ def k3s_update_cluster():
  workerid = masterid + 3
 
  # create new worker nodes per config
- if ( workers > 0 ):
+ if workers > 0:
 
    # first id in the loop
    worker_count = int(1)
@@ -233,10 +230,3 @@ def kubectl(cmd):
   kcmd = qaexec(masterid,k3s_cmd)
   # strip line break
   return(kcmd)
-
-# get local token with line break removed
-def get_token():
-  k3stoken = open("kopsrox.k3stoken", "r")
-  token = k3stoken.read().rstrip()
-  k3stoken.close()
-  return(token)

@@ -25,6 +25,7 @@ cmds = {
         "destroy" : '',
         "kubectl" : 'cmd',
         "kubeconfig" : '',
+        "k3stoken" : '',
     },
     "etcd": {
         "snapshot" : '',
