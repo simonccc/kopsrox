@@ -144,8 +144,8 @@ def clone(vmid):
   # map network info
   ip = vmip(vmid) + '/' + network_mask
 
-  # vm ram convert
-  memory = int(int(vm_ram) * 1024)
+  # vm ram convert from G
+  memory = vm_ram * 1024
 
   # hostname
   hostname = vmnames[vmid]

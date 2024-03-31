@@ -80,7 +80,7 @@ def conf_check(section,value):
     if not (config.get(section, value) == ''):
 
       # int checks
-      if value in ['port', 'vm_disk', 'proximgid', 'workers']:
+      if value in ['port', 'vm_cpu', 'vm_ram', 'vm_disk', 'proximgid', 'workers', 'masters']:
         try:
           test_var = int(config.get(section, value))
         except:
@@ -111,8 +111,8 @@ proximgid = int(conf_check('proxmox','proximgid'))
 # kopsrox config checks
 cloud_image_url = conf_check('kopsrox','cloud_image_url')
 vm_disk = int(conf_check('kopsrox','vm_disk'))
-vm_cpu = conf_check('kopsrox','vm_cpu')
-vm_ram = conf_check('kopsrox','vm_ram')
+vm_cpu = int(conf_check('kopsrox','vm_cpu'))
+vm_ram = int(conf_check('kopsrox','vm_ram'))
 
 # cloudinit
 cloudinituser = conf_check('kopsrox','cloudinituser')
