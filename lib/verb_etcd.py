@@ -3,7 +3,7 @@
 # standard imports
 import sys, re, os
 from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
-from kopsrox_proxmox import get_node, qaexec, writefile
+from kopsrox_proxmox import get_node, qaexec
 from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster, export_k3s_token
 
 # passed command
@@ -12,7 +12,6 @@ kname = 'etcd-' + cmd
 
 # token filename
 token_fname = cname + '.k3stoken'
-#token_rname = '/tmp/' + token_fname
 
 # check master is running / exists
 # fails if node can't be found
@@ -116,9 +115,6 @@ if cmd == 'restore':
 
   # do we need to check this output?
   kmsg_sys(kname,f'restoring {snapshot}')
-
-  # old stuff that copied token on
-  #copy_token = writefile(masterid,token_fname,token_rname)
 
   # define restore command
   restore_cmd = f'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} {s3_string} ; systemctl start k3s'

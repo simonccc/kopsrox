@@ -193,7 +193,7 @@ def task_status(task_id, node=node):
 
   # if task not completed ok
   if not status["exitstatus"] == "OK":
-    kmsg_err('prox-task-status', ('task exited with non OK status (' + status["exitstatus"] + ')\n' + task_log(task_id)))
+    kmsg_err('prox-task-status', f'task exited with non OK status ({status["exitstatus"]})\n' + task_log(task_id))
     exit(0)
 
 # returns the task log
@@ -224,15 +224,3 @@ def internet_check(vmid):
   if internet_check == 'error':
     kmsg_err('network-failure', (vmname + ' no internet access'))
     exit()
-
-# writes a file from localdir to path
-# used to write etcd token when restoring
-def writefile(vmid,file,path):
-  name = vmnames[vmid]
-  #kmsg_info('prox-writefile', (name + ':' + path))
-  myfile = open(file,"rb")
-  file_bin = myfile.read()
-  write_file = prox.nodes(node).qemu(vmid).agent('file-write').post(file = path,content = file_bin)
-
-  # is this required?
-  return(write_file)
