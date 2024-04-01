@@ -4,7 +4,7 @@
 import sys, re, os
 from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
 from kopsrox_proxmox import get_node, qaexec, writefile
-from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster
+from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster, export_k3s_token
 
 # passed command
 cmd = sys.argv[2]
@@ -12,7 +12,7 @@ kname = 'etcd-' + cmd
 
 # token filename
 token_fname = cname + '.k3stoken'
-token_rname = '/tmp/' + token_fname
+#token_rname = '/tmp/' + token_fname
 
 # check master is running / exists
 # fails if node can't be found
@@ -21,13 +21,6 @@ try:
 except:
   kmsg_err('etcd-check', 'cluster does not exist')
   exit(0)
-
-# check why we need to add linebreak here
-def write_token():
-  token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/token')
-  with open(token_fname, 'w') as token_file:
-    token_file.write(token +'\n')
-  kmsg_sys('etcd-write-token', f'created: {token_fname}')
 
 # run k3s s3 command passed
 def s3_run(s3cmd):
@@ -77,7 +70,7 @@ if cmd == 'snapshot':
 
   # check for existing token file
   if not os.path.isfile(token_fname):
-    write_token()
+    export_k3s_token()
 
   # define snapshot command
   snap_cmd = f'k3s etcd-snapshot save {s3_string} --name kopsrox --etcd-snapshot-compress'
@@ -99,8 +92,14 @@ if cmd == 'list':
 # restore
 if cmd == 'restore':
 
-  k3stoken = open("bibi.k3stoken", "r")
-  token = k3stoken.read().rstrip()
+  # need to check this file exists
+  if not os.path.isfile(token_fname):
+    kmsg_err(kname, f'{token_fname} not found exiting.')
+    exit(0)
+
+  k3stoken = open(token_fname, "r")
+  #token = k3stoken.read().rstrip()
+  token = k3stoken.read()
 
   # passed snapshot
   snapshot = sys.argv[3]
@@ -117,12 +116,12 @@ if cmd == 'restore':
 
   # do we need to check this output?
   kmsg_sys(kname,f'restoring {snapshot}')
-  copy_token = writefile(masterid,token_fname,token_rname)
+
+  # old stuff that copied token on
+  #copy_token = writefile(masterid,token_fname,token_rname)
 
   # define restore command
   restore_cmd = f'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} {s3_string} ; systemctl start k3s'
-
-  print(restore_cmd)
 
   # display some filtered restore contents
   restore = qaexec(masterid, restore_cmd)

@@ -230,3 +230,11 @@ def kubectl(cmd):
   kcmd = qaexec(masterid,k3s_cmd)
   # strip line break
   return(kcmd)
+
+# export k3s token
+def export_k3s_token():
+  token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/token')
+  token_name = f'{cname}.k3stoken'
+  with open(token_name, 'w') as token_file:
+    token_file.write(token)
+  kmsg_sys('export-k3s-token', f'created: {token_name}')

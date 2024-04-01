@@ -402,7 +402,7 @@ def local_os_process(cmd):
     if (cmd_run.returncode == 1):
        exit()
   except:
-    kmsg_err(('local_os_process-error'), cmd_run)
+    kmsg_err('local_os_process-error',cmd_run)
     exit()
   return(cmd_run)
 
