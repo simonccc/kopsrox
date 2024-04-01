@@ -80,7 +80,7 @@ def conf_check(section,value):
     if not (config.get(section, value) == ''):
 
       # int checks
-      if value in ['port', 'vm_cpu', 'vm_ram', 'vm_disk', 'proximgid', 'workers', 'masters']:
+      if value in ['port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters']:
         try:
           test_var = int(config.get(section, value))
         except:
@@ -97,6 +97,7 @@ def conf_check(section,value):
 # check config vars
 # cluster name as required for error messages
 cname = conf_check('cluster', 'name')
+cluster_id = int(conf_check('cluster','cluster_id'))
 
 # proxmox
 endpoint = conf_check('proxmox','endpoint')
@@ -106,7 +107,6 @@ token_name = conf_check('proxmox','token_name')
 api_key = conf_check('proxmox','api_key')
 node = conf_check('proxmox','node')
 storage = conf_check('proxmox','storage')
-proximgid = int(conf_check('proxmox','proximgid'))
 
 # kopsrox config checks
 cloud_image_url = conf_check('kopsrox','cloud_image_url')
@@ -166,20 +166,20 @@ s3_string = \
 ' --etcd-s3-skip-ssl-verify '
 
 # define masterid
-masterid = proximgid + 1
+masterid = cluster_id + 1
 
 # define vmnames
 vmnames = {
-(proximgid): cname +'-i0',
-(proximgid + 1 ): cname + '-m1',
-(proximgid + 2 ): cname + '-m2',
-(proximgid + 3 ): cname + '-m3',
-(proximgid + 4 ): cname + '-u1',
-(proximgid + 5 ): cname + '-w1',
-(proximgid + 6 ): cname + '-w2',
-(proximgid + 7 ): cname + '-w3',
-(proximgid + 8 ): cname + '-w4',
-(proximgid + 9 ): cname + '-w5',
+(cluster_id): cname +'-i0',
+(cluster_id + 1 ): cname + '-m1',
+(cluster_id + 2 ): cname + '-m2',
+(cluster_id + 3 ): cname + '-m3',
+(cluster_id + 4 ): cname + '-u1',
+(cluster_id + 5 ): cname + '-w1',
+(cluster_id + 6 ): cname + '-w2',
+(cluster_id + 7 ): cname + '-w3',
+(cluster_id + 8 ): cname + '-w4',
+(cluster_id + 9 ): cname + '-w5',
 }
 
 # proxmox api connection
@@ -213,7 +213,7 @@ def kopsrox_img():
     image_name = image.get("volid")
 
     # if 123-disk-0 found in volid
-    if re.search((str(proximgid) + '-disk-0'), image_name):
+    if re.search((str(cluster_id) + '-disk-0'), image_name):
       return(image_name)
 
   # unable to find image name
@@ -231,9 +231,9 @@ def list_kopsrox_vm():
     # map id
     vmid = int(vm.get('vmid'))
 
-    # if vmid is in kopsrox config range ie between proximgid and proximgid + 10
+    # if vmid is in kopsrox config range ie between cluster_id and cluster_id + 10
     # add vmid and node to dict
-    if (vmid >= proximgid) and (vmid < (proximgid + 10)):
+    if (vmid >= cluster_id) and (vmid < (cluster_id + 10)):
       vmids[vmid] = vm.get('node')
 
   # return sorted dict
@@ -349,7 +349,7 @@ except:
       exit(0)
 
     # get image created and desc from template
-    template_data = prox.nodes(node).qemu(proximgid).config.get()
+    template_data = prox.nodes(node).qemu(cluster_id).config.get()
     cloud_image_created = str(datetime.fromtimestamp(int(template_data['meta'].split(',')[1].split('=')[1])))
     cloud_image_desc = template_data['description']
 
@@ -362,7 +362,7 @@ vms = list_kopsrox_vm()
 for vmid in vms:
 
   # skip image
-  if vmid != proximgid:
+  if vmid != cluster_id:
 
     # map node
     pnode = vms[vmid]
@@ -378,9 +378,9 @@ for vmid in vms:
 # return ip for vmid
 def vmip(vmid):
   vmid = int(vmid)
-  # last number of network + ( vmid - proximgid ) 
+  # last number of network + ( vmid - cluster_id ) 
   # eg 160 + ( 601 - 600 )  = 161 
-  ip = network_base + str(network_ip + (vmid - proximgid))
+  ip = f'{network_base}{(network_ip + (vmid - cluster_id))}'
   return(ip)
 
 # cluster info
@@ -389,7 +389,7 @@ def cluster_info():
 
   # for kopsrox vms
   for vmid in list_kopsrox_vm():
-    if not proximgid == vmid:
+    if not cluster_id == vmid:
       kmsg_vm_info(vmid)
 
   from kopsrox_k3s import kubectl

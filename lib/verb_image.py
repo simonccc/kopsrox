@@ -5,7 +5,7 @@ from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, lo
 kopsrox_img = kopsrox_img()
 
 # variables
-from kopsrox_config import node, storage, proximgid, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network, network_mask, storage_type, network_dns
+from kopsrox_config import node, storage, cluster_id, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network, network_mask, storage_type, network_dns
 
 # general imports
 import wget,sys,os
@@ -61,7 +61,7 @@ fi'''
 
   # destroy template if it exists
   try:
-    destroy(proximgid)
+    destroy(cluster_id)
   except:
     next
 
@@ -70,7 +70,7 @@ fi'''
 
   # create new server
   task_status(prox.nodes(node).qemu.post(
-    vmid = proximgid,
+    vmid = cluster_id,
     cores = 1,
     memory = 2048,
     cpu = ('cputype=host'),
@@ -94,15 +94,15 @@ fi'''
   ))
 
   # shell to import disk
-  import_cmd = f'sudo qm set {proximgid} --virtio0 {storage}:0,import-from={os.getcwd()}/{cloud_image} ; mv {cloud_image} {cloud_image}.patched'
+  import_cmd = f'sudo qm set {cluster_id} --virtio0 {storage}:0,import-from={os.getcwd()}/{cloud_image} ; mv {cloud_image} {cloud_image}.patched'
 
   # run shell command to import
-  kmsg_info(f'{kname}-qm-import', f'{storage}/{proximgid}')
+  kmsg_info(f'{kname}-qm-import', f'{storage}/{cluster_id}')
   local_os_process(import_cmd)
 
   # convert to template via create base disk also vm config
-  task_status(prox.nodes(node).qemu(proximgid).template.post())
-  task_status(prox.nodes(node).qemu(proximgid).config.post(template = 1))
+  task_status(prox.nodes(node).qemu(cluster_id).template.post())
+  task_status(prox.nodes(node).qemu(cluster_id).config.post(template = 1))
 
 # image info
 if cmd == 'info':
@@ -112,6 +112,6 @@ if cmd == 'info':
 if cmd == 'destroy':
   if (kopsrox_img):
     kmsg_warn('image-destroy', kopsrox_img)
-    destroy(proximgid)
+    destroy(cluster_id)
   else:
     kmsg_info('image-destroy', 'no image found')

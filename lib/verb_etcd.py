@@ -4,14 +4,14 @@
 import sys, re, os
 from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
 from kopsrox_proxmox import get_node, qaexec, writefile
-from kopsrox_k3s import get_token, k3s_rm_cluster, kubectl, k3s_update_cluster
+from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster
 
 # passed command
 cmd = sys.argv[2]
 kname = 'etcd-' + cmd
 
 # token filename
-token_fname = cname + '.etcd.token'
+token_fname = cname + '.k3stoken'
 token_rname = '/tmp/' + token_fname
 
 # check master is running / exists
@@ -24,21 +24,21 @@ except:
 
 # check why we need to add linebreak here
 def write_token():
+  token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/token')
   with open(token_fname, 'w') as token_file:
-    token_file.write(get_token() + '\n')
-  kmsg_sys('etcd-write-token', ('created: ' + token_fname))
+    token_file.write(token +'\n')
+  kmsg_sys('etcd-write-token', f'created: {token_fname}')
 
 # run k3s s3 command passed
 def s3_run(s3cmd):
 
   # run the command ( 2>&1 required )
-  k3s_run = 'k3s etcd-snapshot ' + s3cmd + s3_string + '2>&1'
+  k3s_run = f'k3s etcd-snapshot {s3cmd} {s3_string} 2>&1'
   cmd_out = qaexec(masterid, k3s_run)
 
   # look for fatal error in output
   if re.search('level=fatal', cmd_out):
-    kmsg_err('etcd-s3_run', '')
-    kmsg_sys('etcd-s3_run-out', ('\n' + cmd_out))
+    kmsg_err('etcd-s3_run', f'\n {cmd_out}')
     exit(0)
 
   # return command outpit
@@ -69,7 +69,7 @@ snapshots = list_snapshots()
 
 # s3 prune
 if cmd == 'prune':
-  kmsg_sys('etcd-prune', (s3endpoint + '/' + bucket + '\n'+s3_run('prune --name kopsrox')))
+  kmsg_sys('etcd-prune', f'{s3endpoint}/{bucket}\n' + s3_run('prune --name kopsrox'))
   exit(0)
 
 # snapshot 
@@ -80,7 +80,7 @@ if cmd == 'snapshot':
     write_token()
 
   # define snapshot command
-  snap_cmd = 'k3s etcd-snapshot save ' + s3_string + ' --name kopsrox --etcd-snapshot-compress'
+  snap_cmd = f'k3s etcd-snapshot save {s3_string} --name kopsrox --etcd-snapshot-compress'
   #print(snap_cmd)
   snapout = qaexec(masterid,snap_cmd)
 
@@ -94,35 +94,35 @@ if cmd == 'snapshot':
 if cmd == 'list':
   if not snapshots:
     snapshots = 'none found'
-  kmsg_info('etcd-snapshots-list', (s3endpoint + '/' + bucket + '\n' +snapshots))
+  kmsg_info('etcd-snapshots-list', f'{s3endpoint}/{bucket}\n{snapshots}')
 
 # restore
 if cmd == 'restore':
+
+  k3stoken = open("bibi.k3stoken", "r")
+  token = k3stoken.read().rstrip()
 
   # passed snapshot
   snapshot = sys.argv[3]
 
   # check passed snapshot name exists
   if not re.search(snapshot,snapshots):
-    kmsg_err(kname, (snapshot + ' not found.'))
+    kmsg_err(kname, f'{snapshot} not found')
     print(snapshots)
     exit()
 
   # removes all nodes apart from image and master
-  if  ( workers >= 1 or masters == 3 ):
+  if (workers >= 1 or masters == 3 ):
     k3s_rm_cluster(restore = True)
 
   # do we need to check this output?
-  kmsg_sys(kname,('restoring ' + snapshot))
-  write_token = writefile(masterid,token_fname,token_rname)
+  kmsg_sys(kname,f'restoring {snapshot}')
+  copy_token = writefile(masterid,token_fname,token_rname)
 
   # define restore command
-  restore_cmd = ' \
-systemctl stop k3s && \
-rm -rf /var/lib/rancher/k3s/server/db/ && \
-k3s server --cluster-reset --cluster-reset-restore-path=' + snapshot +' \
---token-file=' + token_rname + ' ' + s3_string +' && \
-systemctl start k3s'
+  restore_cmd = f'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} {s3_string} ; systemctl start k3s'
+
+  print(restore_cmd)
 
   # display some filtered restore contents
   restore = qaexec(masterid, restore_cmd)

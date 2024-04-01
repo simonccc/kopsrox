@@ -7,7 +7,7 @@ import time, re
 from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys, kmsg_warn
 
 # vars
-from kopsrox_config import config,node,network_bridge,proximgid,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns
+from kopsrox_config import config,node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns
 
 # run a exec via qemu-agent
 def qaexec(vmid,cmd):
@@ -96,7 +96,7 @@ def qaexec(vmid,cmd):
 def get_node(vmid):
 
   # if it exists node is ok
-  if int(vmid) == proximgid:
+  if int(vmid) == cluster_id:
     return(node)
 
   # check for vm id in proxmox cluster
@@ -114,25 +114,27 @@ def get_node(vmid):
 
 # stop and destroy vm
 def destroy(vmid):
+    kname = 'prox-destroy'
 
     # get node and vmname
+    vmid = int(vmid)
     vmname = vmnames[vmid]
     node = get_node(vmid)
 
     # if destroying image
-    if int(vmid) == proximgid:
-      task_status(prox.nodes(node).qemu(proximgid).delete())
+    if vmid == cluster_id:
+      task_status(prox.nodes(node).qemu(cluster_id).delete())
       return
 
     # power off and delete
     try:
       task_status(prox.nodes(node).qemu(vmid).status.stop.post())
       task_status(prox.nodes(node).qemu(vmid).delete())
-      kmsg_warn('prox-destroy', vmname)
+      kmsg_info(kname, vmname)
     except:
       # is this image check still required?
-      if not proximgid == int(vmid):
-        kmsg_err('prox-destroy', ('unable to destroy ', vmid))
+      if not cluster_id == vmid:
+        kmsg_err(kname, f'unable to destroy {vmid}')
         exit()
 
 # clone
@@ -149,10 +151,10 @@ def clone(vmid):
 
   # hostname
   hostname = vmnames[vmid]
-  kmsg_info('prox-clone', (hostname + ' '+ ip))
+  kmsg_info('prox-clone', f'{hostname} {ip}')
 
   # clone
-  task_status(prox.nodes(node).qemu(proximgid).clone.post(newid = vmid))
+  task_status(prox.nodes(node).qemu(cluster_id).clone.post(newid = vmid))
 
   # configure
   task_status(prox.nodes(node).qemu(vmid).config.post(
@@ -160,8 +162,8 @@ def clone(vmid):
     onboot = 1,
     cores = vm_cpu,
     memory = memory,
-    ipconfig0 = ( 'gw=' + network_gw + ',ip=' + ip ),
-    description = ( str(vmid) + ':' + hostname + ':' + ip ) 
+    ipconfig0 = (f'gw={network_gw},ip={ip}'),
+    description = (f'{vmid}:{hostname}:{ip}') 
   ))
 
   # resize disk

@@ -1,19 +1,11 @@
 # kopsrox.ini 
 
-Most values should be obvious and commented in the default kopsrox.ini but some more misc info below
-
-
-- [proxmox](#proxmox)
-  - [proximgid](#proximgid)
-- [kopsrox](#kopsrox)
-  - [cloud_image_url](#cloud_image_url)
-  - [network](#network)
-
-## proxmox <a name=proxmox>
+Most values should be obvious and commented in the default kopsrox.ini 
 
 see [SETUP.md](SETUP.md) for API access details
 
-### proximgid <a name=proximgid>
+
+## cluster_id 
 
 `620` - the proxmox id used for the kopsrox image/template and the basis of the cluster
 
@@ -22,13 +14,11 @@ kopsrox uses a simple static id/ip assignment scheme based on the `[proxmox] - p
 For example:
 
 ```
-[proxmox]
-proximgid = 620
-
 [kopsrox]
 network = 192.168.0.170
 
 [cluster]
+cluster_id = 620
 cname = kopsrox
 ```
 

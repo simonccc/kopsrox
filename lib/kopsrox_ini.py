@@ -41,10 +41,6 @@ def init_kopsrox_ini():
   config.set('proxmox', '; the proxmox storage to use for kopsrox - needs to be available on the proxmox host')
   config.set('proxmox', 'storage', 'local-lvm')
 
-  # local image id
-  config.set('proxmox', '; the first or base id for the kopsrox vms - this id + 10 is the range used')
-  config.set('proxmox', 'proximgid', '620')
-
   # kopsrox section
   config.add_section('kopsrox')
 
@@ -99,6 +95,10 @@ def init_kopsrox_ini():
 
   # cluster section
   config.add_section('cluster')
+
+  # cluster vmid
+  config.set('cluster', '; id for the cluster vms.. eg from 620 - 630')
+  config.set('cluster', 'cluster_id', '620')
 
   # cluster friendly name
   config.set('cluster', '; name for the kopsrox cluster')

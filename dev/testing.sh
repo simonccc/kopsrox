@@ -24,7 +24,7 @@ MC="kc masters 1 ; kc workers 0"
 
 # recreate 1 node
 #./kopsrox.py cluster destroy && ./kopsrox.py cluster create
-$KCD ; $KCC
+#$KCD ; $KCC
 
 
 # add a worker and delete it
@@ -32,4 +32,4 @@ $KCD ; $KCC
 #kc masters 3 ; $KCU ; kc masters 1  ; $KCU
 
 # image testing stuff
-#$KCD ; $KID ; $KIC ; $KCC
+$KCD ; $KID ; $KIC ; $KCC
