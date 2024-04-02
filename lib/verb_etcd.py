@@ -91,16 +91,7 @@ if cmd == 'list':
 # restore
 if cmd == 'restore':
 
-  # need to check this file exists
-  if not os.path.isfile(token_fname):
-    kmsg_err(kname, f'{token_fname} not found exiting.')
-    exit(0)
-
-  k3stoken = open(token_fname, "r")
-  #token = k3stoken.read().rstrip()
-  token = k3stoken.read()
-
-  # passed snapshot
+  # assign passed snapshot argument
   snapshot = sys.argv[3]
 
   # check passed snapshot name exists
@@ -109,12 +100,20 @@ if cmd == 'restore':
     print(snapshots)
     exit()
 
-  # removes all nodes apart from image and master
+  # check token file exists
+  if not os.path.isfile(token_fname):
+    kmsg_err(kname, f'{token_fname} not found exiting.')
+    exit(0)
+
+  # get token value
+  token = open(token_fname, "r").read()
+
+  # info
+  kmsg_sys(kname,f'restoring {snapshot}')
+
+  # remove all nodes apart from image and master
   if (workers >= 1 or masters == 3 ):
     k3s_rm_cluster(restore = True)
-
-  # do we need to check this output?
-  kmsg_sys(kname,f'restoring {snapshot}')
 
   # define restore command
   restore_cmd = f'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} {s3_string} ; systemctl start k3s'
@@ -140,14 +139,16 @@ if cmd == 'restore':
 
   # delete extra nodes in the restored cluster
   nodes = kubectl('get nodes').split()
+
+  # for each of returned nodes from kubectl
   for node in nodes:
 
     # if matches cluster name and not master node
-    if ( re.search((cname + '-'), node) and (node != ( cname + '-m1'))):
-      kmsg_sys(kname, ('removing stale node '+ node))
+    if re.search(f'{cname}-', node) and (node != f'{cname}-m1'):
+      kmsg_sys(kname, f'removing stale node {node}')
 
       # need to check this..
-      kubectl('delete node ' + node)
+      kubectl(f'delete node {node}')
 
   # run k3s update
   k3s_update_cluster()
