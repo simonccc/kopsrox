@@ -2,9 +2,9 @@
 
 # standard imports
 import sys, re, os
-from kopsrox_config import config, masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
+from kopsrox_config import masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
 from kopsrox_proxmox import get_node, qaexec
-from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster, export_k3s_token
+from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster, export_k3s_token, kubeconfig
 
 # passed command
 cmd = sys.argv[2]
@@ -116,7 +116,11 @@ if cmd == 'restore':
     k3s_rm_cluster(restore = True)
 
   # define restore command
-  restore_cmd = f'systemctl stop k3s && rm -rf /var/lib/rancher/k3s/server/db/ && k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} {s3_string} ; systemctl start k3s'
+  restore_cmd = f'\
+systemctl stop k3s &&  \
+rm -rf /var/lib/rancher/k3s/server/db/ && \
+k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} {s3_string} ; \
+systemctl start k3s'
 
   # display some filtered restore contents
   restore = qaexec(masterid, restore_cmd)
@@ -150,5 +154,7 @@ if cmd == 'restore':
       # need to check this..
       kubectl(f'delete node {node}')
 
+  # get restored clusters kubeconfig
+  kubeconfig()
   # run k3s update
   k3s_update_cluster()
