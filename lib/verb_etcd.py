@@ -2,7 +2,7 @@
 
 # standard imports
 import sys, re, os
-from kopsrox_config import masterid, masters, workers, cname, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
+from kopsrox_config import masterid, masters, workers, cluster_name, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
 from kopsrox_proxmox import get_node, qaexec
 from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster, export_k3s_token, kubeconfig
 
@@ -11,7 +11,7 @@ cmd = sys.argv[2]
 kname = 'etcd-' + cmd
 
 # token filename
-token_fname = cname + '.k3stoken'
+token_fname = cluster_name + '.k3stoken'
 
 # check master is running / exists
 # fails if node can't be found
@@ -49,7 +49,7 @@ def list_snapshots():
   for line in sorted(ls):
 
     # if image name matches the s3 line append to the images string
-    if re.search(('s3://' + bucket + '/kopsrox-' + cname), line):
+    if re.search(('s3://' + bucket + '/kopsrox-' + cluster_name), line):
       images_out = line.split()
       images += images_out[0] + "\t" + images_out[2] + "\t" +  images_out[3] + '\n'
 
@@ -148,7 +148,7 @@ systemctl start k3s'
   for node in nodes:
 
     # if matches cluster name and not master node
-    if re.search(f'{cname}-', node) and (node != f'{cname}-m1'):
+    if re.search(f'{cluster_name}-', node) and (node != f'{cluster_name}-m1'):
       kmsg_sys(kname, f'removing stale node {node}')
 
       # need to check this..

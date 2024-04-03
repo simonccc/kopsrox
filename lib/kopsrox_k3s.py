@@ -1,7 +1,7 @@
 #!/usr/bin/env python3 
 
 # imports
-from kopsrox_config import masterid, config, k3s_version, masters, workers, cname, vmnames, kmsg_info, kmsg_err, vmip, cluster_info, list_kopsrox_vm, kmsg_sys, kmsg_warn
+from kopsrox_config import masterid, config, k3s_version, masters, workers, cluster_name, vmnames, kmsg_info, kmsg_err, vmip, cluster_info, list_kopsrox_vm, kmsg_sys, kmsg_warn
 
 # standard imports
 from kopsrox_proxmox import qaexec, destroy, internet_check, clone
@@ -129,16 +129,16 @@ def k3s_rm_cluster(restore = False):
 
     # do not delete m1 if restore is true 
     if restore:
-      if vmname == ( cname + '-m1' ):
+      if vmname == ( cluster_name + '-m1' ):
         continue
 
     # do not delete image
-    if vmname == ( cname + '-i0' ):
+    if vmname == ( cluster_name + '-i0' ):
       continue
 
     # remove node from cluster and proxmox
     #print(vmname)
-    if vmname ==  ( cname + '-m1' ):
+    if vmname ==  ( cluster_name + '-m1' ):
       destroy(vmid)
     else:
       k3s_rm(vmid)
@@ -220,9 +220,9 @@ def kubeconfig():
   kconfig = (qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')).replace('127.0.0.1', vmip(masterid))
 
   # write file out
-  with open((cname +'.kubeconfig'), 'w') as kfile:
+  with open((cluster_name +'.kubeconfig'), 'w') as kfile:
     kfile.write(kconfig)
-  kmsg_info('k3s-kubeconfig', ('saved ' + (cname +'.kubeconfig')))
+  kmsg_info('k3s-kubeconfig', ('saved ' + (cluster_name +'.kubeconfig')))
 
 # kubectl
 def kubectl(cmd):
@@ -234,7 +234,7 @@ def kubectl(cmd):
 # export k3s token
 def export_k3s_token():
   token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/token')
-  token_name = f'{cname}.k3stoken'
+  token_name = f'{cluster_name}.k3stoken'
   with open(token_name, 'w') as token_file:
     token_file.write(token)
   kmsg_sys('export-k3s-token', f'created: {token_name}')

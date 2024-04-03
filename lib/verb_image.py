@@ -5,7 +5,7 @@ from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, lo
 kopsrox_img = kopsrox_img()
 
 # variables
-from kopsrox_config import node, storage, cluster_id, cloud_image_url, network_bridge, cname, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network, network_mask, storage_type, network_dns
+from kopsrox_config import node, storage, cluster_id, cloud_image_url, network_bridge, cluster_name, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network, network_mask, storage_type, network_dns
 
 # general imports
 import wget,sys,os
@@ -22,14 +22,13 @@ kname = 'image-'+cmd
 
 # create image
 if cmd == 'create':
+  kmsg_info(kname, cloud_image)
 
   # get image name from url 
   cloud_image = cloud_image_url.split('/')[-1]
 
   # download image with wget if not present
   if not os.path.isfile(cloud_image):
-
-    kmsg_info(f'{kname}-downloading', cloud_image)
     wget.download(cloud_image_url)
     print()
 
@@ -77,10 +76,10 @@ fi'''
     scsihw = 'virtio-scsi-pci',
     net0 = (f'model=virtio,bridge={network_bridge}'),
     boot = 'c',
-    name = (f'{cname}-i0'),
+    name = (f'{cluster_name}-i0'),
     ostype = 'l26',
     ide2 = (f'{storage}:cloudinit'),
-    tags = cname,
+    tags = cluster_name,
     serial0 = 'socket',
     agent = ('enabled=true,fstrim_cloned_disks=1'),
     hotplug = 0,

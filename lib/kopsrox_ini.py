@@ -102,7 +102,7 @@ def init_kopsrox_ini():
 
   # cluster friendly name
   config.set('cluster', '; name for the kopsrox cluster')
-  config.set('cluster', 'name', 'mycluster')
+  config.set('cluster', 'cluster_name', 'mycluster')
 
   # number of masters
   config.set('cluster', '; number of masters nodes 1 or 3')

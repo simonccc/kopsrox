@@ -32,8 +32,13 @@ config.read('kopsrox.ini')
 
 # kopsrox prompt
 def kmsg_prompt():
-  cprint(cname, "blue",attrs=["bold"], end='')
-  cprint(':', "cyan", end='' )
+
+  # needs to have cluster name defined
+  try:
+    cprint(cluster_name, "blue",attrs=["bold"], end='')
+    cprint(':', "cyan", end='' )
+  except:
+    pass
 
 # print normal output
 def kmsg_info(kname, msg):
@@ -96,7 +101,9 @@ def conf_check(section,value):
 
 # check config vars
 # cluster name as required for error messages
-cname = conf_check('cluster', 'name')
+cluster_name = conf_check('cluster', 'cluster_name')
+
+# get cluster id
 cluster_id = int(conf_check('cluster','cluster_id'))
 
 # proxmox
@@ -170,16 +177,16 @@ masterid = cluster_id + 1
 
 # define vmnames
 vmnames = {
-(cluster_id): cname +'-i0',
-(cluster_id + 1 ): cname + '-m1',
-(cluster_id + 2 ): cname + '-m2',
-(cluster_id + 3 ): cname + '-m3',
-(cluster_id + 4 ): cname + '-u1',
-(cluster_id + 5 ): cname + '-w1',
-(cluster_id + 6 ): cname + '-w2',
-(cluster_id + 7 ): cname + '-w3',
-(cluster_id + 8 ): cname + '-w4',
-(cluster_id + 9 ): cname + '-w5',
+(cluster_id): cluster_name +'-i0',
+(cluster_id + 1 ): cluster_name + '-m1',
+(cluster_id + 2 ): cluster_name + '-m2',
+(cluster_id + 3 ): cluster_name + '-m3',
+(cluster_id + 4 ): cluster_name + '-u1',
+(cluster_id + 5 ): cluster_name + '-w1',
+(cluster_id + 6 ): cluster_name + '-w2',
+(cluster_id + 7 ): cluster_name + '-w3',
+(cluster_id + 8 ): cluster_name + '-w4',
+(cluster_id + 9 ): cluster_name + '-w5',
 }
 
 # proxmox api connection
@@ -385,7 +392,7 @@ def vmip(vmid):
 
 # cluster info
 def cluster_info():
-  kmsg_sys('cluster-info', f'{cname} {cloud_image_desc}')
+  kmsg_sys('cluster-info', f'{cluster_name} {cloud_image_desc}')
 
   # for kopsrox vms
   for vmid in list_kopsrox_vm():
