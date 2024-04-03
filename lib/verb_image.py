@@ -112,7 +112,7 @@ if cmd == 'info':
 if cmd == 'destroy':
   # check image exists
   if (kopsrox_img):
-    kmsg_warn(kname, f'{kopsrox_img}/{cloud_image_desc}')
+    kmsg_sys(kname, f'{kopsrox_img}/{cloud_image_desc}')
     destroy(cluster_id)
   else:
     kmsg_info(kname, 'no image found')
