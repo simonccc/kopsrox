@@ -35,6 +35,7 @@ cmds = {
   },
   "node": {
     "destroy" : 'hostname',
+    "utility" : '',
   },
 }
 
