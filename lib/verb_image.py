@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, local_os_process, kmsg_sys, image_info
+from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, local_os_process, kmsg_sys, image_info, cloud_image_desc
 kopsrox_img = kopsrox_img()
 
 # variables
@@ -22,21 +22,20 @@ kname = 'image-'+cmd
 
 # create image
 if cmd == 'create':
-  kmsg_info(kname, cloud_image)
 
   # get image name from url 
   cloud_image = cloud_image_url.split('/')[-1]
+  kmsg_sys(kname, cloud_image)
 
-  # download image with wget if not present
-  if not os.path.isfile(cloud_image):
-    wget.download(cloud_image_url)
-    print()
+  # will this always overwrite?
+  wget.download(cloud_image_url)
+  print()
 
-    # patch image 
-    kmsg_info(f'{kname}-virt-customize','installing qemu-guest-agent')
+  # patch image 
+  kmsg_info(f'{kname}-virt-customize','installing qemu-guest-agent')
 
-    # script to install qemu-guest-agent on multiple os's disable selinux on Rocky
-    install_qga = '''
+  # script to install qemu-guest-agent on multiple os's disable selinux on Rocky
+  install_qga = '''
 curl -sfL https://get.k3s.io > /k3s.sh 
 if [ ! -f /usr/bin/qemu-ga ] 
 then
@@ -55,14 +54,14 @@ if [ -f /etc/sysconfig/qemu-ga ]
 then
   cp /dev/null /etc/sysconfig/qemu-ga 
 fi'''
-    patch_cmd = f'sudo virt-customize -a {cloud_image} --run-command "{install_qga}"'
-    local_os_process(patch_cmd)
+  patch_cmd = f'sudo virt-customize -a {cloud_image} --run-command "{install_qga}"'
+  local_os_process(patch_cmd)
 
   # destroy template if it exists
   try:
     destroy(cluster_id)
   except:
-    next
+    pass
 
   # encode ssh key
   ssh_encode = urllib.parse.quote(cloudinitsshkey, safe='')
@@ -93,7 +92,9 @@ fi'''
   ))
 
   # shell to import disk
-  import_cmd = f'sudo qm set {cluster_id} --virtio0 {storage}:0,import-from={os.getcwd()}/{cloud_image} ; mv {cloud_image} {cloud_image}.patched'
+  import_cmd = f'\
+sudo qm set {cluster_id} --virtio0 {storage}:0,import-from={os.getcwd()}/{cloud_image} ; \
+mv {cloud_image} {cloud_image}.patched'
 
   # run shell command to import
   kmsg_info(f'{kname}-qm-import', f'{storage}/{cluster_id}')
@@ -109,8 +110,9 @@ if cmd == 'info':
 
 # destroy image
 if cmd == 'destroy':
+  # check image exists
   if (kopsrox_img):
-    kmsg_warn('image-destroy', kopsrox_img)
+    kmsg_warn(kname, f'{kopsrox_img}/{cloud_image_desc}')
     destroy(cluster_id)
   else:
-    kmsg_info('image-destroy', 'no image found')
+    kmsg_info(kname, 'no image found')
