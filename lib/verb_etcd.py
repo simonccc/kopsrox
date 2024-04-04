@@ -61,7 +61,7 @@ snapshots = list_snapshots()
 
 # s3 prune
 if cmd == 'prune':
-  kmsg_sys('etcd-prune', f'{s3endpoint}/{bucket}\n' + s3_run('prune --name kopsrox'))
+  kmsg_sys(kname, f'{s3endpoint}/{bucket}\n' + s3_run('prune --name kopsrox'))
   exit(0)
 
 # snapshot 
@@ -82,23 +82,36 @@ if cmd == 'snapshot':
     if re.search('upload complete', line):
       kmsg_info('etcd-snapshot-out', line)
 
-# print returned images
-if cmd == 'list':
+# print s3List
+def s3_list():
+  kmsg_info(kname, f'{s3endpoint}/{bucket}\n{snapshots}')
+
+# restore / list snapshots
+if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
+
+  # snapshots must exist
   if not snapshots:
-    snapshots = 'none found'
-  kmsg_info('etcd-snapshots-list', f'{s3endpoint}/{bucket}\n{snapshots}')
+    snapshots = 'not found'
+    s3_list()
+    exit(0)
 
-# restore
-if cmd == 'restore':
+  # list
+  if cmd == 'list':
+    s3_list()
+    exit(0)
 
-  # assign passed snapshot argument
-  snapshot = sys.argv[3]
+  # generate latest snapshot name
+  if cmd == 'restore-latest':
+    snapshot = snapshots.split('\n')[-1].split('\t')[0]
+  else:
+    # assign passed snapshot argument
+    snapshot = sys.argv[3]
 
   # check passed snapshot name exists
   if not re.search(snapshot,snapshots):
     kmsg_err(kname, f'{snapshot} not found')
-    print(snapshots)
-    exit()
+    s3_list()
+    exit(0)
 
   # check token file exists
   if not os.path.isfile(token_fname):

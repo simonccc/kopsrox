@@ -11,6 +11,9 @@ KCD="$KC destroy"
 KI="$K image"
 KID="$KI destroy"
 KIC="$KI create"
+KE="$K etcd"
+KER="$KE restore"
+KERL="${KER}-latest"
 
 
 # change 
@@ -31,4 +34,4 @@ MC="kc masters 1 ; kc workers 0"
 #kc masters 3 ; $KCU ; kc masters 1  ; $KCU
 
 # image testing stuff
-$KCD ; $KIC ; $KCC
+$KCD ; $KIC ; $KCC ; $KERL

@@ -30,6 +30,7 @@ cmds = {
   "etcd": {
     "snapshot" : '',
     "restore" : 'snapshot',
+    "restore-latest" : '',
     "list" : '',
     "prune" : '',
   },
@@ -45,13 +46,13 @@ verbs = list(cmds)
 
 def kmsg(msg):
   cprint('kopsrox', "blue",attrs=["bold"], end='')
-  cprint('::', "cyan", end='' )
+  cprint('::', "cyan", end='')
   print(msg)
 
 # print list of verbs
 def verbs_help():
   kmsg('kopsrox [verb] [command]')
-  cprint('verbs:', "yellow", attrs=["bold"])
+  print('verbs:')
   for i in verbs:
     print(' * ',i)
 
@@ -66,7 +67,7 @@ def cmds_help(verb):
 try:
 
   # check for 1st argument
-  if (sys.argv[1]):
+  if sys.argv[1]:
 
     # map 1st arg to verb
     verb = sys.argv[1]
@@ -100,7 +101,7 @@ try:
   if cmds[verb][cmd] and sys.argv[3]:
     pass
 except:
-  kmsg('kopsrox ' + verb + ' ' + cmd + ' [' + cmds[verb][cmd] + ']')
+  kmsg(f'kopsrox {verb} {cmd} [{cmds[verb][cmd]}]')
   exit(0)
 
 # run passed verb
