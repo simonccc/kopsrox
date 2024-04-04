@@ -1,4 +1,4 @@
-# kopsrox 🏭
+# 🏭 kopsrox
 
 - cli to automate creation and management of a k3s cluster on Proxmox VE using cloud images :nerd_face:
 - add more master/worker nodes using simple config file and cli commands :pray:
@@ -7,14 +7,14 @@
 - run kubectl commands or export the kubeconfig via the build in commands :nerd_face:  
 - in development but should be reasonably stable - check the branches for stable versions :horse_racing:
 
-# docs :book:
+# :book: docs
 
  - [SETUP.md](docs/SETUP.md)
  - [GETSTARTED.md](docs/GETSTARTED.md)
  - [USAGE.md](docs/USAGE.md)
  - [FAQ.md](docs/FAQ.md)
 
-# in progress :boom:
+# :boom: in progress 
  - Improving Docs
  - Some code clean up
  - Variable names sort out
