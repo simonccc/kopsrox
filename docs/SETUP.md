@@ -1,4 +1,5 @@
-<img src="docs/kopsrox.png" height=400 />
+<img src="kopsrox.png" height=400 />
+
 # kopsrox
 
 ## Requirements :hammer_and_wrench:
