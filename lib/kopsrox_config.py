@@ -8,7 +8,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from proxmoxer import ProxmoxAPI
 
 # prompt
-kname = 'config'
+kname = 'config-check'
 
 # look for strings in responses
 import re
@@ -19,11 +19,12 @@ import sys
 # local os commands
 import subprocess
 
-# datetime stuff for generating image date\
+# datetime stuff for generating image date
 from datetime import datetime
 
 # colors
 from termcolor import colored, cprint
+from kopsrox_kmsg import kmsg
 
 # read ini file into config
 from configparser import ConfigParser
@@ -77,27 +78,27 @@ def conf_check(section,value):
     if not config.has_option(section,value):
       exit()
   except:
-    kmsg_err((kname+'-error'),('check [' + section + ']/' + value + ' missing'))
+    kmsg(kname, f'[{section}]/{value} is missing','err')
     exit()
 
+  # check value is not blank
   try:
-    # check value is not blank
-    if not (config.get(section, value) == ''):
-
-      # int checks
-      if value in ['port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters']:
-        try:
-          test_var = int(config.get(section, value))
-        except:
-          kmsg_err(kname, ('check [' + section + '] \'' + value + '\' should be numeric: ' + config.get(section, value)))
-          exit()
-      return(config.get(section, value))
-
-    # value is blank
-    exit()
+    if config.get(section, value) == '':
+      exit()
   except:
-    kmsg_err(kname, ('check [' + section + '] \'' + value + '\' is required'))
+    kmsg(kname, f'[{section}]/{value} is required', 'err')
     exit()
+
+  if value in ['port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters']:
+    try:
+      test_var = int(config.get(section, value))
+    except:
+      kmsg(kname, (f'[{section}]/{value} should be numeric: ' + config.get(section, value)), 'err')
+      exit(0)
+
+  # everything is ok return the value
+  return(config.get(section, value))
+
 
 # check config vars
 # cluster name as required for error messages

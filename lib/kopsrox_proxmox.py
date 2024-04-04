@@ -9,7 +9,11 @@ from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_s
 # vars
 from kopsrox_config import config,node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns
 
+# kname
+kname = 'prox'
+
 # run a exec via qemu-agent
+# find out what doesn't call this as an int
 def qaexec(vmid,cmd):
 
   # get vmname

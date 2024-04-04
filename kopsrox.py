@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
+# standard imports
 import os, sys
 sys.path[0:0] = ['lib/']
 
-from termcolor import cprint
+# kopsrox
+from kopsrox_ini import init_kopsrox_ini
+from kopsrox_kmsg import kmsg
 
 # check file exists
 if not os.path.isfile('kopsrox.ini'):
-  import kopsrox_ini as kopsrox_ini
-  kopsrox_ini.init_kopsrox_ini()
+  init_kopsrox_ini()
   exit(0)
 
 # kopsrox verbs and commands
@@ -44,21 +46,16 @@ cmds = {
 # create list of verbs
 verbs = list(cmds)
 
-def kmsg(msg):
-  cprint('kopsrox', "blue",attrs=["bold"], end='')
-  cprint('::', "cyan", end='')
-  print(msg)
-
 # print list of verbs
 def verbs_help():
-  kmsg('kopsrox [verb] [command]')
+  kmsg('usage', '[verb] [command]')
   print('verbs:')
   for i in verbs:
     print(' * ',i)
 
 # print verbs cmds
 def cmds_help(verb):
-  kmsg(verb+' [command]')
+  kmsg(verb, '[command]')
   print('commands:')
   for i in list(cmds[verb]):
     print(' * ',i)
