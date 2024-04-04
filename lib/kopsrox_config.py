@@ -127,16 +127,16 @@ cloudinitpass = conf_check('kopsrox','cloudinitpass')
 cloudinitsshkey = conf_check('kopsrox','cloudinitsshkey')
 
 # network
-network = conf_check('kopsrox','network')
+network_ip = conf_check('kopsrox','network_ip')
 network_gw = conf_check('kopsrox','network_gw')
 network_mask = conf_check('kopsrox','network_mask')
 network_dns = conf_check('kopsrox', 'network_dns')
 network_bridge = conf_check('kopsrox','network_bridge')
 
 # variables for network and its IP for vmip function
-octs = network.split('.')
-network_base = octs[0] + '.' + octs[1] + '.' + octs[2] + '.'
-network_ip = int(octs[-1])
+network_octs = network_ip.split('.')
+network_base = f'{network_octs[0]}.{network_octs[1]}.{network_octs[2]}.'
+network_ip_prefix = int(network_octs[-1])
 
 # master check
 masters = int(conf_check('cluster','masters'))
@@ -387,7 +387,7 @@ def vmip(vmid):
   vmid = int(vmid)
   # last number of network + ( vmid - cluster_id ) 
   # eg 160 + ( 601 - 600 )  = 161 
-  ip = f'{network_base}{(network_ip + (vmid - cluster_id))}'
+  ip = f'{network_base}{(network_ip_prefix + (vmid - cluster_id))}'
   return(ip)
 
 # cluster info

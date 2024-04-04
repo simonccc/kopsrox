@@ -21,7 +21,6 @@ kc() {
 # minimal cluster
 MC="kc masters 1 ; kc workers 0"
 
-
 # recreate 1 node
 #./kopsrox.py cluster destroy && ./kopsrox.py cluster create
 #$KCD ; $KCC
@@ -32,4 +31,4 @@ MC="kc masters 1 ; kc workers 0"
 #kc masters 3 ; $KCU ; kc masters 1  ; $KCU
 
 # image testing stuff
-$KCD ; $KID ; $KIC ; $KCC
+$KCD ; $KIC ; $KCC

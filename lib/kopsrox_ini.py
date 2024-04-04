@@ -78,8 +78,9 @@ def init_kopsrox_ini():
   config.set('kopsrox', 'network_bridge', 'vmbr0')
 
   # kopsrox network baseip
-  config.set('kopsrox', '; start of ip range used for kopsrox')
-  config.set('kopsrox', 'network', '192.168.0.160')
+  config.set('kopsrox', '; first ip of the ip range used for this kopsrox cluster')
+  config.set('kopsrox', '; this ip is assigned to the template - the first master is this + 1')
+  config.set('kopsrox', 'network_ip', '192.168.0.160')
 
   # netmask / subnet
   config.set('kopsrox', '; /24 is 255.255.255.0')
