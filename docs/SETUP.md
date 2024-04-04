@@ -1,9 +1,10 @@
+
+# :performing_arts: kopsrox
 <img src="kopsrox.png" height=200 />
 
-# kopsrox
-<img src="kopsrox.png" height=200 />
+# :baby_symbol: setup 
 
-## requirements :hammer_and_wrench:
+## :hammer_and_wrench: requirements
 
 - a user with password less sudo access on a proxmox VE host  ( tested up to 8.1.3 ) 
 - network with internet access configured in proxmox as a bridge or sdn network
@@ -11,20 +12,20 @@
 - a range of 10 IP's on your network for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
 - clone the repo and follow the steps below 
 
-## install Packages :bricks:
+## :bricks: install packages
 
 - `sudo apt install libguestfs-tools python3-termcolor -y`
 - `pip3 install --break-system-packages --user -r requirements.txt`
 
 _installs the required pip packages vs using os packages_
 
-## generate API key :star:
+## :star: generate api key
 
 `sudo pvesh create /access/users/root@pam/token/kopsrox`
 
 `sudo pveum acl modify / --roles Administrator --user root@pam  --token 'root@pam!kopsrox'`
 
-## create kopsrox.ini :construction_worker:
+## :construction_worker: create kopsrox.ini
 
 run `./kopsrox.py` and an example _kopsrox.ini_ will be generated - you will need to edit this for your setup
 
@@ -32,7 +33,7 @@ Most values should be obvious and commented accordingly - see below for more inf
 
 # :mag_right: kopsrox.ini 
 
-## cluster_id :computer:
+## :computer: cluster_id 
 
 `620` - the proxmox id used for the kopsrox image/template and the basis of the cluster
 
@@ -64,7 +65,7 @@ cluster_name = kopsrox
 
 ## :pencil2: kopsrox
 
-### cloud_image_url :rainbow:
+### :rainbow: cloud_image_url 
 
 `https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` 
 
