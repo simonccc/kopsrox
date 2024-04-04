@@ -15,3 +15,7 @@ Check network settings - the vms can't connect to the internet
 __ListObjectsV2 search parameter metadata not implemented? for etcd snapshots__
 
 got this running v1.26.10+k3s2 with cloudflare - upgrading to v1.27.8+k3s2 resolved this for me
+
+__where is the old demo__
+
+https://asciinema.org/a/597074

@@ -1,74 +1,57 @@
 # usage 
 
 - [image](#image)
-  - [create](#image-create)
-  - [destroy](#image-destroy)
-  - [info](#image-info)
 - [cluster](#cluster)
-  - [create](#cluster-create)
-  - [update](#cluster-update)
-  - [info](#cluster-info)
-  - [kubectl](#kubectl)
-  - [kubeconfig](#kubeconfig)
-  - [destroy](#cluster-destroy)
-  - [k3stoken](#k3stoken)
 - [etcd](#etcd)
-  - [snapshot](#snapshot)
-  - [list](#list)
-  - [restore](#restore)
-  - [prune](#prune)
+- [node](#node)
 
 ## image <a name=image>
-### create <a name=image-create>
+### create 
 - downloads the image file defined in `koprox.ini`
 - installs `qemu-guest-agent` into the image via `virt-customise`
-- imports the disk into the `proxstore` proxmox storage using `sudo qm`
+- imports the disk into the `storeage` proxmox storage using `sudo qm`
 - creates cloudinit drive with user and networking setup
 - converts the vm into a template
   
-### destroy <a name=image-destroy> 
+### destroy 
 - :warning: deletes the existing image template
 
 ### info <a name=image-info> 
 - prints info about image/template vm eg storage, id, creation time and source cloud image file
 
 ## cluster <a name=cluster>
-### create <a name=cluster-create>
+### create 
 - creates and updates a cluster - use this to setup a fresh cluster
 - clones the image to `kopsrox-m1` master server and configures it via cloudinit
 - exports kubeconfig and node token
 - if an existing working master is found just runs the same steps as `kopsrox cluster update`
 
-### update <a name=cluster-update>
+### update 
 - checks the state of the cluster vs what is configured in `kopsrox.ini`
 - adds or deletes workers/masters per `kopsrox.ini`
 
-### info <a name=cluster-info>
+### info 
 - shows a list of ids, hostnames and ips the host they are running on
 - shows `kubectl get nodes`
 
-### kubectl <a name=kubectl>
+### kubectl 
 - provides a quick and basic way to run some kubectl commands for example:
 
 `./kopsrox.py cluster kubectl get events -A`
 
-### kubeconfig <a name=kubeconfig>
+### kubeconfig 
 - export the cluster kubeconfig to a `$cname.kubeconfig` file - ie the name of the cluster set in `kopsrox.ini`
 - file is patched to have correct master IP vs 127.0.0.1
 
-### destroy <a name=cluster-destroy>
+### destroy 
 - :warning: destroys the cluster ( NO WARNING! ) 
 - deletes workers then masters in safe order
 
-### k3stoken <a name=k3stoken>
+### k3stoken 
 - exports the clusters k3s token ( used to add nodes to cluster ) 
 
 ## etcd <a name=etcd>
-### snapshot <a name=snapshot>
-
-The first time a snapshot is taken the cluster token is written to `clustername.etcd.token`
-
-This is not overwriten when further snapshots are taken - even on a new cluster with the same name
+### snapshot 
 
 `./kopsrox.py etcd snapshot`
 
@@ -78,13 +61,13 @@ Takes a backup of etcd
 
 Should show the new backup
 
-### list <a name=s3-list>
+### list 
 
 `./kopsrox.py etcd list`
 
 - lists snapshots taken in s3 storage based on cluster name
 
-### restore <a name=restore>
+### restore 
 
 restores a cluster from a snapshot
 
@@ -96,6 +79,18 @@ usage:
 
 - downsizes the cluster to 1 node then resizes back to the scale set in `kopsrox.ini`
 
-### prune <a name=prune>
+### restore-latest
+- restores the cluster from the latest backup in s3
 
+### prune 
 - deletes old snapshots per the retention policy set on the bucket
+
+## node
+### destroy
+- pass hostname destroys that host
+### utility
+- creates the utility node -u1
+### terminal
+- connects you to the passed vms serial console
+
+
