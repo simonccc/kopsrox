@@ -278,14 +278,11 @@ def kmsg_vm_info(vmid):
      exit()
 
 # get list of nodes
-nodes = [node.get('node', None) for node in prox.nodes.get()]
+discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
 
 # if node not in list of nodes
-if node not in nodes:
-  kmsg_err('config-check', ('node not found. ('+ node + ')'))
-  print('valid nodes:')
-  for node in nodes:
-    print(' - ' + node)
+if node not in discovered_nodes:
+  kmsg(kname, f'"{node}" not found - discovered nodes: {discovered_nodes}', 'err')
   exit()
 
 # get list of storage in the cluster
@@ -308,10 +305,9 @@ try:
   if storage_type:
     pass
 except:
-  kmsg_err('config-check', ('storage not found. (' + storage + ')'))
-  print('valid storage:')
-  for storage in storage_list:
-    print(' - ' + storage.get("storage"))
+  kmsg(kname, f'"{storage}" not found. discovered storage:', 'err')
+  for discovered_storage in storage_list:
+    print(' - ' + discovered_storage.get("storage"))
   exit()
 
 # check configured bridge exist or is a sdn vnet
