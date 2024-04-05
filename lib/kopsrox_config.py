@@ -28,8 +28,8 @@ from kopsrox_kmsg import kmsg
 
 # read ini file into config
 from configparser import ConfigParser
-config = ConfigParser()
-config.read('kopsrox.ini')
+kopsrox_config = ConfigParser()
+kopsrox_config.read('kopsrox.ini')
 
 # kopsrox prompt
 def kmsg_prompt():
@@ -75,16 +75,15 @@ def conf_check(section,value):
 
   # check option exists
   try:
-    if not config.has_option(section,value):
+    if not kopsrox_config.has_option(section,value):
       exit()
   except:
-    config.has_option(section,value)
     kmsg(kname, f'[{section}]/{value} is missing','err')
     exit()
 
   # check value is not blank ( s3 section ok ) 
   try:
-    if config.get(section, value) == '':
+    if kopsrox_config.get(section, value) == '':
       exit()
   except:
     if not section in ['s3']:
@@ -92,7 +91,7 @@ def conf_check(section,value):
       exit()
 
   # define config_item
-  config_item = config.get(section, value)
+  config_item = kopsrox_config.get(section, value)
 
   # int check
   if value in ['port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters']:
@@ -105,7 +104,7 @@ def conf_check(section,value):
       exit(0)
 
     # return int
-    return(config.getint(section, value))
+    return(kopsrox_config.getint(section, value))
   else:
     # return string
     return(config_item)
@@ -174,7 +173,7 @@ if region:
   region_string = '--etcd-s3-region ' + region
 
 # dict of all config items - legacy support
-config = ({s:dict(config.items(s)) for s in config.sections()})
+config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
 # generated string to use in s3 commands
 s3_string = \
