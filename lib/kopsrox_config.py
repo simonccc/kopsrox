@@ -117,7 +117,7 @@ cluster_name = conf_check('cluster', 'cluster_name')
 cluster_id = conf_check('cluster','cluster_id')
 
 # proxmox
-endpoint = conf_check('proxmox','endpoint')
+prox_endpoint = conf_check('proxmox','prox_endpoint')
 port = conf_check('proxmox','port')
 user = conf_check('proxmox','user')
 token_name = conf_check('proxmox','token_name')
@@ -206,7 +206,7 @@ try:
 
   # api connection
   prox = ProxmoxAPI(
-    endpoint,
+    prox_endpoint,
     port=port,
     user=user,
     token_name=token_name,

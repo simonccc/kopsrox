@@ -15,7 +15,7 @@ def init_kopsrox_ini():
 
   # proxmox api endpoint
   config.set('proxmox', '; domain name or IP to access proxmox')
-  config.set('proxmox', 'endpoint', '127.0.0.1')
+  config.set('proxmox', 'prox-endpoint', '127.0.0.1')
 
   # proxmox api port
   config.set('proxmox', '; port is usually 8006')
