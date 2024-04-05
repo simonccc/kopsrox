@@ -218,8 +218,10 @@ try:
   prox.cluster.status.get()
 
 except:
-  kmsg(kname, f'API connection to {endpoint}:{port} failed check [proxmox] settings', 'err')
-  kmsg(kname, prox.cluster.status.get(), 'sys')
+  kmsg(kname, f'API connection to {prox_endpoint}:{port} failed check [proxmox] settings', 'err')
+
+  # this could be improved
+  #kmsg(kname, prox.cluster.status.get(), 'sys')
   exit()
 
 # look up kopsrox_img name
@@ -232,7 +234,7 @@ def kopsrox_img():
     image_name = image.get("volid")
 
     # if 123-disk-0 found in volid
-    if re.search((str(cluster_id) + '-disk-0'), image_name):
+    if re.search(f'{cluster_id}-disk-0', image_name):
       return(image_name)
 
   # unable to find image name
@@ -264,14 +266,15 @@ def vm_info(vmid,node=node):
   return(prox.nodes(node).qemu(vmid).status.current.get())
 
 # print vminfo
-def kmsg_vm_info(vmid, prefix=''):
+def kmsg_vm_info(vmid):
    vms = list_kopsrox_vm()
    vmid = int(vmid)
    try:
-     vmstatus = str(vmid) + ' [' + vms[vmid] + '] ' + vmip(vmid) + '/' + network_mask
-     kmsg_info((prefix+vmnames[vmid]), vmstatus)
+     vmstatus = f'{vmid} [{vms[vmid]}] {vmip(vmid)}/{network_mask}'
+     kmsg(kname,f'{vmnames[vmid]} - {vmstatus}', 'info')
    except:
-     kmsg_err('kmsg-vm-info', (vmid, 'id not found', vms))
+     kmsg(kname, f'kmsg-vm-info {vmid} id not found', 'err')
+     print(vms)
      exit()
 
 # get list of nodes
