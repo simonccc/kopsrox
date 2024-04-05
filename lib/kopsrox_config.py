@@ -78,38 +78,48 @@ def conf_check(section,value):
     if not config.has_option(section,value):
       exit()
   except:
+    config.has_option(section,value)
     kmsg(kname, f'[{section}]/{value} is missing','err')
     exit()
 
-  # check value is not blank
+  # check value is not blank ( s3 section ok ) 
   try:
     if config.get(section, value) == '':
       exit()
   except:
-    kmsg(kname, f'[{section}]/{value} is required', 'err')
-    exit()
+    if not section in ['s3']:
+      kmsg(kname, f'[{section}]/{value} - a value is required','err')
+      exit()
 
+  # define config_item
+  config_item = config.get(section, value)
+
+  # int check
   if value in ['port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters']:
+
+    # test if var is int
     try:
-      test_var = int(config.get(section, value))
+      test_var = int(config_item)
     except:
-      kmsg(kname, (f'[{section}]/{value} should be numeric: ' + config.get(section, value)), 'err')
+      kmsg(kname, f'[{section}]/{value} should be numeric: {config_item}', 'err')
       exit(0)
 
-  # everything is ok return the value
-  return(config.get(section, value))
-
+    # return int
+    return(config.getint(section, value))
+  else:
+    # return string
+    return(config_item)
 
 # check config vars
 # cluster name as required for error messages
 cluster_name = conf_check('cluster', 'cluster_name')
 
 # get cluster id
-cluster_id = int(conf_check('cluster','cluster_id'))
+cluster_id = conf_check('cluster','cluster_id')
 
 # proxmox
 endpoint = conf_check('proxmox','endpoint')
-port = int(conf_check('proxmox','port'))
+port = conf_check('proxmox','port')
 user = conf_check('proxmox','user')
 token_name = conf_check('proxmox','token_name')
 api_key = conf_check('proxmox','api_key')
@@ -139,30 +149,32 @@ network_octs = network_ip.split('.')
 network_base = f'{network_octs[0]}.{network_octs[1]}.{network_octs[2]}.'
 network_ip_prefix = int(network_octs[-1])
 
-# master check
-masters = int(conf_check('cluster','masters'))
+# master + check
+masters = conf_check('cluster','masters')
 if not (masters == 1 or masters == 3):
-  kmsg_err(kname, ('[cluster] - masters: only 1 or 3 masters supported. You have: '+str(masters)))
+  kmsg(kname, f'[cluster] - masters: only 1 or 3 masters supported. You have: {masters}')
   exit(0)
 
 # workers
 workers = int(conf_check('cluster','workers'))
+
+# k3s version
 k3s_version = conf_check('cluster','k3s_version')
 
-# dict of all config items - legacy support
-config = ({s:dict(config.items(s)) for s in config.sections()})
-
 # s3 stuff
-s3endpoint = config['s3']['endpoint']
-access_key = config['s3']['access-key']
-access_secret = config['s3']['access-secret']
-bucket = config['s3']['bucket']
+s3endpoint = conf_check('s3','endpoint')
+access_key = conf_check('s3','access-key')
+access_secret = conf_check('s3','access-secret')
+bucket = conf_check('s3','bucket')
 
 # region optional
 region_string = ''
-region = config['s3']['region']
+region = conf_check('s3','region')
 if region:
   region_string = '--etcd-s3-region ' + region
+
+# dict of all config items - legacy support
+config = ({s:dict(config.items(s)) for s in config.sections()})
 
 # generated string to use in s3 commands
 s3_string = \
@@ -207,8 +219,8 @@ try:
   prox.cluster.status.get()
 
 except:
-  kmsg_err(kname, ('API connection to ' + endpoint + ':' + port + ' failed check [proxmox] settings'))
-  kmsg_sys(kname, prox.cluster.status.get())
+  kmsg(kname, f'API connection to {endpoint}:{port} failed check [proxmox] settings', 'err')
+  kmsg(kname, prox.cluster.status.get(), 'sys')
   exit()
 
 # look up kopsrox_img name
