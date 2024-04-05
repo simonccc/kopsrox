@@ -31,6 +31,9 @@ from configparser import ConfigParser
 kopsrox_config = ConfigParser()
 kopsrox_config.read('kopsrox.ini')
 
+# kname 
+kname='kopsrox_config-check'
+
 # kopsrox prompt
 def kmsg_prompt():
 
@@ -112,6 +115,7 @@ def conf_check(section,value):
 # check config vars
 # cluster name as required for error messages
 cluster_name = conf_check('cluster', 'cluster_name')
+kname = cluster_name + '_config-check'
 
 # get cluster id
 cluster_id = conf_check('cluster','cluster_id')
@@ -271,7 +275,7 @@ def kmsg_vm_info(vmid):
    vmid = int(vmid)
    try:
      vmstatus = f'{vmid} [{vms[vmid]}] {vmip(vmid)}/{network_mask}'
-     kmsg(kname,f'{vmnames[vmid]} - {vmstatus}', 'info')
+     kmsg(f'{cluster_name}_{vmnames[vmid]}', f'{vmstatus}', 'info')
    except:
      kmsg(kname, f'kmsg-vm-info {vmid} id not found', 'err')
      print(vms)
@@ -311,24 +315,21 @@ except:
   exit()
 
 # check configured bridge exist or is a sdn vnet
-# configured bridge does not contain sdn/
+# configured bridge does not contain the string 'sdn/'
 if not re.search('sdn/', network_bridge):
-  bridges = [bridge.get('iface', None) for bridge in prox.nodes(node).network.get(type = 'bridge')]
+  discovered_bridges = [bridge.get('iface', None) for bridge in prox.nodes(node).network.get(type = 'bridge')]
 else:
   # map zone and get vnets
   sdn_params = network_bridge.split('/')
   zone = sdn_params[1]
-  bridges = [bridge.get('vnet', None) for bridge in prox.nodes(node).sdn.zones(zone).content.get()]
+  discovered_bridges = [bridge.get('vnet', None) for bridge in prox.nodes(node).sdn.zones(zone).content.get()]
 
   # map network_bridge var to passed vnet
   network_bridge = sdn_params[2]
 
 # check configured bridge is in list
-if network_bridge not in bridges:
-  kmsg_err('config-check', ('network_bridge not found. (' + network_bridge + ')'))
-  print('valid bridges:')
-  for bridge in bridges:
-    print(' - ' + bridge)
+if network_bridge not in discovered_bridges:
+  kmsg(kname, f'{network_bridge} not found. valid bridges: {discovered_bridges}', 'err')
   exit()
 
 # dummy cloud_image_vars overwritten below
@@ -354,7 +355,7 @@ except:
       exit(0)
   except:
     # no image found
-    kmsg_err('config-image-check', 'no image run \'kopsrox image create\'')
+    kmsg(kname, 'no template detected "kopsrox image create"', 'err')
     exit(0)
 
   # get image info
@@ -372,7 +373,7 @@ except:
     cloud_image_desc = template_data['description']
 
   except:
-    kmsg_err('config-image-check', 'image size greater than configured vm_disk')
+    kmsg(kname, f'image size ({cloud_image_size}G) is greater than configured vm_disk ({vm_disk}G)', 'err')
     exit(0)
 
 # vm not powered on check
@@ -390,7 +391,7 @@ for vmid in vms:
 
     # start stopped nodes
     if vmi['status'] == 'stopped':
-      kmsg_warn('power-on', vmi['name'])
+      kmsg(kname, f'powering on {vmi["name"]}', 'warn')
       prox.nodes(pnode).qemu(vmid).status.start.post()
 
 # return ip for vmid
@@ -403,7 +404,7 @@ def vmip(vmid):
 
 # cluster info
 def cluster_info():
-  kmsg_sys('cluster-info', f'{cluster_name} {cloud_image_desc}')
+  kmsg(f'{cluster_name}_cluster-info', '', 'sys')
 
   # for kopsrox vms
   for vmid in list_kopsrox_vm():
@@ -411,7 +412,7 @@ def cluster_info():
       kmsg_vm_info(vmid)
 
   from kopsrox_k3s import kubectl
-  kmsg_info('k3s-get-nodes', ('\n'+kubectl('get nodes')))
+  print(f'{kubectl("get nodes")}')
 
 # run local os process 
 def local_os_process(cmd):
@@ -420,7 +421,7 @@ def local_os_process(cmd):
     if (cmd_run.returncode == 1):
        exit()
   except:
-    kmsg_err('local_os_process-error',cmd_run)
+    kmsg('local_os-process-error', cmd_run, 'err')
     exit()
   return(cmd_run)
 
