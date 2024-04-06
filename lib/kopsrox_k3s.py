@@ -9,6 +9,9 @@ from kopsrox_proxmox import qaexec, destroy, internet_check, clone
 # standard imports
 import re, time
 
+# kname
+kname = cluster_name+'_k3s'
+
 # define k3s commands
 k3s_install_base = 'cat /k3s.sh | INSTALL_K3S_VERSION="' + k3s_version + '" '
 k3s_install_master = k3s_install_base + 'sh -s - server --cluster-init'

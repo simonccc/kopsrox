@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import masterid,cluster_name,kmsg_info,kmsg_warn,cluster_info,kmsg_sys,list_kopsrox_vm,kmsg_err,cluster_id
+from kopsrox_config import masterid,cluster_name,cluster_info,list_kopsrox_vm,cluster_id
 from kopsrox_proxmox import clone,internet_check,qaexec
 from kopsrox_k3s import k3s_update_cluster,kubeconfig,kubectl,k3s_rm_cluster,k3s_init_node,export_k3s_token
+from kopsrox_kmsg import kmsg
 
 # other imports
 import sys
@@ -12,7 +13,7 @@ import sys
 cmd = sys.argv[2]
 
 # define kname
-kname = 'cluster-'+cmd
+kname = cluster_name+'_cluster-'+cmd
 
 # info
 if cmd == 'info':
@@ -28,7 +29,7 @@ if cmd == 'create':
 
   # if masterid not found running 
   if not masterid in list_kopsrox_vm():
-    kmsg_sys(kname,f'creating fresh cluster: {cluster_name}/{cluster_id}')
+    kmsg(kname,f'creating fresh cluster: {cluster_name}/{cluster_id}', 'sys')
     clone(masterid)
 
   # install k3s on master
@@ -67,7 +68,7 @@ if cmd == 'kubeconfig':
 
 # destroy the cluster
 if cmd == 'destroy':
-  kmsg_sys(kname, '!! destroying cluster !!')
+  kmsg(kname, '!! destroying cluster !!', 'sys')
   k3s_rm_cluster()
 
 # write k3s token to file

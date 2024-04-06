@@ -48,14 +48,14 @@ verbs = list(cmds)
 
 # print list of verbs
 def verbs_help():
-  kmsg('usage', '[verb] [command]')
+  kmsg('kopsrox_usage', '[verb] [command]')
   print('verbs:')
   for i in verbs:
     print(' * ',i)
 
 # print verbs cmds
 def cmds_help(verb):
-  kmsg(verb, '[command]')
+  kmsg(f'kopsrox_{verb}', '[command]')
   print('commands:')
   for i in list(cmds[verb]):
     print(' * ',i)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import prox, kmsg_info, kmsg_warn, kopsrox_img, kmsg_err, local_os_process, kmsg_sys, image_info, cloud_image_desc
+from kopsrox_config import prox, kopsrox_img, local_os_process, image_info, cloud_image_desc
 kopsrox_img = kopsrox_img()
 
 # variables
@@ -16,23 +16,26 @@ import urllib.parse
 # proxmox functions
 from kopsrox_proxmox import task_status, destroy
 
+# kmsg
+from kopsrox_kmsg import kmsg
+
 # define command
 cmd = sys.argv[2]
-kname = 'image-'+cmd
+kname = cluster_name+'_image-'+cmd
 
 # create image
 if cmd == 'create':
 
   # get image name from url 
   cloud_image = cloud_image_url.split('/')[-1]
-  kmsg_sys(kname, cloud_image)
+  kmsg(kname, cloud_image, 'sys')
 
   # will this always overwrite?
   wget.download(cloud_image_url)
   print()
 
   # patch image 
-  kmsg_info(f'{kname}-virt-customize','installing qemu-guest-agent')
+  kmsg(f'{kname}-virt-customize', 'installing qemu-guest-agent')
 
   # script to install qemu-guest-agent on multiple os's disable selinux on Rocky
   install_qga = '''
@@ -97,7 +100,7 @@ sudo qm set {cluster_id} --virtio0 {storage}:0,import-from={os.getcwd()}/{cloud_
 mv {cloud_image} {cloud_image}.patched'
 
   # run shell command to import
-  kmsg_info(f'{kname}-qm-import', f'{storage}/{cluster_id}')
+  kmsg(f'{kname}-qm-import', f'{storage}/{cluster_id}')
   local_os_process(import_cmd)
 
   # convert to template via create base disk also vm config
@@ -112,7 +115,7 @@ if cmd == 'info':
 if cmd == 'destroy':
   # check image exists
   if (kopsrox_img):
-    kmsg_sys(kname, f'{kopsrox_img}/{cloud_image_desc}')
+    kmsg(kname, f'{kopsrox_img}/{cloud_image_desc}', 'sys')
     destroy(cluster_id)
   else:
-    kmsg_info(kname, 'no image found')
+    kmsg(kname, 'no image found')

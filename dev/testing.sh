@@ -1,6 +1,8 @@
 #set -e
 #set -x
 
+start_time=$(date +%s) 
+
 # vars
 CFG="kopsrox.ini"
 K="./kopsrox.py"
@@ -35,3 +37,8 @@ MC="kc masters 1 ; kc workers 0"
 
 # image testing stuff
 $KCD ; $KIC ; $KCC ; $KERL
+
+
+finish_time=$(date +%s) 
+
+echo  $((finish_time - start_time)) secs

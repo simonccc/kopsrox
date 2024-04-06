@@ -4,13 +4,15 @@
 import time, re
 
 # functions 
-from kopsrox_config import prox, vmip, kmsg_info, kmsg_err, kmsg_vm_info, kmsg_sys, kmsg_warn
+from kopsrox_config import prox, vmip, kmsg_vm_info
 
 # vars
-from kopsrox_config import config,node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns
+from kopsrox_config import config,node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns,cluster_name
+
+from kopsrox_kmsg import kmsg
 
 # kname
-kname = 'prox'
+kname = cluster_name+'_prox'
 
 # run a exec via qemu-agent
 # find out what doesn't call this as an int
@@ -45,7 +47,7 @@ def qaexec(vmid,cmd):
 
       # exit if longer than 30 seconds
       if qagent_count == 30:
-        kmsg_err('prox-qaexec', ('agent not responding on ' + vmname + ' [' + node + '] cmd: ' + cmd))
+        kmsg(f'{kname}-qaexec', f'agent not responding on {vmname} [{node}] cmd: {cmd}', 'err')
         exit(0)
 
       # sleep 1 second then try again
@@ -58,7 +60,7 @@ def qaexec(vmid,cmd):
             command = "sh -c \'" + cmd +"\'",
             )
   except:
-    print('proxmox::qaexec problem with cmd: ', cmd)
+    kmsg(f'{kname}-qaexec', f' problem running cmd: {cmd}', 'err')
     print(qa_exec)
     exit(0)
 
@@ -71,7 +73,7 @@ def qaexec(vmid,cmd):
     try:
       pid_check = prox.nodes(node).qemu(vmid).agent('exec-status').get(pid = pid)
     except:
-      print('ERROR: qaexec problem with pid ' + str(pid) + ' cmd:', cmd)
+      kmsg(f'{kname}-qaexec', f' problem with pid: {pid} {cmd}', 'err')
       exit(0)
 
     # will equal 1 when process is done
@@ -79,7 +81,7 @@ def qaexec(vmid,cmd):
 
   # check for exitcode 127
   if int(pid_check['exitcode']) == 127:
-    kmsg_err(('prox-qaexec-'+vmname), pid_check)
+    kmsg(f'{kname}-qaexec', f' exit code 127: {pid} {cmd}', 'err')
     exit()
 
   # check for err-data
@@ -99,26 +101,29 @@ def qaexec(vmid,cmd):
 # return the node for a vmid
 def get_node(vmid):
 
+  vmid = int(vmid)
+
   # if it exists node is ok
-  if int(vmid) == cluster_id:
+  if vmid == cluster_id:
     return(node)
 
   # check for vm id in proxmox cluster
   for vm in prox.cluster.resources.get(type = 'vm'):
 
     # matching id found
-    if vm.get('vmid') == int(vmid):
+    if vm.get('vmid') == vmid:
 
       # return node vm is running on
       return(vm.get('node'))
 
   # error: node not found
-  kmsg_info('prox_get_node', (vmnames[vmid]+'/'+str(vmid)+' not found'))
+  kmsg(f'{kname}-get-node', f'node for {vmid} not found', 'err')
   exit(0)
 
 # stop and destroy vm
 def destroy(vmid):
-    kname = 'prox-destroy'
+
+    kname = 'proxmox_destroy'
 
     # get node and vmname
     vmid = int(vmid)
@@ -134,11 +139,11 @@ def destroy(vmid):
     try:
       task_status(prox.nodes(node).qemu(vmid).status.stop.post())
       task_status(prox.nodes(node).qemu(vmid).delete())
-      kmsg_info(kname, vmname)
+      kmsg(kname, vmname)
     except:
       # is this image check still required?
       if not cluster_id == vmid:
-        kmsg_err(kname, f'unable to destroy {vmid}')
+        kmsg(kname, f'unable to destroy {vmid}', 'err')
         exit()
 
 # clone
@@ -155,7 +160,7 @@ def clone(vmid):
 
   # hostname
   hostname = vmnames[vmid]
-  kmsg_info('prox-clone', f'{hostname} {ip}')
+  kmsg('proxmox_clone', f'{hostname} {ip} {vm_cpu}c/{vm_ram}G ram {vm_disk}G disk')
 
   # clone
   task_status(prox.nodes(node).qemu(cluster_id).clone.post(newid = vmid))
@@ -197,7 +202,7 @@ def task_status(task_id, node=node):
 
   # if task not completed ok
   if not status["exitstatus"] == "OK":
-    kmsg_err('prox-task-status', f'task exited with non OK status ({status["exitstatus"]})\n' + task_log(task_id))
+    kmsg('proxmox_task-status', (f'task exited with non OK status ({status["exitstatus"]})\n' + task_log(task_id)), 'err')
     exit(0)
 
 # returns the task log
@@ -215,16 +220,13 @@ def task_log(task_id, node=node):
   # return string
   return(logline)
 
-# get file
-def getfile(vmid, path):
-  get_file = prox.nodes(node).qemu(vmid).agent('file-read').get(file = path)
-  return(get_file['content'])
-
 # internet checker
 def internet_check(vmid):
   vmname = vmnames[vmid]
   internet_cmd = 'curl -s --retry 5 --retry-all-errors --connect-timeout 1 www.google.com > /dev/null && echo ok || echo error'
   internet_check = qaexec(vmid, internet_cmd)
+
+  # if curl command fails
   if internet_check == 'error':
-    kmsg_err('network-failure', (vmname + ' no internet access'))
+    kmsg('proxmox_netcheck', f'{vmname} no internet access')
     exit()

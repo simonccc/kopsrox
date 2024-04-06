@@ -2,13 +2,16 @@
 
 # standard imports
 import sys, re, os
-from kopsrox_config import masterid, masters, workers, cluster_name, kmsg_info, kmsg_err, kmsg_sys, kmsg_warn, s3_string, bucket, s3endpoint
+
+# kopsrox
+from kopsrox_config import masterid, masters, workers, cluster_name, s3_string, bucket, s3endpoint
 from kopsrox_proxmox import get_node, qaexec
 from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster, export_k3s_token, kubeconfig
+from kopsrox_kmsg import kmsg
 
 # passed command
 cmd = sys.argv[2]
-kname = 'etcd-' + cmd
+kname = f'{cluster_name}_etcd-{cmd}'
 
 # token filename
 token_fname = cluster_name + '.k3stoken'
@@ -18,7 +21,7 @@ token_fname = cluster_name + '.k3stoken'
 try:
   get_node(masterid)
 except:
-  kmsg_err('etcd-check', 'cluster does not exist')
+  kmsg(f'{kname}-check', 'cluster does not exist', 'err')
   exit(0)
 
 # run k3s s3 command passed
@@ -30,7 +33,7 @@ def s3_run(s3cmd):
 
   # look for fatal error in output
   if re.search('level=fatal', cmd_out):
-    kmsg_err('etcd-s3_run', f'\n {cmd_out}')
+    kmsg(f'{kname}-s3run', f'\n {cmd_out}', 'err')
     exit(0)
 
   # return command outpit
@@ -61,7 +64,7 @@ snapshots = list_snapshots()
 
 # s3 prune
 if cmd == 'prune':
-  kmsg_sys(kname, f'{s3endpoint}/{bucket}\n' + s3_run('prune --name kopsrox'))
+  kmsg(f'{kname}-prune', (f'{s3endpoint}/{bucket}\n' + s3_run('prune --name kopsrox')), 'sys')
   exit(0)
 
 # snapshot 
@@ -80,11 +83,11 @@ if cmd == 'snapshot':
   snapout = snapout.split('\n')
   for line in snapout:
     if re.search('upload complete', line):
-      kmsg_info('etcd-snapshot-out', line)
+      kmsg(kname, line)
 
 # print s3List
 def s3_list():
-  kmsg_info(kname, f'{s3endpoint}/{bucket}\n{snapshots}')
+  kmsg(kname, f'{s3endpoint}/{bucket}\n{snapshots}')
 
 # restore / list snapshots
 if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
@@ -110,20 +113,20 @@ if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
 
   # check passed snapshot name exists
   if not re.search(snapshot,snapshots):
-    kmsg_err(kname, f'{snapshot} not found')
+    kmsg(kname, f'{snapshot} not found', 'err')
     s3_list()
     exit(0)
 
   # check token file exists
   if not os.path.isfile(token_fname):
-    kmsg_err(kname, f'{token_fname} not found exiting.')
+    kmsg(kname, f'{token_fname} not found exiting.', 'err')
     exit(0)
 
   # get token value
   token = open(token_fname, "r").read()
 
   # info
-  kmsg_sys(kname,f'restoring {snapshot}')
+  kmsg(kname,f'restoring {snapshot}', 'sys')
 
   # remove all nodes apart from image and master
   if (workers >= 1 or masters == 3 ):
@@ -144,7 +147,7 @@ systemctl start k3s'
     # if output contains fatal error
     if re.search('level=fatal', line):
       print(line)
-      print(kname, 'fatal error. exiting')
+      kmsg(kname, 'fatal error', 'err')
       exit(0)
 
     # filter these lines
@@ -153,7 +156,7 @@ systemctl start k3s'
     and not re.search('Cluster CA certificate is trusted by the host CA bundle', line) \
     and not re.search('Bootstrap key already exists', line) \
     :
-      kmsg_info('etcd-restore-out', line)
+      kmsg(kname, line)
 
   # delete extra nodes in the restored cluster
   nodes = kubectl('get nodes').split()
@@ -163,7 +166,7 @@ systemctl start k3s'
 
     # if matches cluster name and not master node
     if re.search(f'{cluster_name}-', node) and (node != f'{cluster_name}-m1'):
-      kmsg_sys(kname, f'removing stale node {node}')
+      kmsg(kname, f'removing stale node {node}', 'warn')
 
       # need to check this..
       kubectl(f'delete node {node}')

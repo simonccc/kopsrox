@@ -355,7 +355,7 @@ except:
       exit(0)
   except:
     # no image found
-    kmsg(kname, 'no template detected "kopsrox image create"', 'err')
+    kmsg(kname, 'no template detected - please run "kopsrox image create"', 'err')
     exit(0)
 
   # get image info
@@ -427,8 +427,9 @@ def local_os_process(cmd):
 
 # print image info
 def image_info():
-  kmsg_sys('image-info', 'displaying image info')
-  kmsg_info('image-desc', cloud_image_desc)
-  kmsg_info('image-storage', (kopsrox_img() + ' ('+ storage_type + ')'))
-  kmsg_info('image-created', cloud_image_created)
-  kmsg_info('image-size', (str(cloud_image_size)+'G'))
+  kname = f'{cluster_name}_image-'
+  kmsg(f'{kname}info', 'displaying image info','sys')
+  kmsg(f'{kname}desc', cloud_image_desc)
+  kmsg(f'{kname}storage', f'{kopsrox_img()} ({storage_type})')
+  kmsg(f'{kname}created', cloud_image_created)
+  kmsg(f'{kname}size', f'{cloud_image_size}G')
