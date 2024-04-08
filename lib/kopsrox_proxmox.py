@@ -7,7 +7,7 @@ import time, re
 from kopsrox_config import prox, vmip, kmsg_vm_info
 
 # vars
-from kopsrox_config import config,node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns,cluster_name
+from kopsrox_config import config,node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns,cluster_name, network_mtu
 
 from kopsrox_kmsg import kmsg
 
@@ -170,7 +170,7 @@ def clone(vmid):
     onboot = 1,
     cores = vm_cpu,
     memory = memory,
-    net0 = (f'model=virtio,bridge={network_bridge}'),
+    net0 = (f'model=virtio,bridge={network_bridge},mtu={network_mtu}'),
     ipconfig0 = (f'gw={network_gw},ip={ip}'),
     description = (f'{vmid}:{hostname}:{ip}') 
   ))

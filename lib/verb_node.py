@@ -23,9 +23,9 @@ kname = 'node_'+cmd
 
 # terminal + destroy
 if cmd == 'terminal' or cmd == 'destroy':
-  kmsg(kname, arg, 'sys')
   for vmid in vms:
     if arg == vmnames[vmid]:
+      kmsg(kname, arg, 'sys')
 
       # terminal 
       if cmd == 'terminal':
@@ -47,7 +47,7 @@ if cmd == 'utility':
   utility_vm_id = cluster_id + 4 
 
   # check to see if already exists
-  if utility_vm_id not in vms():
+  if utility_vm_id not in vms:
     kmsg(kname, 'creating utility node', 'sys')
     clone(utility_vm_id)
   else:

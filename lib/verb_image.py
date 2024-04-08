@@ -5,7 +5,7 @@ from kopsrox_config import prox, kopsrox_img, local_os_process, image_info, clou
 kopsrox_img = kopsrox_img()
 
 # variables
-from kopsrox_config import node, storage, cluster_id, cloud_image_url, network_bridge, cluster_name, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network_ip, network_mask, storage_type, network_dns
+from kopsrox_config import node, storage, cluster_id, cloud_image_url, network_bridge, cluster_name, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network_ip, network_mask, storage_type, network_dns, network_mtu
 
 # general imports
 import wget,sys,os
@@ -76,7 +76,7 @@ fi'''
     memory = 2048,
     cpu = ('cputype=host'),
     scsihw = 'virtio-scsi-pci',
-    net0 = (f'model=virtio,bridge={network_bridge}'),
+    net0 = (f'model=virtio,bridge={network_bridge},mtu={network_mtu}'),
     boot = 'c',
     name = (f'{cluster_name}-i0'),
     ostype = 'l26',

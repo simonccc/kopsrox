@@ -98,7 +98,7 @@ try:
   if cmds[verb][cmd] and sys.argv[3]:
     pass
 except:
-  kmsg(f'kopsrox {verb} {cmd} [{cmds[verb][cmd]}]')
+  kmsg(f'kopsrox_{verb}', f'{cmd} [{cmds[verb][cmd]}]')
   exit(0)
 
 # run passed verb

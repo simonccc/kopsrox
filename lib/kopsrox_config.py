@@ -58,7 +58,7 @@ def conf_check(section,value):
   config_item = kopsrox_config.get(section, value)
 
   # int check
-  if value in ['port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters']:
+  if value in ['port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters', 'network_mtu']:
 
     # test if var is int
     try:
@@ -94,7 +94,7 @@ storage = conf_check('proxmox','storage')
 cloud_image_url = conf_check('kopsrox','cloud_image_url')
 vm_disk = int(conf_check('kopsrox','vm_disk'))
 vm_cpu = int(conf_check('kopsrox','vm_cpu'))
-vm_ram = int(conf_check('kopsrox','vm_ram'))
+vm_ram = conf_check('kopsrox','vm_ram')
 
 # cloudinit
 cloudinituser = conf_check('kopsrox','cloudinituser')
@@ -107,6 +107,8 @@ network_gw = conf_check('kopsrox','network_gw')
 network_mask = conf_check('kopsrox','network_mask')
 network_dns = conf_check('kopsrox', 'network_dns')
 network_bridge = conf_check('kopsrox','network_bridge')
+network_mtu = conf_check('kopsrox','network_mtu')
+
 
 # variables for network and its IP for vmip function
 network_octs = network_ip.split('.')

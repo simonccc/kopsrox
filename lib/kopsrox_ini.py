@@ -94,6 +94,10 @@ def init_kopsrox_ini():
   config.set('kopsrox', '; dns server for network')
   config.set('kopsrox', 'network_dns', '192.168.0.1')
 
+  # network mtu
+  config.set('kopsrox', '; interface mtu set on vms ')
+  config.set('kopsrox', 'network_mtu', '1500')
+
   # cluster section
   config.add_section('cluster')
 
