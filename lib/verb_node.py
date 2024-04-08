@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import vmnames,cluster_info, cluster_id, list_kopsrox_vm, list_kopsrox_vm, cluster_name
+from kopsrox_config import vmnames,cluster_info, cluster_id, vms
 from kopsrox_k3s import k3s_rm
 from kopsrox_proxmox import clone
 from kopsrox_kmsg import kmsg
@@ -19,12 +19,12 @@ except:
   pass
 
 # define kname
-kname = cluster_name+'-node-'+cmd
+kname = 'node_'+cmd
 
 # terminal + destroy
 if cmd == 'terminal' or cmd == 'destroy':
   kmsg(kname, arg, 'sys')
-  for vmid in list_kopsrox_vm():
+  for vmid in vms:
     if arg == vmnames[vmid]:
 
       # terminal 
@@ -47,7 +47,7 @@ if cmd == 'utility':
   utility_vm_id = cluster_id + 4 
 
   # check to see if already exists
-  if utility_vm_id not in list_kopsrox_vm():
+  if utility_vm_id not in vms():
     kmsg(kname, 'creating utility node', 'sys')
     clone(utility_vm_id)
   else:

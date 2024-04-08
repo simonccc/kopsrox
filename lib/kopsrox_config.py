@@ -23,7 +23,7 @@ import subprocess
 from datetime import datetime
 
 # colors
-from termcolor import colored, cprint
+#from termcolor import colored, cprint
 from kopsrox_kmsg import kmsg
 
 # read ini file into config
@@ -33,45 +33,6 @@ kopsrox_config.read('kopsrox.ini')
 
 # kname 
 kname='kopsrox_config-check'
-
-# kopsrox prompt
-def kmsg_prompt():
-
-  # needs to have cluster name defined
-  try:
-    cprint(cluster_name, "blue",attrs=["bold"], end='')
-    cprint(':', "cyan", end='' )
-  except:
-    pass
-
-# print normal output
-def kmsg_info(kname, msg):
-  kmsg_prompt()
-  cprint(kname, "green", end='')
-  cprint(': ', "cyan", end='' )
-  print(msg)
-
-# print warning
-def kmsg_warn(kname, msg):
-  kmsg_prompt()
-  cprint(kname, "red", attrs=["bold"], end='')
-  cprint(': ', "cyan", end='')
-  print(msg)
-
-# system lvl
-def kmsg_sys(kname, msg):
-  kmsg_prompt()
-  cprint(kname, "magenta",  attrs=["bold"], end='')
-  cprint(': ', "cyan", end='')
-  print(msg)
-
-# print error msg
-def kmsg_err(kname, msg):
-  kmsg_prompt()
-  cprint(kname, "red", attrs=["bold"], end='')
-  cprint(': ', "cyan", end='' )
-  if not msg == '':
-    print(msg)
 
 # check section and value exists in kopsrox.ini
 def conf_check(section,value):

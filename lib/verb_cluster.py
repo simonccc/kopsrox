@@ -13,7 +13,7 @@ import sys
 cmd = sys.argv[2]
 
 # define kname
-kname = cluster_name+'_cluster-'+cmd
+kname = 'cluster_'+cmd
 
 # info
 if cmd == 'info':

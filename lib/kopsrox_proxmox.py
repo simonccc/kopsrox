@@ -11,12 +11,11 @@ from kopsrox_config import config,node,network_bridge,cluster_id,vmnames,vm_cpu,
 
 from kopsrox_kmsg import kmsg
 
-# kname
-kname = cluster_name+'_prox'
-
 # run a exec via qemu-agent
 # find out what doesn't call this as an int
 def qaexec(vmid,cmd):
+
+  kname = 'proxmox_qaexec'
 
   # get vmname
   vmname = vmnames[int(vmid)]
@@ -47,7 +46,7 @@ def qaexec(vmid,cmd):
 
       # exit if longer than 30 seconds
       if qagent_count == 30:
-        kmsg(f'{kname}-qaexec', f'agent not responding on {vmname} [{node}] cmd: {cmd}', 'err')
+        kmsg(kname, f'agent not responding on {vmname} [{node}] cmd: {cmd}', 'err')
         exit(0)
 
       # sleep 1 second then try again
@@ -60,7 +59,7 @@ def qaexec(vmid,cmd):
             command = "sh -c \'" + cmd +"\'",
             )
   except:
-    kmsg(f'{kname}-qaexec', f' problem running cmd: {cmd}', 'err')
+    kmsg(kname, f'problem running cmd: {cmd}', 'err')
     print(qa_exec)
     exit(0)
 
@@ -73,7 +72,7 @@ def qaexec(vmid,cmd):
     try:
       pid_check = prox.nodes(node).qemu(vmid).agent('exec-status').get(pid = pid)
     except:
-      kmsg(f'{kname}-qaexec', f' problem with pid: {pid} {cmd}', 'err')
+      kmsg(kname, f'problem with pid: {pid} {cmd}', 'err')
       exit(0)
 
     # will equal 1 when process is done
@@ -81,7 +80,7 @@ def qaexec(vmid,cmd):
 
   # check for exitcode 127
   if int(pid_check['exitcode']) == 127:
-    kmsg(f'{kname}-qaexec', f' exit code 127: {pid} {cmd}', 'err')
+    kmsg(kname, f'exit code 127: {pid} {cmd}', 'err')
     exit()
 
   # check for err-data
@@ -117,7 +116,7 @@ def get_node(vmid):
       return(vm.get('node'))
 
   # error: node not found
-  kmsg(f'{kname}-get-node', f'node for {vmid} not found', 'err')
+  kmsg('proxmox_get-node', f'node for {vmid} not found', 'err')
   exit(0)
 
 # stop and destroy vm
@@ -171,6 +170,7 @@ def clone(vmid):
     onboot = 1,
     cores = vm_cpu,
     memory = memory,
+    net0 = (f'model=virtio,bridge={network_bridge}'),
     ipconfig0 = (f'gw={network_gw},ip={ip}'),
     description = (f'{vmid}:{hostname}:{ip}') 
   ))
