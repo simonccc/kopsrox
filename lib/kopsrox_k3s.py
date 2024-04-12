@@ -1,7 +1,7 @@
 #!/usr/bin/env python3 
 
 # imports
-from kopsrox_config import masterid, config, k3s_version, masters, workers, cluster_name, vmnames, vmip, cluster_info, list_kopsrox_vm
+from kopsrox_config import masterid, k3s_version, masters, workers, cluster_name, vmnames, vmip, cluster_info, list_kopsrox_vm
 
 # standard imports
 from kopsrox_proxmox import qaexec, destroy, internet_check, clone
@@ -9,11 +9,6 @@ from kopsrox_kmsg import kmsg
 
 # standard imports
 import re, time
-
-# define k3s commands
-k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}" '
-k3s_install_master = k3s_install_base + 'sh -s - server --cluster-init'
-k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{vmip(masterid)}:6443" '
 
 # check for k3s status
 def k3s_check(vmid):
@@ -41,6 +36,9 @@ def k3s_check(vmid):
 # wait for node
 def k3s_check_mon(vmid):
 
+  # how long to wait for
+  wait = int(30)
+
   # check count
   count = int(0)
 
@@ -52,14 +50,19 @@ def k3s_check_mon(vmid):
     time.sleep(1)
 
     # timeout after 30 secs
-    if count == 30:
-      kmsg('k3s_check-mon', f'timed out after 30s for {vmnames[vmid]}', 'err')
+    if count == wait:
+      kmsg('k3s_check-mon', f'timed out after {wait}s for {vmnames[vmid]}', 'err')
       exit(0)
 
   return True
 
 # create a master/slave/worker
 def k3s_init_node(vmid = masterid,nodetype = 'master'):
+
+  k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}"'
+  k3s_install_flags = ' --disable servicelb'
+  k3s_install_master = f'{k3s_install_base} sh -s - server --cluster-init {k3s_install_flags}'
+  k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{vmip(masterid)}:6443" '
   
   # nodetype error check
   if nodetype not in ['master', 'slave', 'worker']:
@@ -81,24 +84,25 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
 
     # get k3s token
     token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
-    k3s_token_cmd = ' K3S_TOKEN=\"' + token + '\"'
+    k3s_token_cmd = f' K3S_TOKEN="{token}"'
 
     # slave
     if nodetype == 'slave':
-      init_cmd = k3s_install_base  + k3s_token_cmd + ' sh -s - server --server ' + 'https://' + vmip(masterid) + ':6443'
+      init_cmd = f'{k3s_install_base}{k3s_token_cmd} sh -s - server --server https://{vmip(masterid)}:6443 {k3s_install_flags}'
 
     # worker
     if nodetype == 'worker':
-      init_cmd = k3s_install_worker + k3s_token_cmd + ' sh -s'
+      init_cmd = f'{k3s_install_worker}{k3s_token_cmd} sh -s'
 
     # run command
-    qaexec(vmid,init_cmd)
+    print(init_cmd)
+    init_cmd_out = qaexec(vmid,init_cmd)
 
     # wait until ready
     try:
       k3s_check_mon(vmid)
     except:
-      kmsg(f'k3s_{nodetype}-init', vmnames[vmid], 'err')
+      kmsg(f'k3s_{nodetype}-init', f'{vmnames[vmid]} {init_cmd_out}', 'err')
       exit()
 
     # export kubeconfig 
@@ -216,11 +220,11 @@ def k3s_update_cluster():
 
 # kubeconfig
 def kubeconfig():
-  # replace with masters ip
-  kconfig = (qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml')).replace('127.0.0.1', vmip(masterid))
+  # replace 127.0.0.1 with m1 ip
+  kconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml').replace('127.0.0.1', vmip(masterid))
 
   # write file out
-  with open((cluster_name +'.kubeconfig'), 'w') as kfile:
+  with open(f'{cluster_name}.kubeconfig','w') as kfile:
     kfile.write(kconfig)
   kmsg('k3s_kubeconfig', ('saved ' + (cluster_name +'.kubeconfig')))
 

@@ -92,8 +92,8 @@ storage = conf_check('proxmox','storage')
 
 # kopsrox config checks
 cloud_image_url = conf_check('kopsrox','cloud_image_url')
-vm_disk = int(conf_check('kopsrox','vm_disk'))
-vm_cpu = int(conf_check('kopsrox','vm_cpu'))
+vm_disk = conf_check('kopsrox','vm_disk')
+vm_cpu = conf_check('kopsrox','vm_cpu')
 vm_ram = conf_check('kopsrox','vm_ram')
 
 # cloudinit
@@ -109,7 +109,6 @@ network_dns = conf_check('kopsrox', 'network_dns')
 network_bridge = conf_check('kopsrox','network_bridge')
 network_mtu = conf_check('kopsrox','network_mtu')
 
-
 # variables for network and its IP for vmip function
 network_octs = network_ip.split('.')
 network_base = f'{network_octs[0]}.{network_octs[1]}.{network_octs[2]}.'
@@ -122,7 +121,7 @@ if not (masters == 1 or masters == 3):
   exit(0)
 
 # workers
-workers = int(conf_check('cluster','workers'))
+workers = conf_check('cluster','workers')
 
 # k3s version
 k3s_version = conf_check('cluster','k3s_version')
@@ -390,8 +389,7 @@ def local_os_process(cmd):
 
 # print image info
 def image_info():
-  kname = f'{cluster_name}_image-'
-  kmsg(f'{kname}info', 'displaying image info','sys')
+  kname = f'image_'
   kmsg(f'{kname}desc', cloud_image_desc)
   kmsg(f'{kname}storage', f'{kopsrox_img()} ({storage_type})')
   kmsg(f'{kname}created', cloud_image_created)
