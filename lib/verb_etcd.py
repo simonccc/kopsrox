@@ -11,7 +11,7 @@ from kopsrox_kmsg import kmsg
 
 # passed command
 cmd = sys.argv[2]
-kname = f'{cluster_name}_etcd-{cmd}'
+kname = f'etcd_{cmd}'
 
 # token filename
 token_fname = cluster_name + '.k3stoken'

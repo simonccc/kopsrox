@@ -237,8 +237,8 @@ def kmsg_vm_info(vmid):
    vms = list_kopsrox_vm()
    vmid = int(vmid)
    try:
-     vmstatus = f'{vmid} [{vms[vmid]}] {vmip(vmid)}/{network_mask}'
-     kmsg(f'{cluster_name}_{vmnames[vmid]}', f'{vmstatus}', 'info')
+     vmstatus = f'[{vms[vmid]}] {vmip(vmid)}/{network_mask}'
+     kmsg(f'{vmnames[vmid]}_{vmid}', f'{vmstatus}')
    except:
      kmsg(kname, f'kmsg-vm-info {vmid} id not found', 'err')
      print(vms)
@@ -367,7 +367,7 @@ def vmip(vmid):
 
 # cluster info
 def cluster_info():
-  kmsg(f'{cluster_name}_cluster-info', '', 'sys')
+  kmsg(f'cluster_info', '', 'sys')
 
   # for kopsrox vms
   for vmid in list_kopsrox_vm():
