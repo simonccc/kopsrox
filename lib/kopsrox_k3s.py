@@ -60,7 +60,7 @@ def k3s_check_mon(vmid):
 def k3s_init_node(vmid = masterid,nodetype = 'master'):
 
   k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}"'
-  k3s_install_flags = ' --disable servicelb'
+  k3s_install_flags = f' --disable servicelb --tls-san {vmip(masterid -1)}'
   k3s_install_master = f'{k3s_install_base} sh -s - server --cluster-init {k3s_install_flags}'
   k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{vmip(masterid)}:6443" '
   
@@ -95,7 +95,7 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
       init_cmd = f'{k3s_install_worker}{k3s_token_cmd} sh -s'
 
     # run command
-    print(init_cmd)
+    #print(init_cmd)
     init_cmd_out = qaexec(vmid,init_cmd)
 
     # wait until ready
