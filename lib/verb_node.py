@@ -2,7 +2,7 @@
 
 # functions
 from kopsrox_config import vmnames,cluster_info, cluster_id, vms
-from kopsrox_k3s import k3s_rm
+from kopsrox_k3s import k3s_remove_node
 from kopsrox_proxmox import clone
 from kopsrox_kmsg import kmsg
 
@@ -34,7 +34,7 @@ if cmd == 'terminal' or cmd == 'destroy':
 
       # destroy
       if cmd == 'destroy':
-        k3s_rm(vmid)
+        k3s_remove_node(vmid)
         exit(0)
 
   # vm not found 

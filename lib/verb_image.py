@@ -21,7 +21,7 @@ from kopsrox_kmsg import kmsg
 
 # define command
 cmd = sys.argv[2]
-kname = cluster_name+'_image-'+cmd
+kname = 'image_'+cmd
 
 # create image
 if cmd == 'create':
@@ -35,7 +35,7 @@ if cmd == 'create':
   print()
 
   # patch image 
-  kmsg(f'{kname}-virt-customize', 'installing qemu-guest-agent')
+  kmsg(f'{kname}', 'installing qemu-guest-agent')
 
   # script to install qemu-guest-agent on multiple os's disable selinux on Rocky
   install_qga = '''
@@ -100,7 +100,7 @@ sudo qm set {cluster_id} --virtio0 {storage}:0,import-from={os.getcwd()}/{cloud_
 mv {cloud_image} {cloud_image}.patched'
 
   # run shell command to import
-  kmsg(f'{kname}-qm-import', f'{storage}/{cluster_id}')
+  kmsg(f'{kname}', f'qm import to {storage}/{cluster_id}')
   local_os_process(import_cmd)
 
   # convert to template via create base disk also vm config

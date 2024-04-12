@@ -29,7 +29,7 @@ if cmd == 'create':
 
   # if masterid not found running 
   if not masterid in list_kopsrox_vm():
-    kmsg(kname,f'creating fresh cluster: {cluster_name}/{cluster_id}', 'sys')
+    kmsg(kname,f'{cluster_name}/{cluster_id}', 'sys')
     clone(masterid)
 
   # install k3s on master
@@ -59,7 +59,7 @@ if cmd == 'kubectl':
   kcmd = kcmd.replace('cluster kubectl ','')
 
   # run command and show output
-  kmsg_sys('kubectl', kcmd)
+  kmsg('kubectl_cmd', kcmd, 'sys')
   print(kubectl(kcmd))
 
 # export kubeconfig to file

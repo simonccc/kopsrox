@@ -106,7 +106,7 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
       kubeconfig()
 
 # remove a node
-def k3s_rm(vmid):
+def k3s_remove_node(vmid):
   vmname = vmnames[vmid]
   kmsg('k3s_remove-node', vmname)
 
@@ -141,7 +141,7 @@ def k3s_rm_cluster(restore = False):
     if vmname == f'{cluster_name}-m1':
       destroy(vmid)
     else:
-      k3s_rm(vmid)
+      k3s_remove_node(vmid)
 
 # builds or removes other nodes from the cluster as required per config
 def k3s_update_cluster():
@@ -180,7 +180,7 @@ def k3s_update_cluster():
      # if vm is in the range of masterids
      if vm == (masterid + 1 ) or vm == (masterid + 2 ):
        # remove the vm
-       k3s_rm(vm)
+       k3s_remove_node(vm)
 
  # define default workerid ( -1 ) 
  workerid = masterid + 3
@@ -209,7 +209,7 @@ def k3s_update_cluster():
  for vm in vmids:
    if vm > workerid:
      kmsg('k3s_extra-worker', vmnames[vm])
-     k3s_rm(vm)
+     k3s_remove_node(vm)
 
  # display cluster info
  cluster_info()
