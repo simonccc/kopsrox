@@ -1,6 +1,4 @@
 
-# :performing_arts: kopsrox
-<img src="kopsrox.png" height=200 />
 
 # :baby_symbol: setup 
 
