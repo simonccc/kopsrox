@@ -315,6 +315,10 @@ except:
     # exit if image does not exist
     if not kopsrox_img():
       exit(0)
+
+    # assign variable name
+    kopsrox_image_name = kopsrox_img()
+
   except:
     # no image found
     kmsg(kname, 'no template detected - please run "kopsrox image create"', 'err')
@@ -322,7 +326,7 @@ except:
 
   # get image info
   try:
-    cloud_image_data = prox.nodes(node).storage(storage).content(kopsrox_img()).get()
+    cloud_image_data = prox.nodes(node).storage(storage).content(kopsrox_image_name).get()
 
     # check image not too large for configured disk
     cloud_image_size = int(cloud_image_data['size'] / 1073741824 )
@@ -391,6 +395,6 @@ def local_os_process(cmd):
 def image_info():
   kname = f'image_'
   kmsg(f'{kname}desc', cloud_image_desc)
-  kmsg(f'{kname}storage', f'{kopsrox_img()} ({storage_type})')
+  kmsg(f'{kname}storage', f'{kopsrox_image_name} ({storage_type})')
   kmsg(f'{kname}created', cloud_image_created)
   kmsg(f'{kname}size', f'{cloud_image_size}G')

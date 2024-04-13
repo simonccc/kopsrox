@@ -70,7 +70,3 @@ if cmd == 'kubeconfig':
 if cmd == 'destroy':
   kmsg(kname, f'!! destroying {cluster_name} !!', 'sys')
   k3s_rm_cluster()
-
-# write k3s token to file
-if cmd == 'k3stoken':
-  export_k3s_token()

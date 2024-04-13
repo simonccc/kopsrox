@@ -16,8 +16,9 @@ if not os.path.isfile('kopsrox.ini'):
 # kopsrox verbs and commands
 cmds = {
   "image": {
-    "info" : '',
     "create" : '',
+    "info" : '',
+    "update": '',
     "destroy": '',
   },
   "cluster": {
@@ -27,6 +28,8 @@ cmds = {
     "destroy" : '',
     "kubectl" : 'cmd',
     "kubeconfig" : '',
+  },
+  "k3s": {
     "k3stoken" : '',
   },
   "etcd": {
@@ -51,8 +54,8 @@ verbs = list(cmds)
 def verbs_help():
   kmsg('kopsrox_usage', '[verb] [command]')
   print('verbs:')
-  for i in verbs:
-    print(' * ',i)
+  for kverb in verbs:
+    print(f'- {kverb}')
 
 # print verbs cmds
 def cmds_help(verb):
@@ -62,11 +65,11 @@ def cmds_help(verb):
 
     # if command with required arg
     if cmds[verb][verb_cmd]:
-      print(' * ', f'{verb_cmd} [{cmds[verb][verb_cmd]}]')
+      print(f'- {verb_cmd} [{cmds[verb][verb_cmd]}]')
     else:
-      print(' * ', f'{verb_cmd}')
+      print(f'- {verb_cmd}')
 
-# handle verb
+# handle verb parameter
 try:
 
   # check for 1st argument
@@ -78,6 +81,8 @@ try:
     # if verb not found in cmds dict
     if not verb in verbs:
       exit()
+
+# verb not found or passed
 except:
   verbs_help()
   exit()
@@ -85,16 +90,15 @@ except:
 # handle command
 try:
 
-  # 2nd arg
+  # 2nd arg = cmd
   if sys.argv[2]:
-
-    # map 2nd arg to cmd
     cmd = sys.argv[2]
 
     # if cmd not in list of commands
     if not cmd in list(cmds[verb]):
       exit()
 
+# 
 except:
   cmds_help(verb)
   exit()

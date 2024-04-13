@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import prox, kopsrox_img, local_os_process, image_info, cloud_image_desc
-kopsrox_img = kopsrox_img()
+from kopsrox_config import prox, local_os_process, image_info, cloud_image_desc, kopsrox_img
 
 # variables
 from kopsrox_config import node, storage, cluster_id, cloud_image_url, cluster_name, cloudinitsshkey, cloudinituser, cloudinitpass
@@ -110,9 +109,5 @@ if cmd == 'info':
 
 # destroy image
 if cmd == 'destroy':
-  # check image exists
-  if (kopsrox_img):
-    kmsg(kname, f'{kopsrox_img}/{cloud_image_desc}', 'sys')
-    destroy(cluster_id)
-  else:
-    kmsg(kname, 'no image found')
+   kmsg(kname, f'{kopsrox_img()}/{cloud_image_desc}', 'warn')
+   destroy(cluster_id)
