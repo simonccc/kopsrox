@@ -2,9 +2,11 @@
 
 ## setup kopsrox.ini
 
-`./kopsrox.py`
+`./kopsrox.py` - a default kopsrox.ini will be created
 
-follow the guide in [CONFIG.md](CONFIG.md)
+you will need to edit this for your setup
+
+follow the guide in [SETUP.md](SETUP.md)
 
 ## create an image
 
@@ -16,7 +18,7 @@ follow the guide in [CONFIG.md](CONFIG.md)
 
 ## add a worker
 
-Edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
+edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 
 `./kopsrox.py cluster update`
 
@@ -29,3 +31,7 @@ Edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 Configure 'kopsrox.ini' with suitable s3 details for your provider
 
 `./kopsrox.py etcd snapshot`
+
+## restore the latest snapshot
+
+`./kopsrox.py etcd restore-latest`

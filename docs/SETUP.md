@@ -6,10 +6,10 @@
 
 ## :hammer_and_wrench: requirements
 
-- a user with password less sudo access on a proxmox VE host  ( tested up to 8.1.3 ) 
-- network with internet access configured in proxmox as a bridge or sdn network
-- a range of 10 free Proxmox 'vmids' eg 600 to 610
-- a range of 10 IP's on your network for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
+- Proxmox VE with root access or a user who can 'sudo su' without a password
+- network with internet access configured in proxmox as a bridge or a proxmox sdn network
+- a range of 10 free Proxmox qm/virtual machine id 'vmids' eg 600 to 610
+- a range of 10 IP's on a network for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
 - clone the repo and follow the steps below 
 
 ## :bricks: install packages
@@ -35,7 +35,7 @@ Most values should be obvious and commented accordingly - see below for more inf
 
 ## :computer: cluster_id 
 
-`620` - the proxmox id used for the kopsrox image/template and the basis of the cluster
+`620` - the proxmox id used for the kopsrox image/template - and the first id in the range required by kopsrox
 
 kopsrox uses a simple static id/ip assignment scheme based on the `[cluster] - cluster_id` and `[kopsrox] - network_ip` settings 
 
@@ -50,9 +50,11 @@ cluster_id = 620
 cluster_name = kopsrox
 ```
 
+would result in this:
+
 |-|vmid|ip|type|host|
 |--|--|--|--|--|
-|0|620|192.168.0.170|image|kopsrox-i1|
+|0|620|192.168.0.170|image/VIP|kopsrox-i1|
 |1|621|192.168.0.171|master 1|kopsrox-m1|
 |2|622|192.168.0.172|master 2|kopsrox-m2|
 |3|623|192.168.0.173|master 3|kopsrox-m3|

@@ -1,11 +1,9 @@
 # 🏭 kopsrox
 
-- cli to automate creation and management of a k3s cluster on Proxmox VE using cloud images :nerd_face:
-- add more master/worker nodes using simple config file and cli commands :pray:
+- cli to automate creation and management of simple k3s cluster on ProxmoxVE using cloud images :nerd_face:
+- add more master/worker k3s nodes using a simple config file and cli commands :pray:
 - easy management of etcd S3 snapshot/restore commands :floppy_disk:
-- cloud image setup with cloudinit networking and ssh / user access :busts_in_silhouette:
-- run kubectl commands or export the kubeconfig via the build in commands :nerd_face:  
-- in development but should be reasonably stable - check the branches for stable versions :horse_racing:
+- run kubectl commands directly or export the kubeconfig via the build in commands :nerd_face:  
 
 # :book: docs
 
@@ -17,7 +15,6 @@
 # :boom: in progress 
  - Improving Docs
  - Some code clean up
- - Variable names sort out
- - Recent: more cloud images supported / proxmox SDN support 
- - New! dns config added 
- - New! etcd restore and token writing clean up / restore latest snapshot
+ - Recent: lots of code clean up / kmsg sort out
+ - New! k3s menu
+ - New! node ssh cmd
