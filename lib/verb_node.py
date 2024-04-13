@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import vmnames,cluster_info, cluster_id, vms
+from kopsrox_config import vmnames,cluster_info, cluster_id, vms, vmip, cloudinituser
 from kopsrox_k3s import k3s_remove_node
 from kopsrox_proxmox import clone
 from kopsrox_kmsg import kmsg
@@ -22,8 +22,12 @@ except:
 kname = 'node_'+cmd
 
 # terminal + destroy
-if cmd == 'terminal' or cmd == 'destroy':
+if cmd in ['terminal', 'ssh', 'destroy']:
+
+  # for each vmid in list of vms generated in kopsrox_config
   for vmid in vms:
+
+    # if passed arg matches vmname
     if arg == vmnames[vmid]:
       kmsg(kname, arg, 'sys')
 
@@ -32,7 +36,12 @@ if cmd == 'terminal' or cmd == 'destroy':
         os.system(f'sudo qm terminal {vmid}')
         exit(0)
 
-      # destroy
+      # ssh command
+      if cmd == 'ssh':
+        os.system(f'ssh -l {cloudinituser} {vmip(vmid)} -o StrictHostKeyChecking=no ')
+        exit(0)
+
+      # destroy vm
       if cmd == 'destroy':
         k3s_remove_node(vmid)
         exit(0)

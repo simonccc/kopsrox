@@ -5,7 +5,7 @@ from kopsrox_config import prox, kopsrox_img, local_os_process, image_info, clou
 kopsrox_img = kopsrox_img()
 
 # variables
-from kopsrox_config import node, storage, cluster_id, cloud_image_url, network_bridge, cluster_name, cloudinitsshkey, cloudinituser, cloudinitpass, network_gw, network_ip, network_mask, storage_type, network_dns, network_mtu
+from kopsrox_config import node, storage, cluster_id, cloud_image_url, cluster_name, cloudinitsshkey, cloudinituser, cloudinitpass
 
 # general imports
 import wget,sys,os
@@ -76,22 +76,19 @@ fi'''
     memory = 2048,
     cpu = ('cputype=host'),
     scsihw = 'virtio-scsi-pci',
-    net0 = (f'model=virtio,bridge={network_bridge},mtu={network_mtu}'),
     boot = 'c',
     name = (f'{cluster_name}-i0'),
     ostype = 'l26',
     ide2 = (f'{storage}:cloudinit'),
     tags = cluster_name,
     serial0 = 'socket',
-    agent = ('enabled=true,fstrim_cloned_disks=1'),
+    agent = ('enabled=true'),
     hotplug = 0,
     ciupgrade = 0,
     description = cloud_image,
     ciuser = cloudinituser, 
     cipassword = cloudinitpass,
     sshkeys = ssh_encode,
-    nameserver = network_dns,
-    ipconfig0 = (f'gw={network_gw},ip={network_ip}/{network_mask}'), 
   ))
 
   # shell to import disk

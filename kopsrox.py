@@ -40,6 +40,7 @@ cmds = {
     "destroy" : 'hostname',
     "utility" : '',
     "terminal" : 'hostname',
+    "ssh" : 'hostname',
   },
 }
 
@@ -57,8 +58,13 @@ def verbs_help():
 def cmds_help(verb):
   kmsg(f'kopsrox_{verb}', '[command]')
   print('commands:')
-  for i in list(cmds[verb]):
-    print(' * ',i)
+  for verb_cmd in list(cmds[verb]):
+
+    # if command with required arg
+    if cmds[verb][verb_cmd]:
+      print(' * ', f'{verb_cmd} [{cmds[verb][verb_cmd]}]')
+    else:
+      print(' * ', f'{verb_cmd}')
 
 # handle verb
 try:
@@ -93,7 +99,7 @@ except:
   cmds_help(verb)
   exit()
 
-# handle args
+# handle commands with required args eg 'node ssh hostname'
 try:
   if cmds[verb][cmd] and sys.argv[3]:
     pass

@@ -3,18 +3,16 @@
 # imports
 import time, re
 
-# functions 
+# kopsrox
 from kopsrox_config import prox, vmip, kmsg_vm_info
-
-# vars
-from kopsrox_config import config,node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns,cluster_name, network_mtu
-
+from kopsrox_config import node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns,network_mtu, network_dns
 from kopsrox_kmsg import kmsg
 
 # run a exec via qemu-agent
 # find out what doesn't call this as an int
 def qaexec(vmid,cmd):
 
+  # define kname
   kname = 'proxmox_qaexec'
 
   # get vmname
@@ -26,7 +24,7 @@ def qaexec(vmid,cmd):
   # qagent no yet running check
   qagent_running = 'false'
 
-  # max wait time/
+  # max wait time
   qagent_count = int(0)
 
   # while variable is false
@@ -172,6 +170,7 @@ def clone(vmid):
     memory = memory,
     net0 = (f'model=virtio,bridge={network_bridge},mtu={network_mtu}'),
     ipconfig0 = (f'gw={network_gw},ip={ip}'),
+    nameserver = network_dns,
     description = (f'{vmid}:{hostname}:{ip}') 
   ))
 

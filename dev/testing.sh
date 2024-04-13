@@ -35,10 +35,9 @@ MC="kc masters 1 ; kc workers 0"
 #kc workers 0 ; $KCU ; kc workers 3 ; $KCU ; kc workers 0 ; $KCU
 #kc masters 3 ; $KCU ; kc masters 1  ; $KCU
 
-# image testing stuff
+# destroy image create cluster create restore latest
 $KCD ; $KIC ; $KCC ; $KERL
 
 
 finish_time=$(date +%s) 
-
 echo  $((finish_time - start_time)) secs
