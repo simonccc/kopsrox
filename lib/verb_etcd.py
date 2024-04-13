@@ -51,10 +51,9 @@ def list_snapshots():
   # for each image in the sorted list
   for line in sorted(ls):
 
-    # if image name matches the s3 line append to the images string
-    if re.search(('s3://' + bucket + '/kopsrox-' + cluster_name), line):
-      images_out = line.split()
-      images += images_out[0] + "\t" + images_out[2] + "\t" +  images_out[3] + '\n'
+    # if cluster name matches the s3 line append to the images string
+    if re.search(cluster_name, line):
+      images += line
 
   # return images string
   return(images.strip())
@@ -106,7 +105,7 @@ if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
   # restore-latest 
   if cmd == 'restore-latest':
     # generate latest snapshot name
-    snapshot = snapshots.split('\n')[-1].split('\t')[0]
+    snapshot = snapshots.split('\n')[-1].split()[0]
   else:
     # assign passed snapshot argument
     snapshot = sys.argv[3]
