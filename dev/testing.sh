@@ -7,13 +7,17 @@ start_time=$(date +%s)
 CFG="kopsrox.ini"
 K="./kopsrox.py"
 KC="$K cluster"
+KCI="$KC info"
 KCC="$KC create"
 KCU="$KC update"
 KCD="$KC destroy"
 KI="$K image"
 KID="$KI destroy"
 KIC="$KI create"
+KII="$KI info"
 KE="$K etcd"
+KEL="$K list"
+KES="$KE snapshot"
 KER="$KE restore"
 KERL="${KER}-latest"
 
@@ -26,6 +30,9 @@ kc() {
 # minimal cluster
 MC="kc masters 1 ; kc workers 0"
 
+# get pods
+get_pods="$KC kubectl get pods -A"
+
 # recreate 1 node
 #./kopsrox.py cluster destroy && ./kopsrox.py cluster create
 #$KCD ; $KCC
@@ -36,7 +43,8 @@ MC="kc masters 1 ; kc workers 0"
 #kc masters 3 ; $KCU ; kc masters 1  ; $KCU
 
 # destroy image create cluster create restore latest
-$KCD ; $KIC ; $KCC ; $KERL
+#$KCD ; $KIC ; $KCC ; $KERL
+#
 
 
 finish_time=$(date +%s) 

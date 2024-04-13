@@ -53,7 +53,7 @@ def list_snapshots():
 
     # if cluster name matches the s3 line append to the images string
     if re.search(cluster_name, line):
-      images += line
+      images += line+'\n'
 
   # return images string
   return(images.strip())
