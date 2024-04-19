@@ -1,0 +1,1 @@
+cat kube-vip.yaml | sed s/KOPSROX_IP/10.9.8.160/ | kubectl --kubeconfig=../bibi.kubeconfig apply -f -

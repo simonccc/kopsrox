@@ -1,7 +1,7 @@
 #!/usr/bin/env python3 
 
 # imports
-from kopsrox_config import masterid, k3s_version, masters, workers, cluster_name, vmnames, vmip, cluster_info, list_kopsrox_vm
+from kopsrox_config import masterid, k3s_version, masters, workers, cluster_name, vmnames, vmip, cluster_info, list_kopsrox_vm, network_ip
 
 # standard imports
 from kopsrox_proxmox import qaexec, destroy, internet_check, clone
@@ -60,7 +60,7 @@ def k3s_check_mon(vmid):
 def k3s_init_node(vmid = masterid,nodetype = 'master'):
 
   k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}"'
-  k3s_install_flags = f' --disable servicelb --tls-san {vmip(masterid -1)}'
+  k3s_install_flags = f' --disable servicelb --tls-san {network_ip}'
   k3s_install_master = f'{k3s_install_base} sh -s - server --cluster-init {k3s_install_flags}'
   k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{vmip(masterid)}:6443" '
   
@@ -105,8 +105,9 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
       kmsg(f'k3s_{nodetype}-init', f'{vmnames[vmid]} {init_cmd_out}', 'err')
       exit()
 
-    # export kubeconfig 
+    # install kube-vip and export kubeconfig
     if nodetype == 'master':
+      install_kube_vip()
       kubeconfig()
 
 # remove a node
@@ -242,3 +243,38 @@ def export_k3s_token():
   with open(token_name, 'w') as token_file:
     token_file.write(token)
   kmsg('k3s_export-token', f'created: {token_name}', 'sys')
+
+# install kube vip
+def install_kube_vip():
+
+  # read default kube vip manifest and replace with network_ip
+  kv_manifest = open('./lib/kube-vip/kube-vip.yaml', "r").read().replace('KOPSROX_IP', network_ip)
+  kmsg('k3s_kube-vip', f'creating {network_ip} vip')
+
+  # apply the manifest
+  kv_install = qaexec(masterid, f'''cat <<EOF> /tmp/kube-vip.yaml
+{kv_manifest}
+EOF
+
+kubectl create -f /tmp/kube-vip.yaml''')
+
+  # check it installed ok
+  if not re.search('daemonset.apps/kube-vip-ds created', kv_install):
+    kmsg('k3s_kube-vip', f'failed to install kube-vip', 'err')
+
+def delete_kube_vip():
+  print('foo')
+
+  # can only be done when master eq 1?
+
+  # reverse of install?
+
+
+def check_kube_vip():
+  print('foo')
+
+  # check status of kubevip
+
+  # how to fix it if broken?
+
+
