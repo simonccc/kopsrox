@@ -62,10 +62,6 @@ if cmd == 'kubectl':
   kmsg('kubectl_cmd', kcmd, 'sys')
   print(kubectl(kcmd))
 
-# export kubeconfig to file
-if cmd == 'kubeconfig':
-  kubeconfig()
-
 # destroy the cluster
 if cmd == 'destroy':
   kmsg(kname, f'!! destroying {cluster_name} !!', 'sys')

@@ -221,8 +221,8 @@ def k3s_update_cluster():
 
 # kubeconfig
 def kubeconfig():
-  # replace 127.0.0.1 with m1 ip
-  kconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml').replace('127.0.0.1', vmip(masterid))
+  # replace 127.0.0.1 with vip id
+  kconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml').replace('127.0.0.1', network_ip)
 
   # write file out
   with open(f'{cluster_name}.kubeconfig','w') as kfile:

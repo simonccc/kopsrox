@@ -27,10 +27,10 @@ cmds = {
     "update" : '',
     "destroy" : '',
     "kubectl" : 'cmd',
-    "kubeconfig" : '',
   },
   "k3s": {
     "k3stoken" : '',
+    "kubeconfig" : '',
   },
   "etcd": {
     "snapshot" : '',

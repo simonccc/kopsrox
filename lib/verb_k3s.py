@@ -2,7 +2,7 @@
 
 # functions
 #from kopsrox_config import vmnames,cluster_info, cluster_id, vms, vmip, cloudinituser
-from kopsrox_k3s import export_k3s_token
+from kopsrox_k3s import export_k3s_token, kubeconfig
 #from kopsrox_proxmox import clone
 from kopsrox_kmsg import kmsg
 
@@ -24,3 +24,7 @@ kname = 'k3s_'+cmd
 # k3s token
 if cmd == 'k3stoken':
   export_k3s_token()
+
+# export kubeconfig to file
+if cmd == 'kubeconfig':
+  kubeconfig()
