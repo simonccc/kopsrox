@@ -45,6 +45,7 @@ cmds = {
     "terminal" : 'hostname',
     "ssh" : 'hostname',
     "reboot" : 'hostname',
+    "k3s-uninstall" : 'hostname',
   },
 }
 

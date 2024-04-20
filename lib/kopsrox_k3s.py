@@ -155,8 +155,14 @@ def k3s_update_cluster():
  # get list of running vms
  vmids = list_kopsrox_vm()
 
+ # check the kube-vip
+ vip_master = get_kube_vip_master()
+ if vip_master == '':
+    kmsg('k3s_update-cluster', 'no vip master', 'err')
+    exit(0)
+
  # do we need to run any more masters
- if ( masters > 1 ):
+ if masters > 1:
   master_count = int(1)
 
   while ( master_count <=  2 ):
@@ -221,7 +227,7 @@ def k3s_update_cluster():
 
 # kubeconfig
 def kubeconfig():
-  # replace 127.0.0.1 with vip id
+  # replace 127.0.0.1 with vip ip
   kconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml').replace('127.0.0.1', network_ip)
 
   # write file out
@@ -267,17 +273,8 @@ kubectl create -f /tmp/kube-vip.yaml''')
 # this should only be required for dev?
 def delete_kube_vip():
   print('foo')
-
   # can only be done when master eq 1?
-
   # reverse of install?
-
-# to be called from config?
-def check_kube_vip():
-  print('foo')
-
-  # check status of kubevip
-  # how to fix it if broken?
 
 # return current vip master
 def get_kube_vip_master():

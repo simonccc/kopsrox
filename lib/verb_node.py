@@ -22,7 +22,7 @@ except:
 kname = 'node_'+cmd
 
 # terminal + destroy
-if cmd in ['terminal', 'ssh', 'destroy', 'reboot']:
+if cmd in ['terminal', 'ssh', 'destroy', 'reboot', 'k3s-uninstall']:
 
   # for each vmid in list of vms generated in kopsrox_config
   for vmid in vms:
@@ -49,6 +49,11 @@ if cmd in ['terminal', 'ssh', 'destroy', 'reboot']:
       # reboot
       if cmd == 'reboot':
         os.system(f'sudo qm reboot {vmid} &')
+        exit(0)
+
+      # k3s uninstall
+      if cmd == 'k3s-uninstall':
+        os.system(f'sudo qm guest exec {vmid} /usr/local/bin/k3s-uninstall.sh')
         exit(0)
 
   # vm not found 
