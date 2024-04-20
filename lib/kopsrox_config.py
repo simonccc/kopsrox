@@ -231,18 +231,6 @@ def list_kopsrox_vm():
 def vm_info(vmid,node=node):
   return(prox.nodes(node).qemu(vmid).status.current.get())
 
-# print vminfo
-def kmsg_vm_info(vmid):
-   vms = list_kopsrox_vm()
-   vmid = int(vmid)
-   try:
-     vmstatus = f'[{vms[vmid]}] {vmip(vmid)}/{network_mask}'
-     kmsg(f'{vmnames[vmid]}_{vmid}', f'{vmstatus}')
-   except:
-     kmsg(kname, f'kmsg-vm-info {vmid} id not found', 'err')
-     print(vms)
-     exit()
-
 # get list of nodes
 discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
 
@@ -371,14 +359,20 @@ def vmip(vmid):
 # cluster info
 def cluster_info():
   kmsg(f'cluster_info', '', 'sys')
+  from kopsrox_k3s import kubectl, get_kube_vip_master
+  curr_master = get_kube_vip_master()
 
   # for kopsrox vms
   for vmid in list_kopsrox_vm():
     if not cluster_id == vmid:
-      kmsg_vm_info(vmid)
+      hostname = vmnames[vmid]
+      vmstatus = f'[{vms[vmid]}] {vmip(vmid)}/{network_mask}'
+      if hostname == curr_master:
+        vmstatus += f' <<kube-vip>> {network_ip}/{network_mask}'
+      kmsg(f'{hostname}_{vmid}', f'{vmstatus}')
 
-  from kopsrox_k3s import kubectl
-  print(f'{kubectl("get nodes")}')
+  # fix this 
+  kmsg('kubectl_get-nodes', f'\n{kubectl("get nodes")}')
 
 # run local os process 
 def local_os_process(cmd):

@@ -4,13 +4,13 @@
 import time, re
 
 # kopsrox
-from kopsrox_config import prox, vmip, kmsg_vm_info
+from kopsrox_config import prox, vmip, masterid
 from kopsrox_config import node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns,network_mtu, network_dns
 from kopsrox_kmsg import kmsg
 
 # run a exec via qemu-agent
 # find out what doesn't call this as an int
-def qaexec(vmid,cmd):
+def qaexec(vmid = masterid,cmd = 'uptime'):
 
   # define kname
   kname = 'proxmox_qaexec'
@@ -79,7 +79,7 @@ def qaexec(vmid,cmd):
   # check for exitcode 127
   if int(pid_check['exitcode']) == 127:
     kmsg(kname, f'exit code 127: {pid} {cmd}', 'err')
-    exit()
+    exit(0)
 
   # check for err-data
   try:
@@ -177,14 +177,16 @@ def clone(vmid):
   # resize disk
   task_status(prox.nodes(node).qemu(vmid).resize.put(
     disk = 'virtio0',
-    size = str(vm_disk) + 'G',
+    size = f'{vm_disk}G',
   ))
 
   # power on
   task_status(prox.nodes(node).qemu(vmid).status.start.post())
+  kmsg('proxmox_clone', f'{hostname} powered on')
 
   # run uptime / wait for qagent to start
   qaexec(vmid, 'uptime')
+  kmsg('proxmox_clone', f'{hostname} qagent ready')
 
   # check internet connection
   internet_check(vmid)

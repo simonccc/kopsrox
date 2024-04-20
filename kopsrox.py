@@ -44,6 +44,7 @@ cmds = {
     "utility" : '',
     "terminal" : 'hostname',
     "ssh" : 'hostname',
+    "reboot" : 'hostname',
   },
 }
 

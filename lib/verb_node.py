@@ -22,7 +22,7 @@ except:
 kname = 'node_'+cmd
 
 # terminal + destroy
-if cmd in ['terminal', 'ssh', 'destroy']:
+if cmd in ['terminal', 'ssh', 'destroy', 'reboot']:
 
   # for each vmid in list of vms generated in kopsrox_config
   for vmid in vms:
@@ -44,6 +44,11 @@ if cmd in ['terminal', 'ssh', 'destroy']:
       # destroy vm
       if cmd == 'destroy':
         k3s_remove_node(vmid)
+        exit(0)
+
+      # reboot
+      if cmd == 'reboot':
+        os.system(f'sudo qm reboot {vmid} &')
         exit(0)
 
   # vm not found 

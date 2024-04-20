@@ -261,7 +261,10 @@ kubectl create -f /tmp/kube-vip.yaml''')
   # check it installed ok
   if not re.search('daemonset.apps/kube-vip-ds created', kv_install):
     kmsg('k3s_kube-vip', f'failed to install kube-vip', 'err')
+    print(kv_install)
+    exit(0)
 
+# this should only be required for dev?
 def delete_kube_vip():
   print('foo')
 
@@ -269,12 +272,20 @@ def delete_kube_vip():
 
   # reverse of install?
 
-
+# to be called from config?
 def check_kube_vip():
   print('foo')
 
   # check status of kubevip
-
   # how to fix it if broken?
 
-
+# return current vip master
+def get_kube_vip_master():
+  kubevip_q = f'get nodes --selector kube-vip.io/has-ip={network_ip}'
+  kubevip_o = kubectl(kubevip_q)
+  try:
+    kubevip_m = kubevip_o.split()[5]
+  except:
+    #print(kubevip_o.split())
+    kubevip_m = ''
+  return(kubevip_m)

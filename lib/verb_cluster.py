@@ -3,7 +3,7 @@
 # functions
 from kopsrox_config import masterid,cluster_name,cluster_info,list_kopsrox_vm,cluster_id
 from kopsrox_proxmox import clone,internet_check,qaexec
-from kopsrox_k3s import k3s_update_cluster,kubeconfig,kubectl,k3s_rm_cluster,k3s_init_node,export_k3s_token
+from kopsrox_k3s import k3s_update_cluster,kubectl,k3s_rm_cluster,k3s_init_node,export_k3s_token
 from kopsrox_kmsg import kmsg
 
 # other imports
