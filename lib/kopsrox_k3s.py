@@ -62,7 +62,7 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
   k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}"'
   k3s_install_flags = f' --disable servicelb --tls-san {network_ip}'
   k3s_install_master = f'{k3s_install_base} sh -s - server --cluster-init {k3s_install_flags}'
-  k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{vmip(masterid)}:6443" '
+  k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{network_ip}:6443" '
   
   # nodetype error check
   if nodetype not in ['master', 'slave', 'worker']:
@@ -88,7 +88,7 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
 
     # slave
     if nodetype == 'slave':
-      init_cmd = f'{k3s_install_base}{k3s_token_cmd} sh -s - server --server https://{vmip(masterid)}:6443 {k3s_install_flags}'
+      init_cmd = f'{k3s_install_base}{k3s_token_cmd} sh -s - server --server https://{network_ip}:6443 {k3s_install_flags}'
 
     # worker
     if nodetype == 'worker':
