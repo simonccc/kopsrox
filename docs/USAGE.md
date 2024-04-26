@@ -47,18 +47,18 @@
 
 `./kopsrox.py cluster kubectl get events -A`
 
-### kubeconfig 
-- export the cluster kubeconfig to a `$cluster_name.kubeconfig` file 
-- file is patched to have correct master IP vs 127.0.0.1
-
 ### destroy 
 - :warning: destroys the cluster ( NO WARNING! ) 
 - deletes workers then masters in safe order
 
-## k3s <a name=k3s>
+
+## :beach_umbrella: k3s <a name=k3s>
 ### k3stoken 
 - exports the clusters k3s token 
 - used when restoring from etcd snapshots
+### kubeconfig 
+- export the cluster kubeconfig to a `$cluster_name.kubeconfig` file 
+- file is patched to have correct VIP IP vs 127.0.0.1
 
 ## etcd <a name=etcd>
 ### snapshot 
@@ -108,5 +108,11 @@ usage:
 - connect via ssh to a kopsrox cluster vm 
 - uses configured cloudinit user as username
 - requires working ssh key configured in config
+
+### reboot [hostname]
+- reboots the host
+
+### k3s-uninstall
+- uninstalls k3s using the usual script
 
 
