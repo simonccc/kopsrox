@@ -1,4 +1,4 @@
-# usage 
+#  :hamburger: usage 
 
 - [image](#image)
 - [cluster](#cluster)
@@ -95,7 +95,8 @@ usage:
 ### prune 
 - deletes old snapshots per the retention policy set on the bucket
 
-## node <a href=node>
+## :bellhop_bell: node <a name=node>
+
 ### destroy [hostname]
 - :warning: destroys the passed hostname 
 ### utility
