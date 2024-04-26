@@ -331,6 +331,7 @@ except:
     exit(0)
 
 # vm not powered on check
+# vms var used in other code now and needs renaming
 vms = list_kopsrox_vm()
 for vmid in vms:
 
@@ -347,6 +348,9 @@ for vmid in vms:
     if vmi['status'] == 'stopped':
       kmsg(kname, f'powering on {vmi["name"]}', 'warn')
       prox.nodes(pnode).qemu(vmid).status.start.post()
+
+# end of checks
+# functions used in other code
 
 # return ip for vmid
 def vmip(vmid):

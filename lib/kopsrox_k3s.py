@@ -155,12 +155,6 @@ def k3s_update_cluster():
  # get list of running vms
  vmids = list_kopsrox_vm()
 
- # check the kube-vip
- vip_master = get_kube_vip_master()
- if vip_master == '':
-    kmsg('k3s_update-cluster', 'no vip master', 'err')
-    exit(0)
-
  # do we need to run any more masters
  if masters > 1:
   master_count = int(1)
@@ -286,3 +280,10 @@ def get_kube_vip_master():
     #print(kubevip_o.split())
     kubevip_m = ''
   return(kubevip_m)
+
+# check kube vip is ok by checking for label
+if get_kube_vip_master() == '':
+  kmsg('kube-vip_check', 'vip label not found','err')
+  kubevip_r = kubectl('rollout restart daemonset kube-vip-ds  -n kube-system')
+  kmsg('kube-vip_check', kubevip_r,'warn')
+  exit(0)
