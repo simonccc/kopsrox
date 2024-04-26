@@ -33,7 +33,7 @@ Most values should be obvious and commented accordingly - see below for more inf
 
 ## :computer: cluster_id 
 
-`620` - the proxmox id used for the kopsrox image/template - and the first id in the range required by kopsrox
+`620` - the proxmox id used for the kopsrox image/template - and the first id in the proxmox qemu virtual machinee "id" range used by kopsrox
 
 kopsrox uses a simple static id/ip assignment scheme based on the `[cluster] - cluster_id` and `[kopsrox] - network_ip` settings 
 
@@ -62,6 +62,8 @@ would result in this:
 |7|627|192.168.0.177|worker 3|kopsrox-w3|
 |8|628|192.168.0.178|worker 4|kopsrox-w4|
 |9|629|192.168.0.179|worker 5|kopsrox-w5|
+
+The VIP IP ( here 192.168.0.170 ) is used by kube-vip to provide a highly available IP for the API when you have 3 master nodes
 
 ## :pencil2: kopsrox
 
