@@ -105,10 +105,11 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
       kmsg(f'k3s_{nodetype}-init', f'{vmnames[vmid]} {init_cmd_out}', 'err')
       exit()
 
-    # install kube-vip and export kubeconfig
+    # final steps for first master  - kubevip, export kubeconfig and token 
     if nodetype == 'master':
       install_kube_vip()
       kubeconfig()
+      export_k3s_token()
 
 # remove a node
 def k3s_remove_node(vmid):
@@ -282,8 +283,8 @@ def get_kube_vip_master():
   return(kubevip_m)
 
 # check kube vip is ok by checking for label
-if get_kube_vip_master() == '':
-  kmsg('kube-vip_check', 'vip label not found','err')
-  kubevip_r = kubectl('rollout restart daemonset kube-vip-ds  -n kube-system')
-  kmsg('kube-vip_check', kubevip_r,'warn')
-  exit(0)
+#if get_kube_vip_master() == '':
+#  kmsg('kube-vip_check', 'vip label not found','err')
+#  kubevip_r = kubectl('rollout restart daemonset kube-vip-ds  -n kube-system')
+#  kmsg('kube-vip_check', kubevip_r,'warn')
+#  exit(0)

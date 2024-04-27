@@ -365,12 +365,13 @@ def cluster_info():
   kmsg(f'cluster_info', '', 'sys')
   from kopsrox_k3s import kubectl, get_kube_vip_master
   curr_master = get_kube_vip_master()
+  info_vms = list_kopsrox_vm()
 
   # for kopsrox vms
-  for vmid in list_kopsrox_vm():
+  for vmid in info_vms:
     if not cluster_id == vmid:
       hostname = vmnames[vmid]
-      vmstatus = f'[{vms[vmid]}] {vmip(vmid)}/{network_mask}'
+      vmstatus = f'[{info_vms[vmid]}] {vmip(vmid)}/{network_mask}'
       if hostname == curr_master:
         vmstatus += f' <<kube-vip>> {network_ip}/{network_mask}'
       kmsg(f'{hostname}_{vmid}', f'{vmstatus}')
