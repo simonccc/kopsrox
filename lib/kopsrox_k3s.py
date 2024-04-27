@@ -8,7 +8,7 @@ from kopsrox_proxmox import qaexec, destroy, internet_check, clone
 from kopsrox_kmsg import kmsg
 
 # standard imports
-import re, time
+import re, time, os
 
 # check for k3s status
 def k3s_check(vmid):
@@ -78,12 +78,20 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
     # check vm has internet
     internet_check(vmid)
 
+    # get existing token if it exists
+    token_fname = f'{cluster_name}.k3stoken'
+    if os.path.isfile(token_fname):
+        token = open(token_fname, "r").read()
+        master_cmd = f' --token {token}'
+    else:
+        token = ''
+        master_cmd = ''
+
     # master
     if nodetype == 'master':
-      init_cmd = k3s_install_master
+      init_cmd = f'{k3s_install_master} {master_cmd}'
 
-    # get k3s token
-    token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/node-token')
+    # k3s token env var version
     k3s_token_cmd = f' K3S_TOKEN="{token}"'
 
     # slave
@@ -232,18 +240,45 @@ def kubeconfig():
 
 # kubectl
 def kubectl(cmd):
-  k3s_cmd = '/usr/local/bin/k3s kubectl ' + str(cmd)
+  k3s_cmd = f'/usr/local/bin/k3s kubectl {cmd}'
   kcmd = qaexec(masterid,k3s_cmd)
-  # strip line break
   return(kcmd)
 
 # export k3s token
 def export_k3s_token():
-  token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/token')
+
+  # define token file name
   token_name = f'{cluster_name}.k3stoken'
-  with open(token_name, 'w') as token_file:
-    token_file.write(token)
-  kmsg('k3s_export-token', f'created: {token_name}', 'sys')
+
+  # get masters token
+  live_token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/token')
+
+  # check existing token
+  if os.path.isfile(token_name):
+
+    saved_token = open(token_name, "r").read()
+    # difference between live and local token
+    if not saved_token == live_token:
+
+      # passwords are different..
+      if not saved_token.split(':')[3]  == live_token.split(':')[3]:
+        kmsg('k3s_export-token', 'passwords different between live system and local token! exiting', 'err')
+        exit(0)
+
+      # CA is different - expected on a new cluster
+      kmsg('k3s_export-token', f'found: {token_name} updating CA')
+      with open(token_name, 'w') as token_file:
+        token_file.write(live_token)
+
+    # existing token file matches live    
+    else:
+      kmsg('k3s_export-token', f'found: {token_name} OK')
+
+  # no token found so write new one 
+  else:
+    with open(token_name, 'w') as token_file:
+      token_file.write(live_token)
+    kmsg('k3s_export-token', f'created: {token_name}')
 
 # install kube vip
 def install_kube_vip():

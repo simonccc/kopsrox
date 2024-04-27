@@ -170,7 +170,9 @@ systemctl start k3s'
       # need to check this..
       kubectl(f'delete node {node}')
 
-  # get restored clusters kubeconfig
+  # get restored clusters kubeconfig and token
   kubeconfig()
+  export_k3s_token()
+
   # run k3s update
   k3s_update_cluster()

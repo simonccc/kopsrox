@@ -22,7 +22,7 @@ except:
 kname = 'k3s_'+cmd
 
 # k3s token
-if cmd == 'k3stoken':
+if cmd == 'export-token':
   export_k3s_token()
 
 # export kubeconfig to file

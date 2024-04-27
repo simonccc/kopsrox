@@ -29,7 +29,7 @@ cmds = {
     "kubectl" : 'cmd',
   },
   "k3s": {
-    "k3stoken" : '',
+    "export-token" : '',
     "kubeconfig" : '',
   },
   "etcd": {
