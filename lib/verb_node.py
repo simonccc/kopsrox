@@ -2,12 +2,12 @@
 
 # functions
 from kopsrox_config import vmnames,cluster_info, cluster_id, vms, vmip, cloudinituser
-from kopsrox_k3s import k3s_remove_node
+from kopsrox_k3s import k3s_remove_node, k3s_init_node
 from kopsrox_proxmox import clone
 from kopsrox_kmsg import kmsg
 
 # other imports
-import sys,os
+import sys,os,re
 
 # passed command
 cmd = sys.argv[2]
@@ -21,15 +21,15 @@ except:
 # define kname
 kname = 'node_'+cmd
 
-# terminal + destroy
-if cmd in ['terminal', 'ssh', 'destroy', 'reboot', 'k3s-uninstall']:
+# all commands aside from utility require a hostname passed - so check them here
+if cmd not in ['utility']:
 
   # for each vmid in list of vms generated in kopsrox_config
   for vmid in vms:
 
     # if passed arg matches vmname
     if arg == vmnames[vmid]:
-      kmsg(kname, arg, 'sys')
+      kmsg(kname, arg)
 
       # terminal 
       if cmd == 'terminal':
@@ -54,6 +54,11 @@ if cmd in ['terminal', 'ssh', 'destroy', 'reboot', 'k3s-uninstall']:
       # k3s uninstall
       if cmd == 'k3s-uninstall':
         os.system(f'sudo qm guest exec {vmid} /usr/local/bin/k3s-uninstall.sh')
+        exit(0)
+
+      # rejoin slave
+      if cmd == 'rejoin-slave':
+        k3s_init_node(vmid, 'slave')
         exit(0)
 
   # vm not found 

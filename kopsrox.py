@@ -16,8 +16,8 @@ if not os.path.isfile('kopsrox.ini'):
 # kopsrox verbs and commands
 cmds = {
   "image": {
-    "create" : '',
     "info" : '',
+    "create" : '',
     "update": '',
     "destroy": '',
   },
@@ -46,6 +46,7 @@ cmds = {
     "ssh" : 'hostname',
     "reboot" : 'hostname',
     "k3s-uninstall" : 'hostname',
+    "rejoin-slave" : 'hostname',
   },
 }
 
