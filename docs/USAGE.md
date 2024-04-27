@@ -6,7 +6,7 @@
 - [node](#node)
 - [k3s](#k3s)
 
-## image <a name=image>
+## 💐 image <a name=image>
 ### create 
 - deletes any existing template
 - downloads the configured cloud image
@@ -27,7 +27,7 @@
 - size
 - creation time
 
-## cluster <a name=cluster>
+## 🪓 cluster <a name=cluster>
 ### create 
 - creates and updates a cluster - use this to setup a fresh cluster
 - if an existing working master is found it runs the same steps as `kopsrox cluster update`
@@ -60,7 +60,7 @@
 - export the cluster kubeconfig to a `$cluster_name.kubeconfig` file 
 - file is patched to have correct VIP IP vs 127.0.0.1
 
-## etcd <a name=etcd>
+## :accessibility: etcd <a name=etcd>
 ### snapshot 
 
 `./kopsrox.py etcd snapshot`
