@@ -168,6 +168,7 @@ def clone(vmid):
     onboot = 1,
     cores = vm_cpu,
     memory = memory,
+    balloon = '0',
     net0 = (f'model=virtio,bridge={network_bridge},mtu={network_mtu}'),
     ipconfig0 = (f'gw={network_gw},ip={ip}'),
     nameserver = network_dns,

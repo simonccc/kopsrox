@@ -54,8 +54,7 @@
 
 ## :beach_umbrella: k3s <a name=k3s>
 ### k3stoken 
-- exports the clusters k3s token 
-- used when restoring from etcd snapshots
+- exports the clusters k3s token
 ### kubeconfig 
 - export the cluster kubeconfig to a `$cluster_name.kubeconfig` file 
 - file is patched to have correct VIP IP vs 127.0.0.1
@@ -84,8 +83,6 @@ restores a cluster from a snapshot
 usage:
 
 `./kopsrox.py etcd restore $imagename`
-
-- :white_check_mark: check you're using the correct k3s token file for the snapshot!
 
 - downsizes the cluster to 1 node then resizes back to the scale set in `kopsrox.ini`
 

@@ -8,9 +8,9 @@ you will need to edit this for your setup
 
 follow the guide in [SETUP.md](SETUP.md)
 
-## 🥑   create an image
+## 🥑 create an image
 
-`./kopsrox.py create image`
+`./kopsrox.py image create`
 
 ## 🥑 create a cluster
 

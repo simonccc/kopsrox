@@ -27,11 +27,15 @@ if cmd == 'create':
 
   # get image name from url 
   cloud_image = cloud_image_url.split('/')[-1]
-  kmsg(kname, cloud_image, 'sys')
+  kmsg(kname, f'[{cluster_name} - creating new templated based on {cloud_image}', 'sys')
 
-  # will this always overwrite?
-  wget.download(cloud_image_url)
-  print()
+  # check img can be downloaded
+  try:
+    wget.download(cloud_image_url)
+    print()
+  except:
+    kmsg(kname, f'unable to download {cloud_image_url}', 'err')
+    exit(0)
 
   # patch image 
   kmsg(f'{kname}', 'installing qemu-guest-agent')
@@ -72,9 +76,9 @@ fi'''
   task_status(prox.nodes(node).qemu.post(
     vmid = cluster_id,
     cores = 1,
-    memory = 2048,
+    memory = 1024,
     cpu = ('cputype=host'),
-    scsihw = 'virtio-scsi-pci',
+    scsihw = 'virtio-scsi-single',
     boot = 'c',
     name = (f'{cluster_name}-i0'),
     ostype = 'l26',
@@ -92,7 +96,7 @@ fi'''
 
   # shell to import disk
   import_cmd = f'\
-sudo qm set {cluster_id} --virtio0 {storage}:0,import-from={os.getcwd()}/{cloud_image} ; \
+sudo qm set {cluster_id} --virtio0 {storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true  ; \
 mv {cloud_image} {cloud_image}.patched'
 
   # run shell command to import
