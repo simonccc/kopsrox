@@ -27,7 +27,7 @@ if cmd == 'create':
 
   # get image name from url 
   cloud_image = cloud_image_url.split('/')[-1]
-  kmsg(kname, f'[{cluster_name} - creating new templated based on {cloud_image}', 'sys')
+  kmsg(kname, f'[{cluster_name}] creating new image based on {cloud_image}', 'sys')
 
   # check img can be downloaded
   try:
