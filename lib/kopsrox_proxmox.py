@@ -12,11 +12,13 @@ from kopsrox_kmsg import kmsg
 # find out what doesn't call this as an int
 def qaexec(vmid = masterid,cmd = 'uptime'):
 
+  vmid = int(vmid)
+
   # define kname
   kname = 'proxmox_qaexec'
 
   # get vmname
-  vmname = vmnames[int(vmid)]
+  vmname = vmnames[vmid]
 
   # get node
   node = get_node(vmid)
@@ -98,8 +100,6 @@ def qaexec(vmid = masterid,cmd = 'uptime'):
 # return the node for a vmid
 def get_node(vmid):
 
-  vmid = int(vmid)
-
   # if it exists node is ok
   if vmid == cluster_id:
     return(node)
@@ -114,6 +114,11 @@ def get_node(vmid):
       return(vm.get('node'))
 
   # error: node not found
+  if vmid == masterid:
+    kmsg('cluster_error', f'no cluster exists', 'err')
+    exit(0)
+
+  # default error
   kmsg('proxmox_get-node', f'node for {vmid} not found', 'err')
   exit(0)
 

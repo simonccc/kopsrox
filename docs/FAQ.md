@@ -16,10 +16,6 @@ Check network settings - the vms can't connect to the internet
 
 got this running v1.26.10+k3s2 with cloudflare - upgrading to v1.27.8+k3s2 resolved this for me
 
-🪗   __where is the old demo__
-
-https://asciinema.org/a/597074
-
 🥇 __how to re-add master-m1?__
 
 uninstall k3s then run the node command to re add as a slave - if the m1 node was the vip master you will need to manually logon and remove the VIP ip from eth0

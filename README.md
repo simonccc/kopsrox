@@ -16,6 +16,4 @@
 # :boom: in progress 
  - Improving Docs
  - Some code clean up
- - New! token management changes
- - Recent: kube-vip
-
+ - Recent: bug fixes

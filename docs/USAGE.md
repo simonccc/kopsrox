@@ -55,6 +55,7 @@
 ## :beach_umbrella: k3s <a name=k3s>
 ### k3stoken 
 - exports the clusters k3s token
+
 ### kubeconfig 
 - export the cluster kubeconfig to a `$cluster_name.kubeconfig` file 
 - file is patched to have correct VIP IP vs 127.0.0.1
@@ -78,7 +79,7 @@ Should show the new backup
 
 ### restore 
 
-restores a cluster from a snapshot
+restores a cluster from a previously taken s3 snapshot
 
 usage:
 
@@ -87,7 +88,7 @@ usage:
 - downsizes the cluster to 1 node then resizes back to the scale set in `kopsrox.ini`
 
 ### restore-latest
-- restores the cluster from the latest backup in s3
+- restores the cluster from the latest snapshot in the configured s3 storage
 
 ### prune 
 - deletes old snapshots per the retention policy set on the bucket
@@ -96,10 +97,11 @@ usage:
 
 ### destroy [hostname]
 - :warning: destroys the passed hostname 
+
 ### utility
 - creates a spare "utility" node -u1
 
-### terminal
+### terminal [hostname]
 - connects you to the passed vms serial console via `qm terminal`
 
 ### ssh [hostname] 
