@@ -52,7 +52,7 @@ def list_snapshots():
   for line in sorted(ls):
 
     # if cluster name matches the s3 line append to the images string
-    if re.search(cluster_name, line):
+    if re.search('s3', line) and re.search(cluster_name, line):
       images += line+'\n'
 
   # return images string

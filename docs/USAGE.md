@@ -9,7 +9,7 @@
 ## 💐 image <a name=image>
 ### create 
 - deletes any existing template
-- downloads the configured cloud image
+- downloads the cloud image from the url defined in kopsrox.ini
 - installs `qemu-guest-agent` into the image via `virt-customise`
 - imports the disk into proxmox storage using a `sudo qm` command
 - creates cloudinit drive with cloudinit data
