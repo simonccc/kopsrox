@@ -20,13 +20,13 @@ documentation is a WIP :construction:
 - an alias for create
   
 ### :warning: destroy 
-- deletes the existing image template
-- this is not really required as create deletes any existing image
+- deletes any existing image template
 
 ### info 
 - prints info about image/template vm eg storage, id, creation time and source cloud image file
 - size
 - creation time
+- is it stored on shared storage
 
 ## :cyclone:  cluster <a name=cluster>
 ### :white_check_mark: create 

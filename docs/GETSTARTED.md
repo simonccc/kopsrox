@@ -1,4 +1,4 @@
-#  ☣️ get started
+# :burger:  get started
 
 ## 🇧🇸 setup kopsrox.ini
 
