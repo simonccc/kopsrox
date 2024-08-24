@@ -307,7 +307,7 @@ kubectl create -f /tmp/kube-vip.yaml''')
 
 # return current vip master
 def get_kube_vip_master():
-  kubevip_q = f'get nodes --selector kube-vip.io/has-ip={network_ip}'
+  kubevip_q = f'get nodes --selector kube-vip.io/has-ip={network_ip} 2>&1'
   kubevip_o = kubectl(kubevip_q)
   try:
     kubevip_m = kubevip_o.split()[5]

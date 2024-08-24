@@ -90,6 +90,7 @@ def qaexec(vmid = masterid,cmd = 'uptime'):
     if (pid_check['err-data']):
 
       # print err data warning 
+      kmsg(kname, cmd, 'err')
       kmsg(kname, pid_check['err-data'].strip(), 'err')
 
       # if there is output return that otherwise exit
