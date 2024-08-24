@@ -315,7 +315,6 @@ def get_kube_vip_master():
     kmsg('kubevip_check', 'no kubevip label found - reloading kubevip', 'err')
     kubevip_r = kubectl('rollout restart daemonset kube-vip-ds  -n kube-system')
     time.sleep(1)
-    kubevip_q = f'get nodes --selector kube-vip.io/has-ip={network_ip} 2>&1'
     kubevip_o = kubectl(kubevip_q)
     #print(kubevip_o.split())
     kubevip_m = kubevip_o.split()[5]
