@@ -28,7 +28,12 @@ kc() {
 }
 
 # minimal cluster
-MC="kc masters 1 ; kc workers 0"
+kc masters 1 ; kc workers 0
+$KCU
+kc masters 1 ; kc workers 1
+$KCU
+kc masters 1 ; kc workers 0
+$KCU
 
 # get pods
 get_pods="$KC kubectl get pods -A"

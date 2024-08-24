@@ -43,11 +43,6 @@ documentation is a WIP :construction:
 - shows a list of ids, hostnames and ips the host they are running on
 - shows `kubectl get nodes`
 
-### kubectl 
-- provides a quick and basic way to run some kubectl commands for example:
-
-`./kopsrox.py cluster kubectl get events -A`
-
 ### :warning: destroy 
 - destroys the cluster ( NO WARNING! ) 
 - deletes workers then masters in safe order
@@ -57,11 +52,16 @@ documentation is a WIP :construction:
 - exports the clusters k3s token
 
 ### kubeconfig 
-- export the cluster kubeconfig to a `$cluster_name.kubeconfig` file 
+- export the cluster kubeconfig to a file 
 - file is patched to have correct VIP IP vs 127.0.0.1
 
 ### check-config
-- runs k3s check-config 
+- runs k3s check-config and displays the output
+
+### kubectl
+- provides a quick and basic way to run some kubectl commands for example:
+
+`./kopsrox.py k3s kubectl get events -A`
 
 ## :cyclone: etcd <a name=etcd>
 ### :white_check_mark: snapshot 

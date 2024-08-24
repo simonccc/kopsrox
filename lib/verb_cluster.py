@@ -3,7 +3,7 @@
 # functions
 from kopsrox_config import masterid,cluster_name,cluster_info,list_kopsrox_vm,cluster_id
 from kopsrox_proxmox import clone,internet_check,qaexec
-from kopsrox_k3s import k3s_update_cluster,kubectl,k3s_rm_cluster,k3s_init_node,export_k3s_token
+from kopsrox_k3s import k3s_update_cluster,k3s_rm_cluster,k3s_init_node,export_k3s_token
 from kopsrox_kmsg import kmsg
 
 # other imports
@@ -37,30 +37,6 @@ if cmd == 'create':
 
   # perform rest of cluster creation
   k3s_update_cluster()
-
-# kubectl
-if cmd == 'kubectl':
- 
-  # init kcmd
-  kcmd= ''  
-
-  # convert command line into string
-  for arg in sys.argv[1:]:          
-    if ' ' in arg:
-
-      # Put the quotes back in
-      kcmd+='"{}" '.format(arg) ;  
-    else:
-
-      # Assume no space => no quotes
-      kcmd+="{} ".format(arg) ;   
-
-  # remove first 2 commands
-  kcmd = kcmd.replace('cluster kubectl ','')
-
-  # run command and show output
-  kmsg('kubectl_cmd', kcmd, 'sys')
-  print(kubectl(kcmd))
 
 # destroy the cluster
 if cmd == 'destroy':

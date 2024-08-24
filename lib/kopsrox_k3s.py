@@ -103,7 +103,7 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
       init_cmd = f'{k3s_install_worker}{k3s_token_cmd} sh -s'
 
     # run command
-    init_cmd_out = qaexec(vmid,init_cmd)
+    init_cmd_out = qaexec(vmid,(init_cmd + ' 2>1'))
 
     # wait until ready
     try:
@@ -126,7 +126,7 @@ def k3s_remove_node(vmid):
   # kubectl commands to remove node
   # should add some error checking
   kubectl('cordon ' + vmname)
-  kubectl('drain --timeout=5s --ignore-daemonsets --force ' + vmname)
+  kubectl('drain --timeout=10s --delete-emptydir-data --ignore-daemonsets --force ' + vmname)
   kubectl('delete node ' + vmname)
 
   # destroy vm
@@ -238,7 +238,7 @@ def kubeconfig():
 
 # kubectl
 def kubectl(cmd):
-  k3s_cmd = f'/usr/local/bin/k3s kubectl {cmd}'
+  k3s_cmd = f'/usr/local/bin/kubectl {cmd}'
   kcmd = qaexec(masterid,k3s_cmd)
   return(kcmd)
 

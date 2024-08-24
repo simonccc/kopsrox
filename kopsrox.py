@@ -26,12 +26,12 @@ cmds = {
     "create" : '',
     "update" : '',
     "destroy" : '',
-    "kubectl" : 'cmd',
   },
   "k3s": {
     "export-token" : '',
     "kubeconfig" : '',
     "check-config" : '',
+    "kubectl" : 'cmd',
   },
   "etcd": {
     "snapshot" : '',

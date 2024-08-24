@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_k3s import export_k3s_token, kubeconfig, k3s_check_config
+from kopsrox_k3s import export_k3s_token, kubeconfig, k3s_check_config, kubectl
 from kopsrox_kmsg import kmsg
 
 # other imports
@@ -30,3 +30,27 @@ if cmd == 'kubeconfig':
 # check k3s config
 if cmd == 'check-config':
   k3s_check_config()
+
+# kubectl
+if cmd == 'kubectl':
+
+  # init kcmd
+  kcmd= ''
+
+  # convert command line into string
+  for arg in sys.argv[1:]:
+    if ' ' in arg:
+
+      # Put the quotes back in
+      kcmd+='"{}" '.format(arg) ;
+    else:
+
+      # Assume no space => no quotes
+      kcmd+="{} ".format(arg) ;
+
+  # remove first 2 commands
+  kcmd = kcmd.replace('k3s kubectl ','')
+
+  # run command and show output
+  kmsg('kubectl_cmd', kcmd, 'sys')
+  print(kubectl(kcmd))

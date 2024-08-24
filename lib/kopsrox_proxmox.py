@@ -89,9 +89,8 @@ def qaexec(vmid = masterid,cmd = 'uptime'):
     # if err-data exists
     if (pid_check['err-data']):
 
-      # print err data warning 
-      kmsg(kname, cmd, 'err')
-      kmsg(kname, pid_check['err-data'].strip(), 'err')
+      # print err data warning \
+      kmsg('qaexec-stderr', ( 'CMD: ' +cmd + '\n' + pid_check['err-data'].strip()), 'err')
 
       # if there is output return that otherwise exit
       if (pid_check['err-data'] and pid_check['out-data']):
@@ -139,7 +138,6 @@ def destroy(vmid):
     kname = 'proxmox_destroy'
 
     # get node and vmname
-    vmid = int(vmid)
     vmname = vmnames[vmid]
     node = get_node(vmid)
 
@@ -199,14 +197,11 @@ def clone(vmid):
 
   # power on
   task_status(prox.nodes(node).qemu(vmid).status.start.post())
-  kmsg('proxmox_clone', f'{hostname} powered on')
 
   # run uptime / wait for qagent to start
-  qaexec(vmid, 'uptime')
-  kmsg('proxmox_clone', f'{hostname} qagent ready')
-
-  # check internet connection
+  #qaexec(vmid, 'uptime')
   internet_check(vmid)
+  kmsg(f'proxmox_{hostname}', 'ready')
 
 # proxmox task blocker
 def task_status(task_id, node=node):
