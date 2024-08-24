@@ -178,7 +178,7 @@ try:
     token_name=token_name,
     token_value=api_key,
     verify_ssl=False,
-    timeout=3)
+    timeout=5)
 
   # check connection to cluster
   prox.cluster.status.get()
