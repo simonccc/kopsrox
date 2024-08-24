@@ -1,4 +1,6 @@
-#  :hamburger: usage 
+#  :hamburger: kopsrox usage 
+
+documentation is a WIP :construction:
 
 - [image](#image)
 - [cluster](#cluster)
@@ -6,20 +8,19 @@
 - [node](#node)
 - [k3s](#k3s)
 
-## 💐 image <a name=image>
-### create 
-- deletes any existing template
+##  :cyclone: image <a name=image>
+### :white_check_mark: create 
 - downloads the cloud image from the url defined in kopsrox.ini
 - installs `qemu-guest-agent` into the image via `virt-customise`
 - imports the disk into proxmox storage using a `sudo qm` command
-- creates cloudinit drive with cloudinit data
+- creates cloudinit drive with cloudinit data per config
 - converts the vm into a template
 
 ### update
 - an alias for create
   
-### destroy 
-- :warning: deletes the existing image template
+### :warning: destroy 
+- deletes the existing image template
 - this is not really required as create deletes any existing image
 
 ### info 
@@ -27,8 +28,8 @@
 - size
 - creation time
 
-## 🪓 cluster <a name=cluster>
-### create 
+## :cyclone:  cluster <a name=cluster>
+### :white_check_mark: create 
 - creates and updates a cluster - use this to setup a fresh cluster
 - if an existing working master is found it runs the same steps as `kopsrox cluster update`
 - clones the image to the '-m1' server and configures networking via cloudinit
@@ -36,7 +37,7 @@
 
 ### update 
 - checks the state of the cluster vs what is configured in `kopsrox.ini`
-- adds or deletes workers/masters per `kopsrox.ini`
+- updates the cluster ( eg adding / deleting nodes ) as required
 
 ### info 
 - shows a list of ids, hostnames and ips the host they are running on
@@ -47,12 +48,11 @@
 
 `./kopsrox.py cluster kubectl get events -A`
 
-### destroy 
-- :warning: destroys the cluster ( NO WARNING! ) 
+### :warning: destroy 
+- destroys the cluster ( NO WARNING! ) 
 - deletes workers then masters in safe order
 
-
-## :beach_umbrella: k3s <a name=k3s>
+## :cyclone: k3s <a name=k3s>
 ### k3stoken 
 - exports the clusters k3s token
 
@@ -60,8 +60,11 @@
 - export the cluster kubeconfig to a `$cluster_name.kubeconfig` file 
 - file is patched to have correct VIP IP vs 127.0.0.1
 
-## :accessibility: etcd <a name=etcd>
-### snapshot 
+### check-config
+- runs k3s check-config 
+
+## :cyclone: etcd <a name=etcd>
+### :white_check_mark: snapshot 
 
 `./kopsrox.py etcd snapshot`
 
@@ -93,16 +96,16 @@ usage:
 ### prune 
 - deletes old snapshots per the retention policy set on the bucket
 
-## :bellhop_bell: node <a name=node>
+## :cyclone: node <a name=node>
 
-### destroy [hostname]
-- :warning: destroys the passed hostname 
+### :warning: destroy [hostname]
+- destroys the passed vm hostname  ( NO WARNING ) 
 
-### utility
+### :white_check_mark: utility
 - creates a spare "utility" node -u1
 
 ### terminal [hostname]
-- connects you to the passed vms serial console via `qm terminal`
+- connects you to the passed vm's serial console via `qm terminal`
 
 ### ssh [hostname] 
 - connect via ssh to a kopsrox cluster vm 
@@ -112,7 +115,8 @@ usage:
 ### reboot [hostname]
 - reboots the host
 
-### k3s-uninstall
+### k3s-uninstall [hostname]
 - uninstalls k3s using the usual script
+- for experimenting with k3s reinstall
 
 
