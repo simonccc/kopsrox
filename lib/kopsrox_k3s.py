@@ -67,7 +67,7 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
   # nodetype error check
   if nodetype not in ['master', 'slave', 'worker']:
     kmsg('k3s_init-node', f'{nodetype} invalid nodetye', 'err')
-    exit()
+    exit(0)
  
   # check status of node
   try:
@@ -103,7 +103,6 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
       init_cmd = f'{k3s_install_worker}{k3s_token_cmd} sh -s'
 
     # run command
-    #print(init_cmd)
     init_cmd_out = qaexec(vmid,init_cmd)
 
     # wait until ready
@@ -151,7 +150,6 @@ def k3s_rm_cluster(restore = False):
       continue
 
     # remove node from cluster and proxmox
-    #print(vmname)
     if vmname == f'{cluster_name}-m1':
       destroy(vmid)
     else:
@@ -244,6 +242,13 @@ def kubectl(cmd):
   kcmd = qaexec(masterid,k3s_cmd)
   return(kcmd)
 
+# run k3s check config
+def k3s_check_config():
+  kmsg('k3s_check-config', 'checking k3s config')
+  k3s_cmd = f'/usr/local/bin/k3s check-config'
+  kcmd = qaexec(masterid,k3s_cmd)
+  print(kcmd)
+
 # export k3s token
 def export_k3s_token():
 
@@ -299,12 +304,6 @@ kubectl create -f /tmp/kube-vip.yaml''')
     kmsg('k3s_kube-vip', f'failed to install kube-vip', 'err')
     print(kv_install)
     exit(0)
-
-# this should only be required for dev?
-def delete_kube_vip():
-  print('foo')
-  # can only be done when master eq 1?
-  # reverse of install?
 
 # return current vip master
 def get_kube_vip_master():

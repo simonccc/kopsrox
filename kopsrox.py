@@ -31,6 +31,7 @@ cmds = {
   "k3s": {
     "export-token" : '',
     "kubeconfig" : '',
+    "check-config" : '',
   },
   "etcd": {
     "snapshot" : '',

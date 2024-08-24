@@ -85,9 +85,19 @@ def qaexec(vmid = masterid,cmd = 'uptime'):
 
   # check for err-data
   try:
+
     # if err-data exists
     if (pid_check['err-data']):
-      return(pid_check['err-data'])
+
+      # print err data warning 
+      kmsg(kname, pid_check['err-data'].strip(), 'err')
+
+      # if there is output return that otherwise exit
+      if (pid_check['err-data'] and pid_check['out-data']):
+        return(pid_check['out-data'].strip())
+      else:
+        exit(0)
+
   except:
     try:
       # this is where data gets returned for an OK command
