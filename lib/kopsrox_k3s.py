@@ -30,10 +30,10 @@ def k3s_check(vmid: int):
     exit(0)
 
 # wait for node
-def k3s_check_mon(vmid):
+def k3s_check_mon(vmid: int):
 
   # how long to wait for
-  wait: int = 30
+  wait: int = 20
 
   # check count
   count: int = 0 
@@ -50,8 +50,6 @@ def k3s_check_mon(vmid):
       kmsg('k3s_check-mon', f'timed out after {wait}s for {vmnames[vmid]}', 'err')
       exit(0)
 
-  return True
-
 # create a master/slave/worker
 def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
@@ -61,7 +59,11 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     exit(0)
 
   # check node has internet
-  internet_check(vmid)
+  try:
+    internet_check(vmid)
+  except:
+    kmsg('k3s_init-node', f'{vmid} no internet', 'err')
+    exit(0)
 
   # defines
   k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}"'
@@ -97,7 +99,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
       init_cmd = f'{k3s_install_worker}{k3s_token_cmd} sh -s'
 
     # stderr
-    init_cmd = init_cmd + ' 2>&1'
+    init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
 
     # run command
     init_cmd_out = qaexec(vmid,init_cmd)
@@ -157,6 +159,9 @@ def k3s_rm_cluster(restore = False):
 # builds or removes other nodes from the cluster as required per config
 def k3s_update_cluster():
  kmsg('k3s_update-cluster', f'checking: {masters} masters {workers} workers', 'sys')
+
+ # checks the master node
+ k3s_init_node()
 
  # get list of running vms
  vmids = list_kopsrox_vm()

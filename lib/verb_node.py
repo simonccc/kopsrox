@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import vmnames,cluster_info, cluster_id, vms, vmip, cloudinituser
+from kopsrox_config import vmnames,cluster_info, cluster_id, vms, vmip, cloudinituser, cloudinitpass
 from kopsrox_k3s import k3s_remove_node, k3s_init_node
 from kopsrox_proxmox import clone
 from kopsrox_kmsg import kmsg
@@ -33,6 +33,7 @@ if cmd not in ['utility']:
 
       # terminal 
       if cmd == 'terminal':
+        kmsg('node_terminal', f'u/p: {cloudinituser} / {cloudinitpass}', 'sys')
         os.system(f'sudo qm terminal {vmid}')
         exit(0)
 

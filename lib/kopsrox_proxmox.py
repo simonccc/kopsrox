@@ -181,6 +181,7 @@ def clone(vmid):
     cores = vm_cpu,
     memory = memory,
     balloon = '0',
+    boot = ('order=scsi0'),
     net0 = (f'model=virtio,bridge={network_bridge},mtu={network_mtu}'),
     ipconfig0 = (f'gw={network_gw},ip={ip}'),
     nameserver = network_dns,
@@ -197,7 +198,6 @@ def clone(vmid):
   task_status(prox.nodes(node).qemu(vmid).status.start.post())
 
   # run uptime / wait for qagent to start
-  #qaexec(vmid, 'uptime')
   internet_check(vmid)
   kmsg(f'proxmox_{hostname}', 'ready')
 
@@ -234,10 +234,10 @@ def task_log(task_id, node=node):
 # internet checker
 def internet_check(vmid):
   vmname = vmnames[vmid]
-  internet_cmd = 'curl -s --retry 5 --retry-all-errors --connect-timeout 1 www.google.com > /dev/null && echo ok || echo error'
+  internet_cmd = 'curl -s --retry 2 --retry-all-errors --connect-timeout 1 --max-time 2 www.google.com > /dev/null && echo ok || echo error'
   internet_check = qaexec(vmid, internet_cmd)
 
   # if curl command fails
   if internet_check == 'error':
-    kmsg('proxmox_netcheck', f'{vmname} no internet access')
-    exit()
+    kmsg('prox_netcheck', f'{vmname} internet access check failed', 'err')
+    exit(0)
