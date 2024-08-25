@@ -90,7 +90,7 @@ def qaexec(vmid = masterid,cmd = 'uptime'):
     if (pid_check['err-data']):
 
       # print err data warning \
-      kmsg('qaexec-stderr', ( 'CMD: ' +cmd + '\n' + pid_check['err-data'].strip()), 'err')
+      kmsg('qaexec_stderr', ( 'CMD: ' +cmd + '\n' + pid_check['err-data'].strip()), 'err')
 
       # if there is output return that otherwise exit
       if (pid_check['err-data'] and pid_check['out-data']):
@@ -133,9 +133,9 @@ def get_node(vmid):
   exit(0)
 
 # stop and destroy vm
-def destroy(vmid):
+def prox_destroy(vmid):
 
-    kname = 'proxmox_destroy'
+    kname = 'prox_destroy-vm'
 
     # get node and vmname
     vmname = vmnames[vmid]
@@ -152,10 +152,8 @@ def destroy(vmid):
       task_status(prox.nodes(node).qemu(vmid).delete())
       kmsg(kname, vmname)
     except:
-      # is this image check still required?
-      if not cluster_id == vmid:
-        kmsg(kname, f'unable to destroy {vmid}', 'err')
-        exit()
+      kmsg(kname, f'unable to destroy {vmid}', 'err')
+      exit(0)
 
 # clone
 def clone(vmid):

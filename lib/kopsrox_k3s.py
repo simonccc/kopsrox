@@ -4,7 +4,7 @@
 from kopsrox_config import masterid, k3s_version, masters, workers, cluster_name, vmnames, vmip, cluster_info, list_kopsrox_vm, network_ip
 
 # standard imports
-from kopsrox_proxmox import qaexec, destroy, internet_check, clone
+from kopsrox_proxmox import qaexec, prox_destroy, internet_check, clone
 from kopsrox_kmsg import kmsg
 
 # standard imports
@@ -130,7 +130,7 @@ def k3s_remove_node(vmid):
   kubectl('delete node ' + vmname)
 
   # destroy vm
-  destroy(vmid)
+  prox_destroy(vmid)
 
 # remove cluster - leave master if restore = true
 def k3s_rm_cluster(restore = False):
@@ -151,7 +151,7 @@ def k3s_rm_cluster(restore = False):
 
     # remove node from cluster and proxmox
     if vmname == f'{cluster_name}-m1':
-      destroy(vmid)
+      prox_destroy(vmid)
     else:
       k3s_remove_node(vmid)
 
@@ -238,7 +238,7 @@ def kubeconfig():
 
 # kubectl
 def kubectl(cmd):
-  k3s_cmd = f'/usr/local/bin/kubectl {cmd}'
+  k3s_cmd = f'/usr/local/bin/kubectl {cmd} 2>&1'
   kcmd = qaexec(masterid,k3s_cmd)
   return(kcmd)
 
@@ -289,41 +289,32 @@ def export_k3s_token():
 def install_kube_vip():
 
   # read default kube vip manifest and replace with network_ip
-  kv_manifest = open('./lib/kube-vip/kube-vip.yaml', "r").read().replace('KOPSROX_IP', network_ip)
-  kmsg('k3s_kube-vip', f'creating {network_ip} vip')
+  kv_manifest = open('./lib/kubevip/kubevip.yaml', "r").read().replace('KOPSROX_IP', network_ip).strip()
 
-  # apply the manifest
-  kv_install = qaexec(masterid, f'''cat <<EOF> /tmp/kube-vip.yaml
+  # create the manifest
+  kv_install_manifest = qaexec(masterid, f'''cat <<EOF> /tmp/kubevip.yaml
 {kv_manifest}
 EOF
+''')
+  kubevip_install = kubectl('replace --force -f /tmp/kubevip.yaml')
 
-kubectl create -f /tmp/kube-vip.yaml''')
-
-  # check it installed ok
-  if not re.search('daemonset.apps/kube-vip-ds created', kv_install):
-    kmsg('k3s_kube-vip', f'failed to install kube-vip', 'err')
-    print(kv_install)
+  if not re.search('daemonset.apps/kubevip', kubevip_install):
+    kmsg('k3s_kubevip', f'failed to install kube-vip\n{kubevip_install}', 'err')
     exit(0)
+
+  kmsg('k6s_kubevip', f'created {network_ip} vip')
 
 # return current vip master
 def get_kube_vip_master():
-  kubevip_q = f'get nodes --selector kube-vip.io/has-ip={network_ip} 2>&1'
+  kubevip_q = f'get nodes --selector kube-vip.io/has-ip={network_ip}'
   kubevip_o = kubectl(kubevip_q)
   try:
     kubevip_m = kubevip_o.split()[5]
   except:
-    kmsg('kubevip_check', 'no kubevip label found - reloading kubevip', 'err')
-    kubevip_r = kubectl('rollout restart daemonset kube-vip-ds  -n kube-system')
-    time.sleep(1)
-    kubevip_o = kubectl(kubevip_q)
-    #print(kubevip_o.split())
-    kubevip_m = kubevip_o.split()[5]
-#    kubevip_m = ''
+    kubevip_m = ''
   return(kubevip_m)
 
-# check kube vip is ok by checking for label
-#if get_kube_vip_master() == '':
-#  kmsg('kube-vip_check', 'vip label not found','err')
-#  kubevip_r = kubectl('rollout restart daemonset kube-vip-ds  -n kube-system')
-#  kmsg('kube-vip_check', kubevip_r,'warn')
-#  exit(0)
+def kubevip_reload():
+    reload = kubectl('rollout restart daemonset kubevip -n kube-system')
+    print(reload)
+    time.sleep(2)

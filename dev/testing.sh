@@ -27,20 +27,13 @@ kc() {
   sed -i /"$1 =/c\\$1 = $2" $CFG
 }
 
-# minimal cluster
-kc masters 1 ; kc workers 0
-$KCU
-kc masters 1 ; kc workers 1
-$KCU
-kc masters 1 ; kc workers 0
-$KCU
-
 # get pods
 get_pods="$KC kubectl get pods -A"
 
 # recreate 1 node
 #./kopsrox.py cluster destroy && ./kopsrox.py cluster create
-#$KCD ; $KCC
+kc workers 0 ; kc masters 1
+$KCD ; $KCC
 
 
 # add a worker and delete it

@@ -49,6 +49,9 @@ cmds = {
     "k3s-uninstall" : 'hostname',
     "rejoin-slave" : 'hostname',
   },
+  "kubevip": {
+    "reinstall": '',
+  }
 }
 
 # create list of verbs

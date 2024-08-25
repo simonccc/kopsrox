@@ -13,7 +13,7 @@ import wget,sys,os
 import urllib.parse
 
 # proxmox functions
-from kopsrox_proxmox import task_status, destroy
+from kopsrox_proxmox import task_status, prox_destroy
 
 # kmsg
 from kopsrox_kmsg import kmsg
@@ -65,7 +65,7 @@ fi'''
 
   # destroy template if it exists
   try:
-    destroy(cluster_id)
+    prox_destroy(cluster_id)
   except:
     pass
 
@@ -114,4 +114,4 @@ if cmd == 'info':
 # destroy image
 if cmd == 'destroy':
    kmsg(kname, f'{kopsrox_img()}/{cloud_image_desc}', 'warn')
-   destroy(cluster_id)
+   prox_destroy(cluster_id)
