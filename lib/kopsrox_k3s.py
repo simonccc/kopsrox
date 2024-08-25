@@ -19,8 +19,6 @@ def k3s_check(vmid: int):
   except:
     exit(0)
 
-  #print('k3s-check:', get_node)
-
   # if not found or Ready
   if re.search('NotReady', get_node) or re.search('NotFound', get_node):
     exit(0)
@@ -35,10 +33,10 @@ def k3s_check(vmid: int):
 def k3s_check_mon(vmid):
 
   # how long to wait for
-  wait = int(30)
+  wait: int = 30
 
   # check count
-  count = int(0)
+  count: int = 0 
 
   # run k3s_check
   while not k3s_check(vmid):
@@ -57,34 +55,31 @@ def k3s_check_mon(vmid):
 # create a master/slave/worker
 def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
-  
+  # nodetype error check
+  if nodetype not in ['master', 'slave', 'worker']:
+    kmsg('k3s_init-node', f'{nodetype} invalid nodetype', 'err')
+    exit(0)
+
+  # check node has internet
   internet_check(vmid)
 
+  # defines
   k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}"'
   k3s_install_flags = f' --disable servicelb --tls-san {network_ip}'
   k3s_install_master = f'{k3s_install_base} sh -s - server --cluster-init {k3s_install_flags}'
   k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{network_ip}:6443" '
-  
-  # nodetype error check
-  if nodetype not in ['master', 'slave', 'worker']:
-    kmsg('k3s_init-node', f'{nodetype} invalid nodetye', 'err')
-    exit(0)
  
   # check status of node
   try:
-    if k3s_check(vmid):
-      print(vmid, 'DEBUG ok')
+    k3s_check(vmid)
   except:
-    kmsg(f'k3s_{nodetype}-init', vmnames[vmid])
+    kmsg(f'k3s_{nodetype}-init', f'installing {k3s_version} on {vmnames[vmid]}')
 
     # get existing token if it exists
     token_fname = f'{cluster_name}.k3stoken'
     if os.path.isfile(token_fname):
         token = open(token_fname, "r").read()
         master_cmd = f' --token {token}'
-    else:
-        token = ''
-        master_cmd = ''
 
     # master
     if nodetype == 'master':
@@ -101,15 +96,20 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     if nodetype == 'worker':
       init_cmd = f'{k3s_install_worker}{k3s_token_cmd} sh -s'
 
+    # stderr
+    init_cmd = init_cmd + ' 2>&1'
+
     # run command
-    init_cmd_out = qaexec(vmid,(init_cmd + ' 2>1'))
+    init_cmd_out = qaexec(vmid,init_cmd)
 
     # wait until ready
     try:
       k3s_check_mon(vmid)
     except:
-      kmsg(f'k3s_{nodetype}-init', f'{vmnames[vmid]} {init_cmd_out}', 'err')
-      exit()
+      foo = k3s_check_mon(vmid)
+      print(foo)
+      kmsg(f'k3s_{nodetype}-init', f'k3s_check_mon failure {vmid}:{vmnames[vmid]}', 'err')
+      exit(0)
 
     # final steps for first master  - kubevip, export kubeconfig and token 
     if nodetype == 'master':
@@ -118,7 +118,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
       export_k3s_token()
 
 # remove a node
-def k3s_remove_node(vmid):
+def k3s_remove_node(vmid: int):
   vmname = vmnames[vmid]
   kmsg('k3s_remove-node', vmname)
 
@@ -168,7 +168,7 @@ def k3s_update_cluster():
   while ( master_count <=  2 ):
 
     # so eg 601 + 1 = 602 = m2
-    slave_masterid = int(masterid) + master_count
+    slave_masterid = masterid + master_count
     slave_hostname = vmnames[slave_masterid]
     kmsg('k3s_slave-check', slave_hostname)
 
@@ -200,7 +200,7 @@ def k3s_update_cluster():
  if workers > 0:
 
    # first id in the loop
-   worker_count = int(1)
+   worker_count: int = 1
 
    # cycle through possible workers
    while ( worker_count <= workers ):
@@ -291,17 +291,21 @@ def install_kube_vip():
   kv_manifest = open('./lib/kubevip/kubevip.yaml', "r").read().replace('KOPSROX_IP', network_ip).strip()
 
   # create the manifest
-  kv_install_manifest = qaexec(masterid, f'''cat <<EOF> /tmp/kubevip.yaml
+  qaexec(masterid, f'''cat <<EOF> /tmp/kubevip.yaml
 {kv_manifest}
 EOF
 ''')
+
+  # apply / replace the manifest
   kubevip_install = kubectl('replace --force -f /tmp/kubevip.yaml')
 
-  if not re.search('daemonset.apps/kubevip', kubevip_install):
+  # check output 
+  if not re.search('daemonset.apps/kubevip replaced', kubevip_install):
     kmsg('k3s_kubevip', f'failed to install kube-vip\n{kubevip_install}', 'err')
     exit(0)
 
-  kmsg('k6s_kubevip', f'created {network_ip} vip')
+  # install completed
+  kmsg('k3s_kubevip', f'{network_ip} vip active')
 
 # return current vip master
 def get_kube_vip_master():
@@ -313,7 +317,7 @@ def get_kube_vip_master():
     kubevip_m = ''
   return(kubevip_m)
 
+# reload kubevip
 def kubevip_reload():
     reload = kubectl('rollout restart daemonset kubevip -n kube-system')
     print(reload)
-    time.sleep(2)
