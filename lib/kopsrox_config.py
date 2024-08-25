@@ -19,11 +19,13 @@ import sys
 # local os commands
 import subprocess
 
+# used to encode ssh key
+import urllib.parse
+
 # datetime stuff for generating image date
 from datetime import datetime
 
-# colors
-#from termcolor import colored, cprint
+# kmsg
 from kopsrox_kmsg import kmsg
 
 # read ini file into config
@@ -40,19 +42,19 @@ def conf_check(section,value):
   # check option exists
   try:
     if not kopsrox_config.has_option(section,value):
-      exit()
+      exit(0)
   except:
     kmsg(kname, f'[{section}]/{value} is missing','err')
-    exit()
+    exit(0)
 
   # check value is not blank ( s3 section ok ) 
   try:
     if kopsrox_config.get(section, value) == '':
-      exit()
+      exit(0)
   except:
     if not section in ['s3']:
       kmsg(kname, f'[{section}]/{value} - a value is required','err')
-      exit()
+      exit(0)
 
   # define config_item
   config_item = kopsrox_config.get(section, value)
@@ -99,7 +101,13 @@ vm_ram = conf_check('kopsrox','vm_ram')
 # cloudinit
 cloudinituser = conf_check('kopsrox','cloudinituser')
 cloudinitpass = conf_check('kopsrox','cloudinitpass')
-cloudinitsshkey = conf_check('kopsrox','cloudinitsshkey')
+
+# check ssh key can be encoded correctly
+try:
+  cloudinitsshkey = urllib.parse.quote(conf_check('kopsrox','cloudinitsshkey'), safe='')
+except:
+  kmsg(kname, f'[kopsrox]/cloudinitsshkey - invalid ssh key', 'err')
+  exit(0)
 
 # network
 network_ip = conf_check('kopsrox','network_ip')
@@ -353,8 +361,7 @@ for vmid in vms:
 # functions used in other code
 
 # return ip for vmid
-def vmip(vmid):
-  vmid = int(vmid)
+def vmip(vmid: int):
   # last number of network + ( vmid - cluster_id ) 
   # eg 160 + ( 601 - 600 )  = 161 
   ip = f'{network_base}{(network_ip_prefix + (vmid - cluster_id))}'
@@ -373,7 +380,7 @@ def cluster_info():
       hostname = vmnames[vmid]
       vmstatus = f'[{info_vms[vmid]}] {vmip(vmid)}/{network_mask}'
       if hostname == curr_master:
-        vmstatus += f' <<kube-vip>> {network_ip}/{network_mask}'
+        vmstatus += f' vip {network_ip}/{network_mask}'
       kmsg(f'{hostname}_{vmid}', f'{vmstatus}')
 
   # fix this 
@@ -383,11 +390,13 @@ def cluster_info():
 def local_os_process(cmd):
   try:
     cmd_run = subprocess.run(['bash', "-c", cmd], text=True, capture_output=True)
-    if (cmd_run.returncode == 1):
-       exit()
+
+    # if return code 1 or any stderr
+    if (cmd_run.returncode == 1 or cmd_run.stderr != ''):
+       exit(0)
   except:
-    kmsg('local_os-process-error', cmd_run, 'err')
-    exit()
+    kmsg('local_os-process-error', f'{cmd_run} - {cmd_run.stderr.strip()}', 'err')
+    exit(0)
   return(cmd_run)
 
 # print image info

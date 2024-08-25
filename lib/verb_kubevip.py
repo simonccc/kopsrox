@@ -20,4 +20,5 @@ kname = 'kubevip_'+cmd
 
 # create utility node
 if cmd == 'reinstall':
+    kmsg(kname, " reinstalling kubevip"
     install_kube_vip()

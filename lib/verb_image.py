@@ -9,9 +9,6 @@ from kopsrox_config import node, storage, cluster_id, cloud_image_url, cluster_n
 # general imports
 import wget,sys,os
 
-# used to encode ssh key
-import urllib.parse
-
 # proxmox functions
 from kopsrox_proxmox import task_status, prox_destroy
 
@@ -43,6 +40,9 @@ if cmd == 'create':
   # script to install qemu-guest-agent on multiple os's disable selinux on Rocky
   install_qga = '''
 curl -sfL https://get.k3s.io > /k3s.sh 
+export INSTALL_K3S_SKIP_ENABLE=true
+export INSTALL_K3S_SKIP_SELINUX_RPM=true
+bash /k3s.sh 
 if [ ! -f /usr/bin/qemu-ga ] 
 then
   if [ -f /bin/yum ]  
@@ -61,16 +61,13 @@ then
   cp /dev/null /etc/sysconfig/qemu-ga 
 fi'''
   patch_cmd = f'sudo virt-customize -a {cloud_image} --run-command "{install_qga}"'
-  local_os_process(patch_cmd)
+  patch_out = local_os_process(patch_cmd)
 
   # destroy template if it exists
   try:
     prox_destroy(cluster_id)
   except:
     pass
-
-  # encode ssh key
-  ssh_encode = urllib.parse.quote(cloudinitsshkey, safe='')
 
   # create new server
   task_status(prox.nodes(node).qemu.post(
@@ -91,12 +88,12 @@ fi'''
     description = cloud_image,
     ciuser = cloudinituser, 
     cipassword = cloudinitpass,
-    sshkeys = ssh_encode,
+    sshkeys = cloudinitsshkey,
   ))
 
   # shell to import disk
   import_cmd = f'\
-sudo qm set {cluster_id} --virtio0 {storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true  ; \
+sudo qm set {cluster_id} --scsi0 {storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true,aio=native,discard=on,ssd=1 ; \
 mv {cloud_image} {cloud_image}.patched'
 
   # run shell command to import

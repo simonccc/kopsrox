@@ -11,27 +11,25 @@ from kopsrox_kmsg import kmsg
 import re, time, os
 
 # check for k3s status
-def k3s_check(vmid):
-
-  vmid = int(vmid)
-    
-  # check k3s installed
-  if 'nok3sbin' == qaexec(vmid, 'if [ ! -e /usr/local/bin/k3s ] ; then echo nok3sbin; fi'):
-    exit()
+def k3s_check(vmid: int):
 
   # test call
-  get_node = kubectl('get node ' + vmnames[vmid])
+  try:
+    get_node = kubectl('get node ' + vmnames[vmid])
+  except:
+    exit(0)
+
+  #print('k3s-check:', get_node)
 
   # if not found or Ready
   if re.search('NotReady', get_node) or re.search('NotFound', get_node):
-    return False
+    exit(0)
 
   # return true if Ready
   if re.search('Ready', get_node):
     return True
-
-  # failsafe
-  return False
+  else:
+    exit(0)
 
 # wait for node
 def k3s_check_mon(vmid):
@@ -57,7 +55,10 @@ def k3s_check_mon(vmid):
   return True
 
 # create a master/slave/worker
-def k3s_init_node(vmid = masterid,nodetype = 'master'):
+def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
+
+  
+  internet_check(vmid)
 
   k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}"'
   k3s_install_flags = f' --disable servicelb --tls-san {network_ip}'
@@ -71,12 +72,10 @@ def k3s_init_node(vmid = masterid,nodetype = 'master'):
  
   # check status of node
   try:
-    k3s_check(vmid)
+    if k3s_check(vmid):
+      print(vmid, 'DEBUG ok')
   except:
     kmsg(f'k3s_{nodetype}-init', vmnames[vmid])
-
-    # check vm has internet
-    internet_check(vmid)
 
     # get existing token if it exists
     token_fname = f'{cluster_name}.k3stoken'

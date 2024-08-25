@@ -189,7 +189,7 @@ def clone(vmid):
 
   # resize disk
   task_status(prox.nodes(node).qemu(vmid).resize.put(
-    disk = 'virtio0',
+    disk = 'scsi0',
     size = f'{vm_disk}G',
   ))
 

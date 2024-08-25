@@ -94,6 +94,8 @@ spec:
           value: "1"
         - name: enable_node_labeling
           value: "true"
+        - name: vip_loglevel
+          value: "5"
         - name: address
           value: KOPSROX_IP
         image: ghcr.io/kube-vip/kube-vip:main
