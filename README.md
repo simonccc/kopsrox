@@ -1,4 +1,4 @@
-# :burger: kopsrox
+# :hamburger: kopsrox
 
 - kopsrox is a script to automate creation and management of simple ha k3s cluster on ProxmoxVE using cloud images :nerd_face:
 - add more master/worker k3s nodes using a simple config file and cli interface :pray:
@@ -15,4 +15,4 @@
 # :boom: in progress 
  - Improving Docs
  - Some code clean up
- - Recent: bug fixes
+ - Recent: bug fixes, machine type optimisations, kubevip improvements

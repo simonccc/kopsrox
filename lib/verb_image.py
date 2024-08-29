@@ -21,23 +21,23 @@ kname = 'image_'
 
 # create image
 if cmd == 'create':
-  kmsg(f'{kname}create', f'name:{cluster_name}-i1', 'sys')
 
   # get image name from url 
   cloud_image = cloud_image_url.split('/')[-1]
-  kmsg(f'{kname}download', f'{cloud_image_url}')
+  kmsg(f'{kname}create', f'{cloud_image}-{k3s_version} {storage}/{cluster_name}-i0/{cluster_id}', 'sys')
 
   # check if image already exists
   if os.path.isfile(cloud_image):
-    kmsg(kname, f'{cloud_image} already exists', 'err')
+    kmsg(f'{kname}check', f'Error! {cloud_image} already exists - please delete', 'err')
     exit(0)
 
   # check img can be downloaded
   try:
+    kmsg(f'{kname}wget', f'{cloud_image_url}')
     wget.download(cloud_image_url)
     print()
   except:
-    kmsg(kname, f'unable to download {cloud_image_url}', 'err')
+    kmsg(f'{kname}check', f'unable to download {cloud_image_url}', 'err')
     exit(0)
 
   # script to install disable selinux on Rocky
@@ -59,10 +59,10 @@ then
   cp /dev/null /etc/sysconfig/qemu-ga 
 fi'''
   # shouldn't really need root but run into permissions problems
-  patch_cmd = f'sudo virt-customize --smp 2 -m 2048 -a {cloud_image} --install qemu-guest-agent --run-command "{virtc_script}"'
+  virtc_cmd = f'sudo virt-customize --smp 2 -m 2048 -a {cloud_image} --install qemu-guest-agent --run-command "{virtc_script}"'
 
-  kmsg('image_virt-customize', 'configuring image')
-  patch_out = local_os_process(patch_cmd)
+  kmsg(f'{kname}virt-customize', 'configuring image')
+  local_os_process(virtc_cmd)
 
   # destroy template if it exists
   try:
@@ -88,26 +88,25 @@ fi'''
     agent = ('enabled=true'),
     hotplug = 0,
     ciupgrade = 0,
-    description = f'<pre>{cluster_name} template\n{cloud_image}\n{k3s_version}',
+    description = f'<pre>{cluster_name} image\nbased on: {cloud_image}\nk3s version: {k3s_version}',
     ciuser = cloudinituser, 
     cipassword = cloudinitpass,
     sshkeys = cloudinitsshkey,
-    tdf = '1',
   ))
 
   # shell to import disk
   # import-from requires the full path os.getcwd required here
   import_cmd = f'''
-sudo qm set {cluster_id} --scsi0 {storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true,aio=native,discard=on,ssd=1 
+sudo qm set {cluster_id} --scsi0 {storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true,aio=native
 mv {cloud_image} {cloud_image}.patched'''
 
   # run shell command to import
-  kmsg(f'image_qm-import', f'{cloud_image} > {storage}/{cluster_id}')
   local_os_process(import_cmd)
 
   # convert to template via create base disk also vm config
   task_status(prox.nodes(node).qemu(cluster_id).template.post())
   task_status(prox.nodes(node).qemu(cluster_id).config.post(template = 1))
+  kmsg(f'{kname}qm-import', f'done')
 
 # image info
 if cmd == 'info':
@@ -115,5 +114,5 @@ if cmd == 'info':
 
 # destroy image
 if cmd == 'destroy':
-   kmsg(kname, f'{kopsrox_img()}/{cloud_image_desc}', 'warn')
+   kmsg(f'{kname}destroy', f'{kopsrox_img()}/{cloud_image_desc}', 'warn')
    prox_destroy(cluster_id)

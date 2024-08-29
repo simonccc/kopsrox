@@ -45,8 +45,8 @@ def init_kopsrox_ini():
   config.add_section('kopsrox')
 
   # upstream image
-  config.set('kopsrox', '; the upstream cloud image used to create the kopsrox template')
-  config.set('kopsrox', 'cloud_image_url', 'https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img')
+  config.set('kopsrox', '; the upstream cloud image used to create the kopsrox image')
+  config.set('kopsrox', 'cloud_image_url', '//cloud-images.ubuntu.com/minimal/daily/oracular/current/oracular-minimal-cloudimg-amd64.img')
 
   # disk size for kopsrox vms
   config.set('kopsrox', '; size of kopsrox vm disk in Gib ')

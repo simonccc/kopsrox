@@ -317,7 +317,7 @@ except:
 
   except:
     # no image found
-    kmsg(kname, 'no template detected - please run "kopsrox image create"', 'err')
+    kmsg(kname, f'{cluster_name} image not found - please run "kopsrox image create"', 'err')
     exit(0)
 
   # get image info

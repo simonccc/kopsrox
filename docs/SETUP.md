@@ -1,13 +1,11 @@
-
-
-# :baby_symbol: setup 
+# :hamburger: kopsrox setup 
 
 ## :hammer_and_wrench: requirements
 
 - Proxmox VE with root access or a user who can 'sudo su' without a password
 - network with internet access configured in proxmox as a bridge or a proxmox sdn network
 - a range of 10 free Proxmox qm/virtual machine id 'vmids' eg 600 to 610
-- a range of 10 IP's on a network for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
+- a range of 10 IP's on a network with internet access for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
 - clone the repo and follow the steps below 
 
 ## :bricks: install packages
@@ -16,6 +14,8 @@
 - `pip3 install --break-system-packages --user -r requirements.txt`
 
 _installs the required pip packages vs using os packages_
+
+( this will be improved in the future  ) 
 
 ## :star: generate api key
 

@@ -7,6 +7,7 @@ documentation is a WIP :construction:
 - [etcd](#etcd)
 - [node](#node)
 - [k3s](#k3s)
+- [kubevip](#kubevip)
 
 ##  :cyclone: image <a name=image>
 ### :white_check_mark: create 
@@ -119,4 +120,7 @@ usage:
 - uninstalls k3s using the usual script
 - for experimenting with k3s reinstall
 
+## :cyclone: kubevip <a name=kubevip>
 
+### reinstall
+- reinstalls kubevip 
