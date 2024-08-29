@@ -24,7 +24,7 @@ if cmd == 'create':
 
   # get image name from url 
   cloud_image = cloud_image_url.split('/')[-1]
-  kmsg(f'{kname}create', f'{cloud_image}-{k3s_version} {storage}/{cluster_name}-i0/{cluster_id}', 'sys')
+  kmsg(f'{kname}create', f'{cloud_image}/{k3s_version} {storage}/{cluster_name}-i0/{cluster_id}', 'sys')
 
   # check if image already exists
   if os.path.isfile(cloud_image):

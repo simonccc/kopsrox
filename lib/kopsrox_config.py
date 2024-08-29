@@ -270,25 +270,36 @@ except:
   kmsg(kname, f'"{storage}" not found. discovered storage:', 'err')
   for discovered_storage in storage_list:
     print(' - ' + discovered_storage.get("storage"))
-  exit()
+  exit(0)
 
-# check configured bridge exist or is a sdn vnet
+# check configured bridge exists or is a sdn vnet
 # configured bridge does not contain the string 'sdn/'
 if not re.search('sdn/', network_bridge):
-  discovered_bridges = [bridge.get('iface', None) for bridge in prox.nodes(node).network.get(type = 'bridge')]
-else:
-  # map zone and get vnets
-  sdn_params = network_bridge.split('/')
-  zone = sdn_params[1]
-  discovered_bridges = [bridge.get('vnet', None) for bridge in prox.nodes(node).sdn.zones(zone).content.get()]
 
-  # map network_bridge var to passed vnet
-  network_bridge = sdn_params[2]
+  # discover available traditional bridges
+  discovered_bridges = [bridge.get('iface', None) for bridge in prox.nodes(node).network.get(type = 'bridge')]
+
+# sdn bridges / zones
+else:
+  # check we can map zone and get vnets
+  try:
+    sdn_params = network_bridge.split('/')
+    if not sdn_params[1] or not sdn_params[2]:
+      exit(0)
+    else:
+      zone = sdn_params[1]
+      network_bridge = sdn_params[2]
+  except:
+    kmsg(kname, f'unable to parse sdn config: "{network_bridge}"', 'err')
+    exit(0)
+
+  # discover available sdn bridges
+  discovered_bridges = [bridge.get('vnet', None) for bridge in prox.nodes(node).sdn.zones(zone).content.get()]
 
 # check configured bridge is in list
 if network_bridge not in discovered_bridges:
-  kmsg(kname, f'{network_bridge} not found. valid bridges: {discovered_bridges}', 'err')
-  exit()
+  kmsg(kname, f'"{network_bridge}" not found. valid bridges: {discovered_bridges}', 'err')
+  exit(0)
 
 # dummy cloud_image_vars overwritten below
 cloud_image_size = 0
