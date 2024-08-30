@@ -50,6 +50,9 @@ def k3s_check_mon(vmid: int):
       kmsg('k3s_check-mon', f'timed out after {wait}s for {vmnames[vmid]}', 'err')
       exit(0)
 
+  # return count
+  return(count)
+
 # create a master/slave/worker
 def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
@@ -70,6 +73,8 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
   k3s_install_flags = f' --disable servicelb --tls-san {network_ip}'
   k3s_install_master = f'{k3s_install_base} sh -s - server --cluster-init {k3s_install_flags}'
   k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{network_ip}:6443" '
+  master_cmd = ''
+  token = ''
  
   # check status of node
   try:
@@ -79,9 +84,10 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
     # get existing token if it exists
     token_fname = f'{cluster_name}.k3stoken'
+
     if os.path.isfile(token_fname):
-        token = open(token_fname, "r").read()
-        master_cmd = f' --token {token}'
+      token = open(token_fname, "r").read()
+      master_cmd = f' --token {token}'
 
     # master
     if nodetype == 'master':
@@ -108,8 +114,6 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     try:
       k3s_check_mon(vmid)
     except:
-      foo = k3s_check_mon(vmid)
-      print(foo)
       kmsg(f'k3s_{nodetype}-init', f'k3s_check_mon failure {vmid}:{vmnames[vmid]}', 'err')
       exit(0)
 
