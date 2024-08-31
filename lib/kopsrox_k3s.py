@@ -29,30 +29,6 @@ def k3s_check(vmid: int):
   else:
     exit(0)
 
-# wait for node
-def k3s_check_mon(vmid: int):
-
-  # how long to wait for
-  wait: int = 20
-
-  # check count
-  count: int = 1 
-
-  # run k3s_check
-  while not k3s_check(vmid):
-
-    # counter + sleep
-    count += 1
-    time.sleep(1)
-
-    # timeout after 30 secs
-    if count == wait:
-      kmsg('k3s_check-mon', f'timed out after {wait}s for {vmnames[vmid]}', 'err')
-      exit(0)
-
-  # return count
-  return(count)
-
 # create a master/slave/worker
 def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
@@ -112,11 +88,22 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     init_cmd_out = qaexec(vmid,init_cmd)
 
     # wait until ready
-    try:
-      k3s_check_mon(vmid)
-    except:
-      kmsg(f'k3s_{nodetype}-init', f'k3s_check_mon failure {vmid}:{vmnames[vmid]}', 'err')
-      exit(0)
+    wait: int = 20
+    count: int = 1 
+    status = ''
+    while not status == 'Ready':
+
+      try:
+        if not k3s_check(vmid):
+          exit(0)
+        else:
+          status = 'Ready'
+      except:
+        count += 1
+        if count == wait:
+          kmsg('k3s_check', f'timed out after {wait}s for {vmnames[vmid]}', 'err')
+          exit(0)
+        time.sleep(1)
 
     # final steps for first master  - kubevip, export kubeconfig and token 
     if nodetype == 'master':
@@ -163,7 +150,7 @@ def k3s_rm_cluster(restore = False):
 
 # builds or removes other nodes from the cluster as required per config
 def k3s_update_cluster():
- kmsg('k3s_update-cluster', f'checking: {masters} masters {workers} workers', 'sys')
+ kmsg('k3s_update-cluster', f'{cluster_name}/{k3s_version} - checking {masters} masters and {workers} workers', 'sys')
 
  # checks the master node
  k3s_init_node()
@@ -180,7 +167,6 @@ def k3s_update_cluster():
     # so eg 601 + 1 = 602 = m2
     slave_masterid = masterid + master_count
     slave_hostname = vmnames[slave_masterid]
-    kmsg('k3s_slave-check', slave_hostname)
 
     # existing server
     if slave_masterid not in vmids:
@@ -216,7 +202,6 @@ def k3s_update_cluster():
    while ( worker_count <= workers ):
      # calculate workerid
      workerid = masterid + 3 + worker_count
-     kmsg('k3s_worker-check', vmnames[workerid])
 
      # if existing vm with this id found
      if workerid not in vmids:

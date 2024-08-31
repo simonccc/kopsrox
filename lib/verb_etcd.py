@@ -153,7 +153,8 @@ systemctl start k3s'
     and not re.search('json: no such file or directory', line) \
     and not re.search('Cluster CA certificate is trusted by the host CA bundle', line) \
     and not re.search('Bootstrap key already exists', line):
-      kmsg(kname, line)
+    # else print line as sys
+      kmsg(kname, line, 'sys')
 
   # delete extra nodes in the restored cluster
   nodes = kubectl('get nodes').split()

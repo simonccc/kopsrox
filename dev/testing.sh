@@ -32,9 +32,8 @@ get_pods="$KC kubectl get pods -A"
 
 # recreate 1 node
 #./kopsrox.py cluster destroy && ./kopsrox.py cluster create
-kc workers 0 ; kc masters 1
-$KCD ; $KCC
-
+#kc workers 0 ; kc masters 1
+#$KCD ; $KCC
 
 # add a worker and delete it
 #kc workers 0 ; $KCU ; kc workers 3 ; $KCU ; kc workers 0 ; $KCU
@@ -44,6 +43,11 @@ $KCD ; $KCC
 #$KCD ; $KIC ; $KCC ; $KERL
 #
 
+# go from 1 master to 3
+kc masters 1
+$KCU
+kc masters 3
+$KCU
 
 finish_time=$(date +%s) 
 echo  $((finish_time - start_time)) secs
