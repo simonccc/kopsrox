@@ -6,12 +6,14 @@
 - network with internet access configured in proxmox as a bridge or a proxmox sdn network
 - a range of 10 free Proxmox qm/virtual machine id 'vmids' eg 600 to 610
 - a range of 10 IP's on a network with internet access for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
-- clone the repo and follow the steps below 
 
-## :bricks: install packages
+## :bricks: install
 
-- `sudo apt install libguestfs-tools python3-termcolor -y`
-- `pip3 install --break-system-packages --user -r requirements.txt`
+## :bricks: install 
+
+- clone the repo - or probably better one of the releases or stable branches - the 'main' branch can often be a bit broken
+- sudo apt install libguestfs-tools python3-termcolor -y`
+- pip3 install --break-system-packages --user -r requirements.txt`
 
 _installs the required pip packages vs using os packages_
 
