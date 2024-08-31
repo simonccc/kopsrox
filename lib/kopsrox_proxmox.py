@@ -9,25 +9,24 @@ from kopsrox_config import node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,
 from kopsrox_kmsg import kmsg
 
 # run a exec via qemu-agent
-# find out what doesn't call this as an int
-def qaexec(vmid = masterid,cmd = 'uptime'):
-
-  vmid = int(vmid)
+def qaexec(vmid: int = masterid,cmd = 'uptime'):
 
   # define kname
   kname = 'proxmox_qaexec'
 
   # get vmname
+  # fixme try?
   vmname = vmnames[vmid]
 
   # get node
+  # fixme try?
   node = get_node(vmid)
 
   # qagent no yet running check
   qagent_running = 'false'
 
   # max wait time
-  qagent_count = int(0)
+  qagent_count = int(1)
 
   # while variable is false
   while qagent_running == 'false':
@@ -53,7 +52,6 @@ def qaexec(vmid = masterid,cmd = 'uptime'):
       time.sleep(1)
 
   # send command
-  # could try redirecting stderr to out since we don't error on stderr
   try: 
     qa_exec = prox.nodes(node).qemu(vmid).agent.exec.post(
             command = "sh -c \'" + cmd +"\'",
@@ -65,10 +63,11 @@ def qaexec(vmid = masterid,cmd = 'uptime'):
 
   # get pid
   pid = qa_exec['pid']
+  pid_status = int(0)
 
   # loop until command has finish
-  pid_status = int(0)
-  while ( int(pid_status) != int(1) ):
+  # fixme needs a loop counter?
+  while pid_status != int(1):
     try:
       pid_check = prox.nodes(node).qemu(vmid).agent('exec-status').get(pid = pid)
     except:
@@ -86,10 +85,10 @@ def qaexec(vmid = masterid,cmd = 'uptime'):
   # check for err-data
   try:
 
-    # if err-data exists
+    # if stderr / err-data exists
     if (pid_check['err-data']):
 
-      # print err data warning \
+      # print data warning \
       kmsg('qaexec_stderr', ( 'CMD: ' +cmd + '\n' + pid_check['err-data'].strip()), 'err')
 
       # if there is output return that otherwise exit
@@ -110,7 +109,7 @@ def qaexec(vmid = masterid,cmd = 'uptime'):
 # return the node for a vmid
 def get_node(vmid):
 
-  # if it exists node is ok
+  # if it exists node is ok and we can return the configured node
   if vmid == cluster_id:
     return(node)
 

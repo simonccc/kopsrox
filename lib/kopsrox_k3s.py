@@ -36,7 +36,7 @@ def k3s_check_mon(vmid: int):
   wait: int = 20
 
   # check count
-  count: int = 0 
+  count: int = 1 
 
   # run k3s_check
   while not k3s_check(vmid):
@@ -78,7 +78,8 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
  
   # check status of node
   try:
-    k3s_check(vmid)
+    if not k3s_check(vmid):
+      exit(0)
   except:
     kmsg(f'k3s_{nodetype}-init', f'installing {k3s_version} on {vmnames[vmid]}')
 

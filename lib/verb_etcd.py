@@ -52,7 +52,7 @@ def list_snapshots():
   for line in sorted(ls):
 
     # if cluster name matches the s3 line append to the images string
-    if re.search('s3', line) and re.search(cluster_name, line):
+    if re.search(f'kopsrox-{cluster_name}', line):
       images += line+'\n'
 
   # return images string
@@ -74,7 +74,7 @@ if cmd == 'snapshot':
     export_k3s_token()
 
   # define snapshot command
-  snap_cmd = f'k3s etcd-snapshot save {s3_string} --name kopsrox --etcd-snapshot-compress'
+  snap_cmd = f'k3s etcd-snapshot save {s3_string} --name kopsrox --etcd-snapshot-compress 2>&1'
   #print(snap_cmd)
   snapout = qaexec(masterid,snap_cmd)
 
@@ -92,6 +92,7 @@ def s3_list():
 if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
 
   # snapshots must exist
+  # fixme - better
   if not snapshots:
     snapshots = 'not found'
     s3_list()
@@ -134,14 +135,12 @@ if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
   # define restore command
   restore_cmd = f'\
 systemctl stop k3s &&  \
-rm -rf /var/lib/rancher/k3s/server/db/ && \
-k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} {s3_string} ; \
+k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} {s3_string} 2>&1 ; \
 systemctl start k3s'
 
   # display some filtered restore contents
   restore = qaexec(masterid, restore_cmd)
-  restout = restore.split('\n')
-  for line in restout:
+  for line in restore.split('\n'):
 
     # if output contains fatal error
     if re.search('level=fatal', line):
@@ -153,8 +152,7 @@ systemctl start k3s'
     if re.search('level=', line) and not re.search('info', line) \
     and not re.search('json: no such file or directory', line) \
     and not re.search('Cluster CA certificate is trusted by the host CA bundle', line) \
-    and not re.search('Bootstrap key already exists', line) \
-    :
+    and not re.search('Bootstrap key already exists', line):
       kmsg(kname, line)
 
   # delete extra nodes in the restored cluster
@@ -165,7 +163,7 @@ systemctl start k3s'
 
     # if matches cluster name and not master node
     if re.search(f'{cluster_name}-', node) and (node != f'{cluster_name}-m1'):
-      kmsg(kname, f'removing stale node {node}', 'warn')
+      kmsg(kname, f'removing stale node {node}', 'sys')
 
       # need to check this..
       kubectl(f'delete node {node}')

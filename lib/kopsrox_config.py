@@ -365,7 +365,7 @@ for vmid in vms:
 
     # start stopped nodes
     if vmi['status'] == 'stopped':
-      kmsg(kname, f'powering on {vmi["name"]}', 'warn')
+      kmsg(kname, f'powering on {vmi["name"]}', 'sys')
       prox.nodes(pnode).qemu(vmid).status.start.post()
 
 # end of checks

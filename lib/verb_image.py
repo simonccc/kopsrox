@@ -114,5 +114,5 @@ if cmd == 'info':
 
 # destroy image
 if cmd == 'destroy':
-   kmsg(f'{kname}destroy', f'{kopsrox_img()}/{cloud_image_desc}', 'warn')
+   kmsg(f'{kname}destroy', f'{kopsrox_img()}/{cloud_image_desc}', 'sys')
    prox_destroy(cluster_id)
