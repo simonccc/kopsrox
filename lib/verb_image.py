@@ -10,7 +10,7 @@ from kopsrox_config import node, storage, cluster_id, cloud_image_url, cluster_n
 import wget,sys,os
 
 # proxmox functions
-from kopsrox_proxmox import task_status, prox_destroy
+from kopsrox_proxmox import prox_task, prox_destroy
 
 # kmsg
 from kopsrox_kmsg import kmsg
@@ -71,7 +71,7 @@ fi'''
     pass
 
   # create new server
-  task_status(prox.nodes(node).qemu.post(
+  prox_task(prox.nodes(node).qemu.post(
     vmid = cluster_id,
     cores = 1,
     memory = 1024,
@@ -104,8 +104,8 @@ mv {cloud_image} {cloud_image}.patched'''
   local_os_process(import_cmd)
 
   # convert to template via create base disk also vm config
-  task_status(prox.nodes(node).qemu(cluster_id).template.post())
-  task_status(prox.nodes(node).qemu(cluster_id).config.post(template = 1))
+  prox_task(prox.nodes(node).qemu(cluster_id).template.post())
+  prox_task(prox.nodes(node).qemu(cluster_id).config.post(template = 1))
   kmsg(f'{kname}qm-import', f'done')
 
 # image info
