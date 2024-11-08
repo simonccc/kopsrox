@@ -304,7 +304,6 @@ if network_bridge not in discovered_bridges:
 # dummy cloud_image_vars overwritten below
 cloud_image_size = 0
 cloud_image_desc = ''
-cloud_image_created = ''
 
 # skip image check if image create is passed
 try:
@@ -342,7 +341,6 @@ except:
 
     # get image created and desc from template
     template_data = prox.nodes(node).qemu(cluster_id).config.get()
-    cloud_image_created = str(datetime.fromtimestamp(int(template_data['meta'].split(',')[1].split('=')[1])))
     cloud_image_desc = template_data['description']
 
   except:
@@ -415,5 +413,4 @@ def image_info():
   kname = f'image_'
   kmsg(f'{kname}desc', cloud_image_desc)
   kmsg(f'{kname}storage', f'{kopsrox_image_name} ({storage_type})')
-  kmsg(f'{kname}created', cloud_image_created)
   kmsg(f'{kname}size', f'{cloud_image_size}G')

@@ -15,6 +15,9 @@ from kopsrox_proxmox import prox_task, prox_destroy
 # kmsg
 from kopsrox_kmsg import kmsg
 
+# date
+from datetime import datetime
+
 # define command
 cmd = sys.argv[2]
 kname = 'image_'
@@ -28,8 +31,14 @@ if cmd == 'create':
 
   # check if image already exists
   if os.path.isfile(cloud_image):
-    kmsg(f'{kname}check', f'Error! {cloud_image} already exists - please delete', 'err')
-    exit(0)
+    kmsg(f'{kname}check', f'{cloud_image} already exists - removing', 'warn')
+    try:
+      os.remove(cloud_image)
+      if os.path.isfile(cloud_image):
+        exit(0)
+    except:
+      kmsg(f'{kname}check', f'{cloud_image} cannot delete', 'err')
+      exit(0)
 
   # check img can be downloaded
   try:
@@ -59,7 +68,7 @@ then
   cp /dev/null /etc/sysconfig/qemu-ga 
 fi'''
   # shouldn't really need root but run into permissions problems
-  virtc_cmd = f'sudo virt-customize --smp 2 -m 2048 -a {cloud_image} --install qemu-guest-agent --run-command "{virtc_script}"'
+  virtc_cmd = f'sudo virt-customize --smp 1 -m 1024 -a {cloud_image} --install qemu-guest-agent --run-command "{virtc_script}"'
 
   kmsg(f'{kname}virt-customize', 'configuring image')
   local_os_process(virtc_cmd)
@@ -69,6 +78,15 @@ fi'''
     prox_destroy(cluster_id)
   except:
     pass
+
+  # define image desc
+  img_ts = str(datetime.now())
+  img_chksum = abs(hash(cluster_name+cloud_image+k3s_version+img_ts))
+  image_desc = f'''<pre>{cluster_name}
+  image based on: {cloud_image}
+  k3s version: {k3s_version}
+  created: {img_ts}
+  checksum: {img_chksum}'''
 
   # create new server
   prox_task(prox.nodes(node).qemu.post(
@@ -88,7 +106,7 @@ fi'''
     agent = ('enabled=true'),
     hotplug = 0,
     ciupgrade = 0,
-    description = f'<pre>{cluster_name} image\nbased on: {cloud_image}\nk3s version: {k3s_version}',
+    description = image_desc,
     ciuser = cloudinituser, 
     cipassword = cloudinitpass,
     sshkeys = cloudinitsshkey,

@@ -7,17 +7,11 @@
 - a range of 10 free Proxmox qm/virtual machine id 'vmids' eg 600 to 610
 - a range of 10 IP's on a network with internet access for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
 
-## :bricks: install
-
 ## :bricks: install 
 
-- clone the repo - or probably better one of the releases or stable branches - the 'main' branch can often be a bit broken
-- sudo apt install libguestfs-tools python3-termcolor -y`
+- get one of the releases or stable branches - the 'main' branch can often be a bit broken
+- sudo apt install libguestfs-tools python3-termcolor python3-wget -y`
 - pip3 install --break-system-packages --user -r requirements.txt`
-
-_installs the required pip packages vs using os packages_
-
-( this will be improved in the future  ) 
 
 ## :star: generate api key
 
