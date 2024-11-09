@@ -220,13 +220,15 @@ def k3s_update_cluster():
 
 # kubeconfig
 def kubeconfig():
+
+  # define filename
+  kubeconfig_file = f'{cluster_name}.kubeconfig'
   # replace 127.0.0.1 with vip ip
   kconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml').replace('127.0.0.1', network_ip)
-
-  # write file out
-  with open(f'{cluster_name}.kubeconfig','w') as kfile:
-    kfile.write(kconfig)
-  kmsg('k3s_kubeconfig', ('saved ' + (cluster_name +'.kubeconfig')))
+  # write file with 600 permissions
+  with os.fdopen(os.open(kubeconfig_file, os.O_WRONLY | os.O_CREAT, 0o600), 'w') as handle:
+    handle.write(kconfig)
+  kmsg('k3s_kubeconfig', f'saved {kubeconfig_file}')
 
 # kubectl
 def kubectl(cmd):
@@ -246,7 +248,6 @@ def export_k3s_token():
 
   # define token file name
   token_name = f'{cluster_name}.k3stoken'
-
   # get masters token
   live_token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/token')
 
