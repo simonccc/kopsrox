@@ -3,9 +3,6 @@
 # functions
 from kopsrox_config import * 
 
-# general imports
-import wget,os
-
 # proxmox functions
 from kopsrox_proxmox import prox_task, prox_destroy
 
@@ -22,7 +19,7 @@ if cmd == 'create':
 
   # check if image already exists
   if os.path.isfile(cloud_image):
-    kmsg(f'{kname}check', f'{cloud_image} already exists - removing', 'warn')
+    kmsg(f'image_check', f'{cloud_image} already exists - removing', 'warn')
     try:
       os.remove(cloud_image)
       if os.path.isfile(cloud_image):
@@ -47,7 +44,7 @@ cat /k3s.sh | \
 INSTALL_K3S_SKIP_ENABLE=true \
 INSTALL_K3S_SKIP_SELINUX_RPM=true \
 INSTALL_K3S_VERSION={k3s_version} \
-sh -s - server --cluster-init > /k3s-image-install.log 2>&1
+sh -s - server --cluster-init > /{cluster_name}-image-install.log 2>&1
 
 if [ -f /etc/selinux/config ] 
 then
@@ -57,7 +54,20 @@ fi
 if [ -f /etc/sysconfig/qemu-ga ]
 then
   cp /dev/null /etc/sysconfig/qemu-ga 
-fi'''
+fi
+mkdir -p /var/lib/rancher/k3s/server/manifests/
+echo '
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    service:
+      spec:
+        loadBalancerIP: "{network_ip}"' > /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
+'''
   # shouldn't really need root but run into permissions problems
   virtc_cmd = f'sudo virt-customize --smp 2 -m 2048 -a {cloud_image} --install qemu-guest-agent --run-command "{virtc_script}"'
 

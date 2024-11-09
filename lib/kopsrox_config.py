@@ -1,29 +1,18 @@
 #!/usr/bin/env python3
 
-# imports
+# external imports
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# proxmoxer api
+import urllib.parse
+import wget
+from datetime import datetime
 from proxmoxer import ProxmoxAPI
-
-# prompt
-kname = 'config-check'
 
 # look for strings in responses
 import re
 
-# checks cmd line args - could be moved?
-import sys
-
-# local os commands
-import subprocess
-
-# used to encode ssh key
-import urllib.parse
-
-# datetime stuff for generating image date
-from datetime import datetime
+# checks cmd line args file ops and processes
+import os,sys,subprocess
 
 # kmsg
 from kopsrox_kmsg import kmsg

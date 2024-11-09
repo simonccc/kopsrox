@@ -1,14 +1,13 @@
 #!/usr/bin/env python3 
 
 # imports
-from kopsrox_config import masterid, k3s_version, masters, workers, cluster_name, vmnames, vmip, cluster_info, list_kopsrox_vm, network_ip
+from kopsrox_config import *
 
 # standard imports
 from kopsrox_proxmox import qaexec, prox_destroy, internet_check, clone
-from kopsrox_kmsg import kmsg
 
 # standard imports
-import re, time, os
+import time, os
 
 # check for k3s status
 def k3s_check(vmid: int):
@@ -301,6 +300,9 @@ EOF
 
   # install completed
   kmsg('k3s_kubevip', f'{network_ip} vip active')
+
+def patch_traefik():
+  return(kubectl(f'-n kube-system patch svc traefik -p \'{{"spec":{{"loadBalancerIP":"{network_ip}"}}}}\''))
 
 # return current vip master
 def get_kube_vip_master():
