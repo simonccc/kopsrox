@@ -1,22 +1,13 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import prox, local_os_process, image_info, cloud_image_desc, kopsrox_img, k3s_version
-
-# variables
-from kopsrox_config import node, storage, cluster_id, cloud_image_url, cluster_name, cloudinitsshkey, cloudinituser, cloudinitpass
+from kopsrox_config import * 
 
 # general imports
-import wget,sys,os
+import wget,os
 
 # proxmox functions
 from kopsrox_proxmox import prox_task, prox_destroy
-
-# kmsg
-from kopsrox_kmsg import kmsg
-
-# date
-from datetime import datetime
 
 # define command
 cmd = sys.argv[2]
@@ -68,7 +59,7 @@ then
   cp /dev/null /etc/sysconfig/qemu-ga 
 fi'''
   # shouldn't really need root but run into permissions problems
-  virtc_cmd = f'sudo virt-customize --smp 1 -m 1024 -a {cloud_image} --install qemu-guest-agent --run-command "{virtc_script}"'
+  virtc_cmd = f'sudo virt-customize --smp 2 -m 2048 -a {cloud_image} --install qemu-guest-agent --run-command "{virtc_script}"'
 
   kmsg(f'{kname}virt-customize', 'configuring image')
   local_os_process(virtc_cmd)
@@ -81,12 +72,16 @@ fi'''
 
   # define image desc
   img_ts = str(datetime.now())
-  img_chksum = abs(hash(cluster_name+cloud_image+k3s_version+img_ts))
-  image_desc = f'''<pre>{cluster_name}
-  image based on: {cloud_image}
-  k3s version: {k3s_version}
-  created: {img_ts}
-  checksum: {img_chksum}'''
+  image_desc = f'''<pre>
+▗▖ ▗▖ ▗▄▖ ▗▄▄▖  ▗▄▄▖▗▄▄▖  ▗▄▖ ▗▖  ▗▖
+▐▌▗▞▘▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌ ▐▌▐▌ ▐▌ ▝▚▞▘ 
+▐▛▚▖ ▐▌ ▐▌▐▛▀▘  ▝▀▚▖▐▛▀▚▖▐▌ ▐▌  ▐▌  
+▐▌ ▐▌▝▚▄▞▘▐▌   ▗▄▄▞▘▐▌ ▐▌▝▚▄▞▘▗▞▘▝▚▖
+
+cluster_name: {cluster_name}
+cloud_img: {cloud_image}
+k3s_version: {k3s_version}
+created: {img_ts}'''
 
   # create new server
   prox_task(prox.nodes(node).qemu.post(
@@ -115,7 +110,7 @@ fi'''
   # shell to import disk
   # import-from requires the full path os.getcwd required here
   import_cmd = f'''
-sudo qm set {cluster_id} --scsi0 {storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true,aio=native
+sudo qm set {cluster_id} --scsi0 {storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true,aio=io_uring
 mv {cloud_image} {cloud_image}.patched'''
 
   # run shell command to import

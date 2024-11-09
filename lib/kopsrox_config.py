@@ -82,6 +82,9 @@ kname = cluster_name + '_config-check'
 
 # get cluster id
 cluster_id = conf_check('cluster','cluster_id')
+if cluster_id < 100:
+  kmsg(kname, f' cluster_id is too low - should be over 100', 'err')
+  exit(0)
 
 # proxmox
 prox_endpoint = conf_check('proxmox','prox_endpoint')
