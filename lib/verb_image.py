@@ -37,7 +37,12 @@ if cmd == 'create':
     kmsg(f'{kname}check', f'unable to download {cloud_image_url}', 'err')
     exit(0)
 
-  # script to install disable selinux on Rocky
+  kv_manifest = open('./lib/kubevip/kubevip.yaml', 'r').read().replace('KOPSROX_IP', network_ip).strip()
+  kv_write_out = open('./kubevip-patched.yaml', 'w') 
+  kv_write_out.write(kv_manifest)
+  kv_write_out.close()
+
+  # script to in kopsrox image
   virtc_script = f'''\
 curl -v https://get.k3s.io > /k3s.sh 
 cat /k3s.sh | \
@@ -56,6 +61,7 @@ then
   cp /dev/null /etc/sysconfig/qemu-ga 
 fi
 mkdir -p /var/lib/rancher/k3s/server/manifests/
+
 echo '
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
@@ -69,9 +75,11 @@ spec:
         loadBalancerIP: "{network_ip}"' > /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
 '''
   # shouldn't really need root but run into permissions problems
-  virtc_cmd = f'sudo virt-customize --smp 2 -m 2048 -a {cloud_image} --install qemu-guest-agent --run-command "{virtc_script}"'
-
   kmsg(f'{kname}virt-customize', 'configuring image')
+  virtc_cmd = f'''
+sudo virt-customize --smp 2 -m 2048 -a {cloud_image}  \
+--install qemu-guest-agent --run-command "{virtc_script}"  \
+--copy-in ./kubevip-patched.yaml:/var/lib/rancher/k3s/server/manifests/'''
   local_os_process(virtc_cmd)
 
   # destroy template if it exists

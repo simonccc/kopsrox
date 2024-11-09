@@ -106,7 +106,6 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
     # final steps for first master  - kubevip, export kubeconfig and token 
     if nodetype == 'master':
-      install_kube_vip()
       kubeconfig()
       export_k3s_token()
 
@@ -290,19 +289,8 @@ def install_kube_vip():
 EOF
 ''')
 
-  # apply / replace the manifest
-  kubevip_install = kubectl('replace --force -f /tmp/kubevip.yaml')
-
-  # check output 
-  if not re.search('daemonset.apps/kubevip replaced', kubevip_install):
-    kmsg('k3s_kubevip', f'failed to install kube-vip\n{kubevip_install}', 'err')
-    exit(0)
-
   # install completed
   kmsg('k3s_kubevip', f'{network_ip} vip active')
-
-def patch_traefik():
-  return(kubectl(f'-n kube-system patch svc traefik -p \'{{"spec":{{"loadBalancerIP":"{network_ip}"}}}}\''))
 
 # return current vip master
 def get_kube_vip_master():
