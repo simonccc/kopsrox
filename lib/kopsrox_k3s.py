@@ -277,21 +277,6 @@ def export_k3s_token():
       token_file.write(live_token)
     kmsg('k3s_export-token', f'created: {token_name}')
 
-# install kube vip
-def install_kube_vip():
-
-  # read default kube vip manifest and replace with network_ip
-  kv_manifest = open('./lib/kubevip/kubevip.yaml', "r").read().replace('KOPSROX_IP', network_ip).strip()
-
-  # create the manifest
-  qaexec(masterid, f'''cat <<EOF> /tmp/kubevip.yaml
-{kv_manifest}
-EOF
-''')
-
-  # install completed
-  kmsg('k3s_kubevip', f'{network_ip} vip active')
-
 # return current vip master
 def get_kube_vip_master():
   kubevip_q = f'get nodes --selector kube-vip.io/has-ip={network_ip}'
@@ -301,8 +286,3 @@ def get_kube_vip_master():
   except:
     kubevip_m = ''
   return(kubevip_m)
-
-# reload kubevip
-def kubevip_reload():
-    reload = kubectl('rollout restart daemonset kubevip -n kube-system')
-    print(reload)

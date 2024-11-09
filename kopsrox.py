@@ -48,9 +48,6 @@ cmds = {
     "reboot" : 'hostname',
     "k3s-uninstall" : 'hostname',
     "rejoin-slave" : 'hostname',
-  },
-  "kubevip": {
-    "reinstall": '',
   }
 }
 
