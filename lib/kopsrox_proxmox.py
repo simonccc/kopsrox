@@ -198,7 +198,6 @@ def clone(vmid):
 
   # run uptime / wait for qagent to start
   internet_check(vmid)
-  kmsg(f'proxmox_{hostname}', 'ready')
 
 # proxmox task blocker
 def prox_task(task_id, node=node):
