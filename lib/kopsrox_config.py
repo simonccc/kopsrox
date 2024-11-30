@@ -141,15 +141,6 @@ if region:
 # dict of all config items - legacy support
 config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
-# generated string to use in s3 commands
-s3_string = \
-' --etcd-s3 ' + region_string + \
-' --etcd-s3-endpoint ' + s3endpoint + \
-' --etcd-s3-access-key ' + access_key + \
-' --etcd-s3-secret-key ' + access_secret + \
-' --etcd-s3-bucket ' + bucket + \
-' --etcd-s3-skip-ssl-verify '
-
 # define masterid
 masterid = cluster_id + 1
 

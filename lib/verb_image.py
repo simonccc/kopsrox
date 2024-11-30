@@ -73,6 +73,7 @@ then
   cp /dev/null /etc/sysconfig/qemu-ga 
 fi
 
+mkdir -p /var/lib/rancher/k3s/server/manifests/
 echo '
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
@@ -84,12 +85,23 @@ spec:
     service:
       spec:
         loadBalancerIP: "{network_ip}"' > /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
+
+# custom kopsrox config
+mkdir -p /etc/rancher/k3s/config.yaml.d/
+echo '
+etcd-s3: true
+etcd-s3-region: {region_string}
+etcd-s3-endpoint: {s3endpoint}
+etcd-s3-access-key: {access_key}
+etcd-s3-secret-key: {access_secret}
+etcd-s3-bucket: {bucket}
+etcd-s3-skip-ssl-verify: true
+etcd-snapshot-compress: true'  > /etc/rancher/k3s/config.yaml.d/etcd-backup.yaml
 '''
   # shouldn't really need root/sudo but run into permissions problems
   kmsg(f'{kname}virt-customize', 'configuring image')
   virtc_cmd = f'''
-sudo virt-customize --smp 2 -m 2048 -a {cloud_image}  \
---mkdir /var/lib/rancher/k3s/server/manifests/ \
+sudo virt-customize --smp 2 -m 2048 -a {cloud_image}   \
 --install qemu-guest-agent --run-command "{virtc_script}"  \
 --copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/'''
   local_os_process(virtc_cmd)

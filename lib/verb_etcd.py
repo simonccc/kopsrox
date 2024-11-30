@@ -4,7 +4,7 @@
 import sys, re, os
 
 # kopsrox
-from kopsrox_config import masterid, masters, workers, cluster_name, s3_string, bucket, s3endpoint
+from kopsrox_config import masterid, masters, workers, cluster_name, bucket, s3endpoint
 from kopsrox_proxmox import get_node, qaexec
 from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster, export_k3s_token, kubeconfig
 from kopsrox_kmsg import kmsg
@@ -28,7 +28,7 @@ except:
 def s3_run(s3cmd):
 
   # run the command ( 2>&1 required )
-  k3s_run = f'k3s etcd-snapshot {s3cmd} {s3_string} 2>&1'
+  k3s_run = f'k3s etcd-snapshot {s3cmd} 2>&1'
   cmd_out = qaexec(masterid, k3s_run)
 
   # look for fatal error in output
@@ -74,7 +74,7 @@ if cmd == 'snapshot':
     export_k3s_token()
 
   # define snapshot command
-  snap_cmd = f'k3s etcd-snapshot save {s3_string} --name kopsrox --etcd-snapshot-compress 2>&1'
+  snap_cmd = f'k3s etcd-snapshot save -name kopsrox --etcd-snapshot-compress 2>&1'
   #print(snap_cmd)
   snapout = qaexec(masterid,snap_cmd)
 
@@ -135,7 +135,7 @@ if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
   # define restore command
   restore_cmd = f'\
 systemctl stop k3s &&  \
-k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} {s3_string} 2>&1 ; \
+k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} 2>&1 ; \
 systemctl start k3s'
 
   # display some filtered restore contents
