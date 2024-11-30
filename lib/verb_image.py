@@ -86,10 +86,10 @@ spec:
       spec:
         loadBalancerIP: "{network_ip}"' > /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
 
-# custom kopsrox config
 mkdir -p /etc/rancher/k3s/config.yaml.d/
-echo '
+echo -n '
 etcd-s3: true
+etcd-snapshot-retention: 14
 etcd-s3-region: {region_string}
 etcd-s3-endpoint: {s3endpoint}
 etcd-s3-access-key: {access_key}
@@ -97,6 +97,14 @@ etcd-s3-secret-key: {access_secret}
 etcd-s3-bucket: {bucket}
 etcd-s3-skip-ssl-verify: true
 etcd-snapshot-compress: true'  > /etc/rancher/k3s/config.yaml.d/etcd-backup.yaml
+
+echo -n '
+disable:
+  - servicelb
+write-kubeconfig-mode: "0644"
+disable-cloud-controller: true
+disable-network-policy: true
+tls-san: {network_ip}' > /etc/rancher/k3s/config.yaml.d/kopsrox.yaml
 '''
   # shouldn't really need root/sudo but run into permissions problems
   kmsg(f'{kname}virt-customize', 'configuring image')

@@ -4,8 +4,7 @@
 import time, re
 
 # kopsrox
-from kopsrox_config import prox, vmip, masterid
-from kopsrox_config import node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns,network_mtu, network_dns
+from kopsrox_config import *
 from kopsrox_kmsg import kmsg
 
 # run a exec via qemu-agent

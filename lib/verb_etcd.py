@@ -74,8 +74,7 @@ if cmd == 'snapshot':
     export_k3s_token()
 
   # define snapshot command
-  snap_cmd = f'k3s etcd-snapshot save -name kopsrox --etcd-snapshot-compress 2>&1'
-  #print(snap_cmd)
+  snap_cmd = f'k3s etcd-snapshot save --name kopsrox 2>&1'
   snapout = qaexec(masterid,snap_cmd)
 
   # filter output

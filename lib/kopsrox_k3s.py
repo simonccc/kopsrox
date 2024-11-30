@@ -45,8 +45,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
   # defines
   k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}"'
-  k3s_install_flags = f' --disable servicelb --tls-san {network_ip}'
-  k3s_install_master = f'{k3s_install_base} sh -s - server --cluster-init {k3s_install_flags}'
+  k3s_install_master = f'{k3s_install_base} sh -s - server --cluster-init'
   k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{network_ip}:6443" '
   master_cmd = ''
   token = ''
