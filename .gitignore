@@ -4,8 +4,5 @@ lib/__pycache__/
 *.swp
 *.img
 *.etcd.token
-kopsrox.k3stoken
-kopsrox.kubeconfig
-kopsrox_disk_import.log
-kopsrox_imgpatch.log
-kopsrox.etcd*
+*.k3stoken
+*.kubeconfig
