@@ -8,11 +8,8 @@ import wget
 from datetime import datetime
 from proxmoxer import ProxmoxAPI
 
-# look for strings in responses
-import re
-
 # checks cmd line args file ops and processes
-import os,sys,subprocess
+import re,os,sys,subprocess,time
 
 # kmsg
 from kopsrox_kmsg import kmsg

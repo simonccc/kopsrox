@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 
-# standard imports
-import sys, re, os
-
 # kopsrox
-from kopsrox_config import masterid, masters, workers, cluster_name, bucket, s3endpoint
-from kopsrox_proxmox import get_node, qaexec
+from kopsrox_config import *
+from kopsrox_proxmox import qaexec
 from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster, export_k3s_token, kubeconfig
-from kopsrox_kmsg import kmsg
 
 # passed command
 cmd = sys.argv[2]
@@ -19,7 +15,7 @@ token_fname = cluster_name + '.k3stoken'
 # check master is running / exists
 # fails if node can't be found
 try:
-  get_node(masterid)
+  node = vms[masterid]
 except:
   kmsg(f'{kname}-check', 'cluster does not exist', 'err')
   exit(0)

@@ -1,25 +1,21 @@
 #!/usr/bin/env python3
 
-# imports
-import time, re
-
 # kopsrox
 from kopsrox_config import *
 from kopsrox_kmsg import kmsg
 
 # run a exec via qemu-agent
-def qaexec(vmid: int = masterid,cmd = 'uptime'):
+def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = node):
 
   # define kname
   kname = 'proxmox_qaexec'
 
-  # get vmname
-  # fixme try?
+  # get vmname and node
   vmname = vmnames[vmid]
-
-  # get node
-  # fixme try?
-  node = get_node(vmid)
+  try: 
+    node = vms[vmid]
+  except:
+    pass
 
   # qagent no yet running check
   qagent_running = 'false'
@@ -105,31 +101,6 @@ def qaexec(vmid: int = masterid,cmd = 'uptime'):
     except:
       return('no output-' + cmd)
 
-# return the node for a vmid
-def get_node(vmid):
-
-  # if it exists node is ok and we can return the configured node
-  if vmid == cluster_id:
-    return(node)
-
-  # check for vm id in proxmox cluster
-  for vm in prox.cluster.resources.get(type = 'vm'):
-
-    # matching id found
-    if vm.get('vmid') == vmid:
-
-      # return node vm is running on
-      return(vm.get('node'))
-
-  # error: node not found
-  if vmid == masterid:
-    kmsg('cluster_error', f'no cluster exists', 'err')
-    exit(0)
-
-  # default error
-  kmsg('proxmox_get-node', f'node for {vmid} not found', 'err')
-  exit(0)
-
 # stop and destroy vm
 def prox_destroy(vmid: int):
 
@@ -137,7 +108,7 @@ def prox_destroy(vmid: int):
 
     # get node and vmname
     vmname = vmnames[vmid]
-    node = get_node(vmid)
+    node = vms[vmid]
 
     # if destroying image
     if vmid == cluster_id:
