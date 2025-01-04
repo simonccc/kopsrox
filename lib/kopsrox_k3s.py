@@ -73,11 +73,11 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
     # slave
     if nodetype == 'slave':
-      init_cmd = f'{k3s_install_base}{k3s_token_cmd} sh -s - server --server https://{network_ip}:6443 {k3s_install_flags}'
+      init_cmd = f'{k3s_install_base}{k3s_token_cmd} sh -s - server --server https://{network_ip}:6443'
 
     # worker
     if nodetype == 'worker':
-      init_cmd = f'{k3s_install_worker}{k3s_token_cmd} sh -s'
+      init_cmd = f'rm -rf /etc/rancher/k3s/config.yaml.d/ && {k3s_install_worker}{k3s_token_cmd} sh -s'
 
     # stderr
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
