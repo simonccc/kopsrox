@@ -101,9 +101,11 @@ etcd-snapshot-compress: true'  > /etc/rancher/k3s/config.yaml.d/etcd-backup.yaml
 echo -n '
 disable:
   - servicelb
-write-kubeconfig-mode: "0644"
+disable-network-policy: true
+write-kubeconfig-mode: "0600"
 disable-cloud-controller: true
 disable-network-policy: true
+flannel-backend: wireguard-native
 tls-san: {network_ip}' > /etc/rancher/k3s/config.yaml.d/kopsrox.yaml
 '''
   # shouldn't really need root/sudo but run into permissions problems

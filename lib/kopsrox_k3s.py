@@ -224,9 +224,8 @@ def kubeconfig():
   kubeconfig_file = f'{cluster_name}.kubeconfig'
   # replace 127.0.0.1 with vip ip
   kconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml').replace('127.0.0.1', network_ip)
-  # write file with 600 permissions
-  with os.fdopen(os.open(kubeconfig_file, os.O_WRONLY | os.O_CREAT, 0o600), 'w') as handle:
-    handle.write(kconfig)
+  with open(kubeconfig_file, 'w') as kubeconfig_file_handle:
+    kubeconfig_file_handle.write(kconfig)
   kmsg('k3s_kubeconfig', f'saved {kubeconfig_file}')
 
 # kubectl
