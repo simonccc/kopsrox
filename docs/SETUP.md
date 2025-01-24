@@ -1,4 +1,4 @@
-# :hamburger: kopsrox setup 
+# kopsrox setup 
 
 ## :hammer_and_wrench: requirements
 
@@ -23,9 +23,9 @@
 
 run `./kopsrox.py` and an example _kopsrox.ini_ will be generated - you will need to edit this for your setup
 
-Most values should be obvious and commented accordingly - see below for more info
+Most values should be hopefully obvious and commented accordingly...
 
-# :mag_right: kopsrox.ini 
+# kopsrox.ini 
 
 ## :computer: cluster_id 
 
@@ -60,18 +60,3 @@ would result in this:
 |9|629|192.168.0.179|worker 5|kopsrox-w5|
 
 The VIP IP ( here 192.168.0.170 ) is used by kube-vip to provide a highly available IP for the API when you have 3 master nodes
-
-## :pencil2: kopsrox
-
-### :rainbow: cloud_image_url 
-
-`https://cloud-images.ubuntu.com/minimal/daily/mantic/current/mantic-minimal-cloudimg-amd64.img` 
-
-url to the cloud image you want to use as the koprox base template. 
-
-during `kopsrox.py image create` this is downloaded and patched via `virt-customise` to install `qemu-guest-agent`
-
-Tested images so far: 
-
-https://cdn.amazonlinux.com/os-images/2.0.20240306.2/kvm/amzn2-kvm-2.0.20240306.2-x86_64.xfs.gpt.qcow2
-https://mirrors.vinters.com/rocky/9/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2
