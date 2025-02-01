@@ -11,7 +11,7 @@ def kmsg(kname = 'kopsrox',msg = 'no msg', sev = 'info'):
 
   # print cluster name
   cprint(knamea[0], "blue",attrs=["bold"], end='')
-  cprint(':', "cyan", end='')
+  cprint(':<:', "cyan", end='')
 
   try:
     if knamea[1] and sev == 'info':
@@ -21,9 +21,9 @@ def kmsg(kname = 'kopsrox',msg = 'no msg', sev = 'info'):
     if knamea[1] and sev == 'sys':
       cprint(knamea[1], "yellow", attrs=["bold"],end='')
   except:
-      cprint('parse error ', "magenta", attrs=["bold"], end='')
-      print(kname,msg)
+    cprint('parse error ', "magenta", attrs=["bold"], end='')
+    print(kname,msg)
 
   # final output
-  cprint(': ', "cyan", end='')
-  print(msg)
+  cprint(':>: ', "cyan", end='')
+  print(msg )

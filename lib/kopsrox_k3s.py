@@ -125,14 +125,15 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
 # remove a node
 def k3s_remove_node(vmid: int):
+  
+  # get vmname
   vmname = vmnames[vmid]
   kmsg('k3s_remove-node', vmname)
 
-  # kubectl commands to remove node
-  # should add some error checking
-  kubectl('cordon ' + vmname)
-  kubectl('drain --timeout=10s --delete-emptydir-data --ignore-daemonsets --force ' + vmname)
-  kubectl('delete node ' + vmname)
+  if vmname != f'{cluster_name}-m1':
+    kubectl('cordon ' + vmname)
+    kubectl('drain --timeout=10s --delete-emptydir-data --ignore-daemonsets --force ' + vmname)
+    kubectl('delete node ' + vmname)
 
   # destroy vm
   prox_destroy(vmid)
@@ -293,12 +294,6 @@ def export_k3s_token():
 
 # cluster info
 def cluster_info():
-
-  try:
-    node = vms[masterid]
-  except:
-    kmsg(f'{kname}-check', 'cluster does not exist', 'err')
-    exit(0)
 
   kmsg(f'cluster_info', '', 'sys')
   curr_master = get_kube_vip_master()
