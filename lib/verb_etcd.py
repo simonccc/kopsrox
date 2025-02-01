@@ -2,8 +2,8 @@
 
 # kopsrox
 from kopsrox_config import *
-from kopsrox_proxmox import qaexec
-from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster, export_k3s_token, kubeconfig
+from kopsrox_proxmox import *
+from kopsrox_k3s import *
 
 # passed command
 cmd = sys.argv[2]
@@ -13,7 +13,6 @@ kname = f'etcd_{cmd}'
 token_fname = cluster_name + '.k3stoken'
 
 # check master is running / exists
-# fails if node can't be found
 try:
   node = vms[masterid]
 except:
@@ -56,6 +55,12 @@ def list_snapshots():
 
 # test connection to s3 by getting list of snapshots
 snapshots = list_snapshots()
+
+try:
+  node = vms[masterid]
+except:
+  kmsg(f'{kname}-check', 'cluster does not exist', 'err')
+  exit(0)
 
 # s3 prune
 if cmd == 'prune':

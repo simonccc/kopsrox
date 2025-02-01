@@ -4,12 +4,9 @@
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import urllib.parse
-import wget
 from datetime import datetime
 from proxmoxer import ProxmoxAPI
-
-# checks cmd line args file ops and processes
-import re,os,sys,subprocess,time
+import re,os,sys,subprocess,time,wget
 
 # kmsg
 from kopsrox_kmsg import kmsg
@@ -61,12 +58,11 @@ def conf_check(section,value):
     # return string
     return(config_item)
 
-# check config vars
-# cluster name as required for error messages
+# cluster name 
 cluster_name = conf_check('cluster', 'cluster_name')
 kname = cluster_name + '_config-check'
 
-# get cluster id
+# cluster id
 cluster_id = conf_check('cluster','cluster_id')
 if cluster_id < 100:
   kmsg(kname, f' cluster_id is too low - should be over 100', 'err')
@@ -81,11 +77,16 @@ api_key = conf_check('proxmox','api_key')
 node = conf_check('proxmox','node')
 storage = conf_check('proxmox','storage')
 
-# kopsrox config checks
+# kopsrox 
 cloud_image_url = conf_check('kopsrox','cloud_image_url')
 vm_disk = conf_check('kopsrox','vm_disk')
 vm_cpu = conf_check('kopsrox','vm_cpu')
 vm_ram = conf_check('kopsrox','vm_ram')
+
+# ram size check
+if vm_ram < 2:
+  kmsg(kname, f'[kopsrox]/vm_ram - kopsrox vms need 2G RAM', 'err')
+  exit(0)
 
 # cloudinit
 cloudinituser = conf_check('kopsrox','cloudinituser')
@@ -173,9 +174,6 @@ try:
 
 except:
   kmsg(kname, f'API connection to {prox_endpoint}:{port} failed check [proxmox] settings', 'err')
-
-  # this could be improved
-  #kmsg(kname, prox.cluster.status.get(), 'sys')
   exit()
 
 # look up kopsrox_img name
@@ -355,25 +353,6 @@ def vmip(vmid: int):
   # eg 160 + ( 601 - 600 )  = 161 
   ip = f'{network_base}{(network_ip_prefix + (vmid - cluster_id))}'
   return(ip)
-
-# cluster info
-def cluster_info():
-  kmsg(f'cluster_info', '', 'sys')
-  from kopsrox_k3s import kubectl, get_kube_vip_master
-  curr_master = get_kube_vip_master()
-  info_vms = list_kopsrox_vm()
-
-  # for kopsrox vms
-  for vmid in info_vms:
-    if not cluster_id == vmid:
-      hostname = vmnames[vmid]
-      vmstatus = f'[{info_vms[vmid]}] {vmip(vmid)}/{network_mask}'
-      if hostname == curr_master:
-        vmstatus += f' vip {network_ip}/{network_mask}'
-      kmsg(f'{hostname}_{vmid}', f'{vmstatus}')
-
-  # fix this 
-  kmsg('kubectl_get-nodes', f'\n{kubectl("get nodes")}')
 
 # run local os process 
 def local_os_process(cmd):

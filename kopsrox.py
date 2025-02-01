@@ -26,6 +26,7 @@ cmds = {
     "create" : '',
     "update" : '',
     "destroy" : '',
+    'restore' : '',
   },
   "k3s": {
     "export-token" : '',
@@ -84,12 +85,12 @@ try:
 
     # if verb not found in cmds dict
     if not verb in verbs:
-      exit()
+      exit(0)
 
 # verb not found or passed
 except:
   verbs_help()
-  exit()
+  exit(0)
 
 # handle command
 try:
@@ -102,7 +103,7 @@ try:
     if not cmd in list(cmds[verb]):
       exit()
 
-# 
+# cmd not found
 except:
   cmds_help(verb)
   exit()

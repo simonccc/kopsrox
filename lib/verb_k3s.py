@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_k3s import export_k3s_token, kubeconfig, k3s_check_config, kubectl
+from kopsrox_k3s import * 
 from kopsrox_kmsg import kmsg
-
-# other imports
-import sys
 
 # passed command
 cmd = sys.argv[2]

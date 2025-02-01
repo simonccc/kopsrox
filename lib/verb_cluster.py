@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import masterid,cluster_name,cluster_info,list_kopsrox_vm,cluster_id
+from kopsrox_config import *
 from kopsrox_proxmox import clone,qaexec
-from kopsrox_k3s import k3s_update_cluster,k3s_rm_cluster,k3s_init_node,export_k3s_token
-from kopsrox_kmsg import kmsg
-
-# other imports
-import sys
+from kopsrox_k3s import * 
 
 # passed command
 cmd = sys.argv[2]
@@ -21,6 +17,16 @@ if cmd == 'info':
 
 # update current cluster
 if cmd == 'update':
+  k3s_update_cluster()
+
+# restore from latest etcd snapshot
+if cmd == 'restore':
+  k3s_rm_cluster()
+  kmsg(kname,f'id:{cluster_id} name:{cluster_name}', 'sys')
+  clone(masterid)
+  k3s_init_node(masterid, 'restore')
+  cluster_info()
+  kmsg(kname,f'restore completed')
   k3s_update_cluster()
 
 # create new cluster / master server

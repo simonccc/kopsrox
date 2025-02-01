@@ -2,12 +2,7 @@
 
 # imports
 from kopsrox_config import *
-
-# standard imports
-from kopsrox_proxmox import qaexec, prox_destroy, internet_check, clone
-
-# standard imports
-import time, os
+from kopsrox_proxmox import * 
 
 # check for k3s status
 def k3s_check(vmid: int):
@@ -32,7 +27,7 @@ def k3s_check(vmid: int):
 def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
   # nodetype error check
-  if nodetype not in ['master', 'slave', 'worker']:
+  if nodetype not in ['master', 'slave', 'worker', 'restore']:
     kmsg('k3s_init-node', f'{nodetype} invalid nodetype', 'err')
     exit(0)
 
@@ -47,6 +42,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
   k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}"'
   k3s_install_master = f'{k3s_install_base} sh -s - server --cluster-init'
   k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{network_ip}:6443" '
+
   master_cmd = ''
   token = ''
  
@@ -55,7 +51,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     if not k3s_check(vmid):
       exit(0)
   except:
-    kmsg(f'k3s_{nodetype}-init', f'installing {k3s_version} on {vmnames[vmid]}')
+    kmsg(f'k3s_{nodetype}-init', f'configuring {k3s_version} on {vmnames[vmid]}')
 
     # get existing token if it exists
     token_fname = f'{cluster_name}.k3stoken'
@@ -78,6 +74,25 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     # worker
     if nodetype == 'worker':
       init_cmd = f'rm -rf /etc/rancher/k3s/config.yaml.d/ && {k3s_install_worker}{k3s_token_cmd} sh -s'
+
+    # restore
+    if nodetype == 'restore':
+      kmsg(f'k3s_bootstrap', f'fetching latest snapshot')
+
+      # get latest snapshot
+      bs_cmd = f'systemctl start k3s && /usr/local/bin/k3s etcd-snapshot ls 2>&1 && systemctl stop k3s && rm -rf /var/lib/rancher'
+      bs_cmd_out = qaexec(vmid,bs_cmd)
+
+      # sort ls output so last is latest snapshot
+      for snap in sorted(bs_cmd_out.split('\n')):
+        if re.search(f'kopsrox-{cluster_name}', snap):
+            latest = snap
+
+      latest_snap = latest.split()[0]
+
+      kmsg(f'k3s_restore', f'restoring {latest_snap}')
+
+      init_cmd = f'/usr/local/bin/k3s server --cluster-reset --cluster-reset-restore-path={latest_snap} --token={token} 2>&1 && systemctl start k3s'
 
     # stderr
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
@@ -275,6 +290,31 @@ def export_k3s_token():
     with open(token_name, 'w') as token_file:
       token_file.write(live_token)
     kmsg('k3s_export-token', f'created: {token_name}')
+
+# cluster info
+def cluster_info():
+
+  try:
+    node = vms[masterid]
+  except:
+    kmsg(f'{kname}-check', 'cluster does not exist', 'err')
+    exit(0)
+
+  kmsg(f'cluster_info', '', 'sys')
+  curr_master = get_kube_vip_master()
+  info_vms = list_kopsrox_vm()
+
+  # for kopsrox vms
+  for vmid in info_vms:
+    if not cluster_id == vmid:
+      hostname = vmnames[vmid]
+      vmstatus = f'[{info_vms[vmid]}] {vmip(vmid)}/{network_mask}'
+      if hostname == curr_master:
+        vmstatus += f' vip {network_ip}/{network_mask}'
+      kmsg(f'{hostname}_{vmid}', f'{vmstatus}')
+
+  # fix this
+  kmsg('kubectl_get-nodes', f'\n{kubectl("get nodes")}')
 
 # return current vip master
 def get_kube_vip_master():
