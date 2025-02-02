@@ -58,6 +58,7 @@ def conf_check(section,value):
     # return string
     return(config_item)
 
+
 # cluster name 
 cluster_name = conf_check('cluster', 'cluster_name')
 kname = cluster_name + '_config-check'
@@ -68,22 +69,46 @@ if cluster_id < 100:
   kmsg(kname, f' cluster_id is too low - should be over 100', 'err')
   exit(0)
 
-# proxmox
-prox_endpoint = conf_check('proxmox','prox_endpoint')
-port = conf_check('proxmox','port')
-user = conf_check('proxmox','user')
-token_name = conf_check('proxmox','token_name')
-api_key = conf_check('proxmox','api_key')
+# assign master id
+masterid = cluster_id + 1
+
+# test connection to proxmox
+try:
+
+  # api connection
+  prox = ProxmoxAPI(
+    conf_check('proxmox','prox_endpoint'),
+    port=conf_check('proxmox','port'),
+    user=conf_check('proxmox','user'),
+    token_name=conf_check('proxmox','token_name'),
+    token_value=conf_check('proxmox','api_key'),
+    verify_ssl=False,
+    timeout=5)
+
+  # check connection to cluster
+  prox.cluster.status.get()
+
+except:
+  kmsg(kname, f'API connection to Proxmox failed check [proxmox] settings', 'err')
+  exit(0)
+
+# proxmox cont
 node = conf_check('proxmox','node')
+discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
+if node not in discovered_nodes:
+  kmsg(kname, f'"{node}" not found - discovered nodes: {discovered_nodes}', 'err')
+  exit(0)
+
+# storage
 storage = conf_check('proxmox','storage')
 
 # kopsrox 
 cloud_image_url = conf_check('kopsrox','cloud_image_url')
 vm_disk = conf_check('kopsrox','vm_disk')
 vm_cpu = conf_check('kopsrox','vm_cpu')
-vm_ram = conf_check('kopsrox','vm_ram')
 
-# ram size check
+# ram size  and check
+vm_ram = conf_check('kopsrox','vm_ram')
 if vm_ram < 2:
   kmsg(kname, f'[kopsrox]/vm_ram - kopsrox vms need 2G RAM', 'err')
   exit(0)
@@ -139,9 +164,6 @@ if region:
 # dict of all config items - legacy support
 config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
-# define masterid
-masterid = cluster_id + 1
-
 # define vmnames
 vmnames = {
 (cluster_id): cluster_name +'-i0',
@@ -155,26 +177,6 @@ vmnames = {
 (cluster_id + 8 ): cluster_name + '-w4',
 (cluster_id + 9 ): cluster_name + '-w5',
 }
-
-# proxmox api connection
-try: 
-
-  # api connection
-  prox = ProxmoxAPI(
-    prox_endpoint,
-    port=port,
-    user=user,
-    token_name=token_name,
-    token_value=api_key,
-    verify_ssl=False,
-    timeout=5)
-
-  # check connection to cluster
-  prox.cluster.status.get()
-
-except:
-  kmsg(kname, f'API connection to {prox_endpoint}:{port} failed check [proxmox] settings', 'err')
-  exit()
 
 # look up kopsrox_img name
 def kopsrox_img():
@@ -216,14 +218,6 @@ def list_kopsrox_vm():
 # why does it need node?
 def vm_info(vmid,node=node):
   return(prox.nodes(node).qemu(vmid).status.current.get())
-
-# get list of nodes
-discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
-
-# if node not in list of nodes
-if node not in discovered_nodes:
-  kmsg(kname, f'"{node}" not found - discovered nodes: {discovered_nodes}', 'err')
-  exit()
 
 # get list of storage in the cluster
 storage_list = prox.nodes(node).storage.get()
@@ -373,3 +367,12 @@ def image_info():
   kmsg(f'{kname}desc', cloud_image_desc)
   kmsg(f'{kname}storage', f'{kopsrox_image_name} ({storage_type})')
   kmsg(f'{kname}size', f'{cloud_image_size}G')
+
+# tbc
+def progress_bar(iteration, total, prefix='', suffix='', length=30, fill='^'):
+  percent = ("{0:.1f}").format(100 * (iteration / float(total)))
+  filled_length = int(length * iteration // total)
+  bar = fill * filled_length + '-' * (length - filled_length)
+  sys.stdout.write(f'\r{prefix} |{bar}| {percent}% {suffix}')
+  sys.stdout.flush()
+

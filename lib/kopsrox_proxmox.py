@@ -46,6 +46,10 @@ def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = node):
       # sleep 1 second then try again
       time.sleep(1)
 
+      #progress_bar(qagent_count, 30, prefix='', suffix='')
+      if qagent_count == 10:
+        kmsg(kname, f'no response for 10s {vmname} [{node}] cmd: {cmd}', 'sys')
+
   # send command
   try: 
     qa_exec = prox.nodes(node).qemu(vmid).agent.exec.post(
