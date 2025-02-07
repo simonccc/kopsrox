@@ -86,15 +86,12 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
       # sort ls output so last is latest snapshot
       for snap in sorted(bs_cmd_out.split('\n')):
         if re.search(f'kopsrox-{cluster_name}', snap):
-            latest = snap
+            latest = snap.split()[0]
 
-      latest_snap = latest.split()[0]
+      kmsg(f'k3s_restore', f'restoring {latest}')
 
-      kmsg(f'k3s_restore', f'restoring {latest_snap}')
-
-      init_cmd = f'/usr/local/bin/k3s server --cluster-reset --cluster-reset-restore-path={latest_snap} --token={token} 2>&1 && systemctl start k3s'
-
-    # stderr
+      init_cmd = f'/usr/local/bin/k3s server --cluster-reset --cluster-reset-restore-path={latest} --token={token} 2>&1 && systemctl start k3s'
+    # write log of install on node
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
 
     # run command
@@ -119,7 +116,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
         time.sleep(1)
 
     # final steps for first master  - kubevip, export kubeconfig and token 
-    if nodetype == 'master':
+    if nodetype in [ 'master', 'restore']:
       kubeconfig()
       export_k3s_token()
 
@@ -294,7 +291,7 @@ def export_k3s_token():
 
 # cluster info
 def cluster_info():
-
+ 
   kmsg(f'cluster_info', '', 'sys')
   curr_master = get_kube_vip_master()
   info_vms = list_kopsrox_vm()

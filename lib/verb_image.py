@@ -63,6 +63,16 @@ INSTALL_K3S_SKIP_SELINUX_RPM=true \
 INSTALL_K3S_VERSION={k3s_version} \
 sh -s - server --cluster-init > /{cluster_name}-image-install.log 2>&1
 
+if [ ! -f /usr/bin/qemu-ga ] 
+then
+  if [ -f /bin/yum ]  
+  then 
+    yum install -y qemu-guest-agent
+  else
+    apt update && apt install qemu-guest-agent -y 
+  fi 
+fi
+
 if [ -f /etc/selinux/config ] 
 then
   sed -i s/enforcing/disabled/g /etc/selinux/config
@@ -106,13 +116,13 @@ write-kubeconfig-mode: "0600"
 disable-cloud-controller: true
 disable-network-policy: true
 flannel-backend: wireguard-native
-tls-san: {network_ip}' > /etc/rancher/k3s/config.yaml.d/kopsrox.yaml
+tls-san: {network_ip}' > /etc/rancher/k3s/config.yaml
 '''
   # shouldn't really need root/sudo but run into permissions problems
   kmsg(f'{kname}virt-customize', 'configuring image')
   virtc_cmd = f'''
-sudo virt-customize --smp 2 -m 2048 -a {cloud_image}   \
---install qemu-guest-agent --run-command "{virtc_script}"  \
+sudo virt-customize -a {cloud_image}   \
+--run-command "{virtc_script}"  \
 --copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/'''
   local_os_process(virtc_cmd)
 

@@ -81,7 +81,7 @@ if cmd == 'snapshot':
   # filter output
   snapout = snapout.split('\n')
   for line in snapout:
-    if re.search('upload complete', line):
+    if re.search('Snapshot', line):
       kmsg(kname, line)
 
 # print s3List

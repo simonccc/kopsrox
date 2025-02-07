@@ -92,12 +92,26 @@ except:
   kmsg(kname, f'API connection to Proxmox failed check [proxmox] settings', 'err')
   exit(0)
 
-# proxmox cont
+# map passed node name
 node = conf_check('proxmox','node')
+
+# try k8s ping
+try:
+  k3s_ping = prox.nodes(node).qemu(masterid).agent.exec.post(command = '/usr/local/bin/k3s kubectl version')
+  #print(pingv)
+except:
+  try:
+    qa_ping = prox.nodes(node).qemu(masterid).agent.ping.post()
+    kmsg(kname, f'k3s down but master up please investigate...', 'err')
+    exit(0)
+  except:
+    pass
+
+# proxmox cont
 discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
 if node not in discovered_nodes:
-  kmsg(kname, f'"{node}" not found - discovered nodes: {discovered_nodes}', 'err')
-  exit(0)
+ kmsg(kname, f'"{node}" not found - discovered nodes: {discovered_nodes}', 'err')
+ exit(0)
 
 # storage
 storage = conf_check('proxmox','storage')
