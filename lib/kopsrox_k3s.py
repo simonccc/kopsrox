@@ -73,7 +73,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
     # worker
     if nodetype == 'worker':
-      init_cmd = f'rm -rf /etc/rancher/k3s/config.yaml.d/ && {k3s_install_worker}{k3s_token_cmd} sh -s'
+      init_cmd = f'rm -rf /etc/rancher/k3s/* && {k3s_install_worker}{k3s_token_cmd} sh -s'
 
     # restore
     if nodetype == 'restore':
@@ -116,7 +116,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
         time.sleep(1)
 
     # final steps for first master  - kubevip, export kubeconfig and token 
-    if nodetype in [ 'master', 'restore']:
+    if nodetype in ['master', 'restore']:
       kubeconfig()
       export_k3s_token()
 
