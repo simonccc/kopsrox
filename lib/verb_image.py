@@ -57,8 +57,6 @@ if cmd == 'create':
   virtc_script = f'''\
 curl -v https://get.k3s.io > /k3s.sh 
 cat /k3s.sh | \
-INSTALL_K3S_SKIP_ENABLE=true \
-INSTALL_K3S_SKIP_START=true \
 INSTALL_K3S_SKIP_SELINUX_RPM=true \
 INSTALL_K3S_VERSION={k3s_version} \
 sh -s - server --cluster-init > /{cluster_name}-image-install.log 2>&1
@@ -112,7 +110,6 @@ echo -n '
 disable:
   - servicelb
 disable-network-policy: true
-write-kubeconfig-mode: "0600"
 disable-cloud-controller: true
 disable-network-policy: true
 flannel-backend: wireguard-native

@@ -39,9 +39,8 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     exit(0)
 
   # defines
-  k3s_install_base = f'cat /k3s.sh | INSTALL_K3S_VERSION="{k3s_version}"'
-  k3s_install_master = f'{k3s_install_base} sh -s - server --cluster-init'
-  k3s_install_worker = f'{k3s_install_base} K3S_URL="https://{network_ip}:6443" '
+  k3s_install_master = f'cat /k3s.sh | sh -s - server --cluster-init'
+  k3s_install_worker = f'cat /k3s.sh | K3S_URL="https://{network_ip}:6443" '
 
   master_cmd = ''
   token = ''
@@ -69,7 +68,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
     # slave
     if nodetype == 'slave':
-      init_cmd = f'{k3s_install_base}{k3s_token_cmd} sh -s - server --server https://{network_ip}:6443'
+      init_cmd = f'cat /k3s.sh | sh -s - server --server https://{network_ip}:6443 {master_cmd}'
 
     # worker
     if nodetype == 'worker':
@@ -89,8 +88,8 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
             latest = snap.split()[0]
 
       kmsg(f'k3s_restore', f'restoring {latest}')
-
       init_cmd = f'/usr/local/bin/k3s server --cluster-reset --cluster-reset-restore-path={latest} --token={token} 2>&1 && systemctl start k3s'
+
     # write log of install on node
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
 
