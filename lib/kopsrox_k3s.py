@@ -72,7 +72,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
     # worker
     if nodetype == 'worker':
-      init_cmd = f'rm -rf /etc/rancher/k3s/* && {k3s_install_worker}{k3s_token_cmd} sh -s'
+      init_cmd = f'systemctl stop k3s && rm -rf /etc/rancher/k3s/* && {k3s_install_worker}{k3s_token_cmd} sh -s'
 
     # restore
     if nodetype == 'restore':
