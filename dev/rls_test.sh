@@ -12,6 +12,7 @@ KC="$K cluster"
 KCI="$KC info"
 KCC="$KC create"
 KCU="$KC update"
+KCD="$KC destroy"
 KCR="$KC restore"
 KI="$K image"
 KID="$KI destroy"
@@ -49,23 +50,17 @@ $KES ; $KCD ; $KCC ; $KERL
 kc workers 1 ; $KCU ; kc workers 0 ; $KCU
 
 # re add worker
-kc workers 1 ; $KCU 
+kc workers 2 ; $KCU 
 
 # add 3 masters and go back to 1
 kc masters 3 ; $KCU ; kc masters 1  ; $KCU
-
-# add 3 masters 
-kc masters 3 ; $KCU 
-
-# take snapshot , destroy, create, restore
-$KES ; $KCD ; $KCC ; $KCU ; $KERL ; $KCD
 
 # change back to 1 node
 kc masters 1 ; kc workers 0  
 
 # ** TEST cluster restore
 # destroy cluster 
-$KCR
+$KCD ; $KCR
 
 finish_time=$(date +%s) 
 echo  $((finish_time - start_time)) secs
