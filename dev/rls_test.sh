@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 set -e
 #set -x
 
@@ -11,6 +13,7 @@ KCI="$KC info"
 KCC="$KC create"
 KCU="$KC update"
 KCD="$KC destroy"
+KCR="$KC restore"
 KI="$K image"
 KID="$KI destroy"
 KIC="$KI create"
@@ -30,69 +33,34 @@ kc() {
 # get pods
 get_pods="$KC kubectl get pods -A"
 
-# 0 size cluster
-kc workers 0 ; kc masters 1
+# 1 size cluster
+$KCD
+kc workers 0 ; kc masters 1 
 $KCD
 
-# create image
-$KIC
+# ** 1 MASTER, SNAPSHOT RESTOR
+# create image, create and update cluster
+$KIC ; $KCC ; $KCU
 
-# create / update cluster
-$KCC ; $KCU
+# take snapshot , destroy cluster, create, restore
+$KES ; $KCD ; $KCC ; $KERL
 
-# take snapshot
-$KES
-
-# destroy cluster
-$KCD
-
-# create / update cluster
-$KCC ; $KCU
-
-# restore snapshot
-$KERL
-
-# update cluster
-$KCU
-
+# ** MULTIPLE MASTERS AND WORKERS TEST
 # add a worker and delete it
 kc workers 1 ; $KCU ; kc workers 0 ; $KCU
 
 # re add worker
-kc workers 1 ; $KCU 
+kc workers 2 ; $KCU 
 
 # add 3 masters and go back to 1
 kc masters 3 ; $KCU ; kc masters 1  ; $KCU
 
-# add 3 masters 
-kc masters 3 ; $KCU 
-
-# take snapshot
-$KES
-
-# destroy cluster
-$KCD
-
-# create / update cluster
-$KCC ; $KCU
-#
-# # restore snapshot
-$KERL
-#
-# update cluster
-$KCU
-
 # change back to 1 node
-kc masters 1 ; $KCU ; kc workers 0  ; $KCU
+kc masters 1 ; kc workers 0  
 
-# destroy cluster
-$KCD
-
-# create / update cluster
-$KCC ; $KCU
-#restore snapshot
-$KERL
-
+# ** TEST cluster restore
+# destroy cluster 
+$KCD ; $KCR
 
 finish_time=$(date +%s) 
 echo  $((finish_time - start_time)) secs

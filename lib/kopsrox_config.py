@@ -1,29 +1,12 @@
 #!/usr/bin/env python3
 
-# imports
+# external imports
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# proxmoxer api
-from proxmoxer import ProxmoxAPI
-
-# prompt
-kname = 'config-check'
-
-# look for strings in responses
-import re
-
-# checks cmd line args - could be moved?
-import sys
-
-# local os commands
-import subprocess
-
-# used to encode ssh key
 import urllib.parse
-
-# datetime stuff for generating image date
 from datetime import datetime
+from proxmoxer import ProxmoxAPI
+import re,os,sys,subprocess,time,wget
 
 # kmsg
 from kopsrox_kmsg import kmsg
@@ -75,28 +58,74 @@ def conf_check(section,value):
     # return string
     return(config_item)
 
-# check config vars
-# cluster name as required for error messages
+
+# cluster name 
 cluster_name = conf_check('cluster', 'cluster_name')
 kname = cluster_name + '_config-check'
 
-# get cluster id
+# cluster id
 cluster_id = conf_check('cluster','cluster_id')
+if cluster_id < 100:
+  kmsg(kname, f' cluster_id is too low - should be over 100', 'err')
+  exit(0)
 
-# proxmox
-prox_endpoint = conf_check('proxmox','prox_endpoint')
-port = conf_check('proxmox','port')
-user = conf_check('proxmox','user')
-token_name = conf_check('proxmox','token_name')
-api_key = conf_check('proxmox','api_key')
+# assign master id
+masterid = cluster_id + 1
+
+# test connection to proxmox
+try:
+
+  # api connection
+  prox = ProxmoxAPI(
+    conf_check('proxmox','prox_endpoint'),
+    port=conf_check('proxmox','port'),
+    user=conf_check('proxmox','user'),
+    token_name=conf_check('proxmox','token_name'),
+    token_value=conf_check('proxmox','api_key'),
+    verify_ssl=False,
+    timeout=5)
+
+  # check connection to cluster
+  prox.cluster.status.get()
+
+except:
+  kmsg(kname, f'API connection to Proxmox failed check [proxmox] settings', 'err')
+  exit(0)
+
+# map passed node name
 node = conf_check('proxmox','node')
+
+# try k8s ping
+try:
+  k3s_ping = prox.nodes(node).qemu(masterid).agent.exec.post(command = '/usr/local/bin/k3s kubectl version')
+  #print(pingv)
+except:
+  try:
+    qa_ping = prox.nodes(node).qemu(masterid).agent.ping.post()
+    kmsg(kname, f'k3s down but master up please investigate...', 'err')
+    exit(0)
+  except:
+    pass
+
+# proxmox cont
+discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
+if node not in discovered_nodes:
+ kmsg(kname, f'"{node}" not found - discovered nodes: {discovered_nodes}', 'err')
+ exit(0)
+
+# storage
 storage = conf_check('proxmox','storage')
 
-# kopsrox config checks
+# kopsrox 
 cloud_image_url = conf_check('kopsrox','cloud_image_url')
 vm_disk = conf_check('kopsrox','vm_disk')
 vm_cpu = conf_check('kopsrox','vm_cpu')
+
+# ram size  and check
 vm_ram = conf_check('kopsrox','vm_ram')
+if vm_ram < 2:
+  kmsg(kname, f'[kopsrox]/vm_ram - kopsrox vms need 2G RAM', 'err')
+  exit(0)
 
 # cloudinit
 cloudinituser = conf_check('kopsrox','cloudinituser')
@@ -149,18 +178,6 @@ if region:
 # dict of all config items - legacy support
 config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
-# generated string to use in s3 commands
-s3_string = \
-' --etcd-s3 ' + region_string + \
-' --etcd-s3-endpoint ' + s3endpoint + \
-' --etcd-s3-access-key ' + access_key + \
-' --etcd-s3-secret-key ' + access_secret + \
-' --etcd-s3-bucket ' + bucket + \
-' --etcd-s3-skip-ssl-verify '
-
-# define masterid
-masterid = cluster_id + 1
-
 # define vmnames
 vmnames = {
 (cluster_id): cluster_name +'-i0',
@@ -174,29 +191,6 @@ vmnames = {
 (cluster_id + 8 ): cluster_name + '-w4',
 (cluster_id + 9 ): cluster_name + '-w5',
 }
-
-# proxmox api connection
-try: 
-
-  # api connection
-  prox = ProxmoxAPI(
-    prox_endpoint,
-    port=port,
-    user=user,
-    token_name=token_name,
-    token_value=api_key,
-    verify_ssl=False,
-    timeout=5)
-
-  # check connection to cluster
-  prox.cluster.status.get()
-
-except:
-  kmsg(kname, f'API connection to {prox_endpoint}:{port} failed check [proxmox] settings', 'err')
-
-  # this could be improved
-  #kmsg(kname, prox.cluster.status.get(), 'sys')
-  exit()
 
 # look up kopsrox_img name
 def kopsrox_img():
@@ -238,14 +232,6 @@ def list_kopsrox_vm():
 # why does it need node?
 def vm_info(vmid,node=node):
   return(prox.nodes(node).qemu(vmid).status.current.get())
-
-# get list of nodes
-discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
-
-# if node not in list of nodes
-if node not in discovered_nodes:
-  kmsg(kname, f'"{node}" not found - discovered nodes: {discovered_nodes}', 'err')
-  exit()
 
 # get list of storage in the cluster
 storage_list = prox.nodes(node).storage.get()
@@ -304,7 +290,6 @@ if network_bridge not in discovered_bridges:
 # dummy cloud_image_vars overwritten below
 cloud_image_size = 0
 cloud_image_desc = ''
-cloud_image_created = ''
 
 # skip image check if image create is passed
 try:
@@ -342,7 +327,6 @@ except:
 
     # get image created and desc from template
     template_data = prox.nodes(node).qemu(cluster_id).config.get()
-    cloud_image_created = str(datetime.fromtimestamp(int(template_data['meta'].split(',')[1].split('=')[1])))
     cloud_image_desc = template_data['description']
 
   except:
@@ -378,25 +362,6 @@ def vmip(vmid: int):
   ip = f'{network_base}{(network_ip_prefix + (vmid - cluster_id))}'
   return(ip)
 
-# cluster info
-def cluster_info():
-  kmsg(f'cluster_info', '', 'sys')
-  from kopsrox_k3s import kubectl, get_kube_vip_master
-  curr_master = get_kube_vip_master()
-  info_vms = list_kopsrox_vm()
-
-  # for kopsrox vms
-  for vmid in info_vms:
-    if not cluster_id == vmid:
-      hostname = vmnames[vmid]
-      vmstatus = f'[{info_vms[vmid]}] {vmip(vmid)}/{network_mask}'
-      if hostname == curr_master:
-        vmstatus += f' vip {network_ip}/{network_mask}'
-      kmsg(f'{hostname}_{vmid}', f'{vmstatus}')
-
-  # fix this 
-  kmsg('kubectl_get-nodes', f'\n{kubectl("get nodes")}')
-
 # run local os process 
 def local_os_process(cmd):
   try:
@@ -415,5 +380,13 @@ def image_info():
   kname = f'image_'
   kmsg(f'{kname}desc', cloud_image_desc)
   kmsg(f'{kname}storage', f'{kopsrox_image_name} ({storage_type})')
-  kmsg(f'{kname}created', cloud_image_created)
   kmsg(f'{kname}size', f'{cloud_image_size}G')
+
+# tbc
+def progress_bar(iteration, total, prefix='', suffix='', length=30, fill='^'):
+  percent = ("{0:.1f}").format(100 * (iteration / float(total)))
+  filled_length = int(length * iteration // total)
+  bar = fill * filled_length + '-' * (length - filled_length)
+  sys.stdout.write(f'\r{prefix} |{bar}| {percent}% {suffix}')
+  sys.stdout.flush()
+

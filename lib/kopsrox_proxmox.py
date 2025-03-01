@@ -1,26 +1,21 @@
 #!/usr/bin/env python3
 
-# imports
-import time, re
-
 # kopsrox
-from kopsrox_config import prox, vmip, masterid
-from kopsrox_config import node,network_bridge,cluster_id,vmnames,vm_cpu,vm_ram,vm_disk,network_mask,network_gw,network_dns,network_mtu, network_dns
+from kopsrox_config import *
 from kopsrox_kmsg import kmsg
 
 # run a exec via qemu-agent
-def qaexec(vmid: int = masterid,cmd = 'uptime'):
+def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = node):
 
   # define kname
   kname = 'proxmox_qaexec'
 
-  # get vmname
-  # fixme try?
+  # get vmname and node
   vmname = vmnames[vmid]
-
-  # get node
-  # fixme try?
-  node = get_node(vmid)
+  try: 
+    node = vms[vmid]
+  except:
+    pass
 
   # qagent no yet running check
   qagent_running = 'false'
@@ -50,6 +45,10 @@ def qaexec(vmid: int = masterid,cmd = 'uptime'):
 
       # sleep 1 second then try again
       time.sleep(1)
+
+      #progress_bar(qagent_count, 30, prefix='', suffix='')
+      if qagent_count == 10:
+        kmsg(kname, f'no response for 10s {vmname} [{node}] cmd: {cmd}', 'sys')
 
   # send command
   try: 
@@ -106,52 +105,27 @@ def qaexec(vmid: int = masterid,cmd = 'uptime'):
     except:
       return('no output-' + cmd)
 
-# return the node for a vmid
-def get_node(vmid):
-
-  # if it exists node is ok and we can return the configured node
-  if vmid == cluster_id:
-    return(node)
-
-  # check for vm id in proxmox cluster
-  for vm in prox.cluster.resources.get(type = 'vm'):
-
-    # matching id found
-    if vm.get('vmid') == vmid:
-
-      # return node vm is running on
-      return(vm.get('node'))
-
-  # error: node not found
-  if vmid == masterid:
-    kmsg('cluster_error', f'no cluster exists', 'err')
-    exit(0)
-
-  # default error
-  kmsg('proxmox_get-node', f'node for {vmid} not found', 'err')
-  exit(0)
-
 # stop and destroy vm
-def prox_destroy(vmid):
+def prox_destroy(vmid: int):
 
     kname = 'prox_destroy-vm'
 
     # get node and vmname
     vmname = vmnames[vmid]
-    node = get_node(vmid)
+    node = vms[vmid]
 
     # if destroying image
     if vmid == cluster_id:
-      task_status(prox.nodes(node).qemu(cluster_id).delete())
+      prox_task(prox.nodes(node).qemu(cluster_id).delete())
       return
 
     # power off and delete
     try:
-      task_status(prox.nodes(node).qemu(vmid).status.stop.post())
-      task_status(prox.nodes(node).qemu(vmid).delete())
+      prox_task(prox.nodes(node).qemu(vmid).status.stop.post(),node)
+      prox_task(prox.nodes(node).qemu(vmid).delete(),node)
       kmsg(kname, vmname)
-    except:
-      kmsg(kname, f'unable to destroy {vmid}', 'err')
+    except Exception as e:
+      kmsg(kname, f'unable to destroy {node}/{vmid}\n{e}', 'err')
       exit(0)
 
 # clone
@@ -168,13 +142,13 @@ def clone(vmid):
 
   # hostname
   hostname = vmnames[vmid]
-  kmsg('proxmox_clone', f'{hostname} {ip} {vm_cpu}c/{vm_ram}G ram {vm_disk}G disk')
+  kmsg('proxmox_clone', f'{hostname} {ip} {vm_cpu}c/{vm_ram}G {vm_disk}G')
 
   # clone
-  task_status(prox.nodes(node).qemu(cluster_id).clone.post(newid = vmid))
+  prox_task(prox.nodes(node).qemu(cluster_id).clone.post(newid = vmid))
 
   # configure
-  task_status(prox.nodes(node).qemu(vmid).config.post(
+  prox_task(prox.nodes(node).qemu(vmid).config.post(
     name = hostname,
     onboot = 1,
     cores = vm_cpu,
@@ -188,27 +162,30 @@ def clone(vmid):
   ))
 
   # resize disk
-  task_status(prox.nodes(node).qemu(vmid).resize.put(
+  prox_task(prox.nodes(node).qemu(vmid).resize.put(
     disk = 'scsi0',
     size = f'{vm_disk}G',
   ))
 
   # power on
-  task_status(prox.nodes(node).qemu(vmid).status.start.post())
+  prox_task(prox.nodes(node).qemu(vmid).status.start.post())
 
   # run uptime / wait for qagent to start
   internet_check(vmid)
-  kmsg(f'proxmox_{hostname}', 'ready')
 
 # proxmox task blocker
-def task_status(task_id, node=node):
+def prox_task(task_id, node=node):
 
   # define default status
   status = {"status": ""}
 
   # until task stopped
-  while (status["status"] != "stopped"):
-    status = prox.nodes(node).tasks(task_id).status.get()
+  try:
+    while (status["status"] != "stopped"):
+      status = prox.nodes(node).tasks(task_id).status.get()
+  except:
+    kmsg('proxmox_task-status', f'unable to get task {task_id} node: {node}', 'err')
+    exit(0)
 
   # if task not completed ok
   if not status["exitstatus"] == "OK":
@@ -222,10 +199,17 @@ def task_log(task_id, node=node):
   logline = ''
 
   # for each value in list
-  for log in prox.nodes(node).tasks(task_id).log.get():
+  # assuming task_id is valid
+  try:
+    for log in prox.nodes(node).tasks(task_id).log.get():
 
-    # append log to logline
-    logline += log['t'] + '\n'
+      # append log to logline
+      logline += log['t'] + '\n'
+
+    return(logline)
+  except:
+    kmsg('proxmox_task-log', f'failed to get log for task!', 'err')
+    exit(0)
 
   # return string
   return(logline)

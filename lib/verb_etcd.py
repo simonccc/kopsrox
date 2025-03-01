@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 
-# standard imports
-import sys, re, os
-
 # kopsrox
-from kopsrox_config import masterid, masters, workers, cluster_name, s3_string, bucket, s3endpoint
-from kopsrox_proxmox import get_node, qaexec
-from kopsrox_k3s import k3s_rm_cluster, kubectl, k3s_update_cluster, export_k3s_token, kubeconfig
-from kopsrox_kmsg import kmsg
+from kopsrox_config import *
+from kopsrox_proxmox import *
+from kopsrox_k3s import *
 
 # passed command
 cmd = sys.argv[2]
@@ -17,9 +13,8 @@ kname = f'etcd_{cmd}'
 token_fname = cluster_name + '.k3stoken'
 
 # check master is running / exists
-# fails if node can't be found
 try:
-  get_node(masterid)
+  node = vms[masterid]
 except:
   kmsg(f'{kname}-check', 'cluster does not exist', 'err')
   exit(0)
@@ -28,7 +23,7 @@ except:
 def s3_run(s3cmd):
 
   # run the command ( 2>&1 required )
-  k3s_run = f'k3s etcd-snapshot {s3cmd} {s3_string} 2>&1'
+  k3s_run = f'k3s etcd-snapshot {s3cmd} 2>&1'
   cmd_out = qaexec(masterid, k3s_run)
 
   # look for fatal error in output
@@ -61,6 +56,12 @@ def list_snapshots():
 # test connection to s3 by getting list of snapshots
 snapshots = list_snapshots()
 
+try:
+  node = vms[masterid]
+except:
+  kmsg(f'{kname}-check', 'cluster does not exist', 'err')
+  exit(0)
+
 # s3 prune
 if cmd == 'prune':
   kmsg(f'{kname}-prune', (f'{s3endpoint}/{bucket}\n' + s3_run('prune --name kopsrox')), 'sys')
@@ -74,14 +75,13 @@ if cmd == 'snapshot':
     export_k3s_token()
 
   # define snapshot command
-  snap_cmd = f'k3s etcd-snapshot save {s3_string} --name kopsrox --etcd-snapshot-compress 2>&1'
-  #print(snap_cmd)
+  snap_cmd = f'k3s etcd-snapshot save --name kopsrox 2>&1'
   snapout = qaexec(masterid,snap_cmd)
 
   # filter output
   snapout = snapout.split('\n')
   for line in snapout:
-    if re.search('upload complete', line):
+    if re.search('Snapshot', line):
       kmsg(kname, line)
 
 # print s3List
@@ -135,7 +135,7 @@ if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
   # define restore command
   restore_cmd = f'\
 systemctl stop k3s &&  \
-k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} {s3_string} 2>&1 ; \
+k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} 2>&1 ; \
 systemctl start k3s'
 
   # display some filtered restore contents

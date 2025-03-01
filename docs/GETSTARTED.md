@@ -1,6 +1,6 @@
-# :burger:  get started
+# get started
 
-## 🇧🇸 setup kopsrox.ini
+## setup a kopsrox.ini
 
 `./kopsrox.py` - a default kopsrox.ini will be created
 
@@ -12,13 +12,13 @@ follow the guide in [SETUP.md](SETUP.md)
 
 `./kopsrox.py image create`
 
-## 🥑 create a cluster
+## create a cluster
 
 `./kopsrox.py cluster create`
 
 ## 🚑 add a worker
 
-edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
+for example edit `kopsrox.ini` and set `workers = 1` in the `[cluster]` section
 
 `./kopsrox.py cluster update`
 

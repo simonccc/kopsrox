@@ -14,11 +14,11 @@ def init_kopsrox_ini():
   config.add_section('proxmox')
 
   # proxmox api endpoint
-  config.set('proxmox', '; domain name or IP to access proxmox')
+  config.set('proxmox', '; domain or IP to access proxmox')
   config.set('proxmox', 'prox_endpoint', '127.0.0.1')
 
   # proxmox api port
-  config.set('proxmox', '; port is usually 8006')
+  config.set('proxmox', '; api port ( usually 8006 ) ')
   config.set('proxmox', 'port', '8006')
 
   # username
@@ -38,7 +38,7 @@ def init_kopsrox_ini():
   config.set('proxmox', 'node', 'proxmox')
 
   # storage on node
-  config.set('proxmox', '; the proxmox storage to use for kopsrox - needs to be available on the proxmox host')
+  config.set('proxmox', '; the proxmox storage to use for kopsrox - needs to be available on the proxmox node')
   config.set('proxmox', 'storage', 'local-lvm')
 
   # kopsrox section
@@ -46,10 +46,10 @@ def init_kopsrox_ini():
 
   # upstream image
   config.set('kopsrox', '; the upstream cloud image used to create the kopsrox image')
-  config.set('kopsrox', 'cloud_image_url', '//cloud-images.ubuntu.com/minimal/daily/oracular/current/oracular-minimal-cloudimg-amd64.img')
+  config.set('kopsrox', 'cloud_image_url', 'https://cloud-images.ubuntu.com/minimal/daily/oracular/current/oracular-minimal-cloudimg-amd64.img')
 
   # disk size for kopsrox vms
-  config.set('kopsrox', '; size of kopsrox vm disk in Gib ')
+  config.set('kopsrox', '; size of vm disk in Gib ')
   config.set('kopsrox', 'vm_disk', '20')
 
   # number of cpu cores
@@ -65,11 +65,11 @@ def init_kopsrox_ini():
   config.set('kopsrox', 'cloudinituser', 'user')
 
   # cloud init user password
-  config.set('kopsrox', '; the password for the cloudinit user')
+  config.set('kopsrox', '; password for the cloudinit user')
   config.set('kopsrox', 'cloudinitpass', 'admin')
 
   # cloud init user ssh key
-  config.set('kopsrox', '; the ssh public key for the cloudinit user')
+  config.set('kopsrox', ';  a ssh public key for the cloudinit user ( required ) ')
   config.set('kopsrox', 'cloudinitsshkey', 'ssh-rsa cioieocieo')
 
   # network bridge
@@ -79,7 +79,6 @@ def init_kopsrox_ini():
 
   # kopsrox network baseip
   config.set('kopsrox', '; first ip of the ip range used for this kopsrox cluster')
-  config.set('kopsrox', '; this ip is assigned to the template - the first master is this + 1')
   config.set('kopsrox', 'network_ip', '192.168.0.160')
 
   # netmask / subnet
@@ -87,7 +86,7 @@ def init_kopsrox_ini():
   config.set('kopsrox', 'network_mask', '24')
 
   # default gateway
-  config.set('kopsrox', '; default gateway for the kopsrox network ( needs to provide internet access ) ')
+  config.set('kopsrox', '; default gateway for the network ( needs to provide internet access ) ')
   config.set('kopsrox', 'network_gw', '192.168.0.1')
 
   # dns server
@@ -96,17 +95,18 @@ def init_kopsrox_ini():
 
   # network mtu
   config.set('kopsrox', '; interface mtu set on vms ')
+  config.set('kopsrox', '; set to 1450 if using sdn ')
   config.set('kopsrox', 'network_mtu', '1500')
 
   # cluster section
   config.add_section('cluster')
 
   # cluster vmid
-  config.set('cluster', '; id for the cluster vms.. eg from 620 - 630')
+  config.set('cluster', '; id for the cluster vm\'s eg from 620 - 630')
   config.set('cluster', 'cluster_id', '620')
 
   # cluster friendly name
-  config.set('cluster', '; name for the kopsrox cluster')
+  config.set('cluster', '; name of the cluster')
   config.set('cluster', 'cluster_name', 'mycluster')
 
   # number of masters
