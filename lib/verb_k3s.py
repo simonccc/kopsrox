@@ -2,7 +2,6 @@
 
 # functions
 from kopsrox_k3s import * 
-from kopsrox_kmsg import kmsg
 
 # passed command
 cmd = sys.argv[2]

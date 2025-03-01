@@ -56,10 +56,6 @@ if cmd == 'create':
   # script to run in kopsrox image
   virtc_script = f'''\
 curl -v https://get.k3s.io > /k3s.sh 
-cat /k3s.sh | \
-INSTALL_K3S_SKIP_SELINUX_RPM=true \
-INSTALL_K3S_VERSION={k3s_version} \
-sh -s - server --cluster-init > /{cluster_name}-image-install.log 2>&1
 
 if [ ! -f /usr/bin/qemu-ga ] 
 then
