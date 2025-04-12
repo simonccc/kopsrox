@@ -57,14 +57,26 @@ if cmd == 'create':
   virtc_script = f'''\
 curl -v https://get.k3s.io > /k3s.sh 
 
+if [ -f /bin/yum ]  
+then
+  apt update
+fi
+
 if [ ! -f /usr/bin/qemu-ga ] 
 then
   if [ -f /bin/yum ]  
   then 
     yum install -y qemu-guest-agent
   else
-    apt update && apt install qemu-guest-agent -y 
+    apt install -y qemu-guest-agent 
   fi 
+fi
+
+if [ -f /bin/yum ]
+then
+    yum install -y nfs-common
+else
+    apt install -y nfs-common
 fi
 
 if [ -f /etc/selinux/config ] 
@@ -128,11 +140,6 @@ sudo virt-customize -a {cloud_image}   \
   # define image desc
   img_ts = str(datetime.now())
   image_desc = f'''<pre>
-▗▖ ▗▖ ▗▄▖ ▗▄▄▖  ▗▄▄▖▗▄▄▖  ▗▄▖ ▗▖  ▗▖
-▐▌▗▞▘▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌ ▐▌▐▌ ▐▌ ▝▚▞▘ 
-▐▛▚▖ ▐▌ ▐▌▐▛▀▘  ▝▀▚▖▐▛▀▚▖▐▌ ▐▌  ▐▌  
-▐▌ ▐▌▝▚▄▞▘▐▌   ▗▄▄▞▘▐▌ ▐▌▝▚▄▞▘▗▞▘▝▚▖
-
 cluster_name: {cluster_name}
 cloud_img: {cloud_image}
 k3s_version: {k3s_version}
@@ -165,7 +172,7 @@ created: {img_ts}'''
   # shell to import disk
   # import-from requires the full path os.getcwd required here
   import_cmd = f'''
-sudo qm set {cluster_id} --scsi0 {storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true,aio=io_uring
+sudo qm set {cluster_id} --scsi0 {storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true,aio=native
 mv {cloud_image} {cloud_image}.patched'''
 
   # run shell command to import
