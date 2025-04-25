@@ -2,7 +2,6 @@
 
 # functions
 from kopsrox_config import *
-from kopsrox_proxmox import clone,qaexec
 from kopsrox_k3s import * 
 
 # passed command

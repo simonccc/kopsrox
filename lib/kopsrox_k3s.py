@@ -291,16 +291,23 @@ def export_k3s_token():
 
 # cluster info
 def cluster_info():
- 
+
+  # live nodes in cluster 
+  cluster_info_vms = list_kopsrox_vm()
+
+  # check m1 id exists
+  if not masterid in cluster_info_vms:
+    kmsg(kname, f'cluster {cluster_name} does not exist', 'err')
+    exit(0)
+
   kmsg(f'cluster_info', '', 'sys')
   curr_master = get_kube_vip_master()
-  info_vms = list_kopsrox_vm()
 
   # for kopsrox vms
-  for vmid in info_vms:
+  for vmid in cluster_info_vms:
     if not cluster_id == vmid:
       hostname = vmnames[vmid]
-      vmstatus = f'[{info_vms[vmid]}] {vmip(vmid)}/{network_mask}'
+      vmstatus = f'[{cluster_info_vms[vmid]}] {vmip(vmid)}/{network_mask}'
       if hostname == curr_master:
         vmstatus += f' vip {network_ip}/{network_mask}'
       kmsg(f'{hostname}_{vmid}', f'{vmstatus}')
