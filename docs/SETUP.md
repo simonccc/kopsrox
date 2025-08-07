@@ -1,35 +1,28 @@
-# kopsrox setup 
+#  :hammer_and_wrench: - Setup 
 
-## :hammer_and_wrench: requirements
+##  requirements
 
-- Proxmox VE with root access or a user who can 'sudo su' without a password
+- Proxmox VE with root access / a user who can 'sudo su' without a password
 - network with internet access configured in proxmox as a bridge or a proxmox sdn network
 - a range of 10 free Proxmox qm/virtual machine id 'vmids' eg 600 to 610
 - a range of 10 IP's on a network with internet access for kopsrox to work with eg 192.168.0.160 to 192.168.0.170
 
-## :bricks: install 
+## install 
 
 - get one of the releases or stable branches - the 'main' branch can often be a bit broken
-- sudo apt install libguestfs-tools python3-termcolor python3-wget -y`
-- pip3 install --break-system-packages --user -r requirements.txt`
+- sudo apt install libguestfs-tools python3-termcolor python3-wget python3-proxmoxer -y`
 
-## :star: generate api key
+## generate api key ( to use below ) 
 
 `sudo pvesh create /access/users/root@pam/token/kopsrox`
 
 `sudo pveum acl modify / --roles Administrator --user root@pam  --token 'root@pam!kopsrox'`
 
-## :construction_worker: create kopsrox.ini
+## create kopsrox.ini
 
 run `./kopsrox.py` and an example _kopsrox.ini_ will be generated - you will need to edit this for your setup
 
-Most values should be hopefully obvious and commented accordingly...
-
-# kopsrox.ini 
-
-## :computer: cluster_id 
-
-`620` - the proxmox id used for the kopsrox image/template - and the first id in the proxmox qemu virtual machinee "id" range used by kopsrox
+Most values should be hopefully easy to work out hopefully. 
 
 kopsrox uses a simple static id/ip assignment scheme based on the `[cluster] - cluster_id` and `[kopsrox] - network_ip` settings 
 
@@ -44,7 +37,7 @@ cluster_id = 620
 cluster_name = kopsrox
 ```
 
-would result in this:
+would result in this cluster layout:
 
 |-|vmid|ip|type|host|
 |--|--|--|--|--|
