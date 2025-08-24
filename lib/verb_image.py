@@ -19,7 +19,7 @@ if cmd == 'create':
 
   # check if image already exists
   if os.path.isfile(cloud_image):
-    kmsg(f'image_check', f'{cloud_image} already exists - removing', 'warn')
+    kmsg(f'{kname}check', f'{cloud_image} already exists - removing')
     try:
       os.remove(cloud_image)
       if os.path.isfile(cloud_image):
@@ -56,39 +56,6 @@ if cmd == 'create':
   # script to run in kopsrox image
   virtc_script = f'''\
 curl -v https://get.k3s.io > /k3s.sh 
-
-if [ -f /bin/yum ]  
-then
-  apt update
-fi
-
-if [ ! -f /usr/bin/qemu-ga ] 
-then
-  if [ -f /bin/yum ]  
-  then 
-    yum install -y qemu-guest-agent
-  else
-    apt install -y qemu-guest-agent 
-  fi 
-fi
-
-if [ -f /bin/yum ]
-then
-    yum install -y nfs-common
-else
-    apt install -y nfs-common
-fi
-
-if [ -f /etc/selinux/config ] 
-then
-  sed -i s/enforcing/disabled/g /etc/selinux/config
-fi 
-
-if [ -f /etc/sysconfig/qemu-ga ]
-then
-  cp /dev/null /etc/sysconfig/qemu-ga 
-fi
-
 mkdir -p /var/lib/rancher/k3s/server/manifests/
 echo '
 apiVersion: helm.cattle.io/v1
@@ -126,9 +93,10 @@ tls-san: {network_ip}' > /etc/rancher/k3s/config.yaml
   # shouldn't really need root/sudo but run into permissions problems
   kmsg(f'{kname}virt-customize', 'configuring image')
   virtc_cmd = f'''
-sudo virt-customize -a {cloud_image}   \
---run-command "{virtc_script}"  \
---copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/'''
+sudo virt-customize -a {cloud_image} \
+--install qemu-guest-agent \
+--run-command "{virtc_script}" \
+--copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/ > virt-customize.log 2>&1'''
   local_os_process(virtc_cmd)
 
   # destroy template if it exists
@@ -176,12 +144,12 @@ sudo qm set {cluster_id} --scsi0 {storage}:0,import-from={os.getcwd()}/{cloud_im
 mv {cloud_image} {cloud_image}.patched'''
 
   # run shell command to import
+  kmsg(f'{kname}qm-import', f'importing disk')
   local_os_process(import_cmd)
 
   # convert to template via create base disk also vm config
   prox_task(prox.nodes(node).qemu(cluster_id).template.post())
   prox_task(prox.nodes(node).qemu(cluster_id).config.post(template = 1))
-  kmsg(f'{kname}qm-import', f'done')
 
 # image info
 if cmd == 'info':

@@ -10,7 +10,7 @@
 ## install 
 
 - get one of the releases or stable branches - the 'main' branch can often be a bit broken
-- sudo apt install libguestfs-tools python3-termcolor python3-wget python3-proxmoxer -y`
+- sudo apt install libguestfs-tools python3-termcolor python3-wget python3-proxmoxer dhcpcd -y`
 
 ## generate api key ( to use below ) 
 
