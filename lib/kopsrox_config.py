@@ -77,11 +77,11 @@ try:
 
   # api connection
   prox = ProxmoxAPI(
-    conf_check('proxmox','prox_endpoint'),
-    port=conf_check('proxmox','port'),
-    user=conf_check('proxmox','user'),
-    token_name=conf_check('proxmox','token_name'),
-    token_value=conf_check('proxmox','api_key'),
+    conf_check('proxmox','proxmox_endpoint'),
+    port=conf_check('proxmox','proxmox_api_port'),
+    user=conf_check('proxmox','proxmox_user'),
+    token_name=conf_check('proxmox','proxmox_token_name'),
+    token_value=conf_check('proxmox','proxmox_token_value'),
     verify_ssl=False,
     timeout=5)
 
@@ -93,7 +93,7 @@ except:
   exit(0)
 
 # map passed node name
-node = conf_check('proxmox','node')
+node = conf_check('proxmox','proxmox_node')
 
 # try k8s ping
 try:

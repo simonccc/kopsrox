@@ -15,27 +15,27 @@ def init_kopsrox_ini():
 
   # proxmox api endpoint
   config.set('proxmox', '; domain or IP to access proxmox')
-  config.set('proxmox', 'prox_endpoint', '127.0.0.1')
+  config.set('proxmox', 'proxmox_endpoint', '127.0.0.1')
 
   # proxmox api port
   config.set('proxmox', '; api port ( usually 8006 ) ')
-  config.set('proxmox', 'port', '8006')
+  config.set('proxmox', 'proxmox_api_port', '8006')
 
   # username
   config.set('proxmox', '; username to connect with / owner of the API token')
-  config.set('proxmox', 'user', 'root@pam')
+  config.set('proxmox', 'proxmox_user', 'root@pam')
 
   # api token name
   config.set('proxmox', '; name of api token')
-  config.set('proxmox', 'token_name', 'kopsrox')
+  config.set('proxmox', 'proxmox_token_name', 'kopsrox')
 
   # api key
   config.set('proxmox', '; text of api key')
-  config.set('proxmox', 'api_key', 'xxxxxxxxxxxxx')
+  config.set('proxmox', 'proxmox_token_value', 'xxxxxxxxxxxxx')
 
   # node to operate on
   config.set('proxmox', '; the proxmox node that you will run kopsrox on - the image and all nodes are created on this host')
-  config.set('proxmox', 'node', 'proxmox')
+  config.set('proxmox', 'proxmox_node', 'proxmox')
 
   # storage on node
   config.set('proxmox', '; the proxmox storage to use for kopsrox - needs to be available on the proxmox node')
