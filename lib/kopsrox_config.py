@@ -17,10 +17,10 @@ kopsrox_config = ConfigParser()
 kopsrox_config.read('kopsrox.ini')
 
 # kname 
-kname='kopsrox_config-check'
+kname='config_check'
 
 # check section and value exists in kopsrox.ini
-def conf_check(section,value):
+def conf_check(section: str = 'kopsrox',value: str = 'kopsrox'):
 
   # check option exists
   try:
@@ -60,11 +60,11 @@ def conf_check(section,value):
 
 
 # cluster name 
-cluster_name = conf_check('cluster', 'cluster_name')
+cluster_name = conf_check('kopsrox', 'cluster_name')
 kname = cluster_name + '_config-check'
 
 # cluster id
-cluster_id = conf_check('cluster','cluster_id')
+cluster_id = conf_check('kopsrox','cluster_id')
 if cluster_id < 100:
   kmsg(kname, f' cluster_id is too low - should be over 100', 'err')
   exit(0)
@@ -77,11 +77,11 @@ try:
 
   # api connection
   prox = ProxmoxAPI(
-    conf_check('proxmox','proxmox_endpoint'),
-    port=conf_check('proxmox','proxmox_api_port'),
-    user=conf_check('proxmox','proxmox_user'),
-    token_name=conf_check('proxmox','proxmox_token_name'),
-    token_value=conf_check('proxmox','proxmox_token_value'),
+    conf_check('kopsrox','proxmox_endpoint'),
+    port=conf_check('kopsrox','proxmox_api_port'),
+    user=conf_check('kopsrox','proxmox_user'),
+    token_name=conf_check('kopsrox','proxmox_token_name'),
+    token_value=conf_check('kopsrox','proxmox_token_value'),
     verify_ssl=False,
     timeout=5)
 
@@ -89,11 +89,12 @@ try:
   prox.cluster.status.get()
 
 except:
-  kmsg(kname, f'API connection to Proxmox failed check [proxmox] settings', 'err')
+  kmsg(kname, f'API connection to Proxmox failed check proxmox settings', 'err')
+  print(prox.cluster.status.get())
   exit(0)
 
 # map passed node name
-node = conf_check('proxmox','proxmox_node')
+node = conf_check('kopsrox','proxmox_node')
 
 # try k8s ping
 try:
@@ -114,7 +115,7 @@ if node not in discovered_nodes:
  exit(0)
 
 # storage
-storage = conf_check('proxmox','storage')
+storage = conf_check('kopsrox', 'storage')
 
 # kopsrox 
 cloud_image_url = conf_check('kopsrox','cloud_image_url')
@@ -152,16 +153,16 @@ network_base = f'{network_octs[0]}.{network_octs[1]}.{network_octs[2]}.'
 network_ip_prefix = int(network_octs[-1])
 
 # master + check
-masters = conf_check('cluster','masters')
+masters = conf_check('kopsrox','masters')
 if not (masters == 1 or masters == 3):
   kmsg(kname, f'[cluster] - masters: only 1 or 3 masters supported. You have: {masters}')
   exit(0)
 
 # workers
-workers = conf_check('cluster','workers')
+workers = conf_check('kopsrox','workers')
 
 # k3s version
-k3s_version = conf_check('cluster','k3s_version')
+k3s_version = conf_check('kopsrox','k3s_version')
 
 # s3 stuff
 s3endpoint = conf_check('s3','endpoint')

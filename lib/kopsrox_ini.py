@@ -9,51 +9,49 @@ def init_kopsrox_ini():
   # get config
   config = ConfigParser(allow_no_value=True)
   config.read('kopsrox.ini')
+  ks = 'kopsrox'
 
   # proxmox section
-  config.add_section('proxmox')
-
-  # proxmox api endpoint
-  config.set('proxmox', '; domain or IP to access proxmox')
-  config.set('proxmox', 'proxmox_endpoint', '127.0.0.1')
-
-  # proxmox api port
-  config.set('proxmox', '; api port ( usually 8006 ) ')
-  config.set('proxmox', 'proxmox_api_port', '8006')
-
-  # username
-  config.set('proxmox', '; username to connect with / owner of the API token')
-  config.set('proxmox', 'proxmox_user', 'root@pam')
-
-  # api token name
-  config.set('proxmox', '; name of api token')
-  config.set('proxmox', 'proxmox_token_name', 'kopsrox')
-
-  # api key
-  config.set('proxmox', '; text of api key')
-  config.set('proxmox', 'proxmox_token_value', 'xxxxxxxxxxxxx')
-
-  # node to operate on
-  config.set('proxmox', '; the proxmox node that you will run kopsrox on - the image and all nodes are created on this host')
-  config.set('proxmox', 'proxmox_node', 'proxmox')
-
-  # storage on node
-  config.set('proxmox', '; the proxmox storage to use for kopsrox - needs to be available on the proxmox node')
-  config.set('proxmox', 'storage', 'local-lvm')
-
-  # kopsrox section
   config.add_section('kopsrox')
 
+  # proxmox api endpoint
+  config.set(ks, '; domain or IP to access proxmox')
+  config.set(ks, 'proxmox_endpoint', '127.0.0.1')
+
+  # proxmox api port
+  config.set(ks, '; api port ( usually 8006 ) ')
+  config.set(ks, 'proxmox_api_port', '8006')
+
+  # username
+  config.set(ks, '; username to connect with / owner of the API token')
+  config.set(ks, 'proxmox_user', 'root@pam')
+
+  # api token name
+  config.set(ks, '; name of api token')
+  config.set(ks, 'proxmox_token_name', 'kopsrox')
+
+  # api key
+  config.set(ks, '; text of api key')
+  config.set(ks, 'proxmox_token_value', 'xxxxxxxxxxxxx')
+
+  # node to operate on
+  config.set(ks, '; the proxmox node that you will run kopsrox on - the image and all nodes are created on this host')
+  config.set(ks, 'proxmox_node', 'proxmox')
+
+  # storage on node
+  config.set(ks, '; the proxmox storage to use for kopsrox - needs to be available on the proxmox node')
+  config.set(ks, 'proxmox_storage', 'local-lvm')
+
   # upstream image
-  config.set('kopsrox', '; the upstream cloud image used to create the kopsrox image')
-  config.set('kopsrox', 'cloud_image_url', 'https://cloud-images.ubuntu.com/minimal/daily/oracular/current/oracular-minimal-cloudimg-amd64.img')
+  config.set(ks, '; the upstream cloud image used to create the kopsrox image')
+  config.set(ks, 'cloud_image_url', 'https://cloud-images.ubuntu.com/minimal/daily/oracular/current/oracular-minimal-cloudimg-amd64.img')
 
   # disk size for kopsrox vms
-  config.set('kopsrox', '; size of vm disk in Gib ')
-  config.set('kopsrox', 'vm_disk', '20')
+  config.set(ks, '; size of vm disk in Gib ')
+  config.set(ks, 'vm_disk', '20')
 
   # number of cpu cores
-  config.set('kopsrox', '; number of cpu cores ')
+  config.set(ks, '; number of cpu cores ')
   config.set('kopsrox', 'vm_cpu', '1')
 
   # ram size
@@ -69,7 +67,7 @@ def init_kopsrox_ini():
   config.set('kopsrox', 'cloudinitpass', 'admin')
 
   # cloud init user ssh key
-  config.set('kopsrox', ';  a ssh public key for the cloudinit user ( required ) ')
+  config.set('kopsrox', '; ssh public key for the cloudinit user ( required )')
   config.set('kopsrox', 'cloudinitsshkey', 'ssh-rsa cioieocieo')
 
   # network bridge
@@ -96,30 +94,27 @@ def init_kopsrox_ini():
   # network mtu
   config.set('kopsrox', '; interface mtu set on vms ')
   config.set('kopsrox', '; set to 1450 if using sdn ')
-  config.set('kopsrox', 'network_mtu', '1500')
-
-  # cluster section
-  config.add_section('cluster')
+  config.set(ks, 'network_mtu', '1500')
 
   # cluster vmid
-  config.set('cluster', '; id for the cluster vm\'s eg from 620 - 630')
-  config.set('cluster', 'cluster_id', '620')
+  config.set(ks, '; id for the cluster vm\'s eg from 620 - 630')
+  config.set(ks, 'cluster_id', '620')
 
   # cluster friendly name
-  config.set('cluster', '; name of the cluster')
-  config.set('cluster', 'cluster_name', 'mycluster')
+  config.set(ks, '; name of the cluster')
+  config.set(ks, 'cluster_name', 'mycluster')
 
   # number of masters
-  config.set('cluster', '; number of masters nodes 1 or 3')
-  config.set('cluster', 'masters', '1')
+  config.set(ks, '; number of masters nodes 1 or 3')
+  config.set(ks, 'masters', '1')
 
   # number of workers
-  config.set('cluster', '; number of workers nodes 1 to 5')
-  config.set('cluster', 'workers', '0')
+  config.set(ks, '; number of workers nodes 1 to 5')
+  config.set(ks, 'workers', '0')
 
   # k3s version
-  config.set('cluster', '; k3s version')
-  config.set('cluster', 'k3s_version', 'v1.27.8+k3s2')
+  config.set(ks, '; k3s version')
+  config.set(ks, 'k3s_version', '1.34.1+k3s1')
 
   # s3 etcd snapshot config
   config.add_section('s3')
