@@ -52,48 +52,48 @@ def init_kopsrox_ini():
 
   # number of cpu cores
   config.set(ks, '; number of cpu cores ')
-  config.set('kopsrox', 'vm_cpu', '1')
+  config.set(ks, 'vm_cpu', '1')
 
   # ram size
-  config.set('kopsrox', '; amount of ram in Gib ')
-  config.set('kopsrox', 'vm_ram', '2')
+  config.set(ks, '; amount of ram in Gib ')
+  config.set(ks, 'vm_ram', '2')
 
   # cloudinit user key and password
-  config.set('kopsrox', '; username for created cloudinit user')
-  config.set('kopsrox', 'cloudinituser', 'user')
+  config.set(ks, '; username for created cloudinit user')
+  config.set(ks, 'cloudinituser', 'user')
 
   # cloud init user password
-  config.set('kopsrox', '; password for the cloudinit user')
-  config.set('kopsrox', 'cloudinitpass', 'admin')
+  config.set(ks, '; password for the cloudinit user')
+  config.set(ks, 'cloudinitpass', 'admin')
 
   # cloud init user ssh key
-  config.set('kopsrox', '; ssh public key for the cloudinit user ( required )')
-  config.set('kopsrox', 'cloudinitsshkey', 'ssh-rsa cioieocieo')
+  config.set(ks, '; ssh public key for the cloudinit user ( required )')
+  config.set(ks, 'cloudinitsshkey', 'ssh-rsa cioieocieo')
 
   # network bridge
-  config.set('kopsrox', '; network bridge to use with kopsrox')
-  config.set('kopsrox', '; a proxmox sdn can be used by specifying the zone and vnet like this: sdn/zone/vnet')
-  config.set('kopsrox', 'network_bridge', 'vmbr0')
+  config.set(ks, '; network bridge to use with kopsrox')
+  config.set(ks, '; a proxmox sdn can be used by specifying the zone and vnet like this: sdn/zone/vnet')
+  config.set(ks, 'network_bridge', 'vmbr0')
 
   # kopsrox network baseip
-  config.set('kopsrox', '; first ip of the ip range used for this kopsrox cluster')
-  config.set('kopsrox', 'network_ip', '192.168.0.160')
+  config.set(ks, '; first ip of the ip range used for this kopsrox cluster')
+  config.set(ks, 'network_ip', '192.168.0.160')
 
   # netmask / subnet
-  config.set('kopsrox', '; /24 is 255.255.255.0')
-  config.set('kopsrox', 'network_mask', '24')
+  config.set(ks, '; /24 is 255.255.255.0')
+  config.set(ks, 'network_mask', '24')
 
   # default gateway
-  config.set('kopsrox', '; default gateway for the network ( needs to provide internet access ) ')
-  config.set('kopsrox', 'network_gw', '192.168.0.1')
+  config.set(ks, '; default gateway for the network ( needs to provide internet access ) ')
+  config.set(ks, 'network_gw', '192.168.0.1')
 
   # dns server
-  config.set('kopsrox', '; dns server for network')
-  config.set('kopsrox', 'network_dns', '192.168.0.1')
+  config.set(ks, '; dns server for network')
+  config.set(ks, 'network_dns', '192.168.0.1')
 
   # network mtu
-  config.set('kopsrox', '; interface mtu set on vms ')
-  config.set('kopsrox', '; set to 1450 if using sdn ')
+  config.set(ks, '; interface mtu set on vms ')
+  config.set(ks, '; set to 1450 if using sdn ')
   config.set(ks, 'network_mtu', '1500')
 
   # cluster vmid
@@ -110,35 +110,32 @@ def init_kopsrox_ini():
 
   # number of workers
   config.set(ks, '; number of workers nodes 1 to 5')
-  config.set(ks, 'workers', '0')
+  config.set(ks, 'workers', '1')
 
   # k3s version
   config.set(ks, '; k3s version')
   config.set(ks, 'k3s_version', '1.34.1+k3s1')
 
-  # s3 etcd snapshot config
-  config.add_section('s3')
-
   # s3 endpoint
-  config.set('s3', '; all s3 settings are optional')
-  config.set('s3', '; s3 endpoint')
-  config.set('s3', 'endpoint', 'kopsrox')
+  config.set(ks, '; all s3 settings are optional')
+  config.set(ks, '; s3 endpoint')
+  config.set(ks, 's3_endpoint', 'kopsrox')
 
   # s3 region
-  config.set('s3', '; s3 region')
-  config.set('s3', 'region', '')
+  config.set(ks, '; s3 region')
+  config.set(ks, 's3_region', '')
 
   # s3 access key
-  config.set('s3', '; s3 access key')
-  config.set('s3', 'access-key', 'e3898d39d39id93')
+  config.set(ks, '; s3 access key')
+  config.set(ks, 's3_access-key', 'e3898d39d39id93')
 
   # s3 access secret
-  config.set('s3', '; s3 access secret')
-  config.set('s3', 'access-secret', 'ioewioeiowe')
+  config.set(ks, '; s3 access secret')
+  config.set(ks, 's3_access-secret', 'ioewioeiowe')
 
   # s3 bucket
-  config.set('s3', '; s3 bucket')
-  config.set('s3', 'bucket', 'koprox')
+  config.set(ks, '; s3 bucket')
+  config.set(ks, 's3_bucket', 'kopsrox-backup')
 
   # write config
   # file should not already exist...

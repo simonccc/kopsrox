@@ -20,51 +20,55 @@ kopsrox_config.read('kopsrox.ini')
 kname='config_check'
 
 # check section and value exists in kopsrox.ini
-def conf_check(section: str = 'kopsrox',value: str = 'kopsrox'):
+def conf_check(value: str = 'kopsrox'):
 
   # check option exists
   try:
-    if not kopsrox_config.has_option(section,value):
+    if not kopsrox_config.has_option('kopsrox',value):
       exit(0)
   except:
-    kmsg(kname, f'[{section}]/{value} is missing','err')
+    kmsg(kname, f'{value} is missing in kopsrox.ini','err')
     exit(0)
 
-  # check value is not blank ( s3 section ok ) 
+  # check value is not blank
   try:
-    if kopsrox_config.get(section, value) == '':
+    if kopsrox_config.get('kopsrox', value) == '':
       exit(0)
+
+    # s3 optional
+    if value.startswith('s3',0,2):
+       pass 
+
   except:
-    if not section in ['s3']:
-      kmsg(kname, f'[{section}]/{value} - a value is required','err')
-      exit(0)
+    kmsg(kname, f'{value} - a value is required','err')
+    exit(0)
 
   # define config_item
-  config_item = kopsrox_config.get(section, value)
+  config_item = kopsrox_config.get('kopsrox', value)
 
   # int check
-  if value in ['port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters', 'network_mtu']:
+  if value in ['proxmox_port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters', 'network_mtu']:
 
     # test if var is int
     try:
       test_var = int(config_item)
     except:
-      kmsg(kname, f'[{section}]/{value} should be numeric: {config_item}', 'err')
+      kmsg(kname, f'[{value} should be numeric: {config_item}', 'err')
       exit(0)
 
     # return int
-    return(kopsrox_config.getint(section, value))
+    return(kopsrox_config.getint('kopsrox', value))
   else:
     # return string
     return(config_item)
 
 
 # cluster name 
-cluster_name = conf_check('kopsrox', 'cluster_name')
+cluster_name = conf_check('cluster_name')
 kname = cluster_name + '_config-check'
 
 # cluster id
-cluster_id = conf_check('kopsrox','cluster_id')
+cluster_id = conf_check('cluster_id')
 if cluster_id < 100:
   kmsg(kname, f' cluster_id is too low - should be over 100', 'err')
   exit(0)
@@ -77,11 +81,11 @@ try:
 
   # api connection
   prox = ProxmoxAPI(
-    conf_check('kopsrox','proxmox_endpoint'),
-    port=conf_check('kopsrox','proxmox_api_port'),
-    user=conf_check('kopsrox','proxmox_user'),
-    token_name=conf_check('kopsrox','proxmox_token_name'),
-    token_value=conf_check('kopsrox','proxmox_token_value'),
+    conf_check('proxmox_endpoint'),
+    port=conf_check('proxmox_api_port'),
+    user=conf_check('proxmox_user'),
+    token_name=conf_check('proxmox_token_name'),
+    token_value=conf_check('proxmox_token_value'),
     verify_ssl=False,
     timeout=5)
 
@@ -94,7 +98,7 @@ except:
   exit(0)
 
 # map passed node name
-node = conf_check('kopsrox','proxmox_node')
+node = conf_check('proxmox_node')
 
 # try k8s ping
 try:
@@ -115,37 +119,37 @@ if node not in discovered_nodes:
  exit(0)
 
 # storage
-storage = conf_check('kopsrox', 'storage')
+storage = conf_check('storage')
 
 # kopsrox 
-cloud_image_url = conf_check('kopsrox','cloud_image_url')
-vm_disk = conf_check('kopsrox','vm_disk')
-vm_cpu = conf_check('kopsrox','vm_cpu')
+cloud_image_url = conf_check('cloud_image_url')
+vm_disk = conf_check('vm_disk')
+vm_cpu = conf_check('vm_cpu')
 
 # ram size  and check
-vm_ram = conf_check('kopsrox','vm_ram')
+vm_ram = conf_check('vm_ram')
 if vm_ram < 2:
-  kmsg(kname, f'[kopsrox]/vm_ram - kopsrox vms need 2G RAM', 'err')
+  kmsg(kname, f'vm_ram - kopsrox vms need 2G RAM', 'err')
   exit(0)
 
 # cloudinit
-cloudinituser = conf_check('kopsrox','cloudinituser')
-cloudinitpass = conf_check('kopsrox','cloudinitpass')
+cloudinituser = conf_check('cloudinituser')
+cloudinitpass = conf_check('cloudinitpass')
 
 # check ssh key can be encoded correctly
 try:
-  cloudinitsshkey = urllib.parse.quote(conf_check('kopsrox','cloudinitsshkey'), safe='')
+  cloudinitsshkey = urllib.parse.quote(conf_check('cloudinitsshkey'), safe='')
 except:
   kmsg(kname, f'[kopsrox]/cloudinitsshkey - invalid ssh key', 'err')
   exit(0)
 
 # network
-network_ip = conf_check('kopsrox','network_ip')
-network_gw = conf_check('kopsrox','network_gw')
-network_mask = conf_check('kopsrox','network_mask')
-network_dns = conf_check('kopsrox', 'network_dns')
-network_bridge = conf_check('kopsrox','network_bridge')
-network_mtu = conf_check('kopsrox','network_mtu')
+network_ip = conf_check('network_ip')
+network_gw = conf_check('network_gw')
+network_mask = conf_check('network_mask')
+network_dns = conf_check('network_dns')
+network_bridge = conf_check('network_bridge')
+network_mtu = conf_check('network_mtu')
 
 # variables for network and its IP for vmip function
 network_octs = network_ip.split('.')
@@ -153,26 +157,26 @@ network_base = f'{network_octs[0]}.{network_octs[1]}.{network_octs[2]}.'
 network_ip_prefix = int(network_octs[-1])
 
 # master + check
-masters = conf_check('kopsrox','masters')
+masters = conf_check('masters')
 if not (masters == 1 or masters == 3):
   kmsg(kname, f'[cluster] - masters: only 1 or 3 masters supported. You have: {masters}')
   exit(0)
 
 # workers
-workers = conf_check('kopsrox','workers')
+workers = conf_check('workers')
 
 # k3s version
-k3s_version = conf_check('kopsrox','k3s_version')
+k3s_version = conf_check('k3s_version')
 
 # s3 stuff
-s3endpoint = conf_check('s3','endpoint')
-access_key = conf_check('s3','access-key')
-access_secret = conf_check('s3','access-secret')
-bucket = conf_check('s3','bucket')
+region = conf_check('s3_region')
+s3endpoint = conf_check('s3_endpoint')
+access_key = conf_check('s3_access-key')
+access_secret = conf_check('s3_access-secret')
+bucket = conf_check('s3_bucket')
 
 # region optional
 region_string = ''
-region = conf_check('s3','region')
 if region:
   region_string = '--etcd-s3-region ' + region
 
