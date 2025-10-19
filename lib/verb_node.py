@@ -17,6 +17,15 @@ except:
 # define kname
 kname = 'node_'+cmd
 
+# cmd runs through all vms
+if cmd == 'cluster-exec':
+  for vmid in vms:
+    if vmid != cluster_id:
+      kmsg('node_cluster-exec', f'{vmnames[vmid]} {arg}')
+      os.system(f'sudo qm guest exec {vmid} {arg}')
+  exit(1)
+
+
 # all commands aside from utility require a hostname passed - so check them here
 if cmd not in ['utility']:
 

@@ -39,8 +39,9 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     exit(0)
 
   # defines
-  k3s_install_master = f'cat /k3s.sh | sh -s - server --cluster-init'
-  k3s_install_worker = f'cat /k3s.sh | K3S_URL="https://{network_ip}:6443" '
+  k3s_install_version = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
+  k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init'
+  k3s_install_worker = f'{k3s_install_version} K3S_URL="https://{network_ip}:6443" '
 
   master_cmd = ''
   token = ''
@@ -290,16 +291,23 @@ def export_k3s_token():
 
 # cluster info
 def cluster_info():
- 
+
+  # live nodes in cluster 
+  cluster_info_vms = list_kopsrox_vm()
+
+  # check m1 id exists
+  if not masterid in cluster_info_vms:
+    kmsg(kname, f'cluster {cluster_name} does not exist', 'err')
+    exit(0)
+
   kmsg(f'cluster_info', '', 'sys')
   curr_master = get_kube_vip_master()
-  info_vms = list_kopsrox_vm()
 
   # for kopsrox vms
-  for vmid in info_vms:
+  for vmid in cluster_info_vms:
     if not cluster_id == vmid:
       hostname = vmnames[vmid]
-      vmstatus = f'[{info_vms[vmid]}] {vmip(vmid)}/{network_mask}'
+      vmstatus = f'[{cluster_info_vms[vmid]}] {vmip(vmid)}/{network_mask}'
       if hostname == curr_master:
         vmstatus += f' vip {network_ip}/{network_mask}'
       kmsg(f'{hostname}_{vmid}', f'{vmstatus}')

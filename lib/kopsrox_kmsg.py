@@ -11,8 +11,7 @@ def kmsg(kname = 'kopsrox',msg = 'no msg', sev = 'info'):
 
   # print cluster name
   cprint(knamea[0], "blue",attrs=["bold"], end='')
-  cprint('-', "magenta",attrs=["bold"], end='')
-  cprint('<:', "cyan", end='')
+  print('-', end='')
 
   try:
     if knamea[1] and sev == 'info':
@@ -26,5 +25,5 @@ def kmsg(kname = 'kopsrox',msg = 'no msg', sev = 'info'):
     print(kname,msg)
 
   # final output
-  cprint(':> ', "cyan", end='')
-  print(msg)
+  print(f' - {msg}')
+
