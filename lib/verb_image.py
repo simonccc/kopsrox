@@ -74,7 +74,7 @@ echo -n '
 etcd-s3: true
 etcd-snapshot-retention: 14
 etcd-s3-region: {region_string}
-etcd-s3-endpoint: {s3endpoint}
+etcd-s3-endpoint: {s3_endpoint}
 etcd-s3-access-key: {access_key}
 etcd-s3-secret-key: {access_secret}
 etcd-s3-bucket: {bucket}

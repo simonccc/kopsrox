@@ -170,7 +170,7 @@ k3s_version = conf_check('k3s_version')
 
 # s3 stuff
 region = conf_check('s3_region')
-s3endpoint = conf_check('s3_endpoint')
+s3_endpoint = conf_check('s3_endpoint')
 access_key = conf_check('s3_access-key')
 access_secret = conf_check('s3_access-secret')
 bucket = conf_check('s3_bucket')

@@ -47,7 +47,7 @@ def list_snapshots():
   for line in sorted(ls):
 
     # if cluster name matches the s3 line append to the images string
-    if re.search(f'kopsrox-{cluster_name}', line):
+    if re.search(f'kopsrox-{cluster_name}', line) and re.search('s3', line):
       images += line+'\n'
 
   # return images string
@@ -64,7 +64,7 @@ except:
 
 # s3 prune
 if cmd == 'prune':
-  kmsg(f'{kname}-prune', (f'{s3endpoint}/{bucket}\n' + s3_run('prune --name kopsrox')), 'sys')
+  kmsg(f'{kname}-prune', (f'{s3_endpoint}/{bucket}\n' + s3_run('prune --name kopsrox')), 'sys')
   exit(0)
 
 # snapshot 
@@ -75,7 +75,7 @@ if cmd == 'snapshot':
     export_k3s_token()
 
   # define snapshot command
-  snap_cmd = f'k3s etcd-snapshot save --name kopsrox 2>&1'
+  snap_cmd = f'k3s etcd-snapshot save --name kopsrox --etcd s3 2>&1'
   snapout = qaexec(masterid,snap_cmd)
 
   # filter output
@@ -86,7 +86,7 @@ if cmd == 'snapshot':
 
 # print s3List
 def s3_list():
-  kmsg(kname, f'{s3endpoint}/{bucket}\n{snapshots}')
+  kmsg(kname, f'{s3_endpoint}/{bucket}\n{snapshots}')
 
 # restore / list snapshots
 if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
