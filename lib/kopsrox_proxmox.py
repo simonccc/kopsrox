@@ -5,7 +5,7 @@ from kopsrox_config import *
 from kopsrox_kmsg import kmsg
 
 # run a exec via qemu-agent
-def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = node):
+def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = proxmox_node):
 
   # define kname
   kname = 'proxmox_qaexec'
@@ -28,7 +28,7 @@ def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = node):
     try:
 
       # qa ping the vm
-      qa_ping = prox.nodes(node).qemu(vmid).agent.ping.post()
+      qa_ping = prox.nodes(proxmox_node).qemu(vmid).agent.ping.post()
 
       # agent is running 
       qagent_running = 'true'
@@ -46,7 +46,6 @@ def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = node):
       # sleep 1 second then try again
       time.sleep(1)
 
-      #progress_bar(qagent_count, 30, prefix='', suffix='')
       if qagent_count == 10:
         kmsg(kname, f'no response for 10s {vmname} [{node}] cmd: {cmd}', 'sys')
 
@@ -68,7 +67,7 @@ def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = node):
   # fixme needs a loop counter?
   while pid_status != int(1):
     try:
-      pid_check = prox.nodes(node).qemu(vmid).agent('exec-status').get(pid = pid)
+      pid_check = prox.nodes(proxmox_node).qemu(vmid).agent('exec-status').get(pid = pid)
     except:
       kmsg(kname, f'problem with pid: {pid} {cmd}', 'err')
       exit(0)
@@ -145,10 +144,10 @@ def clone(vmid):
   kmsg('proxmox_clone', f'{hostname} {ip} {vm_cpu}c/{vm_ram}G {vm_disk}G')
 
   # clone
-  prox_task(prox.nodes(node).qemu(cluster_id).clone.post(newid = vmid))
+  prox_task(prox.nodes(proxmox_node).qemu(cluster_id).clone.post(newid = vmid))
 
   # configure
-  prox_task(prox.nodes(node).qemu(vmid).config.post(
+  prox_task(prox.nodes(proxmox_node).qemu(vmid).config.post(
     name = hostname,
     onboot = 1,
     cores = vm_cpu,
@@ -168,13 +167,13 @@ def clone(vmid):
   ))
 
   # power on
-  prox_task(prox.nodes(node).qemu(vmid).status.start.post())
+  prox_task(prox.nodes(proxmox_node).qemu(vmid).status.start.post())
 
   # run uptime / wait for qagent to start
   internet_check(vmid)
 
 # proxmox task blocker
-def prox_task(task_id, node=node):
+def prox_task(task_id, node=proxmox_node):
 
   # define default status
   status = {"status": ""}
@@ -182,7 +181,7 @@ def prox_task(task_id, node=node):
   # until task stopped
   try:
     while (status["status"] != "stopped"):
-      status = prox.nodes(node).tasks(task_id).status.get()
+      status = prox.nodes(proxmox_node).tasks(task_id).status.get()
   except:
     kmsg('proxmox_task-status', f'unable to get task {task_id} node: {node}', 'err')
     exit(0)
@@ -193,7 +192,7 @@ def prox_task(task_id, node=node):
     exit(0)
 
 # returns the task log
-def task_log(task_id, node=node):
+def task_log(task_id, node=proxmox_node):
 
   # define empty log line
   logline = ''
@@ -201,7 +200,7 @@ def task_log(task_id, node=node):
   # for each value in list
   # assuming task_id is valid
   try:
-    for log in prox.nodes(node).tasks(task_id).log.get():
+    for log in prox.nodes(proxmox_node).tasks(task_id).log.get():
 
       # append log to logline
       logline += log['t'] + '\n'

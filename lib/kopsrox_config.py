@@ -98,15 +98,15 @@ except:
   exit(0)
 
 # map passed node name
-node = conf_check('proxmox_node')
+proxmox_node = conf_check('proxmox_node')
 
 # try k8s ping
 try:
-  k3s_ping = prox.nodes(node).qemu(masterid).agent.exec.post(command = '/usr/local/bin/k3s kubectl version')
+  k3s_ping = prox.nodes(proxmox_node).qemu(masterid).agent.exec.post(command = '/usr/local/bin/k3s kubectl version')
   #print(pingv)
 except:
   try:
-    qa_ping = prox.nodes(node).qemu(masterid).agent.ping.post()
+    qa_ping = prox.nodes(proxmox_node).qemu(masterid).agent.ping.post()
     kmsg(kname, f'k3s down but master up please investigate...', 'err')
     exit(0)
   except:
@@ -114,12 +114,12 @@ except:
 
 # proxmox cont
 discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
-if node not in discovered_nodes:
- kmsg(kname, f'"{node}" not found - discovered nodes: {discovered_nodes}', 'err')
+if proxmox_node not in discovered_nodes:
+ kmsg(kname, f'"{proxmox_node}" not found - discovered nodes: {discovered_nodes}', 'err')
  exit(0)
 
 # storage
-storage = conf_check('storage')
+proxmox_storage = conf_check('proxmox_storage')
 
 # kopsrox 
 cloud_image_url = conf_check('cloud_image_url')
@@ -201,7 +201,7 @@ vmnames = {
 def kopsrox_img():
 
   # list contents
-  for image in prox.nodes(node).storage(storage).content.get():
+  for image in prox.nodes(proxmox_node).storage(proxmox_storage).content.get():
 
     # map image_name
     image_name = image.get("volid")
@@ -235,17 +235,17 @@ def list_kopsrox_vm():
 
 # returns vmstatus
 # why does it need node?
-def vm_info(vmid,node=node):
+def vm_info(vmid: int,node=proxmox_node):
   return(prox.nodes(node).qemu(vmid).status.current.get())
 
 # get list of storage in the cluster
-storage_list = prox.nodes(node).storage.get()
+storage_list = prox.nodes(proxmox_node).storage.get()
 
 # for each of the list 
 for local_storage in storage_list:
 
   # if matched storage
-  if storage == local_storage.get("storage"):
+  if proxmox_storage == local_storage.get("storage"):
 
     # is storage local or shared?
     if local_storage.get("shared") == 0:
@@ -268,7 +268,7 @@ except:
 if not re.search('sdn/', network_bridge):
 
   # discover available traditional bridges
-  discovered_bridges = [bridge.get('iface', None) for bridge in prox.nodes(node).network.get(type = 'bridge')]
+  discovered_bridges = [bridge.get('iface', None) for bridge in prox.nodes(proxmox_node).network.get(type = 'bridge')]
 
 # sdn bridges / zones
 else:
@@ -285,7 +285,7 @@ else:
     exit(0)
 
   # discover available sdn bridges
-  discovered_bridges = [bridge.get('vnet', None) for bridge in prox.nodes(node).sdn.zones(zone).content.get()]
+  discovered_bridges = [bridge.get('vnet', None) for bridge in prox.nodes(proxmox_node).sdn.zones(zone).content.get()]
 
 # check configured bridge is in list
 if network_bridge not in discovered_bridges:
@@ -299,7 +299,7 @@ cloud_image_desc = ''
 # skip image check if image create is passed
 try:
   # check for image create command line
-  if sys.argv[1] == 'image' and sys.argv[2] == 'create':
+  if sys.argv[1] == 'image' and ( sys.argv[2] == 'create' or sys.argv[2] == 'update'):
     pass
   else:
     exit(0)
@@ -323,7 +323,7 @@ except:
 
   # get image info
   try:
-    cloud_image_data = prox.nodes(node).storage(storage).content(kopsrox_image_name).get()
+    cloud_image_data = prox.nodes(proxmox_node).storage(proxmox_storage).content(kopsrox_image_name).get()
 
     # check image not too large for configured disk
     cloud_image_size = int(cloud_image_data['size'] / 1073741824 )
@@ -331,7 +331,7 @@ except:
       exit(0)
 
     # get image created and desc from template
-    template_data = prox.nodes(node).qemu(cluster_id).config.get()
+    template_data = prox.nodes(proxmox_node).qemu(cluster_id).config.get()
     cloud_image_desc = template_data['description']
 
   except:
@@ -355,7 +355,7 @@ for vmid in vms:
     # start stopped nodes
     if vmi['status'] == 'stopped':
       kmsg(kname, f'powering on {vmi["name"]}', 'sys')
-      prox.nodes(pnode).qemu(vmid).status.start.post()
+      prox.nodes(proxmox_node).qemu(vmid).status.start.post()
 
 # end of checks
 # functions used in other code
@@ -386,12 +386,3 @@ def image_info():
   kmsg(f'{kname}desc', cloud_image_desc)
   kmsg(f'{kname}storage', f'{kopsrox_image_name} ({storage_type})')
   kmsg(f'{kname}size', f'{cloud_image_size}G')
-
-# tbc
-def progress_bar(iteration, total, prefix='', suffix='', length=30, fill='^'):
-  percent = ("{0:.1f}").format(100 * (iteration / float(total)))
-  filled_length = int(length * iteration // total)
-  bar = fill * filled_length + '-' * (length - filled_length)
-  sys.stdout.write(f'\r{prefix} |{bar}| {percent}% {suffix}')
-  sys.stdout.flush()
-

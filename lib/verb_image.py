@@ -15,11 +15,11 @@ if cmd == 'create':
 
   # get image name from url 
   cloud_image = cloud_image_url.split('/')[-1]
-  kmsg(f'{kname}create', f'{cloud_image}/{k3s_version} {storage}/{cluster_name}-i0/{cluster_id}', 'sys')
+  kmsg(f'{kname}create', f'{cloud_image}/{k3s_version} {proxmox_storage}/{cluster_name}-i0/{cluster_id}', 'sys')
 
   # check if image already exists
   if os.path.isfile(cloud_image):
-    kmsg(f'{kname}check', f'{cloud_image} already exists - removing')
+    kmsg(f'{kname}check', f'{cloud_image} already exists - removing','sys')
     try:
       os.remove(cloud_image)
       if os.path.isfile(cloud_image):
@@ -114,18 +114,18 @@ k3s_version: {k3s_version}
 created: {img_ts}'''
 
   # create new server
-  prox_task(prox.nodes(node).qemu.post(
+  prox_task(prox.nodes(proxmox_node).qemu.post(
     vmid = cluster_id,
     cores = 1,
     memory = 1024,
     bios = 'ovmf',
-    efidisk0 = f'{storage}:0',
+    efidisk0 = f'{proxmox_storage}:0',
     machine = 'q35',
     cpu = ('cputype=x86-64-v3'),
     scsihw = 'virtio-scsi-single',
     name = f'{cluster_name}-i0',
     ostype = 'l26',
-    scsi2 = (f'{storage}:cloudinit'),
+    scsi2 = (f'{proxmox_storage}:cloudinit'),
     tags = cluster_name,
     serial0 = 'socket',
     agent = ('enabled=true'),
@@ -140,7 +140,7 @@ created: {img_ts}'''
   # shell to import disk
   # import-from requires the full path os.getcwd required here
   import_cmd = f'''
-sudo qm set {cluster_id} --scsi0 {storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true,aio=native
+sudo qm set {cluster_id} --scsi0 {proxmox_storage}:0,import-from={os.getcwd()}/{cloud_image},iothread=true,aio=native
 mv {cloud_image} {cloud_image}.patched'''
 
   # run shell command to import
@@ -148,8 +148,8 @@ mv {cloud_image} {cloud_image}.patched'''
   local_os_process(import_cmd)
 
   # convert to template via create base disk also vm config
-  prox_task(prox.nodes(node).qemu(cluster_id).template.post())
-  prox_task(prox.nodes(node).qemu(cluster_id).config.post(template = 1))
+  prox_task(prox.nodes(proxmox_node).qemu(cluster_id).template.post())
+  prox_task(prox.nodes(proxmox_node).qemu(cluster_id).config.post(template = 1))
 
 # image info
 if cmd == 'info':
