@@ -10,29 +10,29 @@ cmd = sys.argv[2]
 kname = f'etcd_{cmd}'
 
 # token filename
-token_fname = cluster_name + '.k3stoken'
+token_fname = f'{cluster_name}.k3stoken'
 
 # check master is running / exists
 try:
   node = vms[masterid]
 except:
   kmsg(f'{kname}-check', 'cluster does not exist', 'err')
-  exit(0)
+#  exit(0)
 
 # run k3s s3 command passed
 def s3_run(s3cmd):
 
   # run the command ( 2>&1 required )
   k3s_run = f'k3s etcd-snapshot {s3cmd} 2>&1'
-  cmd_out = qaexec(masterid, k3s_run)
+  s3_out = qaexec(masterid, k3s_run)
 
   # look for fatal error in output
-  if re.search('level=fatal', cmd_out):
-    kmsg(f'{kname}-s3run', f'\n {cmd_out}', 'err')
+  if re.search('level=fatal', s3_out):
+    kmsg(f'{kname}-s3run', f'\n {s3_out}', 'err')
     exit(0)
 
   # return command outpit
-  return(cmd_out)
+  return(s3_out)
 
 # list images in s3 storage
 def list_snapshots():
@@ -48,7 +48,7 @@ def list_snapshots():
 
     # if cluster name matches the s3 line append to the images string
     if re.search(f'kopsrox-{cluster_name}', line) and re.search('s3', line):
-      images += line+'\n'
+      images += f'{line.split()[0]} - {line.split()[3]}\n'
 
   # return images string
   return(images.strip())
@@ -56,6 +56,7 @@ def list_snapshots():
 # test connection to s3 by getting list of snapshots
 snapshots = list_snapshots()
 
+# check master node exists
 try:
   node = vms[masterid]
 except:
@@ -67,6 +68,10 @@ if cmd == 'prune':
   kmsg(f'{kname}-prune', (f'{s3_endpoint}/{bucket}\n' + s3_run('prune --name kopsrox')), 'sys')
   exit(0)
 
+# print s3List
+def s3_list():
+   kmsg(kname, f'{s3_endpoint}/{bucket}\n{snapshots}')
+
 # snapshot 
 if cmd == 'snapshot':
 
@@ -75,8 +80,7 @@ if cmd == 'snapshot':
     export_k3s_token()
 
   # define snapshot command
-  snap_cmd = f'k3s etcd-snapshot save --name kopsrox --etcd s3 2>&1'
-  snapout = qaexec(masterid,snap_cmd)
+  snapout = s3_run('save --name kopsrox --etcd-s3')
 
   # filter output
   snapout = snapout.split('\n')
@@ -84,9 +88,9 @@ if cmd == 'snapshot':
     if re.search('Snapshot', line):
       kmsg(kname, line)
 
-# print s3List
-def s3_list():
-  kmsg(kname, f'{s3_endpoint}/{bucket}\n{snapshots}')
+  # list snapshots 
+  snapshots = list_snapshots()
+  s3_list()
 
 # restore / list snapshots
 if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':

@@ -161,7 +161,7 @@ def clone(vmid):
   ))
 
   # resize disk
-  prox_task(prox.nodes(node).qemu(vmid).resize.put(
+  prox_task(prox.nodes(proxmox_node).qemu(vmid).resize.put(
     disk = 'scsi0',
     size = f'{vm_disk}G',
   ))
