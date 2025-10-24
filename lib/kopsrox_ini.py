@@ -46,6 +46,10 @@ def init_kopsrox_ini():
   config.set(ks, '; the upstream cloud image used to create the kopsrox image')
   config.set(ks, 'cloud_image_url', 'https://cloud-images.ubuntu.com/minimal/daily/oracular/current/oracular-minimal-cloudimg-amd64.img')
 
+  # extra packages to include in image
+  config.set(ks, '; comma seperated list of extra packages to install into image ')
+  config.set(ks, 'extra_packages', 'nfs-common')
+
   # disk size for kopsrox vms
   config.set(ks, '; size of vm disk in Gib ')
   config.set(ks, 'vm_disk', '20')

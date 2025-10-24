@@ -32,12 +32,11 @@ def conf_check(value: str = 'kopsrox'):
 
   # check value is not blank
   try:
-    if kopsrox_config.get('kopsrox', value) == '':
-      exit(0)
 
-    # s3 optional
-    if value.startswith('s3',0,2):
-       pass 
+    # values that can be blank
+    if (kopsrox_config.get('kopsrox', value) == '') and  \
+    (value not in ['extra_packages']):
+      exit(0)
 
   except:
     kmsg(kname, f'{value} - a value is required','err')
@@ -65,7 +64,7 @@ def conf_check(value: str = 'kopsrox'):
 
 # cluster name 
 cluster_name = conf_check('cluster_name')
-kname = cluster_name + '_config-check'
+kname = f'{cluster_name}_config-check'
 
 # cluster id
 cluster_id = conf_check('cluster_id')
@@ -74,7 +73,7 @@ if cluster_id < 100:
   exit(0)
 
 # assign master id
-masterid = cluster_id + 1
+masterid = int(cluster_id) + 1
 
 # test connection to proxmox
 try:
@@ -93,7 +92,7 @@ try:
   prox.cluster.status.get()
 
 except:
-  kmsg(kname, f'API connection to Proxmox failed check proxmox settings', 'err')
+  kmsg(kname, f'API connection to proxmox failed check proxmox settings', 'err')
   print(prox.cluster.status.get())
   exit(0)
 
@@ -103,7 +102,7 @@ proxmox_node = conf_check('proxmox_node')
 # try k8s ping
 try:
   k3s_ping = prox.nodes(proxmox_node).qemu(masterid).agent.exec.post(command = '/usr/local/bin/k3s kubectl version')
-  #print(pingv)
+  
 except:
   try:
     qa_ping = prox.nodes(proxmox_node).qemu(masterid).agent.ping.post()
@@ -121,12 +120,28 @@ if proxmox_node not in discovered_nodes:
 # storage
 proxmox_storage = conf_check('proxmox_storage')
 
-# kopsrox 
+# cloud image
 cloud_image_url = conf_check('cloud_image_url')
-vm_disk = conf_check('vm_disk')
-vm_cpu = conf_check('vm_cpu')
 
-# ram size  and check
+# deal with any extra packages aside from qemu-guest-agent
+image_packages = 'qemu-guest-agent'
+extra_packages = f',{conf_check('extra_packages')}'
+if extra_packages != ',':
+  image_packages = f'{image_packages}{extra_packages}'
+
+# vm disk
+vm_disk = conf_check('vm_disk')
+if vm_disk < 20:
+  kmsg(kname, f'vm_ - kopsrox vms need 20G disk', 'err')
+  exit(0)
+
+# vm cpu
+vm_cpu = conf_check('vm_cpu')
+if vm_disk < 1:
+  kmsg(kname, f'vm_ - kopsrox vms at least 1 cpu', 'err')
+  exit(0)
+
+# ram size check
 vm_ram = conf_check('vm_ram')
 if vm_ram < 2:
   kmsg(kname, f'vm_ram - kopsrox vms need 2G RAM', 'err')

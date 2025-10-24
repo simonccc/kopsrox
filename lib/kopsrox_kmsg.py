@@ -25,5 +25,5 @@ def kmsg(kname = 'kopsrox',msg = 'no msg', sev = 'info'):
     print(kname,msg)
 
   # final output
-  print(f' - {msg}')
+  print(f':{msg}')
 

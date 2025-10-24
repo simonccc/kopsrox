@@ -17,14 +17,14 @@ try:
   node = vms[masterid]
 except:
   kmsg(f'{kname}-check', 'cluster does not exist', 'err')
-#  exit(0)
+  exit(0)
 
 # run k3s s3 command passed
 def s3_run(s3cmd):
 
   # run the command ( 2>&1 required )
   k3s_run = f'k3s etcd-snapshot {s3cmd} 2>&1'
-  s3_out = qaexec(masterid, k3s_run)
+  s3_out = qaexec(masterid,k3s_run)
 
   # look for fatal error in output
   if re.search('level=fatal', s3_out):

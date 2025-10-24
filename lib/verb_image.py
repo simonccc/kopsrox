@@ -15,7 +15,7 @@ if cmd == 'create':
 
   # get image name from url 
   cloud_image = cloud_image_url.split('/')[-1]
-  kmsg(f'{kname}create', f'{cloud_image}/{k3s_version} {proxmox_storage}/{cluster_name}-i0/{cluster_id}', 'sys')
+  kmsg(f'{kname}create', f'{cloud_image} > {cluster_name}-i0', 'sys')
 
   # check if image already exists
   if os.path.isfile(cloud_image):
@@ -91,10 +91,10 @@ flannel-backend: wireguard-native
 tls-san: {network_ip}' > /etc/rancher/k3s/config.yaml
 '''
   # shouldn't really need root/sudo but run into permissions problems
-  kmsg(f'{kname}virt-customize', 'configuring image')
+  kmsg(f'{kname}virt-customize', f'installing {image_packages}')
   virtc_cmd = f'''
 sudo virt-customize -a {cloud_image} \
---install qemu-guest-agent \
+--install {image_packages} \
 --run-command "{virtc_script}" \
 --copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/ > virt-customize.log 2>&1'''
   local_os_process(virtc_cmd)
