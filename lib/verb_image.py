@@ -72,7 +72,7 @@ spec:
 mkdir -p /etc/rancher/k3s/config.yaml.d/
 echo -n '
 etcd-s3: true
-etcd-snapshot-retention: 14
+etcd-snapshot-retention: 7
 etcd-s3-region: {region_string}
 etcd-s3-endpoint: {s3_endpoint}
 etcd-s3-access-key: {access_key}
@@ -82,8 +82,6 @@ etcd-s3-skip-ssl-verify: true
 etcd-snapshot-compress: true'  > /etc/rancher/k3s/config.yaml.d/etcd-backup.yaml
 
 echo -n '
-disable:
-  - servicelb
 disable-network-policy: true
 disable-cloud-controller: true
 disable-network-policy: true

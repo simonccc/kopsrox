@@ -83,8 +83,7 @@ if cmd == 'snapshot':
   snapout = s3_run('save --name kopsrox --etcd-s3')
 
   # filter output
-  snapout = snapout.split('\n')
-  for line in snapout:
+  for line in snapout.split('\n'):
     if re.search('Snapshot', line):
       kmsg(kname, line)
 

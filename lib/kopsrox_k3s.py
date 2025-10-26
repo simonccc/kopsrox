@@ -62,7 +62,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
     # master
     if nodetype == 'master':
-      init_cmd = f'{k3s_install_master} {master_cmd}'
+      init_cmd = f'{k3s_install_master} {master_cmd} --disable=servicelb'
 
     # k3s token env var version
     k3s_token_cmd = f' K3S_TOKEN="{token}"'
@@ -73,12 +73,10 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
     # worker
     if nodetype == 'worker':
-      init_cmd = f'rm -rf /etc/rancher/k3s/* && {k3s_install_worker}{k3s_token_cmd} sh -s'
+      init_cmd = f'{k3s_install_worker}{k3s_token_cmd} sh -s'
 
     # restore
     if nodetype == 'restore':
-      kmsg(f'k3s_bootstrap', f'fetching latest snapshot')
-
       # get latest snapshot
       bs_cmd = f'{k3s_install_master} {master_cmd} && /usr/local/bin/k3s etcd-snapshot ls 2>&1 && systemctl stop k3s && rm -rf /var/lib/rancher'
       bs_cmd_out = qaexec(vmid,bs_cmd)
