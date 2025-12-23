@@ -45,9 +45,10 @@ def list_snapshots():
 
   # for each image in the sorted list
   for line in sorted(ls):
+    print(line)
 
     # if cluster name matches the s3 line append to the images string
-    if re.search(f'kopsrox-{cluster_name}', line) and re.search('s3', line):
+    if re.search(f'kopsrox-{cluster_name}', line.split()[0]) and re.search('s3', line):
       images += f'{line.split()[0]} - {line.split()[3]}\n'
 
   # return images string

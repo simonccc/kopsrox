@@ -41,6 +41,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
   # defines
   k3s_install_version = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
   k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init'
+  k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443'
   k3s_install_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_install_version} K3S_URL="https://{network_ip}:6443" '
 
   master_cmd = ''
@@ -53,37 +54,41 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
   except:
     kmsg(f'k3s_{nodetype}-init', f'configuring {k3s_version} on {vmnames[vmid]}')
 
+
     # get existing token if it exists
     token_fname = f'{cluster_name}.k3stoken'
-
     if os.path.isfile(token_fname):
       token = open(token_fname, "r").read()
-      master_cmd = f' --token {token}'
+      token_cmd = f' --token {token}'
+
+    # defines
+    k3s_install_options = f'--disable=servicelb --kubelet-arg --cloud-provider=external {token_cmd}'
+    k3s_install_version = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
+    k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init {k3s_install_options}'
+    k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443 {k3s_install_options}'
+    k3s_install_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_install_version} sh -s - agent --server="https://{network_ip}:6443" {token_cmd}'
 
     # master
     if nodetype == 'master':
-      init_cmd = f'{k3s_install_master} {master_cmd} --disable=servicelb'
-
-    # k3s token env var version
-    k3s_token_cmd = f' K3S_TOKEN="{token}"'
+      init_cmd = k3s_install_master
 
     # slave
     if nodetype == 'slave':
-      init_cmd = f'cat /k3s.sh | sh -s - server --server https://{network_ip}:6443 {master_cmd}'
+      init_cmd = k3s_install_slave
 
     # worker
     if nodetype == 'worker':
-      init_cmd = f'{k3s_install_worker}{k3s_token_cmd} sh -s'
+      init_cmd = k3s_install_worker
 
     # restore
     if nodetype == 'restore':
       # get latest snapshot
-      bs_cmd = f'{k3s_install_master} {master_cmd} && /usr/local/bin/k3s etcd-snapshot ls 2>&1 && systemctl stop k3s && rm -rf /var/lib/rancher'
+      bs_cmd = f'{k3s_install_master} && /usr/local/bin/k3s etcd-snapshot ls 2>&1 && systemctl stop k3s && rm -rf /var/lib/rancher'
       bs_cmd_out = qaexec(vmid,bs_cmd)
 
       # sort ls output so last is latest snapshot
       for snap in sorted(bs_cmd_out.split('\n')):
-        if re.search(f'kopsrox-{cluster_name}', snap):
+        if re.search(f'kopsrox-{cluster_name}', snap.split()[0]):
             latest = snap.split()[0]
 
       kmsg(f'k3s_restore', f'restoring {latest}')
@@ -93,7 +98,9 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
 
     # run command
+    print(init_cmd)
     init_cmd_out = qaexec(vmid,init_cmd)
+    print(init_cmd_out)
 
     # wait until ready
     wait: int = 20
