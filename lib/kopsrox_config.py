@@ -199,17 +199,10 @@ if region:
 config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
 
 # define vmnames
+suffixes = ['-i0', '-m1', '-m2', '-m3', '-u1', '-w1', '-w2', '-w3', '-w4', '-w5']
 vmnames = {
-(cluster_id): cluster_name +'-i0',
-(cluster_id + 1 ): cluster_name + '-m1',
-(cluster_id + 2 ): cluster_name + '-m2',
-(cluster_id + 3 ): cluster_name + '-m3',
-(cluster_id + 4 ): cluster_name + '-u1',
-(cluster_id + 5 ): cluster_name + '-w1',
-(cluster_id + 6 ): cluster_name + '-w2',
-(cluster_id + 7 ): cluster_name + '-w3',
-(cluster_id + 8 ): cluster_name + '-w4',
-(cluster_id + 9 ): cluster_name + '-w5',
+  cluster_id + i: f"{cluster_name}{suffix}"
+  for i, suffix in enumerate(suffixes)
 }
 
 # look up kopsrox_img name
