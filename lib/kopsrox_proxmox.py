@@ -141,9 +141,9 @@ def clone(vmid):
 
   # hostname
   hostname = vmnames[vmid]
-  kmsg('proxmox_clone', f'{hostname} {ip} {vm_cpu}c/{vm_ram}G {vm_disk}G')
 
   # clone
+  kmsg('proxmox_clone', f'building {hostname}')
   prox_task(prox.nodes(proxmox_node).qemu(cluster_id).clone.post(newid = vmid))
 
   # configure
