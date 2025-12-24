@@ -124,7 +124,7 @@ def k3s_remove_node(vmid: int):
   if vmname != f'{cluster_name}-m1':
     kubectl('cordon ' + vmname)
     kubectl('drain --timeout=10s --delete-emptydir-data --ignore-daemonsets --force ' + vmname)
-    kubectl('delete ' + vmname)
+    kubectl('delete node ' + vmname)
 
   # destroy vm
   prox_destroy(vmid)
