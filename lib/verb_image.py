@@ -82,9 +82,6 @@ etcd-s3-skip-ssl-verify: true
 etcd-snapshot-compress: true'  > /etc/rancher/k3s/config.yaml.d/etcd-backup.yaml
 
 echo -n '
-disable-network-policy: true
-disable-cloud-controller: true
-flannel-backend: wireguard-native
 tls-san: {network_ip}' > /etc/rancher/k3s/config.yaml
 '''
   # shouldn't really need root/sudo but run into permissions problems

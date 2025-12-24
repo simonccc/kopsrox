@@ -39,6 +39,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     exit(0)
  
   # check status of node
+  # what does this check?
   try:
     if not k3s_check(vmid):
       exit(0)
@@ -52,7 +53,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
       token_cmd = f' --token {token}'
 
     # defines
-    k3s_install_options = f'--disable=servicelb --kubelet-arg --cloud-provider=external {token_cmd}'
+    k3s_install_options = f'--disable=servicelb --kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid} {token_cmd}'
     k3s_install_version = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
     k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init {k3s_install_options}'
     k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443 {k3s_install_options}'

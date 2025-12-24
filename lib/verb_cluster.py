@@ -33,7 +33,7 @@ if cmd == 'create':
 
   # if masterid not found running 
   if not masterid in list_kopsrox_vm():
-    kmsg(kname,f'id:{cluster_id} name:{cluster_name}', 'sys')
+    kmsg(kname,f'creating name:{cluster_name}', 'sys')
     clone(masterid)
 
   # install k3s on master
