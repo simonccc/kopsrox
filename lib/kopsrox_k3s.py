@@ -37,15 +37,6 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
   except:
     kmsg('k3s_init-node', f'{vmid} no internet', 'err')
     exit(0)
-
-  # defines
-  k3s_install_version = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
-  k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init'
-  k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443'
-  k3s_install_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_install_version} K3S_URL="https://{network_ip}:6443" '
-
-  master_cmd = ''
-  token = ''
  
   # check status of node
   try:
@@ -53,7 +44,6 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
       exit(0)
   except:
     kmsg(f'k3s_{nodetype}-init', f'configuring {k3s_version} on {vmnames[vmid]}')
-
 
     # get existing token if it exists
     token_fname = f'{cluster_name}.k3stoken'
@@ -98,9 +88,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
 
     # run command
-    print(init_cmd)
     init_cmd_out = qaexec(vmid,init_cmd)
-    print(init_cmd_out)
 
     # wait until ready
     wait: int = 20
