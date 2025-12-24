@@ -44,14 +44,41 @@ if cmd == 'create':
   # define the name/location of the patched kubevip 
   kv_yaml = f'./lib/kubevip/{cluster_name}-kubevip.yaml'
 
-  # open the new kubevip path
-  kv_write_out = open(kv_yaml, 'w') 
-
   # write the patched in memory version to file
+  kv_write_out = open(kv_yaml, 'w') 
   kv_write_out.write(kv_manifest)
-
-  # close files
   kv_write_out.close()
+
+  # proxmox cloud controller manager
+  pccm_conf = open('./lib/pccm/template.yaml').read()
+  pccm_conf = pccm_conf.replace('KOPSROX_IP', proxmox_endpoint)
+  pccm_conf = pccm_conf.replace('KOPSROX_PORT', proxmox_api_port)
+  pccm_conf = pccm_conf.replace('KOPSROX_TOKEN', f'{proxmox_user}!{proxmox_token_name}')
+  pccm_conf = pccm_conf.replace('KOPSROX_SECRET', f'{proxmox_token_value}')
+  pccm_conf = pccm_conf.replace('KOPSROX_CLUSTER', f'{cluster_name}')
+  pccm_write_out = open(f'./lib/pccm/{cluster_name}-pccm-raw.yaml','w')
+  pccm_write_out.write(pccm_conf)
+  pccm_write_out.close()
+
+  pccm_encode = pccm_conf.encode()
+  pccm_b64 = base64.b64encode(pccm_encode)
+  pccm_secret = f'''
+---
+apiVersion: v1
+data:
+  config.yaml: {pccm_b64.decode()}
+kind: Secret
+metadata:
+  name: proxmox-cloud-controller-manager
+  namespace: kube-system
+type: Opaque'''
+
+  pccm_yaml = f'./lib/pccm/{cluster_name}-pccm-secret.yaml'
+  pccm_depl = open('./lib/pccm/cloud-controller-manager.yml','r').read()
+  pccm_write_out = open(pccm_yaml, 'w')
+  pccm_write_out.write(pccm_depl)
+  pccm_write_out.write(pccm_secret)
+  pccm_write_out.close()
 
   # script to run in kopsrox image
   virtc_script = f'''\
@@ -90,7 +117,9 @@ tls-san: {network_ip}' > /etc/rancher/k3s/config.yaml
 sudo virt-customize -a {cloud_image} \
 --install {image_packages} \
 --run-command "{virtc_script}" \
---copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/ > virt-customize.log 2>&1'''
+--copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/ \
+--copy-in {pccm_yaml}:/var/lib/rancher/k3s/server/manifests/ \
+> virt-customize.log 2>&1'''
   local_os_process(virtc_cmd)
 
   # destroy template if it exists
@@ -101,7 +130,7 @@ sudo virt-customize -a {cloud_image} \
 
   # define image desc
   img_ts = str(datetime.now())
-  image_desc = f'''<pre>
+  image_desc = f'''
 cluster_name: {cluster_name}
 cloud_img: {cloud_image}
 k3s_version: {k3s_version}

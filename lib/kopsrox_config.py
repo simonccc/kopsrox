@@ -6,7 +6,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import urllib.parse
 from datetime import datetime
 from proxmoxer import ProxmoxAPI
-import re,os,sys,subprocess,time,wget
+import re,os,sys,subprocess,time,wget,base64
 
 # kmsg
 from kopsrox_kmsg import kmsg
@@ -59,8 +59,7 @@ def conf_check(value: str = 'kopsrox'):
     return(kopsrox_config.getint('kopsrox', value))
   else:
     # return string
-    return(config_item)
-
+    return(str(config_item))
 
 # cluster name 
 cluster_name = conf_check('cluster_name')
@@ -75,16 +74,23 @@ if cluster_id < 100:
 # assign master id
 masterid = int(cluster_id) + 1
 
+# these are used by the proxmox cloud controller as well as below
+proxmox_endpoint = conf_check('proxmox_endpoint')
+proxmox_user = conf_check('proxmox_user')
+proxmox_token_name = conf_check('proxmox_token_name')
+proxmox_api_port = conf_check('proxmox_api_port')
+proxmox_token_value = conf_check('proxmox_token_value')
+
 # test connection to proxmox
 try:
 
   # api connection
   prox = ProxmoxAPI(
-    conf_check('proxmox_endpoint'),
-    port=conf_check('proxmox_api_port'),
-    user=conf_check('proxmox_user'),
-    token_name=conf_check('proxmox_token_name'),
-    token_value=conf_check('proxmox_token_value'),
+    proxmox_endpoint,
+    port=proxmox_api_port,
+    user=proxmox_user,
+    token_name=proxmox_token_name,
+    token_value=proxmox_token_value,
     verify_ssl=False,
     timeout=5)
 

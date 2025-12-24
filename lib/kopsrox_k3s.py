@@ -89,7 +89,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
 
     # run command
-    init_cmd_out = qaexec(vmid,init_cmd)
+    qaexec(vmid,init_cmd)
 
     # wait until ready
     wait: int = 20
@@ -109,7 +109,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
           exit(0)
         time.sleep(1)
 
-    # final steps for first master  - kubevip, export kubeconfig and token 
+    # final steps for first master / restore export kubeconfig and token 
     if nodetype in ['master', 'restore']:
       kubeconfig()
       export_k3s_token()
