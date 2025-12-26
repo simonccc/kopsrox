@@ -42,6 +42,7 @@ if cmd == 'create':
   # perform rest of cluster creation
   k3s_update_cluster()
 
+
 # destroy the cluster
 if cmd == 'destroy':
   kmsg(kname, f'{cluster_name}', 'err')

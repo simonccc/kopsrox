@@ -56,10 +56,13 @@ if cmd == 'create':
   pccm_conf = pccm_conf.replace('KOPSROX_TOKEN', f'{proxmox_user}!{proxmox_token_name}')
   pccm_conf = pccm_conf.replace('KOPSROX_SECRET', f'{proxmox_token_value}')
   pccm_conf = pccm_conf.replace('KOPSROX_CLUSTER', f'{cluster_name}')
-  pccm_write_out = open(f'./lib/pccm/{cluster_name}-pccm-raw.yaml','w')
-  pccm_write_out.write(pccm_conf)
-  pccm_write_out.close()
 
+  # this is used in the csi steps next
+  # pccm_write_out = open(f'./lib/csi/{cluster_name}-csi-config-raw.yaml','w')
+  # pccm_write_out.write(pccm_conf)
+  # pccm_write_out.close()
+
+  # encode string then base64
   pccm_encode = pccm_conf.encode()
   pccm_b64 = base64.b64encode(pccm_encode)
   pccm_secret = f'''
@@ -79,6 +82,35 @@ type: Opaque'''
   pccm_write_out.write(pccm_depl)
   pccm_write_out.write(pccm_secret)
   pccm_write_out.close()
+
+  # proxmox csi driver
+  # append extra values to existing config string
+  csi_conf = pccm_conf + f'''
+storageClass:
+  - name: proxmox-data-xfs
+    storage: {proxmox_storage}
+    reclaimPolicy: Delete
+    fstype: xfs
+    annotations:
+      storageclass.kubernetes.io/is-default-class: "true"'''
+  csi_encode = csi_conf.encode()
+  csi_b64 = base64.b64encode(csi_encode)
+  csi_secret = f'''
+---
+apiVersion: v1
+data:
+  config.yaml: {csi_b64.decode()}
+kind: Secret
+metadata:
+  name: proxmox-csi-plugin
+  namespace: csi-proxmox
+type: Opaque'''
+  csi_depl = open('./lib/csi/proxmox-csi-plugin-release.yml', 'r').read()
+  csi_yaml = f'./lib/csi/{cluster_name}-csi.yaml'
+  csi_write = open(csi_yaml, 'w')
+  csi_write.write(csi_depl)
+  csi_write.write(csi_secret)
+  csi_write.close()
 
   # script to run in kopsrox image
   virtc_script = f'''\
@@ -119,6 +151,7 @@ sudo virt-customize -a {cloud_image} \
 --run-command "{virtc_script}" \
 --copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/ \
 --copy-in {pccm_yaml}:/var/lib/rancher/k3s/server/manifests/ \
+--copy-in {csi_yaml}:/var/lib/rancher/k3s/server/manifests/ \
 > virt-customize.log 2>&1'''
   local_os_process(virtc_cmd)
 
