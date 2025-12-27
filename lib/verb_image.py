@@ -57,14 +57,8 @@ if cmd == 'create':
   pccm_conf = pccm_conf.replace('KOPSROX_SECRET', f'{proxmox_token_value}')
   pccm_conf = pccm_conf.replace('KOPSROX_CLUSTER', f'{cluster_name}')
 
-  # this is used in the csi steps next
-  # pccm_write_out = open(f'./lib/csi/{cluster_name}-csi-config-raw.yaml','w')
-  # pccm_write_out.write(pccm_conf)
-  # pccm_write_out.close()
-
   # encode string then base64
-  pccm_encode = pccm_conf.encode()
-  pccm_b64 = base64.b64encode(pccm_encode)
+  pccm_b64 = base64.b64encode(pccm_conf.encode())
   pccm_secret = f'''
 ---
 apiVersion: v1
@@ -76,46 +70,48 @@ metadata:
   namespace: kube-system
 type: Opaque'''
 
-  pccm_yaml = f'./lib/pccm/{cluster_name}-pccm-secret.yaml'
-  pccm_depl = open('./lib/pccm/cloud-controller-manager.yml','r').read()
+  pccm_yaml = f'./lib/pccm/{cluster_name}-pccm.yaml'
+  pccm_depl = open('./lib/pccm/cloud-controller-manager.yaml','r').read()
   pccm_write_out = open(pccm_yaml, 'w')
   pccm_write_out.write(pccm_depl)
   pccm_write_out.write(pccm_secret)
   pccm_write_out.close()
 
-  # proxmox csi driver
-  # append extra values to existing config string
-  csi_conf = pccm_conf + f'''
-storageClass:
-  - name: proxmox-data-xfs
-    storage: {proxmox_storage}
-    reclaimPolicy: Delete
-    fstype: xfs
-    annotations:
-      storageclass.kubernetes.io/is-default-class: "true"'''
-  csi_encode = csi_conf.encode()
-  csi_b64 = base64.b64encode(csi_encode)
-  csi_secret = f'''
----
-apiVersion: v1
-data:
-  config.yaml: {csi_b64.decode()}
-kind: Secret
-metadata:
-  name: proxmox-csi-plugin
-  namespace: csi-proxmox
-type: Opaque'''
-  csi_depl = open('./lib/csi/proxmox-csi-plugin-release.yml', 'r').read()
-  csi_yaml = f'./lib/csi/{cluster_name}-csi.yaml'
-  csi_write = open(csi_yaml, 'w')
-  csi_write.write(csi_depl)
-  csi_write.write(csi_secret)
-  csi_write.close()
-
   # script to run in kopsrox image
   virtc_script = f'''\
 curl -v https://get.k3s.io > /k3s.sh 
 mkdir -p /var/lib/rancher/k3s/server/manifests/
+
+echo '
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: csi-proxmox
+    pod-security.kubernetes.io/enforce: privileged
+  name: csi-proxmox
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: proxmox-csi-plugin
+  namespace: csi-proxmox
+spec:
+  chart: oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin
+  valuesContent: |-
+    config:
+      clusters:
+        - url: https://{proxmox_endpoint}:{proxmox_api_port}/api2/json
+          insecure: true
+          token_id: {proxmox_user}!{proxmox_token_name}
+          token_secret: {proxmox_token_value}
+          region: {cluster_name}
+    storageClass:
+      - name: proxmox-csi
+        storage: {proxmox_storage}
+        annotations:
+          storageclass.kubernetes.io/is-default-class: \'true\'' > /var/lib/rancher/k3s/server/manifests/csi-helm.yaml
+
 echo '
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
@@ -151,7 +147,6 @@ sudo virt-customize -a {cloud_image} \
 --run-command "{virtc_script}" \
 --copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/ \
 --copy-in {pccm_yaml}:/var/lib/rancher/k3s/server/manifests/ \
---copy-in {csi_yaml}:/var/lib/rancher/k3s/server/manifests/ \
 > virt-customize.log 2>&1'''
   local_os_process(virtc_cmd)
 
