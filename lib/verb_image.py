@@ -77,12 +77,10 @@ type: Opaque'''
   pccm_write_out.write(pccm_secret)
   pccm_write_out.close()
 
-  # script to run in kopsrox image
-  virtc_script = f'''\
-curl -v https://get.k3s.io > /k3s.sh 
-mkdir -p /var/lib/rancher/k3s/server/manifests/
 
-echo '
+  # generate csi yaml
+  csi_file = f'./{cluster_name}-csi.yaml'
+  csi_yaml = f'''
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -110,10 +108,19 @@ spec:
       - name: proxmox-csi
         storage: {proxmox_storage}
         annotations:
-          storageclass.kubernetes.io/is-default-class: \'true\'' > /var/lib/rancher/k3s/server/manifests/csi-helm.yaml
+          storageclass.kubernetes.io/is-default-class: 'true'
+'''
+  csi_write = open(csi_file, 'w')
+  csi_write.write(csi_yaml)
+  csi_write.close()
+
+  # script to run in kopsrox image
+  virtc_script = f'''\
+curl -v https://get.k3s.io > /k3s.sh 
+mkdir -p /var/lib/rancher/k3s/server/manifests/
 
 echo '
-apiVersion: helm.cattle.io/v1
+apiVersion: helm.cattle.io/v1 
 kind: HelmChartConfig
 metadata:
   name: traefik
@@ -147,6 +154,7 @@ sudo virt-customize -a {cloud_image} \
 --run-command "{virtc_script}" \
 --copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/ \
 --copy-in {pccm_yaml}:/var/lib/rancher/k3s/server/manifests/ \
+--copy-in {csi_file}:/var/lib/rancher/k3s/server/manifests/ \
 > virt-customize.log 2>&1'''
   local_os_process(virtc_cmd)
 
