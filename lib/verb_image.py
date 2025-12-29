@@ -38,48 +38,77 @@ if cmd == 'create':
     exit(0)
 
   # kubevip
-  # open the generic kubevip deployment and patch it with our network_ip in memory
+  # open the generic kubevip deployment and patch it with our network_ip
   kv_manifest = open('./lib/kubevip/kubevip.yaml', 'r').read().replace('KOPSROX_IP', network_ip).strip()
 
   # define the name/location of the patched kubevip 
   kv_yaml = f'./lib/kubevip/{cluster_name}-kubevip.yaml'
 
-  # write the patched in memory version to file
+  # write the patched version to file
   kv_write_out = open(kv_yaml, 'w') 
   kv_write_out.write(kv_manifest)
   kv_write_out.close()
 
   # proxmox cloud controller manager
-  pccm_conf = open('./lib/pccm/template.yaml').read()
-  pccm_conf = pccm_conf.replace('KOPSROX_IP', proxmox_endpoint)
-  pccm_conf = pccm_conf.replace('KOPSROX_PORT', proxmox_api_port)
-  pccm_conf = pccm_conf.replace('KOPSROX_TOKEN', f'{proxmox_user}!{proxmox_token_name}')
-  pccm_conf = pccm_conf.replace('KOPSROX_SECRET', f'{proxmox_token_value}')
-  pccm_conf = pccm_conf.replace('KOPSROX_CLUSTER', f'{cluster_name}')
+#  pccm_conf = open('./lib/pccm/template.yaml').read()
+#  pccm_conf = pccm_conf.replace('KOPSROX_IP', proxmox_endpoint)
+#  pccm_conf = pccm_conf.replace('KOPSROX_PORT', proxmox_api_port)
+#  pccm_conf = pccm_conf.replace('KOPSROX_TOKEN', f'{proxmox_user}!{proxmox_token_name}')
+#  pccm_conf = pccm_conf.replace('KOPSROX_SECRET', f'{proxmox_token_value}')
+#  pccm_conf = pccm_conf.replace('KOPSROX_CLUSTER', f'{cluster_name}')
 
   # encode string then base64
-  pccm_b64 = base64.b64encode(pccm_conf.encode())
-  pccm_secret = f'''
----
-apiVersion: v1
-data:
-  config.yaml: {pccm_b64.decode()}
-kind: Secret
+#  pccm_b64 = base64.b64encode(pccm_conf.encode())
+#  pccm_secret = f'''
+#---
+#apiVersion: v1
+#data:
+#  config.yaml: {pccm_b64.decode()}
+#kind: Secret
+#metadata:
+#  name: proxmox-cloud-controller-manager
+#  namespace: kube-system
+#type: Opaque'''
+
+#  pccm_yaml = f'./lib/pccm/{cluster_name}-pccm.yaml'
+#  pccm_depl = open('./lib/pccm/cloud-controller-manager.yaml','r').read()
+#  pccm_write_out = open(pccm_yaml, 'w')
+#  pccm_write_out.write(pccm_depl)
+#  pccm_write_out.write(pccm_secret)
+#  pccm_write_out.close()
+
+
+  # define common secret section for sergelogvinov's helm charts
+  controller_common = f'''
+    config:
+      clusters:
+        - url: https://{proxmox_endpoint}:{proxmox_api_port}/api2/json
+          insecure: true
+          token_id: {proxmox_user}!{proxmox_token_name}
+          token_secret: {proxmox_token_value}
+          region: {cluster_name}
+'''
+
+
+  # generate cloud controller yaml
+  ccm_file = f'./lib/pccm/{cluster_name}-pccm.yaml'
+  ccm_yaml = f'''
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
 metadata:
   name: proxmox-cloud-controller-manager
   namespace: kube-system
-type: Opaque'''
-
-  pccm_yaml = f'./lib/pccm/{cluster_name}-pccm.yaml'
-  pccm_depl = open('./lib/pccm/cloud-controller-manager.yaml','r').read()
-  pccm_write_out = open(pccm_yaml, 'w')
-  pccm_write_out.write(pccm_depl)
-  pccm_write_out.write(pccm_secret)
-  pccm_write_out.close()
-
+spec:
+  bootstrap: true
+  chart: oci://ghcr.io/sergelogvinov/charts/proxmox-cloud-controller-manager
+  valuesContent: |-{controller_common}
+'''
+  ccm_write = open(ccm_file, 'w')
+  ccm_write.write(ccm_yaml)
+  ccm_write.close()
 
   # generate csi yaml
-  csi_file = f'./{cluster_name}-csi.yaml'
+  csi_file = f'./lib/csi/{cluster_name}-csi.yaml'
   csi_yaml = f'''
 apiVersion: v1
 kind: Namespace
@@ -153,7 +182,7 @@ sudo virt-customize -a {cloud_image} \
 --install {image_packages} \
 --run-command "{virtc_script}" \
 --copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/ \
---copy-in {pccm_yaml}:/var/lib/rancher/k3s/server/manifests/ \
+--copy-in {ccm_file}:/var/lib/rancher/k3s/server/manifests/ \
 --copy-in {csi_file}:/var/lib/rancher/k3s/server/manifests/ \
 > virt-customize.log 2>&1'''
   local_os_process(virtc_cmd)
