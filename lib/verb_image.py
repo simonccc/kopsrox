@@ -60,7 +60,7 @@ if cmd == 'create':
           region: {cluster_name}
 '''
   # generate cloud controller yaml
-  ccm_file = f'./lib/pccm/{cluster_name}-pccm.yaml'
+  ccm_file = f'./lib/ccm/{cluster_name}-ccm.yaml'
   ccm_yaml = f'''
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
