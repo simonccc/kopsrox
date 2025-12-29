@@ -49,35 +49,6 @@ if cmd == 'create':
   kv_write_out.write(kv_manifest)
   kv_write_out.close()
 
-  # proxmox cloud controller manager
-#  pccm_conf = open('./lib/pccm/template.yaml').read()
-#  pccm_conf = pccm_conf.replace('KOPSROX_IP', proxmox_endpoint)
-#  pccm_conf = pccm_conf.replace('KOPSROX_PORT', proxmox_api_port)
-#  pccm_conf = pccm_conf.replace('KOPSROX_TOKEN', f'{proxmox_user}!{proxmox_token_name}')
-#  pccm_conf = pccm_conf.replace('KOPSROX_SECRET', f'{proxmox_token_value}')
-#  pccm_conf = pccm_conf.replace('KOPSROX_CLUSTER', f'{cluster_name}')
-
-  # encode string then base64
-#  pccm_b64 = base64.b64encode(pccm_conf.encode())
-#  pccm_secret = f'''
-#---
-#apiVersion: v1
-#data:
-#  config.yaml: {pccm_b64.decode()}
-#kind: Secret
-#metadata:
-#  name: proxmox-cloud-controller-manager
-#  namespace: kube-system
-#type: Opaque'''
-
-#  pccm_yaml = f'./lib/pccm/{cluster_name}-pccm.yaml'
-#  pccm_depl = open('./lib/pccm/cloud-controller-manager.yaml','r').read()
-#  pccm_write_out = open(pccm_yaml, 'w')
-#  pccm_write_out.write(pccm_depl)
-#  pccm_write_out.write(pccm_secret)
-#  pccm_write_out.close()
-
-
   # define common secret section for sergelogvinov's helm charts
   controller_common = f'''
     config:
@@ -88,8 +59,6 @@ if cmd == 'create':
           token_secret: {proxmox_token_value}
           region: {cluster_name}
 '''
-
-
   # generate cloud controller yaml
   ccm_file = f'./lib/pccm/{cluster_name}-pccm.yaml'
   ccm_yaml = f'''
@@ -125,14 +94,7 @@ metadata:
   namespace: csi-proxmox
 spec:
   chart: oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin
-  valuesContent: |-
-    config:
-      clusters:
-        - url: https://{proxmox_endpoint}:{proxmox_api_port}/api2/json
-          insecure: true
-          token_id: {proxmox_user}!{proxmox_token_name}
-          token_secret: {proxmox_token_value}
-          region: {cluster_name}
+  valuesContent: |-{controller_common}
     storageClass:
       - name: proxmox-csi
         storage: {proxmox_storage}
