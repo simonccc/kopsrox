@@ -1,6 +1,0 @@
-clusters:
-  - url: https://KOPSROX_IP:KOPSROX_PORT/api2/json
-    insecure: true
-    token_id: "KOPSROX_TOKEN"
-    token_secret: "KOPSROX_SECRET"
-    region: KOPSROX_CLUSTER

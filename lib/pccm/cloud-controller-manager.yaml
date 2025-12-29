@@ -1,8 +1,0 @@
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
-metadata:
-  name: proxmox-cloud-controller-manager
-  namespace: kube-system
-spec:
-  bootstrap: true
-  chart: oci://ghcr.io/sergelogvinov/charts/proxmox-cloud-controller-manager
