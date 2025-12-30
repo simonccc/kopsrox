@@ -59,13 +59,6 @@ def list_snapshots():
 # test connection to s3 by getting list of snapshots
 snapshots = list_snapshots()
 
-# check master node exists
-try:
-  node = vms[masterid]
-except:
-  kmsg(f'{kname}-check', 'cluster does not exist', 'err')
-  exit(0)
-
 # s3 prune
 if cmd == 'prune':
   kmsg(f'{kname}-prune', (f'{s3_endpoint}/{bucket}\n' + s3_run('prune --name kopsrox')), 'sys')
@@ -85,10 +78,8 @@ if cmd == 'snapshot':
   # define snapshot command
   snapout = s3_run('save --name kopsrox --etcd-s3')
 
-  # filter output
-  for line in snapout.split('\n'):
-    if re.search('Snapshot', line):
-      kmsg(kname, line)
+  # hack to remove dupe output
+  kmsg(kname, "".join(dict.fromkeys(snapout.split('\n'))))
 
   # list snapshots 
   snapshots = list_snapshots()
