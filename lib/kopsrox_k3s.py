@@ -48,6 +48,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
 
     # get existing token if it exists
     token_fname = f'{cluster_name}.k3stoken'
+    token_cmd = ''
     if os.path.isfile(token_fname):
       token = open(token_fname, "r").read()
       token_cmd = f' --token {token}'
@@ -55,7 +56,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     # defines
     k3s_install_options = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid} {token_cmd}'
     k3s_install_version = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
-    k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init --disable=servicelb,local-storage --node-label="topology.kubernetes.io/zone={proxmox_node}" {k3s_install_options}'
+    k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init --disable=servicelb,local-storage --node-label="topology.kubernetes.io/zone={proxmox_node}" --tls-san={network_ip} {k3s_install_options}'
     k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443 {k3s_install_options}'
     k3s_install_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_install_version} sh -s - agent --server="https://{network_ip}:6443" {k3s_install_options}'
 

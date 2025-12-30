@@ -39,10 +39,10 @@ if cmd == 'create':
 
   # kubevip
   # open the generic kubevip deployment and patch it with our network_ip
-  kv_manifest = open('./lib/kubevip/kubevip.yaml', 'r').read().replace('KOPSROX_IP', network_ip).strip()
+  kv_manifest = open('./lib/manifests/kubevip.yaml', 'r').read().replace('KOPSROX_IP', network_ip).strip()
 
   # define the name/location of the patched kubevip 
-  kv_yaml = f'./lib/kubevip/{cluster_name}-kubevip.yaml'
+  kv_yaml = f'./lib/manifests/kopsrox-{cluster_name}.yaml'
 
   # write the patched version to file
   kv_write_out = open(kv_yaml, 'w') 
@@ -134,8 +134,6 @@ etcd-s3-bucket: {bucket}
 etcd-s3-skip-ssl-verify: true
 etcd-snapshot-compress: true'  > /etc/rancher/k3s/config.yaml.d/etcd-backup.yaml
 
-echo -n '
-tls-san: {network_ip}' > /etc/rancher/k3s/config.yaml
 '''
   # shouldn't really need root/sudo but run into permissions problems
   kmsg(f'{kname}virt-customize', f'installing {image_packages}')
