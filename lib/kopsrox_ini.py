@@ -121,13 +121,12 @@ def init_kopsrox_ini():
   config.set(ks, 'k3s_version', '1.34.1+k3s1')
 
   # s3 endpoint
-  config.set(ks, '; all s3 settings are optional')
   config.set(ks, '; s3 endpoint')
   config.set(ks, 's3_endpoint', 'kopsrox')
 
   # s3 region
-  config.set(ks, '; s3 region')
-  config.set(ks, 's3_region', '')
+  config.set(ks, '; s3 region - leave as \'\' for no region')
+  config.set(ks, 's3_region', '\'\'')
 
   # s3 access key
   config.set(ks, '; s3 access key')

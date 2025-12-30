@@ -199,7 +199,7 @@ bucket = conf_check('s3_bucket')
 # region optional
 region_string = ''
 if region:
-  region_string = '--etcd-s3-region ' + region
+  region_string = region
 
 # dict of all config items - legacy support
 config = ({s:dict(kopsrox_config.items(s)) for s in kopsrox_config.sections()})
