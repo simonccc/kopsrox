@@ -37,18 +37,15 @@ if cmd == 'create':
     kmsg(f'{kname}check', f'unable to download {cloud_image_url}', 'err')
     exit(0)
 
-  # kubevip
-  # open the generic kubevip deployment and patch it with our network_ip
-  kv_manifest = open('./lib/manifests/kubevip.yaml', 'r').read().replace('KOPSROX_IP', network_ip).strip()
-
-  # define the name/location of the patched kubevip 
+  # open kopsrox manifest
   kopsrox_yaml = f'./lib/manifests/kopsrox-{cluster_name}.yaml'
-
-  # write the patched version to file
   kopsrox_manifest = open(kopsrox_yaml, 'w') 
+
+  # generate kubevip manifest
+  kv_manifest = open('./lib/manifests/kubevip.yaml', 'r').read().replace('KOPSROX_IP', network_ip).strip()
   kopsrox_manifest.write(kv_manifest)
 
-  # traefik config
+  # generate traefik helm config
   traefik_conf = f'''
 ---
 apiVersion: helm.cattle.io/v1
@@ -87,11 +84,10 @@ spec:
   valuesContent: |-{controller_common}
 '''
   kopsrox_manifest.write(ccm_manifest)
-  kopsrox_manifest.close()
 
   # generate csi yaml
-  csi_file = f'./lib/csi/{cluster_name}-csi.yaml'
-  csi_yaml = f'''
+  csi_manifest = f'''
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -114,9 +110,8 @@ spec:
         annotations:
           storageclass.kubernetes.io/is-default-class: 'true'
 '''
-  csi_write = open(csi_file, 'w')
-  csi_write.write(csi_yaml)
-  csi_write.close()
+  kopsrox_manifest.write(csi_manifest)
+  kopsrox_manifest.close()
 
   # script to run in kopsrox image
   virtc_script = f'''\
@@ -141,7 +136,6 @@ sudo virt-customize -a {cloud_image} \
 --install {image_packages} \
 --run-command "{virtc_script}" \
 --copy-in {kopsrox_yaml}:/var/lib/rancher/k3s/server/manifests/ \
---copy-in {csi_file}:/var/lib/rancher/k3s/server/manifests/ \
 > virt-customize.log 2>&1'''
   local_os_process(virtc_cmd)
 
