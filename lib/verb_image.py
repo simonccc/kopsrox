@@ -42,12 +42,26 @@ if cmd == 'create':
   kv_manifest = open('./lib/manifests/kubevip.yaml', 'r').read().replace('KOPSROX_IP', network_ip).strip()
 
   # define the name/location of the patched kubevip 
-  kv_yaml = f'./lib/manifests/kopsrox-{cluster_name}.yaml'
+  kopsrox_yaml = f'./lib/manifests/kopsrox-{cluster_name}.yaml'
 
   # write the patched version to file
-  kv_write_out = open(kv_yaml, 'w') 
-  kv_write_out.write(kv_manifest)
-  kv_write_out.close()
+  kopsrox_manifest = open(kopsrox_yaml, 'w') 
+  kopsrox_manifest.write(kv_manifest)
+
+  # traefik config
+  traefik_conf = f'''
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    service:
+      spec:
+        loadBalancerIP: "{network_ip}"'''
+  kopsrox_manifest.write(traefik_conf)
 
   # define common secret section for sergelogvinov's helm charts
   controller_common = f'''
@@ -57,11 +71,11 @@ if cmd == 'create':
           insecure: true
           token_id: {proxmox_user}!{proxmox_token_name}
           token_secret: {proxmox_token_value}
-          region: {cluster_name}
-'''
+          region: {cluster_name}'''
+
   # generate cloud controller yaml
-  ccm_file = f'./lib/ccm/{cluster_name}-ccm.yaml'
-  ccm_yaml = f'''
+  ccm_manifest = f'''
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -72,9 +86,8 @@ spec:
   chart: oci://ghcr.io/sergelogvinov/charts/proxmox-cloud-controller-manager
   valuesContent: |-{controller_common}
 '''
-  ccm_write = open(ccm_file, 'w')
-  ccm_write.write(ccm_yaml)
-  ccm_write.close()
+  kopsrox_manifest.write(ccm_manifest)
+  kopsrox_manifest.close()
 
   # generate csi yaml
   csi_file = f'./lib/csi/{cluster_name}-csi.yaml'
@@ -109,19 +122,6 @@ spec:
   virtc_script = f'''\
 curl -v https://get.k3s.io > /k3s.sh 
 mkdir -p /var/lib/rancher/k3s/server/manifests/
-
-echo '
-apiVersion: helm.cattle.io/v1 
-kind: HelmChartConfig
-metadata:
-  name: traefik
-  namespace: kube-system
-spec:
-  valuesContent: |-
-    service:
-      spec:
-        loadBalancerIP: "{network_ip}"' > /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
-
 mkdir -p /etc/rancher/k3s/config.yaml.d/
 echo -n '
 etcd-s3: true
@@ -132,17 +132,15 @@ etcd-s3-access-key: {access_key}
 etcd-s3-secret-key: {access_secret}
 etcd-s3-bucket: {bucket}
 etcd-s3-skip-ssl-verify: true
-etcd-snapshot-compress: true'  > /etc/rancher/k3s/config.yaml.d/etcd-backup.yaml
+etcd-snapshot-compress: true'  > /etc/rancher/k3s/config.yaml.d/etcd-backup.yaml'''
 
-'''
   # shouldn't really need root/sudo but run into permissions problems
   kmsg(f'{kname}virt-customize', f'installing {image_packages}')
   virtc_cmd = f'''
 sudo virt-customize -a {cloud_image} \
 --install {image_packages} \
 --run-command "{virtc_script}" \
---copy-in {kv_yaml}:/var/lib/rancher/k3s/server/manifests/ \
---copy-in {ccm_file}:/var/lib/rancher/k3s/server/manifests/ \
+--copy-in {kopsrox_yaml}:/var/lib/rancher/k3s/server/manifests/ \
 --copy-in {csi_file}:/var/lib/rancher/k3s/server/manifests/ \
 > virt-customize.log 2>&1'''
   local_os_process(virtc_cmd)
