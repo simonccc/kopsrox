@@ -1,8 +1,8 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
 # imports
 from kopsrox_config import *
-from kopsrox_proxmox import * 
+from kopsrox_proxmox import *
 
 # check for k3s status
 def k3s_check(vmid: int):
@@ -54,7 +54,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
       token_cmd = f' --token {token}'
 
     # defines
-    k3s_install_options = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid} {token_cmd}'
+    k3s_install_options = f'--disable-cloud-controller=true --kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid} {token_cmd}'
     k3s_install_version = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
     k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init --disable=servicelb,local-storage --node-label="topology.kubernetes.io/zone={proxmox_node}" --tls-san={network_ip} {k3s_install_options}'
     k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443 {k3s_install_options}'

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import * 
+from kopsrox_config import *
 
 # proxmox functions
 from kopsrox_proxmox import prox_task, prox_destroy
@@ -13,7 +13,7 @@ kname = 'image_'
 # create image
 if cmd == 'create':
 
-  # get image name from url 
+  # get image name from url
   cloud_image = cloud_image_url.split('/')[-1]
   kmsg(f'{kname}create', f'{cloud_image} > {cluster_name}-i0', 'sys')
 
@@ -39,7 +39,7 @@ if cmd == 'create':
 
   # open kopsrox manifest
   kopsrox_yaml = f'./lib/manifests/kopsrox-{cluster_name}.yaml'
-  kopsrox_manifest = open(kopsrox_yaml, 'w') 
+  kopsrox_manifest = open(kopsrox_yaml, 'w')
 
   # generate kubevip manifest
   kv_manifest = open('./lib/manifests/kubevip.yaml', 'r').read().replace('KOPSROX_IP', network_ip).strip()
@@ -82,6 +82,9 @@ spec:
   bootstrap: true
   chart: oci://ghcr.io/sergelogvinov/charts/proxmox-cloud-controller-manager
   valuesContent: |-{controller_common}
+    useDaemonSet: true
+    nodeSelector:
+      node-role.kubernetes.io/control-plane: "true"
 '''
   kopsrox_manifest.write(ccm_manifest)
 
@@ -113,11 +116,47 @@ spec:
   kopsrox_manifest.write(csi_manifest)
   kopsrox_manifest.close()
 
+  token_fname = f'{cluster_name}.k3stoken'
+  token_cmd = ''
+  if os.path.isfile(token_fname):
+    token = open(token_fname, "r").read()
+    token_cmd = f' --token {token}'
+
+  k3s_install_options = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid} {token_cmd}'
+  k3s_install_version = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
+  k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init --disable=servicelb,local-storage --node-label="topology.kubernetes.io/zone={proxmox_node}" --tls-san={network_ip} {k3s_install_options}'
+  k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443 {k3s_install_options}'
+  k3s_install_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_install_version} sh -s - agent --server="https://{network_ip}:6443" {k3s_install_options}'
+
   # script to run in kopsrox image
   virtc_script = f'''\
-curl -v https://get.k3s.io > /k3s.sh 
+curl -v https://get.k3s.io > /k3s.sh
 mkdir -p /var/lib/rancher/k3s/server/manifests/
 mkdir -p /etc/rancher/k3s/config.yaml.d/
+echo -n '
+#!/usr/bin/env bash
+if [[ ! \"$1\" ]] then
+echo err
+exit
+fi
+
+if [[ \"$1\" == "master" ]] then
+{k3s_install_master}
+exit
+fi
+
+if [[ \"$1\" == "slave" ]] then
+{k3s_install_slave}
+exit
+fi
+
+if [[ \"$1\" == "worker" ]] then
+{k3s_install_worker}
+exit
+fi
+' > /kopsrox.sh 
+chmod +x /kopsrox.sh
+
 echo -n '
 etcd-s3: true
 etcd-snapshot-retention: 7
