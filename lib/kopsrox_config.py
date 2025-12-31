@@ -18,6 +18,7 @@ kopsrox_config.read('kopsrox.ini')
 
 # kname
 kname='config_check'
+passed_cmd = sys.argv[1]
 
 # check section and value exists in kopsrox.ini
 def conf_check(value: str = 'kopsrox'):
@@ -67,9 +68,13 @@ kname = f'{cluster_name}_config-check'
 
 # cluster id
 cluster_id = conf_check('cluster_id')
-if cluster_id < 100:
-  kmsg(kname, f'cluster_id is too low - should be over 100', 'err')
-  exit(0)
+
+# some basic value based checks
+def sanity_checks():
+
+  if cluster_id < 100:
+    kmsg(kname, f'cluster_id is too low - should be over 100', 'err')
+    exit(0)
 
 # assign master id
 masterid = int(cluster_id) + 1
@@ -88,8 +93,6 @@ proxmox_token_value = conf_check('proxmox_token_value')
 
 # test connection to proxmox
 try:
-
-  # api connection
   prox = ProxmoxAPI(
     proxmox_endpoint,
     port=proxmox_api_port,
@@ -107,38 +110,49 @@ except:
   print(prox.cluster.status.get())
   exit(0)
 
-# map passed node name
+# map node name
 proxmox_node = conf_check('proxmox_node')
 
 # try k8s ping
+conf_check_master_up = False
 try:
   k3s_ping = prox.nodes(proxmox_node).qemu(masterid).agent.exec.post(command = '/usr/local/bin/k3s kubectl version')
+  conf_check_master_up = True
 
 except:
   try:
     qa_ping = prox.nodes(proxmox_node).qemu(masterid).agent.ping.post()
     kmsg(kname, f'k3s down but master server available...?', 'err')
-    exit(0)
   except:
     pass
 
 # proxmox cont
-discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
-if proxmox_node not in discovered_nodes:
- kmsg(kname, f'"{proxmox_node}" not found - discovered nodes: {discovered_nodes}', 'err')
- exit(0)
+if not conf_check_master_up:
+  discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
+  if proxmox_node not in discovered_nodes:
+    kmsg(kname, f'"{proxmox_node}" not found - discovered nodes: {discovered_nodes}', 'err')
+    exit(0)
 
 # storage
 proxmox_storage = conf_check('proxmox_storage')
 
+# image related config checks
 # cloud image
-cloud_image_url = conf_check('cloud_image_url')
+if passed_cmd == 'image':
+  cloud_image_url = conf_check('cloud_image_url')
 
-# deal with any extra packages aside from qemu-guest-agent
-image_packages = 'qemu-guest-agent'
-extra_packages = f',{conf_check('extra_packages')}'
-if extra_packages != ',':
-  image_packages = f'{image_packages}{extra_packages}'
+  # deal with any extra packages aside from qemu-guest-agent
+  image_packages = 'qemu-guest-agent'
+  extra_packages = f',{conf_check('extra_packages')}'
+  if extra_packages != ',':
+    image_packages = f'{image_packages}{extra_packages}'
+
+  # check ssh key can be encoded correctly
+  try:
+    cloudinitsshkey = urllib.parse.quote(conf_check('cloudinitsshkey'), safe='')
+  except:
+    kmsg(kname, f'[kopsrox]/cloudinitsshkey - invalid ssh key', 'err')
+    exit(0)
 
 # vm disk
 vm_disk = conf_check('vm_disk')
@@ -161,13 +175,6 @@ if vm_ram < 2:
 # cloudinit
 cloudinituser = conf_check('cloudinituser')
 cloudinitpass = conf_check('cloudinitpass')
-
-# check ssh key can be encoded correctly
-try:
-  cloudinitsshkey = urllib.parse.quote(conf_check('cloudinitsshkey'), safe='')
-except:
-  kmsg(kname, f'[kopsrox]/cloudinitsshkey - invalid ssh key', 'err')
-  exit(0)
 
 # network
 network_ip = conf_check('network_ip')
@@ -258,58 +265,57 @@ def vm_info(vmid: int,node=proxmox_node):
   return(prox.nodes(node).qemu(vmid).status.current.get())
 
 # get list of storage in the cluster
-storage_list = prox.nodes(proxmox_node).storage.get()
+if not conf_check_master_up:
+  storage_list = prox.nodes(proxmox_node).storage.get()
 
-# for each of the list 
-for local_storage in storage_list:
+  # for each of the list
+  for local_storage in storage_list:
 
-  # if matched storage
-  if proxmox_storage == local_storage.get("storage"):
+    # if matched storage
+    if proxmox_storage == local_storage.get("storage"):
 
-    # is storage local or shared?
-    if local_storage.get("shared") == 0:
-      storage_type = 'local'
-    else: 
-      storage_type = 'shared'
+      # is storage local or shared?
+      if local_storage.get("shared") == 0:
+        storage_type = 'local'
+      else:
+        storage_type = 'shared'
 
-# if no storage_type we have no matched storage
-try:
-  if storage_type:
-    pass
-except:
-  kmsg(kname, f'"{storage}" not found. discovered storage:', 'err')
-  for discovered_storage in storage_list:
-    print(' - ' + discovered_storage.get("storage"))
-  exit(0)
-
-# check configured bridge exists or is a sdn vnet
-# configured bridge does not contain the string 'sdn/'
-if not re.search('sdn/', network_bridge):
-
-  # discover available traditional bridges
-  discovered_bridges = [bridge.get('iface', None) for bridge in prox.nodes(proxmox_node).network.get(type = 'bridge')]
-
-# sdn bridges / zones
-else:
-  # check we can map zone and get vnets
+  # if no storage_type we have no matched storage
   try:
-    sdn_params = network_bridge.split('/')
-    if not sdn_params[1] or not sdn_params[2]:
-      exit(0)
-    else:
-      zone = sdn_params[1]
-      network_bridge = sdn_params[2]
+    if storage_type:
+      pass
   except:
-    kmsg(kname, f'unable to parse sdn config: "{network_bridge}"', 'err')
+    kmsg(kname, f'"{storage}" not found. discovered storage:', 'err')
+    for discovered_storage in storage_list:
+      print(' - ' + discovered_storage.get("storage"))
     exit(0)
 
-  # discover available sdn bridges
-  discovered_bridges = [bridge.get('vnet', None) for bridge in prox.nodes(proxmox_node).sdn.zones(zone).content.get()]
+  # check configured bridge exists or is a sdn vnet
+  # configured bridge does not contain the string 'sdn/'
+  if not re.search('sdn/', network_bridge):
+    discovered_bridges = [bridge.get('iface', None) for bridge in prox.nodes(proxmox_node).network.get(type = 'bridge')]
 
-# check configured bridge is in list
-if network_bridge not in discovered_bridges:
-  kmsg(kname, f'"{network_bridge}" not found. valid bridges: {discovered_bridges}', 'err')
-  exit(0)
+  # sdn bridges / zones
+  else:
+    # check we can map zone and get vnets
+    try:
+      sdn_params = network_bridge.split('/')
+      if not sdn_params[1] or not sdn_params[2]:
+        exit(0)
+      else:
+        zone = sdn_params[1]
+        network_bridge = sdn_params[2]
+    except:
+      kmsg(kname, f'unable to parse sdn config: "{network_bridge}"', 'err')
+      exit(0)
+
+    # discover available sdn bridges
+    discovered_bridges = [bridge.get('vnet', None) for bridge in prox.nodes(proxmox_node).sdn.zones(zone).content.get()]
+
+  # check configured bridge is in list
+  if network_bridge not in discovered_bridges:
+    kmsg(kname, f'"{network_bridge}" not found. valid bridges: {discovered_bridges}', 'err')
+    exit(0)
 
 # dummy cloud_image_vars overwritten below
 cloud_image_size = 0
@@ -393,7 +399,7 @@ def local_exec(cmd):
 
     # if return code 1 or any stderr
     if (cmd_run.returncode == 1 or cmd_run.stderr != ''):
-       exit(0)
+      exit(0)
   except:
     kmsg('local_exec-process-error', f'{cmd_run} - {cmd_run.stderr.strip()}', 'err')
     exit(0)
