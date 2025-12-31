@@ -24,7 +24,7 @@ def s3_run(s3cmd):
 
   # run the command ( 2>&1 required )
   k3s_run = f'k3s etcd-snapshot {s3cmd} 2>&1'
-  s3_out = qaexec(masterid,k3s_run)
+  s3_out = qa_exec(masterid,k3s_run)
 
   # look for fatal error in output
   if re.search('level=fatal', s3_out):
@@ -136,7 +136,7 @@ k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={toke
 systemctl start k3s'
 
   # display some filtered restore contents
-  restore = qaexec(masterid, restore_cmd)
+  restore = qa_exec(masterid, restore_cmd)
   for line in restore.split('\n'):
 
     # if output contains fatal error

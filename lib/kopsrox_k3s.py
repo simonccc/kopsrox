@@ -76,7 +76,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     if nodetype == 'restore':
       # get latest snapshot
       bs_cmd = f'{k3s_install_master} && /usr/local/bin/k3s etcd-snapshot ls 2>&1 && systemctl stop k3s && rm -rf /var/lib/rancher'
-      bs_cmd_out = qaexec(vmid,bs_cmd)
+      bs_cmd_out = qa_exec(vmid,bs_cmd)
 
       # sort ls output so last is latest snapshot
       for snap in sorted(bs_cmd_out.split('\n')):
@@ -90,11 +90,11 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
 
     # run command
-    qaexec(vmid,init_cmd)
+    qa_exec(vmid,init_cmd)
 
     # wait until ready
     wait: int = 20
-    count: int = 1 
+    count: int = 1
     status = ''
     while not status == 'Ready':
 
@@ -231,7 +231,7 @@ def kubeconfig():
   # define filename
   kubeconfig_file = f'{cluster_name}.kubeconfig'
   # replace 127.0.0.1 with vip ip
-  kconfig = qaexec(masterid, 'cat /etc/rancher/k3s/k3s.yaml').replace('127.0.0.1', network_ip)
+  kconfig = qa_exec(masterid, 'cat /etc/rancher/k3s/k3s.yaml').replace('127.0.0.1', network_ip)
   with open(kubeconfig_file, 'w') as kubeconfig_file_handle:
     kubeconfig_file_handle.write(kconfig)
   kmsg('k3s_kubeconfig', f'saved {kubeconfig_file}')
@@ -239,14 +239,14 @@ def kubeconfig():
 # kubectl
 def kubectl(cmd):
   k3s_cmd = f'/usr/local/bin/kubectl {cmd} 2>&1'
-  kcmd = qaexec(masterid,k3s_cmd)
+  kcmd = qa_exec(masterid,k3s_cmd)
   return(kcmd)
 
 # run k3s check config
 def k3s_check_config():
   kmsg('k3s_check-config', 'checking k3s config')
   k3s_cmd = f'/usr/local/bin/k3s check-config'
-  kcmd = qaexec(masterid,k3s_cmd)
+  kcmd = qa_exec(masterid,k3s_cmd)
   print(kcmd)
 
 # export k3s token
@@ -255,7 +255,7 @@ def export_k3s_token():
   # define token file name
   token_name = f'{cluster_name}.k3stoken'
   # get masters token
-  live_token = qaexec(masterid, 'cat /var/lib/rancher/k3s/server/token')
+  live_token = qa_exec(masterid, 'cat /var/lib/rancher/k3s/server/token')
 
   # check existing token
   if os.path.isfile(token_name):
@@ -274,11 +274,11 @@ def export_k3s_token():
       with open(token_name, 'w') as token_file:
         token_file.write(live_token)
 
-    # existing token file matches live    
+    # existing token file matches live
     else:
       kmsg('k3s_export-token', f'found: {token_name} OK')
 
-  # no token found so write new one 
+  # no token found so write new one
   else:
     with open(token_name, 'w') as token_file:
       token_file.write(live_token)
@@ -287,7 +287,7 @@ def export_k3s_token():
 # cluster info
 def cluster_info():
 
-  # live nodes in cluster 
+  # live nodes in cluster
   cluster_info_vms = list_kopsrox_vm()
 
   # check m1 id exists

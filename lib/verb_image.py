@@ -176,7 +176,7 @@ sudo virt-customize -a {cloud_image} \
 --run-command "{virtc_script}" \
 --copy-in {kopsrox_yaml}:/var/lib/rancher/k3s/server/manifests/ \
 > virt-customize.log 2>&1'''
-  local_os_process(virtc_cmd)
+  local_exec(virtc_cmd)
 
   # destroy template if it exists
   try:
@@ -211,7 +211,7 @@ created: {img_ts}'''
     hotplug = 0,
     ciupgrade = 0,
     description = image_desc,
-    ciuser = cloudinituser, 
+    ciuser = cloudinituser,
     cipassword = cloudinitpass,
     sshkeys = cloudinitsshkey,
   ))
@@ -224,7 +224,7 @@ mv {cloud_image} {cloud_image}.patched'''
 
   # run shell command to import
   kmsg(f'{kname}qm-import', f'importing disk')
-  local_os_process(import_cmd)
+  local_exec(import_cmd)
 
   # convert to template via create base disk also vm config
   prox_task(prox.nodes(proxmox_node).qemu(cluster_id).template.post())

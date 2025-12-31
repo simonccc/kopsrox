@@ -5,14 +5,14 @@ from kopsrox_config import *
 from kopsrox_kmsg import kmsg
 
 # run a exec via qemu-agent
-def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = proxmox_node):
+def qa_exec(vmid: int = masterid,cmd = 'uptime', node: str = proxmox_node):
 
   # define kname
-  kname = 'proxmox_qaexec'
+  kname = 'proxmox_qa_exec'
 
   # get vmname and node
   vmname = vmnames[vmid]
-  try: 
+  try:
     node = vms[vmid]
   except:
     pass
@@ -30,10 +30,10 @@ def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = proxmox_node):
       # qa ping the vm
       qa_ping = prox.nodes(proxmox_node).qemu(vmid).agent.ping.post()
 
-      # agent is running 
+      # agent is running
       qagent_running = 'true'
 
-    # agent not running 
+    # agent not running
     except:
       # increment counter
       qagent_count += 1
@@ -87,7 +87,7 @@ def qaexec(vmid: int = masterid,cmd = 'uptime', node: str = proxmox_node):
     if (pid_check['err-data']):
 
       # print data warning \
-      kmsg('qaexec_stderr', ( 'CMD: ' +cmd + '\n' + pid_check['err-data'].strip()), 'err')
+      kmsg('qa_exec_stderr', ( 'CMD: ' +cmd + '\n' + pid_check['err-data'].strip()), 'err')
 
       # if there is output return that otherwise exit
       if (pid_check['err-data'] and pid_check['out-data']):
@@ -217,7 +217,7 @@ def task_log(task_id, node=proxmox_node):
 def internet_check(vmid):
   vmname = vmnames[vmid]
   internet_cmd = 'curl -s --retry 2 --retry-all-errors --connect-timeout 1 --max-time 2 www.google.com > /dev/null && echo ok || echo error'
-  internet_check = qaexec(vmid, internet_cmd)
+  internet_check = qa_exec(vmid, internet_cmd)
 
   # if curl command fails
   if internet_check == 'error':

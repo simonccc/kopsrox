@@ -126,7 +126,7 @@ def init_kopsrox_ini():
 
   # s3 region
   config.set(ks, '; s3 region - leave as \'\' for no region')
-  config.set(ks, 's3_region', '\'\'')
+  config.set(ks, '# s3_region', '\'\'')
 
   # s3 access key
   config.set(ks, '; s3 access key')

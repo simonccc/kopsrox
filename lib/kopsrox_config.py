@@ -34,9 +34,8 @@ def conf_check(value: str = 'kopsrox'):
   try:
 
     # values that can be blank
-    # shouldn't eg s3_region be blank?
     if (kopsrox_config.get('kopsrox', value) == '') and  \
-    (value not in ['extra_packages']):
+    (value not in ['extra_packages', 's3_region']):
       exit(0)
 
   except:
@@ -382,13 +381,13 @@ for vmid in vms:
 
 # return ip for vmid
 def vmip(vmid: int):
-  # last number of network + ( vmid - cluster_id ) 
-  # eg 160 + ( 601 - 600 )  = 161 
+  # last number of network + ( vmid - cluster_id )
+  # eg 160 + ( 601 - 600 )  = 161
   ip = f'{network_base}{(network_ip_prefix + (vmid - cluster_id))}'
   return(ip)
 
-# run local os process 
-def local_os_process(cmd):
+# run local os process
+def local_exec(cmd):
   try:
     cmd_run = subprocess.run(['bash', "-c", cmd], text=True, capture_output=True)
 
@@ -396,7 +395,7 @@ def local_os_process(cmd):
     if (cmd_run.returncode == 1 or cmd_run.stderr != ''):
        exit(0)
   except:
-    kmsg('local_os-process-error', f'{cmd_run} - {cmd_run.stderr.strip()}', 'err')
+    kmsg('local_exec-process-error', f'{cmd_run} - {cmd_run.stderr.strip()}', 'err')
     exit(0)
   return(cmd_run)
 
