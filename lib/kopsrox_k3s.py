@@ -37,7 +37,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
   except:
     kmsg('k3s_init-node', f'{vmid} no internet', 'err')
     exit(0)
- 
+
   # check status of node
   # what does this check?
   try:
@@ -47,17 +47,14 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     kmsg(f'k3s_{nodetype}-init', f'configuring {k3s_version} on {vmnames[vmid]}')
 
     # get existing token if it exists
-    token_fname = f'{cluster_name}.k3stoken'
-    token_cmd = ''
-    if os.path.isfile(token_fname):
-      token = open(token_fname, "r").read()
-      token_cmd = f' --token {token}'
+    token_cmd = f' --token {get_k3s_token()}'
 
     # defines
-    k3s_install_options = f'--disable-cloud-controller=true --kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid} {token_cmd}'
     k3s_install_version = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
-    k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init --disable=servicelb,local-storage --tls-san={network_ip} {k3s_install_options}'
-    k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443 {k3s_install_options}'
+    k3s_install_options = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid} {token_cmd}'
+#    k3s_server_options = f'--disable-cloud-controller=true --disable=servicelb,local-storage'
+    k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init --config=/etc/rancher/k3s/server.yaml {k3s_install_options}'
+    k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443 --config=/etc/rancher/k3s/server.yaml {k3s_install_options}'
     k3s_install_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_install_version} sh -s - agent --server="https://{network_ip}:6443" {k3s_install_options}'
 
     # master
@@ -110,14 +107,14 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
           exit(0)
         time.sleep(1)
 
-    # final steps for first master / restore export kubeconfig and token 
+    # final steps for first master / restore export kubeconfig and token
     if nodetype in ['master', 'restore']:
       kubeconfig()
       export_k3s_token()
 
 # remove a node
 def k3s_remove_node(vmid: int):
-  
+
   # get vmname
   vmname = vmnames[vmid]
   kmsg('k3s_remove-node', vmname)
@@ -139,7 +136,7 @@ def k3s_rm_cluster(restore = False):
     # map hostname
     vmname = vmnames[vmid]
 
-    # do not delete m1 if restore is true 
+    # do not delete m1 if restore is true
     if restore and vmname == f'{cluster_name}-m1':
       continue
 

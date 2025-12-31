@@ -116,23 +116,19 @@ spec:
   kopsrox_manifest.write(csi_manifest)
   kopsrox_manifest.close()
 
-  token_fname = f'{cluster_name}.k3stoken'
-  token_cmd = ''
-  if os.path.isfile(token_fname):
-    token = open(token_fname, "r").read()
-    token_cmd = f' --token {token}'
+  token_cmd = f' --token {get_k3s_token()}'
 
-  k3s_install_options = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid} {token_cmd}'
-  k3s_install_version = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
-  k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init --disable=servicelb,local-storage --node-label="topology.kubernetes.io/zone={proxmox_node}" --tls-san={network_ip} {k3s_install_options}'
-  k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443 {k3s_install_options}'
-  k3s_install_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_install_version} sh -s - agent --server="https://{network_ip}:6443" {k3s_install_options}'
+  k3s_opt = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid} {token_cmd}'
+  k3s_ver = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
+  k3s_master = f'{k3s_ver} sh -s - server --cluster-init {k3s_opt}'
+  k3s_slave = f'{k3s_ver} sh -s - server --server https://{network_ip}:6443 {k3s_opt}'
+  k3s_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_ver} sh -s - agent --server="https://{network_ip}:6443" {k3s_opt}'
 
   # script to run in kopsrox image
   virtc_script = f'''\
 curl -v https://get.k3s.io > /k3s.sh
 mkdir -p /var/lib/rancher/k3s/server/manifests/
-mkdir -p /etc/rancher/k3s/config.yaml.d/
+mkdir -p /etc/rancher/k3s/
 echo -n '
 #!/usr/bin/env bash
 if [[ ! \"$1\" ]] then
@@ -141,24 +137,32 @@ exit
 fi
 
 if [[ \"$1\" == "master" ]] then
-{k3s_install_master}
+{k3s_master}
 exit
 fi
 
 if [[ \"$1\" == "slave" ]] then
-{k3s_install_slave}
+{k3s_slave}
 exit
 fi
 
 if [[ \"$1\" == "worker" ]] then
-{k3s_install_worker}
+{k3s_worker}
 exit
 fi
-' > /kopsrox.sh 
+' > /kopsrox.sh
 chmod +x /kopsrox.sh
 
 echo -n '
+disable-cloud-controller: true
+tls-san: {network_ip}
+write-kubeconfig-mode: 0644
+embedded-registry: true
+disable:
+  - servicelb
+  - local-storage
 etcd-s3: true
+etcd-disable-snapshot: true
 etcd-snapshot-retention: 7
 etcd-s3-region: {region_string}
 etcd-s3-endpoint: {s3_endpoint}
@@ -166,7 +170,8 @@ etcd-s3-access-key: {access_key}
 etcd-s3-secret-key: {access_secret}
 etcd-s3-bucket: {bucket}
 etcd-s3-skip-ssl-verify: true
-etcd-snapshot-compress: true'  > /etc/rancher/k3s/config.yaml.d/etcd-backup.yaml'''
+etcd-snapshot-compress: true'  > /etc/rancher/k3s/server.yaml
+'''
 
   # shouldn't really need root/sudo but run into permissions problems
   kmsg(f'{kname}virt-customize', f'installing {image_packages}')

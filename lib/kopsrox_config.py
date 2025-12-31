@@ -68,13 +68,9 @@ kname = f'{cluster_name}_config-check'
 
 # cluster id
 cluster_id = conf_check('cluster_id')
-
-# some basic value based checks
-def sanity_checks():
-
-  if cluster_id < 100:
-    kmsg(kname, f'cluster_id is too low - should be over 100', 'err')
-    exit(0)
+if cluster_id < 100:
+  kmsg(kname, f'cluster_id is too low - should be over 100', 'err')
+  exit(0)
 
 # assign master id
 masterid = int(cluster_id) + 1
@@ -324,7 +320,7 @@ cloud_image_desc = ''
 # skip image check if image create is passed
 try:
   # check for image create command line
-  if sys.argv[1] == 'image' and ( sys.argv[2] == 'create' or sys.argv[2] == 'update'):
+  if sys.argv[1] == 'image':
     pass
   else:
     exit(0)
@@ -382,8 +378,12 @@ for vmid in vms:
       kmsg(kname, f'powering on {vmi["name"]}', 'sys')
       prox.nodes(proxmox_node).qemu(vmid).status.start.post()
 
-# end of checks
-# functions used in other code
+# get token if it exists
+def get_k3s_token():
+  token_fname = f'{cluster_name}.k3stoken'
+  if os.path.isfile(token_fname):
+    return(open(token_fname, "r").read())
+    exit(0)
 
 # return ip for vmid
 def vmip(vmid: int):
