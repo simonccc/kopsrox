@@ -16,7 +16,7 @@ from configparser import ConfigParser
 kopsrox_config = ConfigParser()
 kopsrox_config.read('kopsrox.ini')
 
-# kname 
+# kname
 kname='config_check'
 
 # check section and value exists in kopsrox.ini
@@ -34,6 +34,7 @@ def conf_check(value: str = 'kopsrox'):
   try:
 
     # values that can be blank
+    # shouldn't eg s3_region be blank?
     if (kopsrox_config.get('kopsrox', value) == '') and  \
     (value not in ['extra_packages']):
       exit(0)
@@ -46,7 +47,7 @@ def conf_check(value: str = 'kopsrox'):
   config_item = kopsrox_config.get('kopsrox', value)
 
   # int check
-  if value in ['proxmox_port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters', 'network_mtu']:
+  if value in ['proxmox_api_port', 'vm_cpu', 'vm_ram', 'vm_disk', 'cluster_id', 'workers', 'masters', 'network_mtu']:
 
     # test if var is int
     try:
@@ -61,21 +62,26 @@ def conf_check(value: str = 'kopsrox'):
     # return string
     return(str(config_item))
 
-# cluster name 
+# cluster name
 cluster_name = conf_check('cluster_name')
 kname = f'{cluster_name}_config-check'
 
 # cluster id
 cluster_id = conf_check('cluster_id')
 if cluster_id < 100:
-  kmsg(kname, f' cluster_id is too low - should be over 100', 'err')
+  kmsg(kname, f'cluster_id is too low - should be over 100', 'err')
   exit(0)
 
 # assign master id
 masterid = int(cluster_id) + 1
 
-# these are used by the proxmox cloud controller as well as below
+# proxmox endpoint
 proxmox_endpoint = conf_check('proxmox_endpoint')
+if ( proxmox_endpoint == "localhost" or proxmox_endpoint == "127.0.0.1" ):
+  kmsg(kname, f'proxmox_endpoint cannot be localhost - please use a reachable IP', 'err')
+  exit(0)
+
+# proxmox vars
 proxmox_user = conf_check('proxmox_user')
 proxmox_token_name = conf_check('proxmox_token_name')
 proxmox_api_port = conf_check('proxmox_api_port')
@@ -108,11 +114,11 @@ proxmox_node = conf_check('proxmox_node')
 # try k8s ping
 try:
   k3s_ping = prox.nodes(proxmox_node).qemu(masterid).agent.exec.post(command = '/usr/local/bin/k3s kubectl version')
-  
+
 except:
   try:
     qa_ping = prox.nodes(proxmox_node).qemu(masterid).agent.ping.post()
-    kmsg(kname, f'k3s down but master up please investigate...', 'err')
+    kmsg(kname, f'k3s down but master server available...?', 'err')
     exit(0)
   except:
     pass
