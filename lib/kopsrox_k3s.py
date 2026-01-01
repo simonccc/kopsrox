@@ -24,7 +24,7 @@ def k3s_check(vmid: int):
     exit(0)
 
 # create a master/slave/worker
-def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
+def k3s_init_node(vmid: int = masterid,nodetype = 'master',snapshot = 'kopsrox'):
 
   # nodetype error check
   if nodetype not in ['master', 'slave', 'worker', 'restore']:
@@ -46,26 +46,15 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
   except:
     kmsg(f'k3s_{nodetype}-init', f'configuring {k3s_version} on {vmnames[vmid]}')
 
-    # defines
-    k3s_install_version = f'cat /root/scripts/k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
-    k3s_install_options = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid}'
-    k3s_install_master = f'{k3s_install_version} sh -s - server --cluster-init --config=/etc/rancher/k3s/server.yaml {k3s_install_options}'
-    k3s_install_slave = f'{k3s_install_version} sh -s - server --server https://{network_ip}:6443 --config=/etc/rancher/k3s/server.yaml {k3s_install_options}'
-    k3s_install_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_install_version} sh -s - agent --server="https://{network_ip}:6443" {k3s_install_options}'
-
     # master
     if nodetype in ['master', 'worker', 'slave']:
       init_cmd = f'/root/scripts/kopsrox.sh {nodetype} {vmid} {get_k3s_token()}'
 
-    # slave
-    #if nodetype == 'slave':
-    #  init_cmd = k3s_install_slave
-
     # restore
     if nodetype == 'restore':
       # get latest snapshot
-      bs_cmd = f'{k3s_install_master} && /usr/local/bin/k3s etcd-snapshot ls 2>&1 && systemctl stop k3s && rm -rf /var/lib/rancher'
-      bs_cmd_out = qa_exec(vmid,bs_cmd)
+      bs_cmd = f'/root/scripts/kopsrox.sh master {masterid} {get_k3s_token()}  && /usr/local/bin/k3s etcd-snapshot ls 2>&1 && systemctl stop k3s && rm -rf /var/lib/rancher'
+      bs_cmd_out = qa_exec(masterid,bs_cmd)
 
       # sort ls output so last is latest snapshot
       for snap in sorted(bs_cmd_out.split('\n')):
@@ -169,7 +158,7 @@ def k3s_update_cluster():
     # install k3s on slave and join master
     k3s_init_node(slave_masterid,'slave')
 
-    # next possible master ( m3 ) 
+    # next possible master ( m3 )
     master_count = master_count + 1
 
  # check for extra masters
@@ -183,7 +172,7 @@ def k3s_update_cluster():
        # remove the vm
        k3s_remove_node(vm)
 
- # define default workerid ( -1 ) 
+ # define default workerid ( -1 )
  workerid = masterid + 3
 
  # create new worker nodes per config
@@ -218,12 +207,12 @@ def k3s_update_cluster():
 def kubeconfig():
 
   # define filename
-  kubeconfig_file = f'{cluster_name}.kubeconfig'
+  kubeconfig = f'{cluster_name}.kubeconfig'
   # replace 127.0.0.1 with vip ip
   kconfig = qa_exec(masterid, 'cat /etc/rancher/k3s/k3s.yaml').replace('127.0.0.1', network_ip)
-  with open(kubeconfig_file, 'w') as kubeconfig_file_handle:
-    kubeconfig_file_handle.write(kconfig)
-  kmsg('k3s_kubeconfig', f'saved {kubeconfig_file}')
+  with open(kubeconfig, 'w') as new_kubeconfig:
+    new_kubeconfig.write(kconfig)
+  kmsg('k3s_kubeconfig', f'saved {kubeconfig}')
 
 # kubectl
 def kubectl(cmd):

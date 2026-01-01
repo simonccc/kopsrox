@@ -13,6 +13,9 @@ kname = 'image_'
 # create image
 if cmd == 'create':
 
+  cloud_image = cloud_image_url.split('/')[-1]
+  kmsg(f'{kname}create', f'building {cluster_name}-i0 template based on {cloud_image}', 'sys')
+
   # download k3s.sh
   get_k3s_path = './lib/scripts/k3s.sh'
   if not os.path.isfile(get_k3s_path):
@@ -22,10 +25,6 @@ if cmd == 'create':
       print()
     except:
       kmsg(f'{kname}check', f'unable to download get k3s script', 'err')
-
-  # get image name from url
-  cloud_image = cloud_image_url.split('/')[-1]
-  kmsg(f'{kname}create', f'{cluster_name}-i0 based on {cloud_image}', 'sys')
 
   # check if image already exists
   if os.path.isfile(cloud_image):
@@ -129,9 +128,10 @@ spec:
   k3s_ver = f'cat /root/scripts/k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
   k3s_opt = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/${2}'
   k3s_conf = f'--config=/etc/rancher/k3s/server.yaml'
+  k3s_server = f'--server https://{network_ip}:6443'
   k3s_master = f'{k3s_ver} sh -s - server --cluster-init {k3s_conf} {k3s_opt}'
-  k3s_slave = f'{k3s_ver} sh -s - server --server https://{network_ip}:6443 {k3s_conf} {k3s_opt}'
-  k3s_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_ver} sh -s - agent --server=https://{network_ip}:6443 {k3s_opt}'
+  k3s_slave = f'{k3s_ver} sh -s - server {k3s_server} {k3s_conf} {k3s_opt}'
+  k3s_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_ver} sh -s - agent {k3s_server} {k3s_opt}'
   k3s_script = f'''
 #!/usr/bin/env bash -x
 if [[ ! "$1" ]] then
@@ -152,10 +152,12 @@ if [[ "$1" == "master" ]] then
 {k3s_master} $token_command
 exit
 fi
+
 if [[ "$1" == "slave" ]] then
 {k3s_slave} $token_command
 exit
 fi
+
 if [[ "$1" == "worker" ]] then
 {k3s_worker} $token_command
 exit
@@ -165,8 +167,8 @@ fi
   k3s_script_local.close()
   os.chmod('./lib/scripts/kopsrox.sh', 0o755)
 
-  virtc_script = f'''\
-echo -n '
+  # generate a k3s server config file
+  k3s_server_config = f'''\
 disable-cloud-controller: true
 tls-san: {network_ip}
 write-kubeconfig-mode: 0644
@@ -177,24 +179,32 @@ disable:
 etcd-s3: true
 etcd-disable-snapshot: true
 etcd-snapshot-retention: 7
-etcd-s3-region: {region_string}
 etcd-s3-endpoint: {s3_endpoint}
 etcd-s3-access-key: {access_key}
 etcd-s3-secret-key: {access_secret}
 etcd-s3-bucket: {bucket}
 etcd-s3-skip-ssl-verify: true
-etcd-snapshot-compress: true'  > /etc/rancher/k3s/server.yaml
-'''
+etcd-snapshot-compress: true'''
+
+  # handle s3 region
+  if region_string != '':
+    k3s_server_config = k3s_server_config + f'''
+etcd-s3-region: {region_string}'''
+
+  k3s_server_file = './lib/manifests/server.yaml'
+  k3s_server_yaml = open(k3s_server_file, 'w')
+  k3s_server_yaml.write(k3s_server_config)
+  k3s_server_yaml.close()
 
   # shouldn't really need root/sudo but run into permissions problems
-  kmsg(f'{kname}virt-customize', f'installing {image_packages}')
-  virtc_cmd = f'''
+  kmsg(f'{kname}virt-customize', f'building custom cloud image - installing {image_packages}')
+  virtc_cmd = f'''\
 sudo virt-customize -a {cloud_image} \
 --install {image_packages} \
 --mkdir /var/lib/rancher/k3s/server/manifests/ \
 --mkdir /etc/rancher/k3s \
---run-command "{virtc_script}" \
 --upload {kopsrox_yaml}:/var/lib/rancher/k3s/server/manifests/ \
+--upload {k3s_server_file}:/var/lib/rancher/k3s/server/manifests/ \
 --copy-in ./lib/scripts:/root \
 > virt-customize.log 2>&1'''
   local_exec(virtc_cmd)
