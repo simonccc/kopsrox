@@ -128,8 +128,9 @@ spec:
   k3s_script_local = open('./lib/scripts/kopsrox.sh', 'w')
   k3s_ver = f'cat /root/scripts/k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
   k3s_opt = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/${2}'
-  k3s_master = f'{k3s_ver} sh -s - server --cluster-init --config=/etc/rancher/k3s/server.yaml {k3s_opt}'
-  k3s_slave = f'{k3s_ver} sh -s - server --server https://{network_ip}:6443 --config=/etc/rancher/k3s/server.yaml {k3s_opt}'
+  k3s_conf = f'--config=/etc/rancher/k3s/server.yaml'
+  k3s_master = f'{k3s_ver} sh -s - server --cluster-init {k3s_conf} {k3s_opt}'
+  k3s_slave = f'{k3s_ver} sh -s - server --server https://{network_ip}:6443 {k3s_conf} {k3s_opt}'
   k3s_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_ver} sh -s - agent --server=https://{network_ip}:6443 {k3s_opt}'
   k3s_script = f'''
 #!/usr/bin/env bash -x
@@ -152,7 +153,7 @@ if [[ "$1" == "master" ]] then
 exit
 fi
 if [[ "$1" == "slave" ]] then
-{k3s_slave}
+{k3s_slave} $token_command
 exit
 fi
 if [[ "$1" == "worker" ]] then

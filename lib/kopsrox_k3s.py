@@ -54,16 +54,12 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master'):
     k3s_install_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_install_version} sh -s - agent --server="https://{network_ip}:6443" {k3s_install_options}'
 
     # master
-    if nodetype in ['master', 'worker']:
+    if nodetype in ['master', 'worker', 'slave']:
       init_cmd = f'/root/scripts/kopsrox.sh {nodetype} {vmid} {get_k3s_token()}'
 
     # slave
-    if nodetype == 'slave':
-      init_cmd = k3s_install_slave
-
-    # worker
-    #if nodetype == 'worker':
-    #  init_cmd = k3s_install_worker
+    #if nodetype == 'slave':
+    #  init_cmd = k3s_install_slave
 
     # restore
     if nodetype == 'restore':
