@@ -127,7 +127,8 @@ spec:
   k3s_script_local = open('./lib/scripts/kopsrox.sh', 'w')
   k3s_ver = f'cat /root/scripts/k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
   k3s_opt = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/${2}'
-  k3s_conf = f'--config=/etc/rancher/k3s/server.yaml'
+  #k3s_conf = f'--config=/etc/rancher/k3s/server.yaml'
+  k3s_conf = ''
   k3s_server = f'--server https://{network_ip}:6443'
   k3s_master = f'{k3s_ver} sh -s - server --cluster-init {k3s_conf} {k3s_opt}'
   k3s_slave = f'{k3s_ver} sh -s - server {k3s_server} {k3s_conf} {k3s_opt}'
@@ -191,7 +192,7 @@ etcd-snapshot-compress: true'''
     k3s_server_config = k3s_server_config + f'''
 etcd-s3-region: {region_string}'''
 
-  k3s_server_file = './lib/manifests/server.yaml'
+  k3s_server_file = './lib/manifests/config.yaml'
   k3s_server_yaml = open(k3s_server_file, 'w')
   k3s_server_yaml.write(k3s_server_config)
   k3s_server_yaml.close()
@@ -201,10 +202,10 @@ etcd-s3-region: {region_string}'''
   virtc_cmd = f'''\
 sudo virt-customize -a {cloud_image} \
 --install {image_packages} \
---mkdir /var/lib/rancher/k3s/server/manifests/ \
+--mkdir /var/lib/rancher/k3s/server/manifests \
 --mkdir /etc/rancher/k3s \
 --upload {kopsrox_yaml}:/var/lib/rancher/k3s/server/manifests/ \
---upload {k3s_server_file}:/var/lib/rancher/k3s/server/manifests/ \
+--upload {k3s_server_file}:/etc/rancher/k3s/ \
 --copy-in ./lib/scripts:/root \
 > virt-customize.log 2>&1'''
   local_exec(virtc_cmd)

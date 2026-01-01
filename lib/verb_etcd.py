@@ -46,7 +46,7 @@ def list_snapshots():
   # for each image in the sorted list
   for line in sorted(ls):
 
-    # map filename 
+    # map filename
     s3_file = line.split()[0]
 
     # if cluster name matches the s3 line append to the images string
@@ -66,9 +66,9 @@ if cmd == 'prune':
 
 # print s3List
 def s3_list():
-   kmsg(kname, f'{s3_endpoint}/{bucket}\n{snapshots}')
+   kmsg('etcd_repo', f'{s3_endpoint}/{bucket}\n{snapshots}')
 
-# snapshot 
+# snapshot
 if cmd == 'snapshot':
 
   # check for existing token file
@@ -76,12 +76,15 @@ if cmd == 'snapshot':
     export_k3s_token()
 
   # define snapshot command
-  snapout = s3_run('save --name kopsrox --etcd-s3')
+  snapout = s3_run('save --name kopsrox').split('\n')
+  last_line = ''
+  for snap_out in snapout:
+      if not re.search(' level=warning msg="Unknown flag', snap_out):
+        if (last_line != snap_out):
+          kmsg(kname, snap_out, 'sys')
+          last_line = snap_out
 
-  # hack to remove dupe output
-  kmsg(kname, "".join(dict.fromkeys(snapout.split('\n'))))
-
-  # list snapshots 
+  # list snapshots
   snapshots = list_snapshots()
   s3_list()
 
@@ -100,7 +103,7 @@ if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
     s3_list()
     exit(0)
 
-  # restore-latest 
+  # restore-latest
   if cmd == 'restore-latest':
     # generate latest snapshot name
     snapshot = snapshots.split('\n')[-1].split()[0]
