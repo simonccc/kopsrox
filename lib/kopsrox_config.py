@@ -108,6 +108,10 @@ except:
 
 # map node name
 proxmox_node = conf_check('proxmox_node')
+disc_nodes = [node.get('node', None) for node in prox.nodes.get()]
+if proxmox_node not in disc_nodes:
+  kmsg(kname, f'"{proxmox_node}" not found - discovered nodes: {disc_nodes}', 'err')
+  exit(0)
 
 # try k8s ping
 conf_check_master_up = False
@@ -122,15 +126,11 @@ except:
   except:
     pass
 
-# proxmox cont
-if not conf_check_master_up:
-  discovered_nodes = [node.get('node', None) for node in prox.nodes.get()]
-  if proxmox_node not in discovered_nodes:
-    kmsg(kname, f'"{proxmox_node}" not found - discovered nodes: {discovered_nodes}', 'err')
-    exit(0)
-
 # storage
 proxmox_storage = conf_check('proxmox_storage')
+if not prox.nodes(proxmox_node).storage.get(f'?storage={proxmox_storage}'):
+  kmsg(kname, f'{proxmox_storage} storage not found', 'err')
+  print(disc_storages)
 
 # image related config checks
 # cloud image
@@ -149,6 +149,9 @@ if passed_cmd == 'image':
   except:
     kmsg(kname, f'[kopsrox]/cloudinitsshkey - invalid ssh key', 'err')
     exit(0)
+
+  template_data = prox.nodes(proxmox_node).qemu(cluster_id).config.get()
+  cloud_image_desc = template_data['description']
 
 # vm disk
 vm_disk = conf_check('vm_disk')
@@ -255,43 +258,12 @@ def list_kopsrox_vm():
   # return sorted dict
   return(dict(sorted(vmids.items())))
 
-# returns vmstatus
-# why does it need node?
-def vm_info(vmid: int,node=proxmox_node):
-  return(prox.nodes(node).qemu(vmid).status.current.get())
 
-# get list of storage in the cluster
-if not conf_check_master_up:
-  storage_list = prox.nodes(proxmox_node).storage.get()
-
-  # for each of the list
-  for local_storage in storage_list:
-
-    # if matched storage
-    if proxmox_storage == local_storage.get("storage"):
-
-      # is storage local or shared?
-      if local_storage.get("shared") == 0:
-        storage_type = 'local'
-      else:
-        storage_type = 'shared'
-
-  # if no storage_type we have no matched storage
-  try:
-    if storage_type:
-      pass
-  except:
-    kmsg(kname, f'"{storage}" not found. discovered storage:', 'err')
-    for discovered_storage in storage_list:
-      print(' - ' + discovered_storage.get("storage"))
-    exit(0)
-
-  # check configured bridge exists or is a sdn vnet
-  # configured bridge does not contain the string 'sdn/'
+# check configured bridge exists or is a sdn vnet
+# configured bridge does not contain the string 'sdn/'
+if passed_cmd == 'image' and not conf_check_master_up:
   if not re.search('sdn/', network_bridge):
     discovered_bridges = [bridge.get('iface', None) for bridge in prox.nodes(proxmox_node).network.get(type = 'bridge')]
-
-  # sdn bridges / zones
   else:
     # check we can map zone and get vnets
     try:
@@ -313,14 +285,10 @@ if not conf_check_master_up:
     kmsg(kname, f'"{network_bridge}" not found. valid bridges: {discovered_bridges}', 'err')
     exit(0)
 
-# dummy cloud_image_vars overwritten below
-cloud_image_size = 0
-cloud_image_desc = ''
-
 # skip image check if image create is passed
 try:
   # check for image create command line
-  if sys.argv[1] == 'image':
+  if sys.argv[1] == 'image' and sys.argv[2] == 'create':
     pass
   else:
     exit(0)
@@ -333,30 +301,9 @@ except:
     # exit if image does not exist
     if not kopsrox_img():
       exit(0)
-
-    # assign variable name
-    kopsrox_image_name = kopsrox_img()
-
   except:
     # no image found
     kmsg(kname, f'{cluster_name} image not found - please run "kopsrox image create"', 'err')
-    exit(0)
-
-  # get image info
-  try:
-    cloud_image_data = prox.nodes(proxmox_node).storage(proxmox_storage).content(kopsrox_image_name).get()
-
-    # check image not too large for configured disk
-    cloud_image_size = int(cloud_image_data['size'] / 1073741824 )
-    if cloud_image_size > vm_disk:
-      exit(0)
-
-    # get image created and desc from template
-    template_data = prox.nodes(proxmox_node).qemu(cluster_id).config.get()
-    cloud_image_desc = template_data['description']
-
-  except:
-    kmsg(kname, f'image size ({cloud_image_size}G) is greater than configured vm_disk ({vm_disk}G)', 'err')
     exit(0)
 
 # vm not powered on check
@@ -367,11 +314,8 @@ for vmid in vms:
   # skip image
   if vmid != cluster_id:
 
-    # map node
-    pnode = vms[vmid]
-
     # get vminfo
-    vmi = vm_info(vmid,pnode)
+    vmi = prox.nodes(proxmox_node).qemu(vmid).status.current.get()
 
     # start stopped nodes
     if vmi['status'] == 'stopped':
@@ -409,5 +353,4 @@ def local_exec(cmd):
 def image_info():
   kname = f'image_'
   kmsg(f'{kname}desc', cloud_image_desc)
-  kmsg(f'{kname}storage', f'{kopsrox_image_name} ({storage_type})')
-  kmsg(f'{kname}size', f'{cloud_image_size}G')
+  kmsg(f'{kname}storage', f'{kopsrox_img()}')

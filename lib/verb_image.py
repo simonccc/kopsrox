@@ -13,6 +13,15 @@ kname = 'image_'
 # create image
 if cmd == 'create':
 
+  # download k3s.sh
+  get_k3s_path = '/lib/scripts/k3s.sh'
+  if not os.path.isfile(get_k3s_path):
+    kmsg(f'{kname}wget', f'https://get.k3s.io')
+    try:
+      wget.download('https://get.k3s.io', get_k3s_path)
+    except:
+      kmsg(f'{kname}check', f'unable to download ', 'err')
+
   # get image name from url
   cloud_image = cloud_image_url.split('/')[-1]
   kmsg(f'{kname}create', f'{cloud_image} > {cluster_name}-i0', 'sys')
@@ -120,15 +129,13 @@ spec:
 
   k3s_opt = f'--kubelet-arg --cloud-provider=external --kubelet-arg --provider-id=proxmox://{cluster_name}/{vmid} {token_cmd}'
   k3s_ver = f'cat /k3s.sh | INSTALL_K3S_VERSION={k3s_version}'
-  k3s_master = f'{k3s_ver} sh -s - server --cluster-init {k3s_opt}'
-  k3s_slave = f'{k3s_ver} sh -s - server --server https://{network_ip}:6443 {k3s_opt}'
+  k3s_master = f'{k3s_ver} sh -s - server --cluster-init --config=/etc/rancher/k3s/server.yaml {k3s_opt}'
+  k3s_slave = f'{k3s_ver} sh -s - server --server https://{network_ip}:6443 --config=/etc/rancher/k3s/server.yaml {k3s_opt}'
   k3s_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_ver} sh -s - agent --server="https://{network_ip}:6443" {k3s_opt}'
 
   # script to run in kopsrox image
   virtc_script = f'''\
 curl -v https://get.k3s.io > /k3s.sh
-mkdir -p /var/lib/rancher/k3s/server/manifests/
-mkdir -p /etc/rancher/k3s/
 echo -n '
 #!/usr/bin/env bash
 if [[ ! \"$1\" ]] then
@@ -177,9 +184,13 @@ etcd-snapshot-compress: true'  > /etc/rancher/k3s/server.yaml
   kmsg(f'{kname}virt-customize', f'installing {image_packages}')
   virtc_cmd = f'''
 sudo virt-customize -a {cloud_image} \
+--memsize=4096 \
+--smp 4 \
 --install {image_packages} \
+--mkdir /var/lib/rancher/k3s/server/manifests/ \
+--mkdir /etc/rancher/k3s \
 --run-command "{virtc_script}" \
---copy-in {kopsrox_yaml}:/var/lib/rancher/k3s/server/manifests/ \
+--upload {kopsrox_yaml}:/var/lib/rancher/k3s/server/manifests/ \
 > virt-customize.log 2>&1'''
   local_exec(virtc_cmd)
 
