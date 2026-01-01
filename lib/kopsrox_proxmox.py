@@ -50,9 +50,9 @@ def qa_exec(vmid: int = masterid,cmd = 'uptime', node: str = proxmox_node):
         kmsg(kname, f'no response for 10s {vmname} [{node}] cmd: {cmd}', 'sys')
 
   # send command
-  try: 
+  try:
     qa_exec = prox.nodes(node).qemu(vmid).agent.exec.post(
-            command = "sh -c \'" + cmd +"\'",
+            command = "bash -c \'" + cmd +"\'",
             )
   except:
     kmsg(kname, f'problem running cmd: {cmd}', 'err')

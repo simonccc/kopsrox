@@ -128,7 +128,7 @@ except:
 
 # storage
 proxmox_storage = conf_check('proxmox_storage')
-if not prox.nodes(proxmox_node).storage.get(f'?storage={proxmox_storage}'):
+if not prox.nodes(proxmox_node).storage.get(storage = proxmox_storage):
   kmsg(kname, f'{proxmox_storage} storage not found', 'err')
   print(disc_storages)
 
