@@ -129,7 +129,7 @@ spec:
   k3s_master = f'{k3s_ver} sh -s - server --cluster-init {k3s_opt}'
   k3s_slave = f'{k3s_ver} sh -s - server {k3s_server} {k3s_opt}'
   k3s_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_ver} sh -s - agent {k3s_server} {k3s_opt}'
-  k3s_script = f'''
+  k3s_script = f'''\
 #!/usr/bin/env bash -x
 if [[ ! "$1" ]] then
 echo 'command not passed'
