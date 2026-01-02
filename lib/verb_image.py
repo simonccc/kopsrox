@@ -2,8 +2,6 @@
 
 # functions
 from kopsrox_config import *
-
-# proxmox functions
 from kopsrox_proxmox import prox_task, prox_destroy
 
 # define command
@@ -157,10 +155,11 @@ if [[ "$1" == "slave" ]] then
 exit
 fi
 
-if [[ "$1" == "worker" ]] then
-{k3s_worker} $token_command
+if [[ "$1" == "latest" ]] then
+{k3s_master} $token_command && /usr/local/bin/k3s etcd-snapshot ls 2>&1 && systemctl stop k3s && rm -rf /var/lib/rancher
 exit
 fi
+
 '''
   k3s_script_local.write(k3s_script)
   k3s_script_local.close()

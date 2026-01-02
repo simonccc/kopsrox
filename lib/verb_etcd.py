@@ -103,13 +103,8 @@ if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
     s3_list()
     exit(0)
 
-  # restore-latest
-  if cmd == 'restore-latest':
-    # generate latest snapshot name
-    snapshot = snapshots.split('\n')[-1].split()[0]
-  else:
-    # assign passed snapshot argument
-    snapshot = sys.argv[3]
+  # restore snapshot
+  snapshot = sys.argv[3]
 
   # check passed snapshot name exists
   if not re.search(snapshot,snapshots):

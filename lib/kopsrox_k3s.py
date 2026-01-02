@@ -53,7 +53,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master',snapshot = 'kopsrox')
     # restore
     if nodetype == 'restore':
       # get latest snapshot
-      bs_cmd = f'/root/scripts/kopsrox.sh master {masterid} {get_k3s_token()}  && /usr/local/bin/k3s etcd-snapshot ls 2>&1 && systemctl stop k3s && rm -rf /var/lib/rancher'
+      bs_cmd = f'/root/scripts/kopsrox.sh latest {masterid} {get_k3s_token()} 2>&1'
       bs_cmd_out = qa_exec(masterid,bs_cmd)
 
       # sort ls output so last is latest snapshot
@@ -62,7 +62,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master',snapshot = 'kopsrox')
             latest = snap.split()[0]
 
       kmsg(f'k3s_restore', f'restoring {latest}')
-      init_cmd = f'/usr/local/bin/k3s server --cluster-reset --cluster-reset-restore-path={latest} --token={token} 2>&1 && systemctl start k3s'
+      init_cmd = f'/usr/local/bin/k3s server --cluster-reset --cluster-reset-restore-path={latest} --token={get_k3s_token()} 2>&1 && systemctl start k3s'
 
     # write log of install on node
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
