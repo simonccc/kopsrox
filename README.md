@@ -1,6 +1,6 @@
 # kopsrox
 
-- kopsrox is a script to create simple ha k3s cluster on ProxmoxVE
+- kopsrox is a script to help create and manage simple ha k3s clusters on ProxmoxVE
 - use upstream cloud images imported into proxmox as templates - no iso's to mess around with 
 - add more master/worker k3s nodes using a simple config file and cli interface :pray:
 - kube-vip ( https://kube-vip.io/ ) built in providing full HA setup for the kube api and traefik :atom:
