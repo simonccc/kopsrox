@@ -62,7 +62,7 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master',snapshot = 'kopsrox')
             latest = snap.split()[0]
 
       kmsg(f'k3s_restore', f'restoring {latest}')
-      init_cmd = f'/usr/local/bin/k3s server --cluster-reset --cluster-reset-restore-path={latest} --token={get_k3s_token()} 2>&1 && systemctl start k3s'
+      init_cmd = f'/root/scripts/kopsrox.sh  restore {latest} {get_k3s_token()} 2>&1'
 
     # write log of install on node
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
