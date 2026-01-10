@@ -131,7 +131,6 @@ spec:
   k3s_worker = f'rm -rf /etc/rancher/k3s/* && {k3s_ver} sh -s - agent {k3s_server} {k3s_opt}'
   k3s_script = f'''\
 #!/usr/bin/env bash
-set -x
 if [[ ! "$1" ]] then
 echo 'command not passed'
 exit
@@ -139,7 +138,6 @@ fi
 
 if [[ ! "$2" ]] then
 echo 'vmid not passed'
-exit
 fi
 
 if [[ "$3" ]] then
@@ -164,7 +162,7 @@ fi
 if [[ "$1" == "restore" ]] then
 {k3s_master} $token_command && systemctl stop k3s && rm -rf /var/lib/rancher && /usr/local/bin/k3s server --cluster-reset --cluster-reset-restore-path=$2 $token_command 2>&1 && systemctl start k3s
 exit
-fi  
+fi
 
 '''
   k3s_script_local.write(k3s_script)

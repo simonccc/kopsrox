@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 # kopsrox
-from kopsrox_config import *
-from kopsrox_proxmox import *
 from kopsrox_k3s import *
 
 # passed command
@@ -88,18 +86,18 @@ if cmd == 'snapshot':
   snapshots = list_snapshots()
   s3_list()
 
+# list
+if cmd == 'list':
+  s3_list()
+  exit(0)
+
 # restore / list snapshots
-if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
+if cmd == 'restore' or cmd == 'restore-latest':
 
   # snapshots must exist
   # fixme - better
   if not snapshots:
     snapshots = 'not found'
-    s3_list()
-    exit(0)
-
-  # list
-  if cmd == 'list':
     s3_list()
     exit(0)
 
@@ -117,9 +115,6 @@ if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
     kmsg(kname, f'{token_fname} not found exiting.', 'err')
     exit(0)
 
-  # get token value
-  token = open(token_fname, "r").read()
-
   # info
   kmsg(kname,f'restoring {snapshot}', 'sys')
 
@@ -128,10 +123,7 @@ if cmd == 'restore' or cmd == 'restore-latest' or cmd == 'list':
     k3s_rm_cluster(restore = True)
 
   # define restore command
-  restore_cmd = f'\
-systemctl stop k3s &&  \
-k3s server --cluster-reset --cluster-reset-restore-path={snapshot} --token={token} 2>&1 ; \
-systemctl start k3s'
+  restore_cmd = f'/root/scripts/kopsrox.sh  restore {snapshot} {get_k3s_token()}'
 
   # display some filtered restore contents
   restore = qa_exec(masterid, restore_cmd)
