@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 # imports
-from kopsrox_config import *
 from kopsrox_proxmox import *
 
 # check for k3s status
@@ -287,6 +286,10 @@ def cluster_info():
 
   # fix this
   kmsg('kubectl_get-nodes', f'\n{kubectl("get nodes")}')
+
+# reload kubevip
+def reload_kubevip():
+    return(kubectl('-n kube-system rollout restart daemonset kubevip'))
 
 # return current vip master
 def get_kube_vip_master():

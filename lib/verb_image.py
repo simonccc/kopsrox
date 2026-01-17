@@ -154,6 +154,11 @@ if [[ "$1" == "slave" ]] then
 exit
 fi
 
+if [[ "$1" == "worker" ]] then
+{k3s_worker} $token_command
+exit
+fi
+
 if [[ "$1" == "latest" ]] then
 {k3s_master} $token_command && /usr/local/bin/k3s etcd-snapshot ls 2>&1 && systemctl stop k3s && rm -rf /var/lib/rancher
 exit

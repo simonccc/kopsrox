@@ -33,6 +33,7 @@ cmds = {
     "kubeconfig" : '',
     "check-config" : '',
     "kubectl" : 'cmd',
+    "reload-kubevip" : '',
   },
   "etcd": {
     "snapshot" : '',

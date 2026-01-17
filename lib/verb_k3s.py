@@ -27,6 +27,10 @@ if cmd == 'kubeconfig':
 if cmd == 'check-config':
   k3s_check_config()
 
+# reload kubevip
+if cmd == 'reload-kubevip':
+  reload_kubevip()
+
 # kubectl
 if cmd == 'kubectl':
 
