@@ -108,17 +108,13 @@ def k3s_remove_node(vmid: int):
   prox_destroy(vmid)
 
 # remove cluster - leave master if restore = true
-def k3s_rm_cluster(restore = False):
+def k3s_rm_cluster():
 
   # list all kopsrox vm id's
   for vmid in sorted(list_kopsrox_vm(), reverse = True):
 
     # map hostname
     vmname = vmnames[vmid]
-
-    # do not delete m1 if restore is true
-    if restore and vmname == f'{cluster_name}-m1':
-      continue
 
     # do not delete image or utility node
     if vmname == f'{cluster_name}-i0' or vmname == f'{cluster_name}-u1':

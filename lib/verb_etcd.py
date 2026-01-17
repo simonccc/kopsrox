@@ -117,10 +117,7 @@ if cmd == 'restore' or cmd == 'restore-latest':
 
   # info
   kmsg(kname,f'restoring {snapshot}', 'sys')
-
-  # remove all nodes apart from image and master
-  if (workers >= 1 or masters == 3 ):
-    k3s_rm_cluster(restore = True)
+  k3s_rm_cluster()
 
   # define restore command
   restore_cmd = f'/root/scripts/kopsrox.sh  restore {snapshot} {get_k3s_token()}'

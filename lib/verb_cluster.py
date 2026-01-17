@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 # functions
-from kopsrox_config import *
-from kopsrox_k3s import * 
+from kopsrox_k3s import *
 
 # passed command
 cmd = sys.argv[2]
@@ -31,7 +30,7 @@ if cmd == 'restore':
 # create new cluster / master server
 if cmd == 'create':
 
-  # if masterid not found running 
+  # if masterid not found running
   if not masterid in list_kopsrox_vm():
     kmsg(kname,f'creating {cluster_name} id {cluster_id} network {network_ip}', 'sys')
     clone(masterid)
@@ -41,7 +40,6 @@ if cmd == 'create':
 
   # perform rest of cluster creation
   k3s_update_cluster()
-
 
 # destroy the cluster
 if cmd == 'destroy':
