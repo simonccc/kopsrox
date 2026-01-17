@@ -17,6 +17,13 @@ except:
   kmsg(f'{kname}-check', 'cluster does not exist', 'err')
   exit(0)
 
+# check token
+try:
+  get_k3s_token()
+except:
+  kmsg(f'{kname}-check', 'problem with k3s token', 'err')
+  exit(0)
+
 # run k3s s3 command passed
 def s3_run(s3cmd):
 
@@ -55,7 +62,11 @@ def list_snapshots():
   return(images.strip())
 
 # test connection to s3 by getting list of snapshots
-snapshots = list_snapshots()
+try:
+  snapshots = list_snapshots()
+except:
+  kmsg(f'{kname}-check', 'error getting data from s3 repo', 'err')
+  exit(0)
 
 # s3 prune
 if cmd == 'prune':
@@ -69,11 +80,7 @@ def s3_list():
 # snapshot
 if cmd == 'snapshot':
 
-  # check for existing token file
-  if not os.path.isfile(token_fname):
-    export_k3s_token()
-
-  # define snapshot command
+  # run save
   snapout = s3_run('save --name kopsrox').split('\n')
   last_line = ''
   for snap_out in snapout:
@@ -94,13 +101,6 @@ if cmd == 'list':
 # restore / list snapshots
 if cmd == 'restore' or cmd == 'restore-latest':
 
-  # snapshots must exist
-  # fixme - better
-  if not snapshots:
-    snapshots = 'not found'
-    s3_list()
-    exit(0)
-
   # restore snapshot
   snapshot = sys.argv[3]
 
@@ -108,11 +108,6 @@ if cmd == 'restore' or cmd == 'restore-latest':
   if not re.search(snapshot,snapshots):
     kmsg(kname, f'{snapshot} not found', 'err')
     s3_list()
-    exit(0)
-
-  # check token file exists
-  if not os.path.isfile(token_fname):
-    kmsg(kname, f'{token_fname} not found exiting.', 'err')
     exit(0)
 
   # info
