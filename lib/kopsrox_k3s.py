@@ -43,25 +43,27 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master',snapshot = 'kopsrox')
     if not k3s_check(vmid):
       exit(0)
   except:
-    kmsg(f'k3s_{nodetype}-init', f'configuring {k3s_version} on {vmnames[vmid]}')
+      pass
 
     # master
     if nodetype in ['master', 'worker', 'slave']:
+      kmsg(f'k3s_{nodetype}-init', f'configuring {k3s_version} on {vmnames[vmid]}')
       init_cmd = f'/root/scripts/kopsrox.sh {nodetype} {vmid} {get_k3s_token()}'
 
     # restore
     if nodetype == 'restore':
-      # get latest snapshot
-      bs_cmd = f'/root/scripts/kopsrox.sh latest {masterid} {get_k3s_token()} 2>&1'
-      bs_cmd_out = qa_exec(masterid,bs_cmd)
+      if snapshot == 'kopsrox':
+        bs_cmd = f'/root/scripts/kopsrox.sh latest {masterid} {get_k3s_token()}'
+        bs_cmd_out = qa_exec(masterid,bs_cmd)
 
-      # sort ls output so last is latest snapshot
-      for snap in sorted(bs_cmd_out.split('\n')):
-        if re.search(f'kopsrox-{cluster_name}', snap.split()[0]):
-            latest = snap.split()[0]
+        # sort ls output so last is latest snapshot
+        for snap in sorted(bs_cmd_out.split('\n')):
+          if re.search(f'kopsrox-{cluster_name}', snap.split()[0]):
+              latest = snap.split()[0]
+        snapshot = latest
 
-      kmsg(f'k3s_restore', f'restoring {latest}')
-      init_cmd = f'/root/scripts/kopsrox.sh  restore {latest} {get_k3s_token()} 2>&1'
+      kmsg(f'k3s_restore', f'restoring {snapshot}')
+      init_cmd = f'/root/scripts/kopsrox.sh restore {snapshot} {get_k3s_token()}'
 
     # write log of install on node
     init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'

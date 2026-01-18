@@ -84,10 +84,10 @@ if cmd == 'snapshot':
   snapout = s3_run('save --name kopsrox').split('\n')
   last_line = ''
   for snap_out in snapout:
-      if not re.search(' level=warning msg="Unknown flag', snap_out):
-        if (last_line != snap_out):
-          kmsg(kname, snap_out, 'sys')
-          last_line = snap_out
+    if not re.search(' level=warning msg="Unknown flag', snap_out):
+      if (last_line != snap_out):
+        kmsg(kname, snap_out, 'sys')
+        last_line = snap_out
 
   # list snapshots
   snapshots = list_snapshots()
@@ -113,27 +113,8 @@ if cmd == 'restore' or cmd == 'restore-latest':
   # info
   kmsg(kname,f'restoring {snapshot}', 'sys')
   k3s_rm_cluster()
-
-  # define restore command
-  restore_cmd = f'/root/scripts/kopsrox.sh  restore {snapshot} {get_k3s_token()}'
-
-  # display some filtered restore contents
-  restore = qa_exec(masterid, restore_cmd)
-  for line in restore.split('\n'):
-
-    # if output contains fatal error
-    if re.search('level=fatal', line):
-      print(line)
-      kmsg(kname, 'fatal error', 'err')
-      exit(0)
-
-    # filter these lines
-    if re.search('level=', line) and not re.search('info', line) \
-    and not re.search('json: no such file or directory', line) \
-    and not re.search('Cluster CA certificate is trusted by the host CA bundle', line) \
-    and not re.search('Bootstrap key already exists', line):
-    # else print line as sys
-      kmsg(kname, line, 'sys')
+  clone(masterid)
+  k3s_init_node(masterid, 'restore', snapshot)
 
   # delete extra nodes in the restored cluster
   nodes = kubectl('get nodes').split()
