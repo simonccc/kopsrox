@@ -10,13 +10,12 @@ def k3s_check(vmid: int):
   try:
     get_node = kubectl('get node ' + vmnames[vmid])
   except:
-    exit(0)
+    return False
 
   # return true if Ready
   if re.search('Ready', get_node):
     return True
-  else:
-    exit(0)
+  return False
 
 # create a master/slave/worker
 def k3s_init_node(vmid: int = masterid,nodetype = 'master',snapshot = 'kopsrox'):
@@ -34,8 +33,8 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master',snapshot = 'kopsrox')
     exit(0)
 
   # if k3s is up  on existing master node
-  if k3s_check(vmid) and nodetype == 'master':
-     exit(0)
+  if k3s_check(vmid):
+     return
 
   # master
   if nodetype in ['master', 'worker', 'slave']:
