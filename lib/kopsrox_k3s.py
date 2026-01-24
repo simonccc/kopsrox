@@ -65,34 +65,33 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master',snapshot = 'kopsrox')
     kmsg(f'k3s_restore', f'restoring {snapshot}')
     init_cmd = f'/root/scripts/kopsrox.sh restore {snapshot} {get_k3s_token()}'
 
-    # write log of install on node
-    init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
+  # write log of install on node
+  init_cmd = init_cmd + f' > /k3s_{nodetype}_install.log 2>&1'
 
-    # run command
-    qa_exec(vmid,init_cmd)
+  # run command
+  qa_exec(vmid,init_cmd)
 
-    # wait until ready
-    wait: int = 20
-    count: int = 1
-    status = ''
-    while not status == 'Ready':
+  # wait until ready
+  wait: int = 20
+  count: int = 1
+  status = ''
+  while not status == 'Ready':
+    try:
+      if not k3s_check(vmid):
+        exit(0)
+      status = 'Ready'
+    except:
+      count += 1
 
-      try:
-        if not k3s_check(vmid):
-          exit(0)
-        else:
-          status = 'Ready'
-      except:
-        count += 1
-        if count == wait:
-          kmsg('k3s_check', f'timed out after {wait}s for {vmnames[vmid]}', 'err')
-          exit(0)
-        time.sleep(1)
+    if count == wait:
+       kmsg('k3s_check', f'timed out after {wait}s for {vmnames[vmid]}', 'err')
+       exit(0)
+    time.sleep(1)
 
-    # final steps for first master / restore export kubeconfig and token
-    if nodetype in ['master', 'restore']:
-      kubeconfig()
-      export_k3s_token()
+  # final steps for first master / restore export kubeconfig and token
+  if nodetype in ['master', 'restore']:
+    kubeconfig()
+    export_k3s_token()
 
 # remove a node
 def k3s_remove_node(vmid: int):
