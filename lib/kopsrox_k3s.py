@@ -12,10 +12,6 @@ def k3s_check(vmid: int):
   except:
     exit(0)
 
-  # if not found or Ready
-  if re.search('NotReady', get_node) or re.search('NotFound', get_node):
-    exit(0)
-
   # return true if Ready
   if re.search('Ready', get_node):
     return True
@@ -37,13 +33,9 @@ def k3s_init_node(vmid: int = masterid,nodetype = 'master',snapshot = 'kopsrox')
     kmsg('k3s_init-node', f'{vmid} no internet', 'err')
     exit(0)
 
-  # check status of node
-  # what does this check?
-  try:
-    if not k3s_check(vmid):
-      exit(0)
-  except:
-      pass
+  # if k3s is up  on existing master node
+  if k3s_check(vmid) and nodetype == 'master':
+     exit(0)
 
   # master
   if nodetype in ['master', 'worker', 'slave']:

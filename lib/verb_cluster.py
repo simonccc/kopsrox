@@ -13,7 +13,7 @@ kname = 'cluster_'+cmd
 if cmd == 'info':
  cluster_info()
 
-# update current cluster
+# update cluster
 if cmd == 'update':
   k3s_update_cluster()
 
