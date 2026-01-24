@@ -25,13 +25,17 @@ KER="$KE restore"
 KERL="${KER}-latest"
 
 
-# change 
+# change
 kc() {
   sed -i /"$1 =/c\\$1 = $2" $CFG
 }
 
 # get pods
 get_pods="$KC kubectl get pods -A"
+
+# rm kubeconfig and tokend
+rm *.kubeconfig
+rm *.k3stoken
 
 # 1 size cluster
 $KCD
