@@ -12,7 +12,7 @@ kname = 'image_'
 if cmd == 'create':
 
   cloud_image = cloud_image_url.split('/')[-1]
-  kmsg(f'{kname}create', f'building {cluster_name}-i0 template based on {cloud_image}', 'sys')
+  kmsg(f'{kname}create', f'{cluster_name}-i0 template based on {cloud_image}', 'sys')
 
   # download k3s.sh
   get_k3s_path = './lib/scripts/k3s.sh'
@@ -204,7 +204,7 @@ etcd-s3-region: {region_string}'''
   k3s_server_yaml.close()
 
   # shouldn't really need root/sudo but run into permissions problems
-  kmsg(f'{kname}virt-customize', f'building custom cloud image - installing {image_packages}')
+  kmsg(f'{kname}virt-customize', f'installing {image_packages}')
   virtc_cmd = f'''\
 sudo virt-customize -a {cloud_image} \
 --install {image_packages} \

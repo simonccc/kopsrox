@@ -2,7 +2,6 @@
 
 # kopsrox
 from kopsrox_config import *
-from kopsrox_kmsg import kmsg
 
 # run a exec via qemu-agent
 def qa_exec(vmid: int = masterid,cmd = 'uptime', node: str = proxmox_node):
@@ -72,8 +71,9 @@ def qa_exec(vmid: int = masterid,cmd = 'uptime', node: str = proxmox_node):
       kmsg(kname, f'problem with pid: {pid} {cmd}', 'err')
       exit(0)
 
-    # will equal 1 when process is done
+    # returns 1 when process is done
     pid_status = pid_check['exited']
+    time.sleep(0.5)
 
   # check for exitcode 127
   if int(pid_check['exitcode']) == 127:
@@ -87,7 +87,7 @@ def qa_exec(vmid: int = masterid,cmd = 'uptime', node: str = proxmox_node):
     if (pid_check['err-data']):
 
       # print data warning \
-      kmsg('qa_exec_stderr', ( 'CMD: ' +cmd + '\n' + pid_check['err-data'].strip()), 'err')
+      kmsg('qa_exec_stderr', (cmd + '\n' + pid_check['err-data'].strip()), 'err')
 
       # if there is output return that otherwise exit
       if (pid_check['err-data'] and pid_check['out-data']):
