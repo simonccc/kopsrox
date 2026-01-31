@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
-#set -x
-
-start_time=$(date +%s) 
+start_time=$(date +%s)
 
 # vars
 CFG="kopsrox.ini"
@@ -19,7 +16,7 @@ KID="$KI destroy"
 KIC="$KI create"
 KII="$KI info"
 KE="$K etcd"
-KEL="$K list"
+KEL="$KE list"
 KES="$KE snapshot"
 KER="$KE restore"
 KERL="${KER}-latest"
@@ -36,15 +33,17 @@ get_pods="$KC kubectl get pods -A"
 # rm kubeconfig and tokend
 rm *.kubeconfig
 rm *.k3stoken
+set -e
+
+echo "START"
 
 # 1 size cluster
 $KCD
-kc workers 0 ; kc masters 1 
-$KCD
+kc workers 0 ; kc masters 1
 
 # ** 1 MASTER, SNAPSHOT RESTOR
 # create image, create and update cluster
-$KIC ; $KCC ; $KCU
+( $KIC && $KCC && $KCU ) || exit
 
 # take snapshot , destroy cluster, create, restore
 $KES ; $KCD ; $KCC ; $KERL
